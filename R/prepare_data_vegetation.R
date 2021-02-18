@@ -4,14 +4,6 @@
 # DOI
 
 
-# abbreviation 'sites849318' = frequency data set
-# abbreviation 'sites0318' = coverage data set
-library(benchmarkme)
-get_ram()
-get_cpu() ##7.72GB, AuthenticAMD, AMD A4-4000 APU with Radeon HD Graphics, cors 2
-          ##Intel (R) i7-3610QM CPU @2.30GHz cores 8
-plot(benchmark_io(runs = 1, size = 50))
-
 ### Packages ###
 library(tidyverse)
 library(vegan)
