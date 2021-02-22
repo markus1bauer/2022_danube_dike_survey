@@ -16,44 +16,57 @@ rm(list = ls())
 setwd("Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/raw")
 
 
+
 ### 1 Load data #####################################################################################
 
 ### a Sites -------------------------------------------------------------------------------------------
-#sites <- read_csv("data_raw_sites.csv", col_names = T, na = "na", col_types = 
-                    cols(
-                      .default = col_double(),
-                      ID = col_factor(),
-                      plot = col_factor(),
-                      plot_old = col_factor(),
-                      block = col_factor(),
-                      year = col_factor(),
-                      dataset = col_factor(),
-                      botanist = col_factor(),
-                      photoName_June = col_factor(),
-                      photoDate_June = col_date(),
-                      photoName_April = col_factor(),
-                      photoDate_April = col_date()
-                    )        
+sites <- read_csv2("data_raw_sites_2017_2018_2019.csv", col_names = T, na = "na", col_types = 
+                     cols(
+                       .default = col_double(),
+                       id = col_factor(),
+                       location = col_factor(),
+                       ageCategory = col_factor(),
+                       HCl = col_factor(),
+                       phosphorousClass = col_factor(),
+                       potassiumClass = col_factor(),
+                       magnesiumClass = col_character()
+                     )        
 )
-
-sites <- sites %>%
-  select(no, ID, plot, block, dataset, year) %>%
-  slice(-(1:40))
+sites <- select(sites, id, location, RW, HW, constructionYear, pH, Corg, organic, nitrogen, cnRatio, CaCO3, sand, silt, clay, phosphorous, potassium, magnesium)
 
 ### b Species -------------------------------------------------------------------------------------------
 species <- read_csv("data_raw_species_2017_2018_2019.csv", col_names = F, na = "na")
-
+names <- species %>% 
+  slice(1) %>%
+  pivot_longer(-(X1:X4), names_to = "id", values_to = "name") %>%
+  select(-(X1:X4))
+names$name <- str_replace(names$name, " ", "_")
+any(duplicated(names$name))
+any(duplicated(names$id))
 species <- species %>%
-  select(!(abb)) %>%
-  filter(name != "Cuscuta_epithymum", name != "Acer_platanoides_juv") %>%
-  select(!(starts_with("X73"))) %>%
-  group_by(name) %>%
-  mutate(sum = sum(c_across(X84I1:X18III16))) %>%
-  mutate(presence = if_else(sum > 0, 1, 0)) %>%
+  select(-(X1:X3)) %>%
+  slice(-c(1:2, 199)) %>%
+  pivot_longer(-(X4), names_to = "id", values_to = "abu") %>%
+  rename(plot = X4) %>%
+  pivot_wider(names_from = plot, names_prefix = "X", values_from = abu)
+species <- left_join(names, species, by = "id")
+species$name <- as_factor(species$name)
+species <- species %>%
+  select(-id) %>%
+  mutate_if(is.character, as.numeric)
+rm(names)
+
+### Check that each species occurs at least one time ###
+species <- species %>%
+  rowwise() %>%
+  mutate(total = sum(c_across(X01_m_2017:X70_m_2019))) %>%
+  mutate(presence = if_else(total > 0, 1, 0)) %>%
   filter(presence == 1) %>%
   ungroup() %>%
-  select(-sum, -presence)
+  select(-total, -presence)
+  
 
+    
 
 ### c Traits -------------------------------------------------------------------------------------------
 #traits <- read_csv("data_raw_traits.csv", col_names = T, na = "na", col_types = 
@@ -92,8 +105,8 @@ gg_miss_upset(traits)
 ### 2 Create variables #####################################################################################
 
 ### a Dummies for confidence interval -------------------------------------------------------------------------------------------
-sites$conf.low <- c(1:204)
-sites$conf.high <- c(1:204)
+sites$conf.low <- c(1:70)
+sites$conf.high <- c(1:70)
 
 ### b Graminoid's cover ratio -------------------------------------------------------------------------------------------
 graminoidsCovratio <- species
@@ -122,65 +135,53 @@ specRich$rlg <- traits$rlg
 specRich$rlb <- traits$rlb
 ### Total species richness ###
 specRichAll <- specRich %>%
-  gather("ID", "n", X84I1:X18S18) %>%
-  mutate(plot = ID) %>%
-  separate(plot, c("year","plot"), sep = 3) %>%
-  mutate(year = if_else(year == "X84", 1984, if_else(year == "X93", 1993, if_else(year == "X03", 2003, 2018)))) %>%
-  group_by(year, ID) %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = X01_m_2017:X70_m_2019) %>%
+  group_by(id) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(sum = sum(n)) %>%
-  group_by(year, ID) %>%
-  summarise(all = sum(sum)) %>%
-  ungroup() %>%
-  select(-year)
+  summarise(total = sum(n)) %>%
+  group_by(year, id) %>%
+  summarise(speciesRichnness = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
 ### Species richness of target species ###
 specRichTarget <- specRich %>%
-  gather("ID", "n", X84I1:X18S18) %>%
-  mutate(plot = ID) %>%
-  separate(plot, c("year","plot"), sep = 3) %>%
-  mutate(year = if_else(year == "X84", 1984, if_else(year == "X93", 1993, if_else(year == "X03", 2003, 2018)))) %>%
-  group_by(year, ID, target) %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = X01_m_2017:X70_m_2019) %>%
+  group_by(id, taarget) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(sum = sum(n)) %>%
+  summarise(total = sum(n)) %>%
   mutate(target = if_else(target == "T" | target == "Te", "target", "non-target")) %>%
   filter(target == "target") %>%
-  group_by(year, ID) %>%
-  summarise(target = sum(sum)) %>%
-  ungroup() %>%
-  select(-year)
+  group_by(year, id) %>%
+  summarise(target = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
 ### species richness of species of the red list Germany ###
 specRichRLG <- specRich %>%
-  gather("ID", "n", X84I1:X18S18) %>%
-  mutate(plot = ID) %>%
-  separate(plot, c("year","plot"), sep = 3) %>%
-  mutate(year = if_else(year == "X84", 1984, if_else(year == "X93", 1993, if_else(year == "X03", 2003, 2018)))) %>%
-  group_by(year, ID, rlg) %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = X01_m_2017:X70_m_2019) %>%
+  group_by(id, target) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(sum = sum(n)) %>%
+  summarise(total = sum(n)) %>%
   filter(rlg == "1" | rlg == "2" | rlg == "3" | rlg == "V") %>%
-  group_by(year, ID) %>%
-  summarise(rlg = sum(sum)) %>%
-  ungroup() %>%
-  select(-year)
+  group_by(year, id) %>%
+  summarise(rlg = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
 ### species richness of species of the red list Bavaria ###
 specRichRLB <- specRich %>%
-  gather("ID", "n", X84I1:X18S18) %>%
-  mutate(plot = ID) %>%
-  separate(plot, c("year","plot"), sep = 3) %>%
-  mutate(year = if_else(year == "X84", 1984, if_else(year == "X93", 1993, if_else(year == "X03", 2003, 2018)))) %>%
-  group_by(year, ID, rlb) %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = X01_m_2017:X70_m_2019) %>%
+  group_by(id, rlb) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(sum = sum(n)) %>%
+  summarise(total = sum(n)) %>%
   filter(rlb == "1" | rlb == "2" | rlb == "3" | rlb == "V") %>%
-  group_by(year, ID) %>%
-  summarise(rlb = sum(sum)) %>%
-  ungroup() %>%
-  select(-year)
+  group_by(year, id) %>%
+  summarise(rlb = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
 ### implement in sites data set ###
-sites <- right_join(specRichAll, sites, by = "ID")
-sites <- right_join(specRichTarget, sites, by = "ID")
-sites <- right_join(specRichRLG, sites, by = "ID")
-sites <- right_join(specRichRLB, sites, by = "ID")
+sites <- right_join(specRichAll, sites, by = "id")
+sites <- right_join(specRichTarget, sites, by = "id")
+sites <- right_join(specRichRLG, sites, by = "id")
+sites <- right_join(specRichRLB, sites, by = "id")
 sites$tarRichratio <- sites$target / sites$all
 rm(specRich, specRichAll, specRichTarget, specRichRLG, specRichRLB)
 

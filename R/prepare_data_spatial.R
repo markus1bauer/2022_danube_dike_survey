@@ -29,43 +29,71 @@ ger <- raster::getData('GADM', country = 'DEU', level = 0)
 ger <- st_as_sf(ger)
 ger <- st_set_crs(ger, 4326)
 
-experiment <- get_map(
+background_google <- get_map(
   location = c(lon = 12.884, lat = 48.839),
-  zoom = 16, 
+  zoom = 10, 
   scale = 1,
-  maptype = "satellite",
+  maptype = "terrain",
   source = "google"
   )
-ggmap(experiment)
+ggmap(background_google)
 
-files <- list.files(pattern = '.gpx$', full.names = T)
-allwaypoints <- list()
-for (i in 1:length(files)) {
-  allwaypoints[[i]] <- plotKML::readGPX(files[i], tracks = F, routes = F)$waypoints[, c('name', 'lon', 'lat')]
-}
-sites <- do.call('rbind', allwaypoints)
-sp::coordinates(sites) <- c("lon","lat")
-sites <- st_as_sf(sites)
-sites <- st_set_crs(sites, 4326)
-sites$dataset <- c(rep("Transects", 40), rep("Blocks", 42))
-rm(files, i, allwaypoints)
+background_toner <- get_map(
+  location = c(lon = 12.884, lat = 48.839),
+  zoom = 10, 
+  scale = 1,
+  maptype = "toner",
+  source = "stamen"
+)
+ggmap(background_toner)
 
+background_terrain <- get_map(
+  location = c(left = 12.55, bottom = 48.65, right = 13.15, top = 48.95),
+  zoom = 10, 
+  scale = 1,
+  maptype = "terrain",
+  source = "stamen"
+)
+ggmap(background_terrain)
+
+
+## 2 Sites #################################################################################################
+
+setwd("Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/raw")
+sites <- read_csv2("data_raw_sites_2017_2018_2019.csv", col_names = T, na = "na", col_types = 
+                     cols(
+                       .default = col_double(),
+                       id = col_factor(),
+                       location = col_factor(),
+                       ageCategory = col_factor(),
+                       HCl = col_factor(),
+                       phosphorousClass = col_factor(),
+                       potassiumClass = col_factor(),
+                       magnesiumClass = col_character()
+                     )        
+)
+sites <- select(sites, id, RW, HW, constructionYear, sand, phosphorous, phosphorousClass)
+sites <- st_as_sf(sites, coords = c("RW", "HW"), crs = 31468)
+sites <- st_transform(sites, 4326)
+coord <- as_tibble(st_coordinates(sites))
+sites2 <- st_drop_geometry(sites)
+sites2$lon <- coord$X
+sites2$lat <- coord$Y
+sites2 <- as_tibble(sites2)
 
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# C Transform data ##############################################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-#rm(list = setdiff(ls(), c("nsg", "rollfeld", "paths", "parts", "sites", "avp", "avf", "app", "apf")))
-
-
-
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# D Save ##############################################################################
+# C Save ##############################################################################
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+save(background_google, file = "Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files/background_google.rda")
+save(background_toner, file = "Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files/background_toner.rda")
+save(background_terrain, file = "Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files/background_terrain.rda")
 st_write(ger, layer = "germany.shp", driver = "ESRI Shapefile",
-         dsn = "Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_dike_experiment/data/processed/shp_files")
-save(experiment, file = "Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_dike_experiment/data/processed/shp_files/map_experiment.rda")
+         dsn = "Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files")
+st_write(sites, layer = "sites.shp", driver = "ESRI Shapefile",
+         dsn = "Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files")
+setwd("Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files")
+write_csv2(sites2, file = "sites2.csv")

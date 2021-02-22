@@ -1,0 +1,24 @@
+﻿variable;definition;source;unit;type;value;comment
+id;serial number and position on the dike;;;factor;m = middle part, o = upper part of the dike side;
+location;block factor;;;factor;;
+RW;Coordinates X (Rechtswert);;Gauss-Krueger Zone 4;numeric;;
+HW;Coordinates Y (Hochwert);;Gauss-Krueger Zone 4;numeric;;
+constructionYear;year in which the dike was constructed and seeded;;;numeric;;
+ageCategory;2016 and younger dikes are young;;;factor;new = 2016 and younger, old 2015 and older;
+pH;pH measured in CaCl2;;;numeric;;
+HCl;HCl 10% CaCO3;;;factor;;
+Corg;ratio of organic carbon;;%;numeric;;
+organic;ratio of organic Substance;;%;numeric;;
+nitrogen;nitrogen;;%;numeric;;
+cnRatio;C/N ratio;;;ratio;;
+C550;carbon ratio at 550°C;;%;numeric;;
+calciumcarbonat;ratio of calcium carbonate (CaCO3);;%;numeric;;
+sand;ratio of sand in the total soil sample;;%;numeric;;grain size 2-0,063mm
+silt;ratio of silt in the total soil sample;;%;numeric;;grain size 0,063-0,002mm
+clay;ratio of clay in the total soil sample;;%;numeric;;grain size <0,002
+phosporous;CAL extract of phosphorus (P2O5);;mg P2O5 (100g soil)^-1;numeric;;
+phosphorousClass;ferilization classification;Leitfaden Düngung, LfL (2007) 8.Aufl.;;factor;A = very low, C = optimum, E = very high;values for agricultural land not greenland
+potassium;CAL extract of potassium (K2O) ;;mg K2O (100gsoil)^-1;numeric;;
+potassiumClass;ferilization classification;Leitfaden Düngung, LfL (2007) 8.Aufl.;;factor;A = very low, C = optimum, E = very high;values for agricultural land not greenland
+magnesium;CaCl2 extract of magnesium (Mg);;mg Mg (100g soil)^-1;numeric;;
+magnesiumClass;ferilization classification;Leitfaden Düngung, LfL (2007) 8.Aufl.;;factor;A = very low, C = optimum, E = very high;values for agricultural land not greenland
