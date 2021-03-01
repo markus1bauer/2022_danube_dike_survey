@@ -17,10 +17,50 @@ setwd("Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dik
 
 
 
-### 1 Load data #####################################################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Load data ##############################################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-### a Sites -------------------------------------------------------------------------------------------
-sites <- read_csv2("data_raw_sites_2017_2018_2019.csv", col_names = T, na = "na", col_types = 
+
+### 1 Species #####################################################################################
+
+species <- read_csv2("data_raw_species.csv", col_names = F, na = "na")
+### bring table in long format ###
+names <- species %>% 
+  slice(1) %>%
+  pivot_longer(-(X1:X4), names_to = "id", values_to = "name") %>%
+  select(-(X1:X4))
+names$name <- str_replace_all(names$name, " ", "_")
+#names[which(duplicated(names$name)),]
+#names[which(duplicated(names$id)),]
+species <- species %>%
+  select(-(X1:X3)) %>%
+  slice(-c(1:2)) %>%
+  pivot_longer(-(X4), names_to = "id", values_to = "abu") %>%
+  rename(plot = X4) %>%
+  pivot_wider(names_from = plot, names_prefix = "X", values_from = abu) %>%
+  mutate_all(funs(str_replace(., ",", "."))) %>%
+  mutate(id = as_factor(id)) %>%
+  mutate_if(is_character, as.numeric) %>%
+  select(id, where(~ is.numeric(.x) && sum(.x, na.rm = T) !=0 ))
+species <- left_join(names, species, by = "id")
+species <- species %>% 
+  select(-id) %>%
+  mutate(name = as_factor(name))
+rm(names)
+### Check that each species occurs at least one time ###
+species <- species %>%
+  group_by(name) %>%
+  mutate(total = sum(c_across(starts_with("X")), na.rm = T)) %>%
+  mutate(presence = if_else(total > 0, 1, 0)) %>%
+  filter(presence == 1) %>%
+  ungroup() %>%
+  select(-total, -presence)
+ 
+
+### 2 Sites #####################################################################################
+
+sites <- read_csv2("data_raw_sites.csv", col_names = T, na = "na", col_types = 
                      cols(
                        .default = col_double(),
                        id = col_factor(),
@@ -32,161 +72,314 @@ sites <- read_csv2("data_raw_sites_2017_2018_2019.csv", col_names = T, na = "na"
                        magnesiumClass = col_character()
                      )        
 )
-sites <- select(sites, id, location, RW, HW, constructionYear, pH, Corg, organic, nitrogen, cnRatio, CaCO3, sand, silt, clay, phosphorous, potassium, magnesium)
+sites <- sites %>%
+  select(id, starts_with("survey"), location, RW, HW, constructionYear, pH, Corg, organic, nitrogen, cnRatio, CaCO3, sand, silt, clay, phosphorous, phosphorousClass, potassium, magnesium) %>%
+  pivot_longer(starts_with("survey"), names_to = "survey", values_to ="surveyYear") %>%
+  select(-survey) %>%
+  mutate(id = str_c(id, surveyYear, sep = "_")) %>%
+  mutate(id = paste0("X", id))
+### Remove plots with no species ###
+ids <- colnames(species[-1])
+sites <- sites %>%
+  filter(id %in% ids) %>%#
+  mutate(id = as_factor(id))
+rm(ids)
 
-### b Species -------------------------------------------------------------------------------------------
-species <- read_csv("data_raw_species_2017_2018_2019.csv", col_names = F, na = "na")
-names <- species %>% 
-  slice(1) %>%
-  pivot_longer(-(X1:X4), names_to = "id", values_to = "name") %>%
-  select(-(X1:X4))
-names$name <- str_replace(names$name, " ", "_")
-any(duplicated(names$name))
-any(duplicated(names$id))
-species <- species %>%
-  select(-(X1:X3)) %>%
-  slice(-c(1:2, 199)) %>%
-  pivot_longer(-(X4), names_to = "id", values_to = "abu") %>%
-  rename(plot = X4) %>%
-  pivot_wider(names_from = plot, names_prefix = "X", values_from = abu)
-species <- left_join(names, species, by = "id")
-species$name <- as_factor(species$name)
-species <- species %>%
-  select(-id) %>%
-  mutate_if(is.character, as.numeric)
-rm(names)
 
-### Check that each species occurs at least one time ###
-species <- species %>%
-  rowwise() %>%
-  mutate(total = sum(c_across(X01_m_2017:X70_m_2019))) %>%
-  mutate(presence = if_else(total > 0, 1, 0)) %>%
-  filter(presence == 1) %>%
-  ungroup() %>%
-  select(-total, -presence)
-  
+### 3 Traits #####################################################################################
 
-    
-
-### c Traits -------------------------------------------------------------------------------------------
-#traits <- read_csv("data_raw_traits.csv", col_names = T, na = "na", col_types = 
+traits <- read_csv2("data_raw_traits.csv", col_names = T, na = "na", col_types = 
                       cols(
-                        .default = col_double(),
-                        name = col_factor(),
-                        descriptor = col_factor(),
-                        nomenclature = col_factor(),
-                        subspecies = col_factor(),
-                        germanName = col_factor(),
-                        abb = col_factor(),
-                        family = col_factor(),
-                        iucn = col_factor(),
-                        responsibility = col_factor(),
-                        legal = col_factor(),
-                        rlg = col_factor(),
-                        rlb = col_factor(),
-                        target = col_factor()
+                        .default = col_factor(),
+                        l = col_double(),
+                        t = col_double(),
+                        k = col_double(),
+                        f = col_double(),
+                        r = col_double(),
+                        n = col_double()
                       )
                    )
-
+#Check congruency of traits and species table
+#traits$name[which(!(traits$name %in% species$name))]
+#species$name[which(!(species$name %in% traits$name))]
 traits <- left_join(species, traits, by = "name")
 traits <- traits %>%
-  select(name, abb, family, rlg, rlb, n, target)
+  select(name, abb, family, rlg, rlb, t, f, n, target, targetHerb, targetGrass, targetArrhenatherion, ffh6510, ffh6210, table30, table33, table34, nitrogenIndicator_bk, nitrogenIndicator, leanIndicator_bk, ruderalIndicator)
 
-n_miss(sites)
-n_miss(species)
-n_miss(traits)
-miss_var_summary(traits)
-vis_miss(traits, cluster = F)
-gg_miss_var(traits)
-gg_miss_case(traits, order_cases = F)
-gg_miss_upset(traits)
+### Check missing values ###
+#n_miss(sites)
+#n_miss(species)
+#n_miss(traits)
+#miss_var_summary(species, order = T)
+#miss_var_summary(traits, order = T)
+#vis_miss(species, cluster = F)
+#vis_miss(traits, cluster = F)
+#gg_miss_var(traits)
+#gg_miss_case(traits, order_cases = F)
+#gg_miss_upset(traits)
 
 
-### 2 Create variables #####################################################################################
 
-### a Dummies for confidence interval -------------------------------------------------------------------------------------------
-sites$conf.low <- c(1:70)
-sites$conf.high <- c(1:70)
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Create variables ##############################################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-### b Graminoid's cover ratio -------------------------------------------------------------------------------------------
+
+### 1 Dummies for confidence interval #####################################################################################
+
+sites$conf.low <- c(1:length(sites$id))
+sites$conf.high <- c(1:length(sites$id))
+
+
+### 2 Coverages #####################################################################################
+
+### a Graminoid's cover ratio -------------------------------------------------------------------------------------------
 graminoidsCovratio <- species
 graminoidsCovratio$family <- traits$family
 graminoidsCovratio <- graminoidsCovratio %>%
-  gather("ID", "n", X84I1:X18S18) %>%
-  mutate(plot = ID) %>%
-  separate(plot, c("year","plot"), sep = 3) %>%
-  mutate(year = if_else(year == "X84", 1984, if_else(year == "X93", 1993, if_else(year == "X03", 2003, 2018)))) %>%
-  group_by(year, ID, family) %>%
-  summarise(sum = sum(n)) %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, family) %>%
+  summarise(total = sum(n)) %>%
   mutate(herbType = if_else(family == "Poaceae" | family=="Cyperaceae", "graminoids", "other")) %>%
-  group_by(year, ID, herbType) %>%
-  summarise(sum = sum(sum)) %>%
-  spread(herbType, sum) %>%
+  group_by(id, herbType) %>%
+  summarise(total = sum(total)) %>%
+  spread(herbType, total) %>%
   transmute(graminoidCovratio = graminoids / (graminoids + other)) %>%
   ungroup() %>%
-  select(-year)
-sites <- right_join(graminoidsCovratio, sites, by = "ID")
+  mutate(graminoidCovratio = round(graminoidCovratio, 3))
+sites <- right_join(graminoidsCovratio, sites, by = "id")
 rm(graminoidsCovratio)
 
-### c Species richness -------------------------------------------------------------------------------------------
+
+### 3 Species richness #####################################################################################
+
 specRich <- species
-specRich$target <- traits$target
-specRich$rlg <- traits$rlg
-specRich$rlb <- traits$rlb
-### Total species richness ###
-specRichAll <- specRich %>%
-  pivot_longer(names_to = "id", values_to = "n", cols = X01_m_2017:X70_m_2019) %>%
+specRich <- left_join(specRich, traits, by = "name")
+specRich <- select(specRich, -abb, - family, -t, -f, -n)
+
+### a total species richness -------------------------------------------------------------------------------------------
+specRich_all <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
   summarise(total = sum(n)) %>%
-  group_by(year, id) %>%
+  group_by(id) %>%
   summarise(speciesRichnness = sum(total)) %>%
   mutate_if(is.character, as.factor) %>%
   ungroup()
-### Species richness of target species ###
-specRichTarget <- specRich %>%
-  pivot_longer(names_to = "id", values_to = "n", cols = X01_m_2017:X70_m_2019) %>%
-  group_by(id, taarget) %>%
-  mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
-  mutate(target = if_else(target == "T" | target == "Te", "target", "non-target")) %>%
-  filter(target == "target") %>%
-  group_by(year, id) %>%
-  summarise(target = sum(total)) %>%
-  mutate_if(is.character, as.factor) %>%
-  ungroup()
-### species richness of species of the red list Germany ###
-specRichRLG <- specRich %>%
-  pivot_longer(names_to = "id", values_to = "n", cols = X01_m_2017:X70_m_2019) %>%
-  group_by(id, target) %>%
+
+### b red list Germany (species richness) -------------------------------------------------------------------------------------------
+specRich_rlg <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, rlg) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
   summarise(total = sum(n)) %>%
   filter(rlg == "1" | rlg == "2" | rlg == "3" | rlg == "V") %>%
-  group_by(year, id) %>%
+  group_by(id) %>%
   summarise(rlg = sum(total)) %>%
   mutate_if(is.character, as.factor) %>%
   ungroup()
-### species richness of species of the red list Bavaria ###
-specRichRLB <- specRich %>%
-  pivot_longer(names_to = "id", values_to = "n", cols = X01_m_2017:X70_m_2019) %>%
+
+### c red list Bavaria (species richness) -------------------------------------------------------------------------------------------
+specRich_rlb <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, rlb) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
   summarise(total = sum(n)) %>%
   filter(rlb == "1" | rlb == "2" | rlb == "3" | rlb == "V") %>%
-  group_by(year, id) %>%
+  group_by(id) %>%
   summarise(rlb = sum(total)) %>%
   mutate_if(is.character, as.factor) %>%
   ungroup()
-### implement in sites data set ###
-sites <- right_join(specRichAll, sites, by = "id")
-sites <- right_join(specRichTarget, sites, by = "id")
-sites <- right_join(specRichRLG, sites, by = "id")
-sites <- right_join(specRichRLB, sites, by = "id")
-sites$tarRichratio <- sites$target / sites$all
-rm(specRich, specRichAll, specRichTarget, specRichRLG, specRichRLB)
+
+### d target species (species richness) -------------------------------------------------------------------------------------------
+specRich_target <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, target) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(target == "1") %>%
+  group_by(id) %>%
+  summarise(target = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+
+### e target herb species (species richness) -------------------------------------------------------------------------------------------
+specRich_targetHerb <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, targetHerb) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(targetHerb == "1") %>%
+  group_by(id) %>%
+  summarise(targetHerb = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+
+### f target grass species (species richness) -------------------------------------------------------------------------------------------
+specRich_targetGrass <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, targetGrass) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(targetGrass == "1") %>%
+  group_by(id) %>%
+  summarise(targetGrass = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+
+### g target Arrhenatherion species (species richness) -------------------------------------------------------------------------------------------
+specRich_targetArrhenatherion <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, targetArrhenatherion) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(targetArrhenatherion == "1") %>%
+  group_by(id) %>%
+  summarise(targetArrhenatherion = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+
+### h ffh6510 species (species richness) -------------------------------------------------------------------------------------------
+specRich_ffh6510 <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, ffh6510) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(ffh6510 == "1") %>%
+  group_by(id) %>%
+  summarise(ffh6510 = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+
+### i ffh6210 species (species richness) -------------------------------------------------------------------------------------------
+specRich_ffh6210 <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, ffh6210) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(ffh6210 == "1") %>%
+  group_by(id) %>%
+  summarise(ffh6210 = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+
+### j nitrogenIndicator_bk species (species richness) -------------------------------------------------------------------------------------------
+specRich_nitrogenIndicator <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, nitrogenIndicator, nitrogenIndicator_bk) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(nitrogenIndicator_bk == "1" | nitrogenIndicator == "1") %>%
+  group_by(id) %>%
+  summarise(nitrogenIndicator = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+
+### k leanIndicator_bk species (species richness) -------------------------------------------------------------------------------------------
+specRich_leanIndicator_bk <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, leanIndicator_bk) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(leanIndicator_bk == "1") %>%
+  group_by(id) %>%
+  summarise(leanIndicator_bk = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+
+### l ruderalIndicator species (species richness)  -------------------------------------------------------------------------------------------
+specRich_ruderalIndicator <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, ruderalIndicator) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(ruderalIndicator == "1") %>%
+  group_by(id) %>%
+  summarise(ruderalIndicator = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+
+### m table33 (species richness) -------------------------------------------------------------------------------------------
+specRich_table33_2 <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, table33) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(table33 == "2") %>%
+  group_by(id) %>%
+  summarise(table33_2 = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+specRich_table33_3 <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, table33) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(table33 == "3") %>%
+  group_by(id) %>%
+  summarise(table33_3 = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+specRich_table33_4 <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, table33) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(table33 == "4") %>%
+  group_by(id) %>%
+  summarise(table33_4 = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+
+### n table33 (species richness) -------------------------------------------------------------------------------------------
+specRich_table34_2 <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, table34) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(table34 == "2") %>%
+  group_by(id) %>%
+  summarise(table34_2 = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+specRich_table34_3 <- specRich %>%
+  pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
+  group_by(id, table34) %>%
+  mutate(n = if_else(n > 0, 1, 0)) %>%
+  summarise(total = sum(n)) %>%
+  filter(table34 == "3") %>%
+  group_by(id) %>%
+  summarise(table34_3 = sum(total)) %>%
+  mutate_if(is.character, as.factor) %>%
+  ungroup()
+
+### o implement in sites data set -------------------------------------------------------------------------------------------
+sites <- right_join(specRich_all, sites, by = "id")
+sites <- right_join(specRich_rlg, sites, by = "id")
+sites <- right_join(specRich_rlb, sites, by = "id")
+sites <- right_join(specRich_target, sites, by = "id")
+sites <- right_join(specRich_targetHerb, sites, by = "id")
+sites <- right_join(specRich_targetGrass, sites, by = "id")
+sites <- right_join(specRich_targetArrhenatherion, sites, by = "id")
+sites <- right_join(specRich_ffh6510, sites, by = "id")
+sites <- right_join(specRich_ffh6210, sites, by = "id")
+sites <- right_join(specRich_nitrogenIndicator, sites, by = "id")
+sites <- right_join(specRich_leanIndicator_bk, sites, by = "id")
+sites <- right_join(specRich_ruderalIndicator, sites, by = "id")
+sites <- right_join(specRich_table33_2, sites, by = "id")
+sites <- right_join(specRich_table33_3, sites, by = "id")
+sites <- right_join(specRich_table33_4, sites, by = "id")
+sites <- right_join(specRich_table34_2, sites, by = "id")
+sites <- right_join(specRich_table34_3, sites, by = "id")
+sites$tarRichratio <- sites$target / sites$speciesRichnness
+sites$tarRichratio <- round(sites$tarRichratio, 3)
+rm(list=setdiff(ls(), c("sites", "species", "traits")))
 
 
-### d CWM of Ellenberg N -------------------------------------------------------------------------------------------
+### 4 CWM of Ellenberg #####################################################################################
+
+### a N value -------------------------------------------------------------------------------------------
 Ntraits <- traits %>%
   select(name, n) %>%
   filter(n > 0) 
@@ -198,14 +391,42 @@ Ntraits <- column_to_rownames(Ntraits, "name")
 ### Calculate CWM ###
 Nweighted <- dbFD(Ntraits, Nspecies, w.abun = T,
                         calc.FRic = F, calc.FDiv = F, corr = "sqrt")
-#Npresabs <- dbFD(Ntraits, Nspecies, w.abun = F,
-#                        calc.FRic = F, calc.FDiv = F, corr = "sqrt")
-### implement in sites data set ###
-sites$cwmAbuN <- as.numeric(as.character(Nweighted$CWM$n))
-#sites$cwmPresN <- as.numeric(as.character(Npresabs$CWM$n))
-rm(Ntraits, Nspecies, Nweighted)
 
-### e Import functional plant traits -------------------------------------------------------------------------------------------
+### b F value -------------------------------------------------------------------------------------------
+Ftraits <- traits %>%
+  select(name, f) %>%
+  filter(f > 0) 
+Fspecies <- semi_join(species, Ftraits, by = "name") %>%
+  pivot_longer(-name, "site", "value") %>%
+  pivot_wider(site, name) %>%
+  column_to_rownames("site")
+Ftraits <- column_to_rownames(Ftraits, "name")
+### Calculate CWM ###
+Fweighted <- dbFD(Ftraits, Fspecies, w.abun = T,
+                  calc.FRic = F, calc.FDiv = F, corr = "sqrt")
+
+### c T value -------------------------------------------------------------------------------------------
+Ttraits <- traits %>%
+  select(name, t) %>%
+  filter(t > 0) 
+Tspecies <- semi_join(species, Ttraits, by = "name") %>%
+  pivot_longer(-name, "site", "value") %>%
+  pivot_wider(site, name) %>%
+  column_to_rownames("site")
+Ttraits <- column_to_rownames(Ttraits, "name")
+### Calculate CWM ###
+Tweighted <- dbFD(Ttraits, Tspecies, w.abun = T,
+                  calc.FRic = F, calc.FDiv = F, corr = "sqrt")
+
+### d implement in sites data set -------------------------------------------------------------------------------------------
+sites$cwmAbuN <- round(as.numeric(as.character(Nweighted$CWM$n)), 3)
+sites$cwmAbuF <- round(as.numeric(as.character(Fweighted$CWM$f)), 3)
+sites$cwmAbuT <- round(as.numeric(as.character(Tweighted$CWM$t)), 3)
+rm(list=setdiff(ls(), c("sites", "species", "traits")))
+
+
+### 5 Import functional plant traits #####################################################################################
+
 #### * make names equal #### 
 dataSLA <- read_table2("data_raw_SLA.txt", col_names = T, na = "na", col_types = 
                          cols(
@@ -294,7 +515,9 @@ Fspecies$name <- fct_recode(Fspecies$name, Lotus_corniculatus = "Lotus_cornicula
 traits$name <- fct_recode(traits$name, Potentilla_cinerea = "Potentilla_incana")
 Fspecies$name <- fct_recode(Fspecies$name, Potentilla_cinerea = "Potentilla_incana")
 
-#### * missing values: SLA #### 
+#### * add missing values ####
+
+####  SLA (missing values) ###
 ####SLA von Cerabolini et al. (2010)
 dataSLA <- dataSLA %>% add_row(sbs_name = 'Biscutella_laevigata', value = 18.5)
 dataSLA <- dataSLA %>% add_row(sbs_name = "Dorycnium_pentaphyllum_ssp_germanicum", value = 20.8) #Bei cerabolini als D. pentaphyllum gef?hrt
@@ -310,7 +533,7 @@ dataSLA <- dataSLA %>% add_row(sbs_name = "Globularia_cordifolia", value = 7.0)
 dataSLA <- dataSLA %>% add_row(sbs_name = "Helianthemum_nummularium", value = 7.0) #Bei Pipenbaher als H. ovatum gef?hrt
 dataSLA <- dataSLA %>% add_row(sbs_name = "Rhinanthus_aristatus", value = 15.9)
 
-#### * missing values: seed mass #### 
+#### seed mass (missing values) ###
 #which(!(Fspecies849318$name %in% dataSM$sbs_name));Fspecies849318$name[which(!(Fspecies849318$name %in% dataSM$sbs_name))]
 #which(!(Fspecies0318$name %in% dataSM$sbs_name));Fspecies0318$name[which(!(Fspecies0318$name %in% dataSM$sbs_name))]
 ######Seedmass-Daten: Eigenannahme von Conradi & Kollmann (2016)
@@ -324,7 +547,7 @@ dataSM <- dataSM %>% add_row(sbs_name = "Seseli_annuum", value = 0.5487)
 dataSM <- dataSM %>% add_row(sbs_name = "Viola_rupestris", value = 1.12)
 dataSM <- dataSM %>% add_row(sbs_name = "Peucedanum_oreoselinum", value = 27.91) # mean(c(36.3,26,21.426))=27.91; niedrige Werte von P. odoratum in LEDA-Datenbank
 
-#### * missing values: canopy height #### 
+#### canopy height (missing values) ###
 #which(!(Fspecies849318$name %in% dataH$sbs_name));Fspecies849318$name[which(!(Fspecies849318$name %in% dataH$sbs_name))]
 #which(!(Fspecies0318$name %in% dataH$sbs_name));Fspecies0318$name[which(!(Fspecies0318$name %in% dataH$sbs_name))]
 #####Height von Pipenbaher et al. (2007)
@@ -359,6 +582,7 @@ dataH <- dataH %>%
 traits <- left_join(traits, dataSLA, by = "name")
 traits <- left_join(traits, dataSM, by = "name")
 traits <- left_join(traits, dataH, by = "name")
+
 ### * Check completeness ####
 n_miss(traits$sla)
 n_miss(traits$seedmass)
@@ -402,8 +626,10 @@ FtraitsHeight <- Ftraits %>%
   drop_na()
 rm(dataSLA,dataSM,dataH,Ftraits)
 
-### f CWM and FDis of functional plant traits -------------------------------------------------------------------------------------------
-### * All ####
+
+### 6 CWM and FDis of functional plant traits #####################################################################################
+
+### a All -------------------------------------------------------------------------------------------
 Tspecies <- semi_join(Fspecies, FtraitsAll, by = "name")
 Ttraits <- semi_join(FtraitsAll, Tspecies, by = "name")
 Tspecies <- Tspecies %>%
@@ -415,7 +641,8 @@ log_Ttraits <- log(Ttraits + 1)
 TdiversityAbu <- dbFD(log_Ttraits, Tspecies, w.abun = T,
                calc.FRic = F, calc.FDiv = F, corr = "cailliez")
 sites$fdisAbuAll <- TdiversityAbu$FDis
-### * SLA ####
+
+### b SLA -------------------------------------------------------------------------------------------
 Tspecies <- semi_join(Fspecies, FtraitsSla, by = "name")
 Ttraits <- semi_join(FtraitsSla, Tspecies, by = "name")
 Tspecies <- Tspecies %>%
@@ -428,7 +655,8 @@ TdiversityAbu <- dbFD(log_Ttraits, Tspecies, w.abun = T,
                    calc.FRic = F, calc.FDiv = F, corr = "sqrt");
 sites$fdisAbuSla <- TdiversityAbu$FDis
 sites$cwmAbuSla <- exp(as.numeric(as.character(TdiversityAbu$CWM$sla)))
-### * Seed mass ####
+
+### b Seed mass -------------------------------------------------------------------------------------------
 Tspecies <- semi_join(Fspecies, FtraitsSeedmass, by = "name")
 Ttraits <- semi_join(FtraitsSeedmass, Tspecies, by = "name")
 Tspecies <- Tspecies %>%
@@ -441,7 +669,8 @@ TdiversityAbu <- dbFD(log_Ttraits, Tspecies, w.abun = T,
                       calc.FRic = F, calc.FDiv = F, corr = "sqrt");
 sites$fdisAbuSeedmass <- TdiversityAbu$FDis
 sites$cwmAbuSeedmass <- exp(as.numeric(as.character(TdiversityAbu$CWM$seedmass)))
-### * Height ####
+
+### c Canopy height -------------------------------------------------------------------------------------------
 Tspecies <- semi_join(Fspecies, FtraitsHeight, by = "name")
 Ttraits <- semi_join(FtraitsHeight, Tspecies, by = "name")
 Tspecies <- Tspecies %>%
@@ -457,34 +686,13 @@ sites$cwmAbuHeight <- exp(as.numeric(as.character(TdiversityAbu$CWM$height)))
 rm(TdiversityAbu,TdiversityPres,Tspecies,Ttraits,Fspecies,FtraitsAll,FtraitsSla,FtraitsSeedmass,FtraitsHeight)
 
 
-### 3 Separate data sets into 849318 and 0318 #####################################################################################
 
-sites849318 <- filter(sites, dataset == "transects")
-sites0318 <- filter(sites, dataset == "blocks")
-species849318 <- species %>%
-  select(name, starts_with("X84"), starts_with("X93"), starts_with("X18I")) %>%
-  group_by(name) %>%
-  mutate(sum = sum(c_across(X84I1:X18III16))) %>%
-  mutate(presence = if_else(sum > 0, 1, 0)) %>%
-  filter(presence == 1) %>%
-  ungroup() %>%
-  select(-sum, -presence)
-species0318 <- species %>%
-  select(name, starts_with("X03"), starts_with("X18N"), starts_with("X18M"), starts_with("X18S")) %>%
-  group_by(name) %>%
-  mutate(sum = sum(c_across(X03N01:X18S18))) %>%
-  mutate(presence = if_else(sum > 0, 1, 0)) %>%
-  filter(presence == 1) %>%
-  ungroup() %>%
-  select(-sum, -presence)
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# C Save processed data ##############################################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-### 4 Save processed data #####################################################################################
-
-setwd("Z:/Documents/0_Uni/2018_Projekt_9_Masterthesis/3_Aufnahmen_und_Ergebnisse/2020_monitoring_Garchinger_Heide/data/processed")
-write_csv2(sites849318, "data_processed_sites849318.csv")
-write_csv2(sites0318, "data_processed_sites0318.csv")
-write_csv2(species849318, "data_processed_species849318.csv")
-write_csv2(species0318, "data_processed_species0318.csv")
+setwd("Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed")
+write_csv2(sites, "data_processed_sites.csv")
+write_csv2(species, "data_processed_species.csv")
 write_csv2(traits, "data_processed_traits.csv")
-

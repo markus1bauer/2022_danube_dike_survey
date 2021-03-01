@@ -1,0 +1,27 @@
+﻿variable;definition;source;unit;type;value;comment
+id;serial number and position on the dike;NA;NA;factor;m = middle part, o = upper part of the dike side;NA
+surveyYear_1;year of the first vegetation survey;NA;NA;numeric;NA;NA
+surveyYear_2;year of the second vegetation survey;NA;NA;numeric;NA;NA
+surveyYear_3;year of the third vegetation survey;NA;NA;numeric;NA;NA
+location;block factor;NA;NA;factor;NA;NA
+RW;Coordinates X (Rechtswert);NA;Gauss-Krueger Zone 4;numeric;NA;NA
+HW;Coordinates Y (Hochwert);NA;Gauss-Krueger Zone 4;numeric;NA;NA
+constructionYear;year in which the dike was constructed and seeded;NA;NA;numeric;NA;NA
+ageCategory;2016 and younger dikes are young;NA;NA;factor;new = 2016 and younger, old 2015 and older;NA
+pH;pH measured in CaCl2;NA;NA;numeric;NA;NA
+HCl;HCl 10% CaCO3;NA;NA;factor;NA;NA
+Corg;ratio of organic carbon;NA;%;numeric;NA;NA
+organic;ratio of organic Substance;NA;%;numeric;NA;NA
+nitrogen;nitrogen;NA;%;numeric;NA;NA
+cnRatio;C/N ratio;NA;NA;ratio;NA;NA
+C550;carbon ratio at 550°C;NA;%;numeric;NA;NA
+calciumcarbonat;ratio of calcium carbonate (CaCO3);NA;%;numeric;NA;NA
+sand;ratio of sand in the total soil sample;NA;%;numeric;NA;grain size 2-0,063mm
+silt;ratio of silt in the total soil sample;NA;%;numeric;NA;grain size 0,063-0,002mm
+clay;ratio of clay in the total soil sample;NA;%;numeric;NA;grain size <0,002
+phosporous;CAL extract of phosphorus (P2O5);NA;mg P2O5 (100g soil)^-1;numeric;NA;NA
+phosphorousClass;ferilization classification;Leitfaden Düngung, LfL (2007) 8.Aufl.;NA;factor;A = very low, C = optimum, E = very high;values for agricultural land not greenland
+potassium;CAL extract of potassium (K2O) ;NA;mg K2O (100gsoil)^-1;numeric;NA;NA
+potassiumClass;ferilization classification;Leitfaden Düngung, LfL (2007) 8.Aufl.;NA;factor;A = very low, C = optimum, E = very high;values for agricultural land not greenland
+magnesium;CaCl2 extract of magnesium (Mg);NA;mg Mg (100g soil)^-1;numeric;NA;NA
+magnesiumClass;ferilization classification;Leitfaden Düngung, LfL (2007) 8.Aufl.;NA;factor;A = very low, C = optimum, E = very high;values for agricultural land not greenland

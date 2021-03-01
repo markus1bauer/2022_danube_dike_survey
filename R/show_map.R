@@ -24,12 +24,17 @@ setwd("Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dik
 
 ### Load data ###
 ger <- st_read("germany.shp")
+sites <- st_read("sites.shp")
+sites <- do.call(rbind, st_geometry(sites)) %>% 
+  as_tibble() %>% 
+  setNames(c("lon","lat"))
 sites2 <- read_csv2("sites2.csv", col_names = T, col_types = 
                       cols(
                         id = col_factor(),
                         phosphorousClass = col_factor(levels = c("A","B","C","D","E"))
                         )
                       )
+dikes <- st_read("dikes.xml")
 load("background_toner.rda")
 load("background_terrain.rda")
 load("background_google.rda")
