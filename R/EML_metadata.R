@@ -1,7 +1,5 @@
 # Prepare Metadata ####
 # Markus Bauer
-# Citation: Markus Bauer, Jakob Huber, Johannes Kollmann
-# DOI
 
 
 ### Packages ###
@@ -31,7 +29,7 @@ associatedParty <- list(
 )
 
 address <- list(
-  deliveryPoint = "Emil-Ramann-Straße 6",
+  deliveryPoint = "Emil-Ramann-Strasse 6",
   city = "Freising",
   administrativeArea = "Bayern",
   postalCode = "85354",
@@ -104,5 +102,5 @@ eml <- list(
   )
 
 setwd("Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes")
-write_eml(eml, "22xxxx_Bauer_Markus_metadata.xml")
-eml_validate("22xxxx_Bauer_Markus_metadata.xml")
+write_eml(eml, "METADATA.xml")
+eml_validate("METADATA.xml")

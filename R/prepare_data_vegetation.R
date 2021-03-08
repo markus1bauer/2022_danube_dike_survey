@@ -741,6 +741,21 @@ test2 <- test %>%
   filter(!complete.cases(.))
 rm(test, test2)
 
+data <- fread("data_raw_TRY_sla.txt", header = T, sep = "\t", dec = ".", quote = "", data.table = T)
+slaData <- slaData %>%
+  rename(name = AccSpeciesName) %>%
+  select(name, ObservationID, TraitID, TraitName, StdValue, UnitName) %>%
+  filter(TraitID == 3115) %>%
+  group_by(name) %>%
+  summarise(value = median(StdValue)) %>%
+  filter(!is.na(value)) %>%
+  select(name, value) %>%
+  ungroup()
+slaData$name <- gsub(" ","_",slaData$name)
+
+
+
+
 ### * Prepare data frames ####
 traitsLHS <- traits %>%
   select(name, sla, seedmass, height) %>%
