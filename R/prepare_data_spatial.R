@@ -60,7 +60,7 @@ ggmap(background_terrain)
 ## 2 Sites #################################################################################################
 
 setwd("Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/raw")
-sites <- read_csv2("data_raw_sites_2017_2018_2019.csv", col_names = T, na = "na", col_types = 
+sites <- read_csv2("data_raw_sites.csv", col_names = T, na = "na", col_types = 
                      cols(
                        .default = col_double(),
                        id = col_factor(),
@@ -72,7 +72,7 @@ sites <- read_csv2("data_raw_sites_2017_2018_2019.csv", col_names = T, na = "na"
                        magnesiumClass = col_character()
                      )        
 )
-sites <- select(sites, id, RW, HW, constructionYear, sand, phosphorous, phosphorousClass)
+sites <- select(sites, id, location, RW, HW, constructionYear, sand, phosphorous, phosphorousClass)
 sites <- st_as_sf(sites, coords = c("RW", "HW"), crs = 31468)
 sites <- st_transform(sites, 4326)
 coord <- as_tibble(st_coordinates(sites))
@@ -80,7 +80,12 @@ sites2 <- st_drop_geometry(sites)
 sites2$lon <- coord$X
 sites2$lat <- coord$Y
 sites2 <- as_tibble(sites2)
-
+blocks <- sites2 %>%
+  group_by(location) %>%
+  summarise_at(c("lon", "lat", "constructionYear"), mean, na.rm = T) %>%
+  rename(lon_cent = lon, lat_cent = lat)
+sites2 <- left_join(sites2, blocks, by = "location")
+rm(coord)
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -97,3 +102,4 @@ st_write(sites, layer = "sites.shp", driver = "ESRI Shapefile",
          dsn = "Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files")
 setwd("Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files")
 write_csv2(sites2, file = "sites2.csv")
+write_csv2(blocks, file = "blocks.csv")

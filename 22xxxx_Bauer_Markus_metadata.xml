@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eml:eml xmlns:eml="https://eml.ecoinformatics.org/eml-2.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.2" packageId="564bbdd6-9867-4498-904c-e4216235731a" system="uuid" xsi:schemaLocation="https://eml.ecoinformatics.org/eml-2.2.0 https://eml.ecoinformatics.org/eml-2.2.0/eml.xsd">
+  <dataset>
+    <title>Danube old dikes</title>
+    <creator>
+      <individualName>
+        <givenName>Markus</givenName>
+        <surName>Bauer</surName>
+      </individualName>
+      <electronicMailAddress>markusbauer@mailbox.org</electronicMailAddress>
+    </creator>
+    <pubDate>2022</pubDate>
+    <language>English</language>
+    <abstract>Not written yet</abstract>
+    <keywordSet>
+      <keyword>rivers</keyword>
+      <keyword>vegetation dynamics</keyword>
+      <keyword>restoration</keyword>
+      <keywordThesaurus>LTER controlled vocabulary</keywordThesaurus>
+    </keywordSet>
+    <intellectualRights>CC BY 4.0</intellectualRights>
+    <coverage>
+      <geographicCoverage>
+        <geographicDescription>Danube dikes near Deggendorf</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>12.59</westBoundingCoordinate>
+          <eastBoundingCoordinate>13.1162</eastBoundingCoordinate>
+          <northBoundingCoordinate>48.9039</northBoundingCoordinate>
+          <southBoundingCoordinate>48.675</southBoundingCoordinate>
+          <boundingAltitudes>
+            <altitudeMinimum>309</altitudeMinimum>
+            <altitudeMaximum>315</altitudeMaximum>
+            <altitudeUnits>meter</altitudeUnits>
+          </boundingAltitudes>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <temporalCoverage>
+        <rangeOfDates>
+          <beginDate>
+            <calendarDate>2017-06-01</calendarDate>
+          </beginDate>
+          <endDate>
+            <calendarDate>2021-07-31</calendarDate>
+          </endDate>
+        </rangeOfDates>
+      </temporalCoverage>
+      <taxonomicCoverage>
+        <taxonomicClassification>
+          <taxonRankName>Kingdom</taxonRankName>
+          <taxonRankValue>Plantae</taxonRankValue>
+          <taxonomicClassification>
+            <taxonRankName>Division</taxonRankName>
+            <taxonRankValue>Tracheophyta</taxonRankValue>
+            <taxonomicClassification>
+              <taxonRankName>Subdivision</taxonRankName>
+              <taxonRankValue>Spermatophytina</taxonRankValue>
+            </taxonomicClassification>
+          </taxonomicClassification>
+        </taxonomicClassification>
+      </taxonomicCoverage>
+    </coverage>
+    <contact>
+      <individualName>
+        <givenName>Markus</givenName>
+        <surName>Bauer</surName>
+      </individualName>
+      <organizationName>Technical University of Munich</organizationName>
+      <address>
+        <deliveryPoint>Emil-Ramann-Straße 6</deliveryPoint>
+        <city>Freising</city>
+        <administrativeArea>Bayern</administrativeArea>
+        <postalCode>85354</postalCode>
+        <country>Germany</country>
+      </address>
+      <phone>0049-152-56391781</phone>
+      <electronicMailAddress>markusbauer@mailbox.org</electronicMailAddress>
+    </contact>
+  </dataset>
+</eml:eml>

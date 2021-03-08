@@ -1,4 +1,4 @@
-# Show map of the Danube dike experiment ####
+# Show map of the Danube old dikes ####
 # Markus Bauer
 # Citation: Markus Bauer, Jakob Huber, Katharina Beck, Johannes Kollmann (xxxx)
 
@@ -12,6 +12,7 @@
 library(tidyverse)
 library(sf)
 library(ggmap)
+library(ggrepel)
 library(RColorBrewer)
 library(patchwork)
 
@@ -25,22 +26,23 @@ setwd("Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dik
 ### Load data ###
 ger <- st_read("germany.shp")
 sites <- st_read("sites.shp")
-sites <- do.call(rbind, st_geometry(sites)) %>% 
-  as_tibble() %>% 
-  setNames(c("lon","lat"))
+#sites <- do.call(rbind, st_geometry(sites)) %>% 
+#  as_tibble() %>% 
+#  setNames(c("lon","lat"))
 sites2 <- read_csv2("sites2.csv", col_names = T, col_types = 
                       cols(
                         id = col_factor(),
                         phosphorousClass = col_factor(levels = c("A","B","C","D","E"))
                         )
                       )
-dikes <- st_read("dikes.xml")
-load("background_toner.rda")
+blocks <- read_csv2("blocks.csv", col_names = T, col_types = 
+                      cols(location = col_factor())
+                    )
+dikes_dataload("background_toner.rda")
 load("background_terrain.rda")
 load("background_google.rda")
 
-
-
+plot(dikes)
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # B Plot ##############################################################################
@@ -66,8 +68,10 @@ themeMB <- function(){
 
 ### a Map of project site -----------------------------------------------------------------------
 (sitesGraph <- ggmap(background_terrain, 
-                      base_layer = ggplot(sites2, aes(x = lon, y = lat))) +
-    geom_point(size = 2, color = "black", pch = 1) +
+                      base_layer = ggplot(sites2, aes(x = lon_cent, y = lat_cent))) +
+    geom_point(size = 2, color = "black", pch = 15) +
+    geom_text_repel(data = blocks, aes(label = constructionYear, x = lon_cent, y = lat_cent),
+                    min.segment.length = 0) +
     scale_x_continuous(breaks = seq(10, 15, 0.1)) +
     scale_y_continuous(breaks = seq(48, 50, 0.1)) +
     coord_sf(crs = st_crs(4326)) +
@@ -80,13 +84,13 @@ themeMB <- function(){
  )
 
 ### b Germany -----------------------------------------------------------------------
-(gerGraph <- ggplot() +
+gerGraph <- ggplot() +
    geom_sf(data = ger, fill = "transparent", colour = "black") +
    geom_point(aes(x = 12.885, y = 48.839), size = 1) +
    themeMB() +
    theme(
      plot.background = element_blank()
-   ))
+   )
 
 ### c Inset -----------------------------------------------------------------------
 sitesGraph + inset_element(gerGraph, .7, .65, .99, .99, on_top = T)
