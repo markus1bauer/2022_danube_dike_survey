@@ -547,31 +547,15 @@ tbiPa <- tbiAbu
 tbiPa[tbiPa > 0] = 1
 
 ### c Abundance Exposition--------------------------------------------------------------------------------------------
-tbi2 <- tbi %>%
-  filter(exposition == "north") %>%
-  select(-exposition)
-tbiAbuN <- tbi2[,colSums(tbi2) > 0]
-tbi2 <- tbi %>%
-  filter(exposition == "south") %>%
-  select(-exposition)
-tbiAbuS <- tbi2[,colSums(tbi2) > 0]
-tbi2 <- tbi %>%
-  filter(exposition == "east") %>%
-  select(-exposition)
-tbiAbuE <- tbi2[,colSums(tbi2) > 0]
-tbi2 <- tbi %>%
-  filter(exposition == "west") %>%
-  select(-exposition)
-tbiAbuW <- tbi2[,colSums(tbi2) > 0]
-rm(tbi,tbi2)
+#tbi2 <- tbi %>%
+  #filter(exposition == "north") %>%
+ # select(-exposition)
+#tbiAbuN <- tbi2[,colSums(tbi2) > 0]
 
 tbiAbu <- rownames_to_column(tbiAbu, var = "id")
 tbiPa <- rownames_to_column(tbiPa, var = "id")
-tbiAbuN <- rownames_to_column(tbiAbuN, var = "id")
-tbiAbuS <- rownames_to_column(tbiAbuS, var = "id")
-tbiAbuE <- rownames_to_column(tbiAbuE, var = "id")
-tbiAbuW <- rownames_to_column(tbiAbuW, var = "id")
-
+#tbiAbuN <- rownames_to_column(tbiAbuN, var = "id")
+rm(tbi, tbi2)
 
 ### 6 CWM of Ellenberg #####################################################################################
 
@@ -623,7 +607,7 @@ rm(list=setdiff(ls(), c("sites", "species", "traits")))
 
 ### 7 Functional plant traits #####################################################################################
 
-#### * make names equal #### 
+#### * read LEDA data #### 
 dataSLA <- data.table::fread("data_raw_LEDA_20210223_sla.txt", 
                              sep = ";",
                              dec = ".",
@@ -664,99 +648,104 @@ dataH <- data.table::fread("data_raw_LEDA_20210223_canopy_height.txt",
 data <- full_join(dataSLA, dataSM, by = "name")
 data <- full_join(data, dataH, by = "name")
 rm(dataSLA, dataSM, dataH)
-
+##### Synonyms ###
 #traits$name[which(!(traits$name %in% data$name))]
 #data %>%
   #group_by(name) %>%
   #summarise(across(where(is.double), ~median(.x, na.rm = T))) %>%
   #filter(str_detect(name, "incana"))
-##### Synonyme ###
-data$name <- fct_recode(data$name, Centaurea_stoebe = "Centaurea_stoebe_s.lat.")
-data$name <- fct_recode(data$name, Carex_praecox_ssp_praecox = "Carex_praecox")
-data$name <- fct_recode(data$name, Cerastium_fontanum_ssp_vulgare = "Cerastium_fontanum")
-data$name <- fct_recode(data$name, Cerastium_fontanum_ssp_vulgare = "Cerastium_fontanum_s._vulgare")
-data$name <- fct_recode(data$name, Cota_tinctoria = "Anthemis_tinctoria")
-data$name <- fct_recode(data$name, Cyanus_segetum = "Centaurea_cyanus")
-data$name <- fct_recode(data$name, Euphorbia_verrucosa = "Euphorbia_brittingeri")
-data$name <- fct_recode(data$name, Helictotrichon_pubescens = "Avenula_pubescens")
-data$name <- fct_recode(data$name, Hypochaeris_radicata = "Hypochoeris_radicata")
-data$name <- fct_recode(data$name, Jacobaea_vulgaris = "Senecio_vulgaris")
-data$name <- fct_recode(data$name, Medicago_falcata = "Medicago_sativa_s._falcata")
-data$name <- fct_recode(data$name, Ononis_spinosa_ssp_procurrens = "Ononis_repens")
-data$name <- fct_recode(data$name, Persicaria_amphibia = "Polygonum_amphibium")
-data$name <- fct_recode(data$name, Pilosella_caespitosa = "Hieracium_caespitosum")
-data$name <- fct_recode(data$name, Pilosella_officinarum = "Hieracium_pilosella")
-data$name <- fct_recode(data$name, Pilosella_piloselloides = "Hieracium_piloselloides")
-data$name <- fct_recode(data$name, Plantago_major_ssp_intermedia = "Plantago_major_subsp._intermedia")
-data$name <- fct_recode(data$name, Rubus_fruticosus_agg = "Rubus_fruticosus")
-data$name <- fct_recode(data$name, Rubus_fruticosus_agg = "Rubus_fruticosus_ag._L.")
-data$name <- fct_recode(data$name, Securigera_varia = "Coronilla_varia")
-data$name <- fct_recode(data$name, "Silene_flos-cuculi" = "Lychnis_flos-cuculi")
-data$name <- fct_recode(data$name, Taraxacum_campylodes = "Taraxacum_officinale")
-data$name <- fct_recode(data$name, Taraxacum_campylodes = "Taraxacum_Sec._Ruderalia")
-data$name <- fct_recode(data$name, Tripleurospermum_maritimum = "Matricaria_maritima")
-data$name <- fct_recode(data$name, Vicia_sativa_ssp_nigra= "Vicia_sativa_s._nigra")
-##### Take value of similar species ###
-#data$name <- fct_recode(data$name, Ranunculus_serpens_ssp_nemorosus = "Ranunculus_polyanthemos")
-#data$name <- fct_recode(data$name, Potentilla_grandiflora = "Potentilla_cinerea")
-
-#### * add missing values ####
-####  SLA (missing values) ###
-####SLA von Cerabolini et al. (2010)
-#####SLA von Pierce et al. (2007)
-#####SLA von Pipenbaher et al. (2007)
-#dataSLA <- dataSLA %>% add_row(name = "Euphorbia_brittingeri", value = 16.2) #Bei Pipenbaher als E. verrucosa gef?hrt
-#dataSLA <- dataSLA %>% add_row(name = "Rhinanthus_aristatus", value = 15.9)
-#data$name <- fct_recode(data$name, Carex_praecox_ssp_curvata = )
-
-#### seed mass (missing values) ###
-######Seedmass-Daten: Eigenannahme von Conradi & Kollmann (2016)
-#####Seedmass-Daten: Hintze et al. (2013)
-#dataSM <- dataSM %>% add_row(name = "Euphorbia_brittingeri", value = 2.635) # Bei Hintze als E. verrucosa gef?hrt
-#dataSM <- dataSM %>% add_row(name = "Potentilla_cinerea", value = 0.131) # Bei Hintze als P. incana gef?hrt
-
-#### canopy height (missing values) ###
-#####Height von Pipenbaher et al. (2007)
-#dataH <- dataH %>% add_row(name = "Rhinanthus_aristatus", value = 0.190)
-#####Height von J?ger (2011)
-
-#### * put values to traits data frame #### 
 data <- data %>%
-  group_by(name) %>%
+  mutate(name = fct_recode(name, Centaurea_stoebe = "Centaurea_stoebe_s.lat.")) %>%
+  mutate(name = fct_recode(name, Carex_praecox_ssp_praecox = "Carex_praecox")) %>%
+  mutate(name = fct_recode(name, Cerastium_fontanum_ssp_vulgare = "Cerastium_fontanum")) %>%
+  mutate(name = fct_recode(name, Cerastium_fontanum_ssp_vulgare = "Cerastium_fontanum_s._vulgare")) %>%
+  mutate(name = fct_recode(name, Cota_tinctoria = "Anthemis_tinctoria")) %>%
+  mutate(name = fct_recode(name, Cyanus_segetum = "Centaurea_cyanus")) %>%
+  mutate(name = fct_recode(name, Euphorbia_verrucosa = "Euphorbia_brittingeri")) %>%
+  mutate(name = fct_recode(name, Helictotrichon_pubescens = "Avenula_pubescens")) %>%
+  mutate(name = fct_recode(name, Hypochaeris_radicata = "Hypochoeris_radicata")) %>%
+  mutate(name = fct_recode(name, Jacobaea_vulgaris = "Senecio_vulgaris")) %>%
+  mutate(name = fct_recode(name, Medicago_falcata = "Medicago_sativa_s._falcata")) %>%
+  mutate(name = fct_recode(name, Ononis_spinosa_ssp_procurrens = "Ononis_repens")) %>%
+  mutate(name = fct_recode(name, Persicaria_amphibia = "Polygonum_amphibium")) %>%
+  mutate(name = fct_recode(name, Pilosella_caespitosa = "Hieracium_caespitosum")) %>%
+  mutate(name = fct_recode(name, Pilosella_officinarum = "Hieracium_pilosella")) %>%
+  mutate(name = fct_recode(name, Pilosella_piloselloides = "Hieracium_piloselloides")) %>%
+  mutate(name = fct_recode(name, Plantago_major_ssp_intermedia = "Plantago_major_subsp._intermedia")) %>%
+  mutate(name = fct_recode(name, Rubus_fruticosus_agg = "Rubus_fruticosus")) %>%
+  mutate(name = fct_recode(name, Rubus_fruticosus_agg = "Rubus_fruticosus_ag._L.")) %>%
+  mutate(name = fct_recode(name, Securigera_varia = "Coronilla_varia")) %>%
+  mutate(name = fct_recode(name, "Silene_flos-cuculi" = "Lychnis_flos-cuculi")) %>%
+  mutate(name = fct_recode(name, Taraxacum_campylodes = "Taraxacum_officinale")) %>%
+  mutate(name = fct_recode(name, Taraxacum_campylodes = "Taraxacum_Sec._Ruderalia")) %>%
+  mutate(name = fct_recode(name, Tripleurospermum_maritimum = "Matricaria_maritima")) %>%
+  mutate(name = fct_recode(name, Vicia_sativa_ssp_nigra= "Vicia_sativa_s._nigra")) %>%  group_by(name) %>%
   summarise(across(where(is.double), ~median(.x, na.rm = T)))
 traits <- left_join(traits, data, by = "name")
-rm(data)
 
-### * Check completeness ####
+### * check completeness of LEDA ####
 test <- traits %>%
   select(name, t, n, f, sla, seedmass, height)
 n_miss(test$sla);pct_complete(test$sla)
 n_miss(test$seedmass);pct_complete(test$seedmass)
 n_miss(test$height);pct_complete(test$height)
+#(test2 <- test %>%
+  #select(-t, -n, -f) %>%
+  #filter(!complete.cases(.)))
+
+### * read TRY data ####
+data <- data.table::fread("data_raw_TRY_20210306_13996.txt", 
+              header = T, 
+              sep = "\t", 
+              dec = ".", 
+              quote = "") %>%
+  as_tibble() %>%
+  rename(name = "AccSpeciesName") %>%
+  rename(value = "StdValue") %>%
+  rename(trait = "TraitID") %>%
+  select(name, value, trait) %>%
+  mutate(name = as_factor(str_replace_all(name, " ", "_"))) %>%
+  drop_na %>%
+  mutate(trait = str_replace(trait, "26", "seedmass")) %>%
+  mutate(trait = str_replace(trait, "3106", "height")) %>%
+  mutate(trait = str_replace(trait, "3107", "height")) %>%
+  mutate(trait = str_replace(trait, "3115", "sla")) %>%
+  mutate(trait = str_replace(trait, "3116", "sla")) %>%
+  mutate(trait = str_replace(trait, "3117", "sla"))
+##### Synonyms ###
+#test2$name[which(!(test2$name %in% data$name))]
+#data %>%
+  #group_by(name) %>%
+  #summarise(across(where(is.double), ~median(.x, na.rm = T))) %>%
+  #filter(str_detect(name, "Equisetum"))
+data <- data %>%
+  mutate(name = fct_recode(name, Carex_praecox_ssp_praecox = "Carex_praecox")) %>%
+  mutate(name = fct_recode(name, Plantago_major_ssp_intermedia = "Plantago_major_subsp._intermedia")) %>%
+  mutate(name = fct_recode(name, Ranunculus_serpens_ssp_nemorosus = "Ranunculus_serpens_subsp._nemorosus")) %>%
+  mutate(trait = as_factor(trait)) %>%
+  group_by(name, trait) %>%
+  summarise(across(where(is.double), ~median(.x, na.rm = T))) %>%
+  spread(trait, value)
+traits <- left_join(traits, data, by = "name") %>%
+  mutate(sla = coalesce(sla.x, sla.y), .keep = "unused") %>%
+  mutate(seedmass = coalesce(seedmass.x, seedmass.y), .keep = "unused") %>%
+  mutate(height = coalesce(height.x, height.y), .keep = "unused")
+
+### * check completeness of LEDA + TRY ####
+test <- traits %>%
+  select(name, t, n, f, sla, seedmass, height)
+n_miss(test$sla);pct_complete(test$sla) # 6, 97.6%
+n_miss(test$seedmass);pct_complete(test$seedmass) #9, 96.4%
+n_miss(test$height);pct_complete(test$height) # 4, 98.4%
 vis_miss(test, cluster = F, sort_miss = T)
 gg_miss_var(test)
 gg_miss_case(test, order_cases = F)
-test2 <- test %>%
+(test2 <- test %>%
   select(-t, -n, -f) %>%
-  filter(!complete.cases(.))
-rm(test, test2)
+  filter(!complete.cases(.)))
+rm(test, test2, data)
 
-data <- fread("data_raw_TRY_sla.txt", header = T, sep = "\t", dec = ".", quote = "", data.table = T)
-slaData <- slaData %>%
-  rename(name = AccSpeciesName) %>%
-  select(name, ObservationID, TraitID, TraitName, StdValue, UnitName) %>%
-  filter(TraitID == 3115) %>%
-  group_by(name) %>%
-  summarise(value = median(StdValue)) %>%
-  filter(!is.na(value)) %>%
-  select(name, value) %>%
-  ungroup()
-slaData$name <- gsub(" ","_",slaData$name)
-
-
-
-
-### * Prepare data frames ####
+### * prepare data frames ####
 traitsLHS <- traits %>%
   select(name, sla, seedmass, height) %>%
   drop_na()
