@@ -51,7 +51,7 @@ min9;at least 9 biotope points;NA;NA;factor;yes, no;NA
 cwmAbuN;community weighted mean of Ellenberg N values (abundance based not presence-absence);NA;NA;numeric;NA;NA
 cwmAbuF;community weighted mean of Ellenberg F values (abundance based not presence-absence);NA;NA;numeric;NA;NA
 cwmAbuT;community weighted mean of Ellenberg T values (abundance based not presence-absence);NA;NA;numeric;NA;NA
-fdisAbuLHS;functioNAl dispersion of specific leaf area, seed mass, and canopy height (abundance based not presence-absence);NA;NA;numeric;NA;NA
+fdisAbuLHS;functional dispersion of specific leaf area, seed mass, and canopy height (abundance based not presence-absence);NA;NA;numeric;NA;NA
 fdisAbuSla;functional dispersion of specific leaf area (abundance based not presence-absence);NA;NA;numeric;NA;NA
 cwmAbuSla;community weighted mean of specific leaf area (abundance based not presence-absence);NA;mm^2/mg;numeric;NA;NA
 fdisAbuSeedmass;functional dispersion of seed mass (abundance based not presence-absence);NA;NA;numeric;NA;NA

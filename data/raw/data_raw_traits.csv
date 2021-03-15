@@ -9,7 +9,7 @@ Agrostis_stolonifera;L.;na;Agrsto;Poaceae;PL;sub-grass;na;na;na;no;8;na;5;na;2;n
 Ajuga_reptans;L.;na;Ajurep;Lamiaceae;PL;herb;na;na;na;no;6;na;2;6;na;6;6;yes;no;no;yes;no;NA;NA;NA;no;no;no;no;no;1
 Allium_oleraceum;L.;na;Allole;Amaryllidaceae;PL;herb;na;na;na;no;7;6;4;3;na;7;4;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Allium_sativum;L.;na;Allsat;Amaryllidaceae;PL;herb;na;na;na;yes;na;na;na;na;na;na;na;no;no;no;no;no;NA;NA;NA;no;no;no;no;yes;1
-Allium_scorodoprasum;L.;na;Allsco;Amaryllidaceae;PL;herb;na;na;na;no;6;6;5;7;na;7;7;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
+Allium_scorodoprasum;L.;na;Allsco;Amaryllidaceae;PL;herb;na;na;3;no;6;6;5;7;na;7;7;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Allium_vineale;L.;na;Allvin;Amaryllidaceae;PL;herb;na;na;na;no;5;7;3;4;na;na;7;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Alopecurus_pratensis;L.;na;Alopra;Poaceae;PL;top-grass;na;na;na;no;6;na;5;6;na;6;7;no;yes;no;yes;no;NA;NA;NA;no;no;no;no;no;1
 Angelica_sylvestris;L.;na;Angsyl;Apiaceae;PL;herb;na;na;na;no;7;na;4;8;na;na;na;yes;no;no;no;no;3;NA;NA;no;no;no;no;no;1
@@ -54,7 +54,7 @@ Carex_sylvatica;Huds.;na;Carsyl;Cyperaceae;PL;sedge;na;na;na;no;2;5;3;5;na;6;5;n
 Carum_carvi;L.;na;Carucarv;Apiaceae;PL;herb;na;na;na;no;8;4;5;5;na;na;6;yes;no;no;yes;no;NA;NA;NA;no;no;no;no;no;1
 Centaurea_jacea;L.;na;Cenjac;Asteraceae;PL;herb;na;na;na;no;7;na;5;na;na;na;na;yes;no;yes;yes;no;NA;4;NA;no;no;no;no;no;1
 Centaurea_scabiosa;L.;na;Censca;Asteraceae;PL;herb;na;na;na;no;7;na;3;3;na;8;4;yes;no;no;no;yes;NA;2;NA;no;no;no;no;no;1
-Centaurea_stoebe;Tausch;na;Censto;Asteraceae;PL;herb;na;na;na;no;na;na;na;na;na;na;na;yes;no;no;no;no;NA;3;NA;no;no;no;no;no;1
+Centaurea_stoebe;Tausch;na;Censto;Asteraceae;PL;herb;na;na;3;no;na;na;na;na;na;na;na;yes;no;no;no;no;NA;3;NA;no;no;no;no;no;1
 Centaurium_erythraea;Rafn;na;Cenery;Gentianaceae;PL;herb;BG;na;na;no;8;6;5;5;na;6;6;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Cerastium_arvense;L.;na;Cerarv;Caryophyllaceae;PL;herb;na;na;na;no;8;na;5;4;na;6;4;yes;no;no;no;no;NA;4;NA;no;no;no;no;no;1
 Cerastium_fontanum_ssp_vulgare;Greuter & Burdet;Cerastium_holosteoides;Cerfon;Caryophyllaceae;PL;herb;na;na;na;no;6;na;na;5;na;na;5;yes;no;no;yes;no;NA;NA;NA;no;no;no;no;no;1
@@ -86,7 +86,7 @@ Equisetum_arvense;L.;na;Equarv;Equisetaceae;PL;herb;na;na;na;no;6;na;na;6;1;na;3
 Erigeron_annuus;(L.) Pers.;na;Eriann;Asteraceae;PL;herb;na;na;na;yes;7;6;na;6;na;na;8;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Erophila_verna;(L.) DC.;Draba_verna;Erover;Brassicaceae;PL;herb;BG;na;na;no;8;6;3;na;na;na;2;no;no;no;no;no;NA;NA;NA;no;no;no;yes;no;1
 Euphorbia_cyparissias;L.;na;Eupcyp;Euphorbiaceae;PL;herb;na;na;na;no;8;na;4;3;na;na;3;yes;no;no;no;no;NA;4;NA;no;no;no;no;no;1
-Euphorbia_esula;L.;na;Eupesu;Euphorbiaceae;PL;herb;na;na;na;no;8;6;5;4;na;8;na;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
+Euphorbia_esula;L.;na;Eupesu;Euphorbiaceae;PL;herb;na;na;3;no;8;6;5;4;na;8;na;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Euphorbia_verrucosa;L.;na;Eupver;Euphorbiaceae;PL;herb;na;V;na;no;8;6;2;3;na;9;3;yes;no;no;no;yes;NA;NA;3;no;no;no;no;no;1
 Falcaria_vulgaris;Bernh.;na;Falvul;Apiaceae;PL;herb;na;na;na;no;7;7;6;3;na;9;na;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Festuca_arundinacea;Schreb.;na;Fesaru;Poaceae;PL;top-grass;na;na;na;no;8;5;na;7;1;7;4;no;yes;no;no;no;4;NA;NA;no;no;no;no;no;1
@@ -127,7 +127,7 @@ Lolium_perenne;L.;na;Lolper;Poaceae;PL;sub-grass;na;na;na;no;8;6;3;5;na;7;7;no;n
 Lotus_corniculatus;L.;na;Lotcor;Fabaceae;PL;legume;na;na;na;no;7;na;3;4;na;7;3;yes;no;no;no;no;NA;4;NA;no;no;no;no;no;1
 Lysimachia_nummularia;L.;na;Lysnum;Primulaceae;PL;herb;na;na;na;no;4;6;4;6;1;na;na;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Lysimachia_vulgaris;L.;na;Lysvul;Primulaceae;PL;herb;na;na;na;no;6;na;na;8;1;na;na;yes;no;no;no;no;4;NA;NA;no;no;no;no;no;1
-Malva_moschata;L.;na;Malmos;Malvaceae;PL;herb;na;na;na;no;8;6;3;4;na;7;4;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
+Malva_moschata;L.;na;Malmos;Malvaceae;PL;herb;na;na;3;no;8;6;3;4;na;7;4;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Matricaria_chamomilla;L.;na;Matcha;Asteraceae;PL;herb;na;na;na;no;7;6;5;5;na;5;5;no;no;no;no;no;NA;NA;NA;no;no;no;yes;no;1
 Medicago_falcata;L.;na;Medfal;Fabaceae;PL;legume;na;na;na;no;8;6;7;3;na;9;3;yes;no;no;no;yes;NA;4;NA;no;no;no;no;no;1
 Medicago_lupulina;L.;na;Medlup;Fabaceae;PL;legume;na;na;na;no;7;5;na;4;na;8;na;yes;no;no;yes;no;NA;NA;NA;no;no;no;no;no;1
@@ -146,7 +146,7 @@ Orobanche_spec;na;na;Orospe;Orobanchaceae;na;Parasit;na;na;na;no;na;na;na;na;na;
 Papaver_rhoeas;L.;na;Paprho;Papaveraceae;PL;herb;na;na;na;no;6;6;3;5;na;7;6;no;no;no;no;no;NA;NA;NA;no;no;no;yes;no;1
 Parthenocissus_inserta;(A.Kern.) Fritsch;na;Parins;Vitaceae;PL;z Gehölz;na;na;na;yes;na;na;na;na;na;na;na;no;no;no;no;no;NA;NA;NA;no;no;no;no;no;2
 Persicaria_amphibia;(L.) Delarbre;na;Peramp;Polygonaceae;PL;herb;na;na;na;no;7;6;na;11;na;6;4;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
-Peucedanum_officinale;L.;na;Peuoff;Apiaceae;PL;herb;na;3;3;no;7;7;5;4;1;8;2;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
+Peucedanum_officinale;L.;na;Peuoff;Apiaceae;PL;herb;na;3;2;no;7;7;5;4;1;8;2;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Peucedanum_oreoselinum;(L.) Moench;na;Peuore;Apiaceae;PL;herb;na;V;na;no;6;6;4;3;na;6;2;yes;no;no;no;no;NA;2;2;no;no;no;no;no;1
 Phalaris_arundinacea;L.;na;Phaaru;Poaceae;PL;top-grass;na;na;na;no;7;5;na;9;2;7;7;no;no;no;no;no;4;NA;NA;no;no;no;no;no;1
 Phleum_phleoides;(L.) H.Karst.;na;Phlphl;Poaceae;PL;top-grass;na;V;na;no;8;6;7;3;na;8;2;no;yes;no;no;yes;NA;NA;NA;no;no;no;no;no;1
@@ -183,14 +183,14 @@ Reseda_lutea;L.;na;Reslut;Resedaceae;PL;herb;na;na;na;no;7;6;3;3;na;8;5;yes;no;n
 Rhinanthus_alectorolophus;(Scop.) Pollich;na;Rhiale;Orobanchaceae;PL;hemiparasite;na;na;na;no;8;na;2;4;na;7;3;yes;no;no;no;no;NA;4;NA;no;no;no;no;no;1
 Rhinanthus_glacialis;Personnat;na;Rhigla;Orobanchaceae;PL;hemiparasite;na;V;na;no;8;3;4;5;na;4;2;yes;no;no;no;yes;NA;NA;2;no;no;no;no;no;1
 Rhinanthus_minor;L.;na;Rhimin;Orobanchaceae;PL;hemiparasite;na;na;na;no;7;5;3;na;na;na;3;no;no;no;no;no;NA;4;NA;no;no;no;no;no;1
-Rhinanthus_serotinus;(Schönh.) Oborny;na;Rhiser;Orobanchaceae;PL;hemiparasite;na;3;3;no;7;5;3;6;1;7;2;yes;no;no;no;yes;NA;3;NA;no;no;no;no;no;1
+Rhinanthus_serotinus;(Schönh.) Oborny;na;Rhiser;Orobanchaceae;PL;hemiparasite;na;3;na;no;7;5;3;6;1;7;2;yes;no;no;no;yes;NA;3;NA;no;no;no;no;no;1
 Rosa_canina;L.;na;Roscan;Rosaceae;PL;z Halbstrauch;na;na;na;no;8;5;3;4;na;na;na;no;no;no;no;no;NA;NA;NA;no;no;no;no;yes;2
 Rubus_caesius;L.;na;Rubcae;Rosaceae;PL;z Halbstrauch;na;na;na;no;6;5;4;na;na;8;7;no;no;no;no;no;NA;NA;NA;no;yes;no;no;yes;2
 Rubus_fruticosus_agg;na;na;Rubfru;Rosaceae;na;z Halbstrauch;na;na;na;no;na;na;na;na;na;na;na;no;no;no;no;no;NA;NA;NA;no;yes;no;no;yes;2
 Rumex_acetosa;L.;na;Rumace;Polygonaceae;PL;herb;na;na;na;no;8;na;na;na;na;na;6;yes;no;no;yes;no;NA;NA;NA;no;no;no;no;no;1
 Rumex_crispus;L.;na;Rumcri;Polygonaceae;PL;herb;na;na;na;no;7;5;3;7;1;na;5;no;no;no;no;no;NA;NA;NA;yes;yes;no;no;no;1
 Rumex_obtusifolius;L.;na;Rumobt;Polygonaceae;PL;herb;na;na;na;no;7;5;3;6;na;na;9;no;no;no;no;no;NA;NA;NA;yes;yes;no;no;no;1
-Salvia_nemorosa;L.;na;Salnem;Lamiaceae;PL;herb;na;na;;no;7;7;na;4;na;9;4;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
+Salvia_nemorosa;L.;na;Salnem;Lamiaceae;PL;herb;na;na;2;no;7;7;na;4;na;9;4;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Salvia_pratensis;L.;na;Salpra;Lamiaceae;PL;herb;na;V;na;no;8;6;4;3;na;8;4;yes;no;no;no;no;NA;3;NA;no;no;no;no;no;1
 Sanguisorba_minor;Scop.;na;Sanmin;Rosaceae;PL;herb;na;na;na;no;7;6;5;3;na;8;2;yes;no;no;no;yes;NA;3;NA;no;no;no;no;no;1
 Sanguisorba_officinalis;L.;na;Sanoff;Rosaceae;PL;herb;na;V;na;no;7;5;7;7;na;na;na;yes;no;no;no;no;4;NA;NA;no;no;no;no;no;1
@@ -218,7 +218,7 @@ Stellaria_graminea;L.;na;Stegra;Caryophyllaceae;PL;herb;na;na;na;no;6;na;na;4;na
 Symphytum_officinale;L.;na;Symoff;Boraginaceae;PL;herb;na;na;na;no;7;6;3;8;na;na;8;no;no;no;no;no;NA;NA;NA;no;yes;no;no;yes;1
 Tanacetum_vulgare;L.;na;Tanvul;Asteraceae;PL;herb;na;na;na;no;8;6;4;5;na;8;5;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Taraxacum_campylodes;G.E.Haglund;Taraxacum_officinale;Tarcam;Asteraceae;na;herb;na;na;na;no;7;na;5;na;na;na;7;no;no;no;no;no;NA;NA;NA;yes;yes;no;no;no;1
-Thalictrum_minus;L.;na;Thamin;Ranunculaceae;PL;herb;na;V;na;no;6;na;7;3;na;8;3;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
+Thalictrum_minus;L.;na;Thamin;Ranunculaceae;PL;herb;na;V;G;no;6;na;7;3;na;8;3;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Thymus_pulegioides;L.;na;Thypul;Lamiaceae;PL;herb;na;na;na;no;8;na;4;4;na;na;1;yes;no;no;no;no;NA;3;NA;no;no;no;no;no;1
 Tragopogon_pratensis;L.;na;Trapra;Asteraceae;PL;herb;na;na;na;no;7;6;3;4;na;7;6;yes;no;yes;yes;no;NA;4;NA;no;no;no;no;no;1
 Trifolium_campestre;Schreb.;na;Tricam;Fabaceae;PL;legume;na;na;na;no;8;6;3;4;na;6;3;yes;no;no;yes;no;NA;3;NA;no;no;no;no;no;1

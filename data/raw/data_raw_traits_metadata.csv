@@ -8,7 +8,7 @@ nomenclature;nomenclature of species names;NA;NA;factor;PL = Plant List, WH = Wi
 group;grass-herb-legume groups;NA;NA;factor;top_grass, sub_grass, legume, herb;NA
 legal;legally protected in Germany;BArtSchV 2005 in floraweb.de;NA;factor;BG = besonders geschützt;NA
 rlg;Red list Germany;Metzing et al. 2018 in floraweb.de;NA;factor;NA = not threatened, V = warning list, 3, 2, 1;NA
-rlb;Red list Bavaria;XXX;NA;factor;NA = not threatened, V = warning list, 3, 2, 1;NA
+rlb;Red list Bavaria;StMUGV 2005 Rote Liste;NA;factor;NA = not threatened, V = warning list, 3, 2, 1;NA
 neophyte;is species a neophyte;floraweb.de;NA;factor;yes, no;NA
 l;Ellenberg L value;Ellenberg et al. 2001 in floraweb.de;NA;numeric;NA;NA
 t;Ellenberg T value;Ellenberg et al. 2001 in floraweb.de;NA;numeric;NA;NA

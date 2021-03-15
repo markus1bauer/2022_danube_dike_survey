@@ -74,9 +74,7 @@ sites <- read_csv2("data_raw_sites.csv", col_names = T, na = c("", "NA", "na"), 
                        phosphorousClass = col_factor(),
                        potassiumClass = col_factor(),
                        magnesiumClass = col_character()
-                     )        
-)
-sites <- sites %>%
+                     )) %>%
   select(id, starts_with("survey"), pair, location, RW, HW, side, exposition, constructionYear, calciumcarbonatPerc, humusPerc, NtotalPerc, cnRatio, pH, sandPerc, siltPerc, clayPerc, phosphorous, phosphorousClass, potassium, magnesium, topsoilDepth, fmDepth, sceletonRatiov, fmDbd, ufcPerc, ufc) %>%
   pivot_longer(starts_with("survey"), names_to = "survey", values_to ="surveyYear") %>%
   select(-survey) %>%
@@ -679,7 +677,8 @@ data <- data %>%
   mutate(name = fct_recode(name, Taraxacum_campylodes = "Taraxacum_officinale")) %>%
   mutate(name = fct_recode(name, Taraxacum_campylodes = "Taraxacum_Sec._Ruderalia")) %>%
   mutate(name = fct_recode(name, Tripleurospermum_maritimum = "Matricaria_maritima")) %>%
-  mutate(name = fct_recode(name, Vicia_sativa_ssp_nigra= "Vicia_sativa_s._nigra")) %>%  group_by(name) %>%
+  mutate(name = fct_recode(name, Vicia_sativa_ssp_nigra= "Vicia_sativa_s._nigra")) %>%  
+  group_by(name) %>%
   summarise(across(where(is.double), ~median(.x, na.rm = T)))
 traits <- left_join(traits, data, by = "name")
 
