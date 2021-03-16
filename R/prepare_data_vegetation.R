@@ -149,10 +149,10 @@ data <- species %>%
   mutate(type = traits$family) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, type) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   mutate(type = if_else(type == "Poaceae" | type == "Cyperaceae" | type == "Juncaceae", "graminoidCov", "herbCov")) %>%
   group_by(id, type) %>%
-  summarise(total = sum(total)) %>%
+  summarise(total = sum(total, na.rm = T)) %>%
   spread(type, total) %>%
   mutate(graminoidCovratio = graminoidCov / (graminoidCov + herbCov)) %>%
   mutate(accumulatedCov = graminoidCov + herbCov) %>%
@@ -166,7 +166,7 @@ data <- species %>%
   mutate(type = traits$target) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, type) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(type == "yes") %>%
   select(-type) %>%
   ungroup() %>%
@@ -178,7 +178,7 @@ data <- species %>%
   mutate(type = traits$targetHerb) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, type) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(type == "yes") %>%
   select(-type) %>%
   ungroup() %>%
@@ -190,7 +190,7 @@ data <- species %>%
   mutate(type = traits$targetArrhenatherion) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, type) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(type == "yes") %>%
   select(-type) %>%
   ungroup() %>%
@@ -202,7 +202,7 @@ data <- species %>%
   mutate(type = traits$leanIndicator) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, type) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(type == "yes") %>%
   select(-type) %>%
   ungroup() %>%
@@ -214,7 +214,7 @@ data <- species %>%
   mutate(type = traits$nitrogenIndicator) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, type) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(type == "yes") %>%
   select(-type) %>%
   ungroup() %>%
@@ -226,7 +226,7 @@ data <- species %>%
   mutate(type = traits$ruderalIndicator) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, type) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(type == "yes") %>%
   select(-type) %>%
   ungroup() %>%
@@ -238,10 +238,10 @@ data <- species %>%
   mutate(type = traits$table33) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, type) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   mutate(type = if_else(type == "4" | type =="3" | type == "2", "table33Cov", "other")) %>%
   group_by(id, type) %>%
-  summarise(total = sum(total)) %>%
+  summarise(total = sum(total, na.rm = T)) %>%
   spread(type, total) %>%
   select(id, table33Cov) %>%
   ungroup() %>%
@@ -260,9 +260,9 @@ specRich_all <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   group_by(id) %>%
-  summarise(speciesRichness = sum(total)) %>%
+  summarise(speciesRichness = sum(total, na.rm = T)) %>%
   ungroup()
 
 ### b red list Germany (species richness) -------------------------------------------------------------------------------------------
@@ -270,10 +270,10 @@ specRich_rlg <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, rlg) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(rlg == "1" | rlg == "2" | rlg == "3" | rlg == "V") %>%
   group_by(id) %>%
-  summarise(rlgRichness = sum(total)) %>%
+  summarise(rlgRichness = sum(total, na.rm = T)) %>%
   ungroup()
 
 ### c red list Bavaria (species richness) -------------------------------------------------------------------------------------------
@@ -281,10 +281,10 @@ specRich_rlb <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, rlb) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(rlb == "1" | rlb == "2" | rlb == "3" | rlb == "V") %>%
   group_by(id) %>%
-  summarise(rlbRichness = sum(total)) %>%
+  summarise(rlbRichness = sum(total, na.rm = T)) %>%
   ungroup()
 
 ### d target species (species richness) -------------------------------------------------------------------------------------------
@@ -292,10 +292,10 @@ specRich_target <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, target) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(target == "yes") %>%
   group_by(id) %>%
-  summarise(targetRichness = sum(total)) %>%
+  summarise(targetRichness = sum(total, na.rm = T)) %>%
   ungroup()
 
 ### e target herb species (species richness) -------------------------------------------------------------------------------------------
@@ -303,10 +303,10 @@ specRich_targetHerb <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, targetHerb) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(targetHerb == "yes") %>%
   group_by(id) %>%
-  summarise(targetHerbRichness = sum(total)) %>%
+  summarise(targetHerbRichness = sum(total, na.rm = T)) %>%
   ungroup()
 
 ### f Arrhenatherion species (species richness) -------------------------------------------------------------------------------------------
@@ -314,10 +314,10 @@ specRich_arrh <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, targetArrhenatherion) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(targetArrhenatherion == "yes") %>%
   group_by(id) %>%
-  summarise(arrhRichness = sum(total)) %>%
+  summarise(arrhRichness = sum(total, na.rm = T)) %>%
   ungroup()
 
 ### g ffh6510 species (species richness) -------------------------------------------------------------------------------------------
@@ -325,10 +325,10 @@ specRich_ffh6510 <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, ffh6510) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(ffh6510 == "yes") %>%
   group_by(id) %>%
-  summarise(ffh6510Richness = sum(total)) %>%
+  summarise(ffh6510Richness = sum(total, na.rm = T)) %>%
   ungroup()
 
 ### h ffh6210 species (species richness) -------------------------------------------------------------------------------------------
@@ -336,10 +336,10 @@ specRich_ffh6210 <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, ffh6210) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(ffh6210 == "yes") %>%
   group_by(id) %>%
-  summarise(ffh6210Richness = sum(total)) %>%
+  summarise(ffh6210Richness = sum(total, na.rm = T)) %>%
   ungroup()
 
 ### i leanIndicator species (species richness) -------------------------------------------------------------------------------------------
@@ -347,10 +347,10 @@ specRich_leanIndicator <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, leanIndicator) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(leanIndicator == "yes") %>%
   group_by(id) %>%
-  summarise(leanIndicatorRichness = sum(total)) %>%
+  summarise(leanIndicatorRichness = sum(total, na.rm = T)) %>%
   ungroup()
 
 ### k table33 (species richness) -------------------------------------------------------------------------------------------
@@ -358,28 +358,28 @@ specRich_table33_2 <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, table33) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(table33 == "2") %>%
   group_by(id) %>%
-  summarise(table33_2Richness = sum(total)) %>%
+  summarise(table33_2Richness = sum(total, na.rm = T)) %>%
   ungroup()
 specRich_table33_3 <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, table33) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(table33 == "3") %>%
   group_by(id) %>%
-  summarise(table33_3Richness = sum(total)) %>%
+  summarise(table33_3Richness = sum(total, na.rm = T)) %>%
   ungroup()
 specRich_table33_4 <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, table33) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(table33 == "4") %>%
   group_by(id) %>%
-  summarise(table33_4Richness = sum(total)) %>%
+  summarise(table33_4Richness = sum(total, na.rm = T)) %>%
   ungroup()
 
 ### l table34 (species richness) -------------------------------------------------------------------------------------------
@@ -387,19 +387,19 @@ specRich_table34_2 <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, table34) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(table34 == "2") %>%
   group_by(id) %>%
-  summarise(table34_2Richness = sum(total)) %>%
+  summarise(table34_2Richness = sum(total, na.rm = T)) %>%
   ungroup()
 specRich_table34_3 <- specRich %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id, table34) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
-  summarise(total = sum(n)) %>%
+  summarise(total = sum(n, na.rm = T)) %>%
   filter(table34 == "3") %>%
   group_by(id) %>%
-  summarise(table34_3Richness = sum(total)) %>%
+  summarise(table34_3Richness = sum(total, na.rm = T)) %>%
   ungroup()
 
 ### m implement in sites data set -------------------------------------------------------------------------------------------
