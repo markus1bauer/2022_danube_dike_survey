@@ -29,8 +29,8 @@ species <- read_csv2("data_raw_species.csv", col_names = F, na = c("", "NA", "na
 names <- species %>% 
   slice(1) %>%
   pivot_longer(-(X1:X4), names_to = "id", values_to = "name") %>%
-  select(-(X1:X4))
-names$name <- str_replace_all(names$name, " ", "_")
+  select(-(X1:X4)) %>%
+  mutate(name = str_replace_all(name, " ", "_"))
 #names[which(duplicated(names$name)),]
 #names[which(duplicated(names$id)),]
 species <- species %>%

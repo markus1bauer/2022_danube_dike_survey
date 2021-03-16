@@ -29,27 +29,33 @@ sites <- read_csv2("data_raw_sites.csv", col_names = T, na = "na", col_types =
                        .default = col_double(),
                        id = col_factor(),
                        location = col_factor(),
+                       side = col_factor(),
+                       exposition = col_factor(),
                        ageCategory = col_factor(),
                        HCl = col_factor(),
+                       humusLevel = col_factor(),
+                       cnLevel = col_factor(),
                        phosphorousClass = col_factor(),
                        potassiumClass = col_factor(),
                        magnesiumClass = col_character()
-                     )        
-)
-sites <- select(sites, id, location, RW, HW, constructionYear, sand, phosphorous, phosphorousClass)
-sites <- st_as_sf(sites, coords = c("RW", "HW"), crs = 31468)
-sites <- st_transform(sites, 4326)
+                     )) %>%
+  select(id, location, RW, HW, constructionYear, sandPerc, phosphorous, phosphorousClass) %>%
+  st_as_sf(coords = c("RW", "HW"), crs = 31468) %>%
+  st_transform(4326)
+
 coord <- as_tibble(st_coordinates(sites))
-sites2 <- st_drop_geometry(sites)
-sites2$lon <- coord$X
-sites2$lat <- coord$Y
-sites2 <- as_tibble(sites2)
+sites2 <- st_drop_geometry(sites) %>%
+  mutate(lon = coord$X) %>%
+  mutate(lat = coord$Y) %>%
+  as_tibble()
+rm(coord)
+
 blocks <- sites2 %>%
   group_by(location) %>%
   summarise_at(c("lon", "lat", "constructionYear"), mean, na.rm = T) %>%
   rename(lon_cent = lon, lat_cent = lat)
+
 sites2 <- left_join(sites2, blocks, by = "location")
-rm(coord)
 
 
 ## 2 Transform shp files #################################################################################################
@@ -72,13 +78,18 @@ conservation_area <- st_intersection(data, bbox)
 data <- st_read("ffh_epsg31468.shp")
 data <- st_transform(data, crs = 4326)
 ffh_area <- st_intersection(data, bbox)
-rm(data, bbox)
+
 
 ## 3 Background map #################################################################################################
 
-ger <- raster::getData('GADM', country = 'DEU', level = 0)
-ger <- st_as_sf(ger)
-ger <- st_set_crs(ger, 4326)
+data <- raster::getData('GADM', country = 'DEU', level = 0, download = F)
+data <- st_as_sf(data)
+germany <- st_set_crs(data, 4326)
+
+data <- rnaturalearth::ne_download(scale = 10, type = 'rivers_lake_centerlines', category = 'physical')
+data <- st_as_sf(data)
+data <- st_set_crs(data, 4326)
+danube <- st_intersection(data, bbox)
 
 background_google <- get_map(
   location = c(lon = 12.884, lat = 48.839),
@@ -88,7 +99,6 @@ background_google <- get_map(
   source = "google"
 )
 ggmap(background_google)
-summary(background_google)
 
 background_toner <- get_map(
   location = c(lon = 12.884, lat = 48.839),
@@ -118,7 +128,9 @@ ggmap(background_terrain)
 save(background_google, file = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files/background_google.rda")
 save(background_toner, file = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files/background_toner.rda")
 save(background_terrain, file = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files/background_terrain.rda")
-st_write(ger, layer = "germany.shp", driver = "ESRI Shapefile",
+st_write(germany, layer = "germany.shp", driver = "ESRI Shapefile",
+         dsn = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files")
+st_write(danube, layer = "danube.shp", driver = "ESRI Shapefile",
          dsn = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files")
 st_write(grazing, layer = "grazing.shp", driver = "ESRI Shapefile",
          dsn = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/shp_files")
