@@ -142,9 +142,9 @@ Onobrychis_viciifolia;Scop.;na;Onovic;Fabaceae;PL;legume;na;na;na;yes;8;7;6;3;na
 Ononis_spinosa;L.;na;Onospi;Fabaceae;PL;legume;na;na;na;no;8;6;5;4;1;7;3;yes;no;no;no;no;NA;3;NA;no;no;no;no;no;1
 Ononis_spinosa_ssp_procurrens;(Wallr.) Briq.;Ononis_repens;Onopro;Fabaceae;PL;legume;na;na;na;no;8;5;2;4;1;7;2;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Origanum_vulgare;L.;na;Orivul;Lamiaceae;PL;herb;na;na;na;no;7;na;3;3;na;8;3;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
-Orobanche_spec;na;na;Orospe;Orobanchaceae;na;Parasit;na;na;na;no;na;na;na;na;na;na;na;yes;no;no;no;yes;NA;2;NA;no;no;no;no;no;2
+Orobanche_spec;na;na;Orospe;Orobanchaceae;na;parasite;na;na;na;no;na;na;na;na;na;na;na;yes;no;no;no;yes;NA;2;NA;no;no;no;no;no;2
 Papaver_rhoeas;L.;na;Paprho;Papaveraceae;PL;herb;na;na;na;no;6;6;3;5;na;7;6;no;no;no;no;no;NA;NA;NA;no;no;no;yes;no;1
-Parthenocissus_inserta;(A.Kern.) Fritsch;na;Parins;Vitaceae;PL;z Gehölz;na;na;na;yes;na;na;na;na;na;na;na;no;no;no;no;no;NA;NA;NA;no;no;no;no;no;2
+Parthenocissus_inserta;(A.Kern.) Fritsch;na;Parins;Vitaceae;PL;liana;na;na;na;yes;na;na;na;na;na;na;na;no;no;no;no;no;NA;NA;NA;no;no;no;no;no;2
 Persicaria_amphibia;(L.) Delarbre;na;Peramp;Polygonaceae;PL;herb;na;na;na;no;7;6;na;11;na;6;4;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Peucedanum_officinale;L.;na;Peuoff;Apiaceae;PL;herb;na;3;2;no;7;7;5;4;1;8;2;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Peucedanum_oreoselinum;(L.) Moench;na;Peuore;Apiaceae;PL;herb;na;V;na;no;6;6;4;3;na;6;2;yes;no;no;no;no;NA;2;2;no;no;no;no;no;1
@@ -184,9 +184,9 @@ Rhinanthus_alectorolophus;(Scop.) Pollich;na;Rhiale;Orobanchaceae;PL;hemiparasit
 Rhinanthus_glacialis;Personnat;na;Rhigla;Orobanchaceae;PL;hemiparasite;na;V;na;no;8;3;4;5;na;4;2;yes;no;no;no;yes;NA;NA;2;no;no;no;no;no;1
 Rhinanthus_minor;L.;na;Rhimin;Orobanchaceae;PL;hemiparasite;na;na;na;no;7;5;3;na;na;na;3;no;no;no;no;no;NA;4;NA;no;no;no;no;no;1
 Rhinanthus_serotinus;(Schönh.) Oborny;na;Rhiser;Orobanchaceae;PL;hemiparasite;na;3;na;no;7;5;3;6;1;7;2;yes;no;no;no;yes;NA;3;NA;no;no;no;no;no;1
-Rosa_canina;L.;na;Roscan;Rosaceae;PL;z Halbstrauch;na;na;na;no;8;5;3;4;na;na;na;no;no;no;no;no;NA;NA;NA;no;no;no;no;yes;2
-Rubus_caesius;L.;na;Rubcae;Rosaceae;PL;z Halbstrauch;na;na;na;no;6;5;4;na;na;8;7;no;no;no;no;no;NA;NA;NA;no;yes;no;no;yes;2
-Rubus_fruticosus_agg;na;na;Rubfru;Rosaceae;na;z Halbstrauch;na;na;na;no;na;na;na;na;na;na;na;no;no;no;no;no;NA;NA;NA;no;yes;no;no;yes;2
+Rosa_canina;L.;na;Roscan;Rosaceae;PL;halfshrub;na;na;na;no;8;5;3;4;na;na;na;no;no;no;no;no;NA;NA;NA;no;no;no;no;yes;2
+Rubus_caesius;L.;na;Rubcae;Rosaceae;PL;halfshrub;na;na;na;no;6;5;4;na;na;8;7;no;no;no;no;no;NA;NA;NA;no;yes;no;no;yes;2
+Rubus_fruticosus_agg;na;na;Rubfru;Rosaceae;na;halfshrub;na;na;na;no;na;na;na;na;na;na;na;no;no;no;no;no;NA;NA;NA;no;yes;no;no;yes;2
 Rumex_acetosa;L.;na;Rumace;Polygonaceae;PL;herb;na;na;na;no;8;na;na;na;na;na;6;yes;no;no;yes;no;NA;NA;NA;no;no;no;no;no;1
 Rumex_crispus;L.;na;Rumcri;Polygonaceae;PL;herb;na;na;na;no;7;5;3;7;1;na;5;no;no;no;no;no;NA;NA;NA;yes;yes;no;no;no;1
 Rumex_obtusifolius;L.;na;Rumobt;Polygonaceae;PL;herb;na;na;na;no;7;5;3;6;na;na;9;no;no;no;no;no;NA;NA;NA;yes;yes;no;no;no;1
@@ -205,7 +205,7 @@ Silaum_silaus;(L.) Schinz & Thell.;na;Silsil;Apiaceae;PL;herb;na;V;na;no;7;6;5;n
 Silene_dioica;(L.) Clairv.;na;Sildio;Caryophyllaceae;PL;herb;na;na;na;no;na;na;4;6;na;7;8;no;no;no;no;no;NA;NA;NA;no;no;no;no;yes;1
 Silene_flos-cuculi;(L.) Greuter & Burdet;Lychnis_flos-cuculi;Silflo;Caryophyllaceae;PL;herb;na;na;na;no;7;5;3;7;1;na;na;yes;no;no;no;no;4;NA;NA;no;no;no;no;no;1
 Silene_gallica;L.;na;Silgal;Caryophyllaceae;PL;herb;na;1;na;no;7;7;3;4;na;7;6;no;no;no;no;no;NA;NA;NA;no;no;no;no;yes;1
-Silene_latifolia;Poir.;na;Sillat;Caryophyllaceae;PL;herb;na;na;na;no;8;6;na;4;na;na;7;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
+Silene_latifolia_ssp_alba;Poir.;na;Sillat;Caryophyllaceae;PL;herb;na;na;na;no;8;6;na;4;na;na;7;yes;no;no;no;no;NA;NA;NA;no;no;no;no;no;1
 Silene_vulgaris;(Moench) Garcke;na;Silvul;Caryophyllaceae;PL;herb;na;na;na;no;8;na;na;4;1;7;2;yes;no;no;no;no;NA;3;NA;no;no;no;no;no;1
 Sisymbrium_officinale;(L.) Scop.;na;Sisoff;Brassicaceae;PL;herb;na;na;na;no;8;6;5;4;na;na;7;no;no;no;no;no;NA;NA;NA;no;no;no;yes;no;1
 Solidago_canadensis;L.;na;Solcan;Asteraceae;PL;herb;na;na;na;yes;8;6;5;na;na;na;6;no;no;no;no;no;NA;NA;NA;no;no;no;no;no;1

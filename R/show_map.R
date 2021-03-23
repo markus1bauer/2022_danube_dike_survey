@@ -9,6 +9,7 @@
 
 
 ### Packages ###
+library(here)
 library(tidyverse)
 library(sf)
 library(ggmap)
@@ -20,7 +21,7 @@ library(grid)
 
 ### Start ###
 rm(list = ls())
-setwd("Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/spatial")
+setwd(here("data/processed/spatial"))
 
 ### Load data ###
 germany <- st_read("germany.shp")
@@ -106,7 +107,7 @@ sitesGraph + inset_element(gerGraph,
 ### d Save -----------------------------------------------------------------------
 ggsave("figure_map_terrain_(300dpi_17x11cm).tiff", 
        dpi = 300, width = 17, height = 11, units = "cm",
-       path = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/outputs/figures")
+       path = here("outputs/figures"))
 
 
 ## 2 Map with ggplot2 ##############################################################################
@@ -137,7 +138,7 @@ sitesGraph + inset_element(gerGraph,
 ### c Save -----------------------------------------------------------------------
 ggsave("figure_map_dikes_(300dpi_17x11cm).tiff", 
        dpi = 300, width = 17, height = 11, units = "cm",
-       path = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/outputs/figures")
+       path = here("outputs/figures"))
 
 
 # 3 Map with tmap ##############################################################################
@@ -169,5 +170,5 @@ tmap_save(tmap,
                                y = unit(4.3, "cm"),
                                width = unit(3, "cm"),
                                height = unit(4, "cm")), 
-          filename = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/outputs/figures/figure_1_map_tmap_(300dpi_8x11cm).tiff",
+          filename = paste0(here("outputs/figures"), "/", "figure_1_map_tmap_(300dpi_8x11cm).tiff"),
           dpi = 300)

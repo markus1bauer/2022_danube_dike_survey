@@ -7,6 +7,7 @@
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ### Packages ###
+library(here)
 library(tidyverse)
 library(sf)
 library(ggmap)
@@ -25,7 +26,7 @@ register_google(key = "AIzaSyB5nQU_dgB_kPsQkk-_cq7pA0g1-2qka4E")
 
 ## 1 Sites #################################################################################################
 
-setwd("Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/raw")
+setwd(here("data/raw"))
 sites <- read_csv2("data_raw_sites.csv", col_names = T, na = "na", col_types = 
                      cols(
                        .default = col_double(),
@@ -62,7 +63,7 @@ sites2 <- left_join(sites2, blocks, by = "location")
 
 ## 2 Transform shp files #################################################################################################
 
-setwd("Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/raw/shp_files")
+setwd(here("data/raw/spatial"))
 
 data <- st_read("Deich.shp")
 data <- st_transform(data, crs = 4326)
@@ -84,16 +85,16 @@ ffh_area <- st_intersection(data, bbox)
 
 ## 3 Digitize shp files #################################################################################################
 
-data <- mapview() %>% editMap()
-mapview(data$finished)
-danube <- data$finished %>%
-  st_as_sf() %>%
-  rename(river = X_leaflet_id) %>%
-  mutate(river = str_replace(as.character(river), ".", "Danube")) %>%
-  mutate(river = str_extract(river, "Danube")) %>%
-  st_crop(ymin = 48.65, ymax = 48.95, xmin = 12.55, xmax = 13.15)
-plot(st_geometry(danube))
-rm(data)
+#data <- mapview() %>% editMap()
+#mapview(data$finished)
+#danube <- data$finished %>%
+  #st_as_sf() %>%
+  #rename(river = X_leaflet_id) %>%
+  #mutate(river = str_replace(as.character(river), ".", "Danube")) %>%
+  #mutate(river = str_extract(river, "Danube")) %>%
+  #st_crop(ymin = 48.65, ymax = 48.95, xmin = 12.55, xmax = 13.15)
+#plot(st_geometry(danube))
+#rm(data)
 
 
 ## 4 Background map #################################################################################################
@@ -120,7 +121,7 @@ background_toner <- get_map(
   location = c(lon = 12.884, lat = 48.839),
   zoom = 10, 
   scale = 1,
-  maptype = "toner",
+  maptype = "toner-background",
   source = "stamen"
 )
 ggmap(background_toner)
@@ -129,7 +130,7 @@ background_terrain <- get_map(
   location = c(left = 12.55, bottom = 48.65, right = 13.15, top = 48.95),
   zoom = 10, 
   scale = 1,
-  maptype = "terrain",
+  maptype = "terrain-background",
   source = "stamen"
 )
 ggmap(background_terrain)
@@ -141,25 +142,25 @@ ggmap(background_terrain)
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-save(background_google, file = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/spatial/background_google.rda")
-save(background_toner, file = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/spatial/background_toner.rda")
-save(background_terrain, file = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/spatial/background_terrain.rda")
+save(background_google, file = paste0(here("data/processed/spatial"), "/", "background_google.rda"))
+save(background_toner, file = paste0(here("data/processed/spatial"), "/", "background_toner.rda"))
+save(background_terrain, file = paste0(here("data/processed/spatial"), "/", "background_terrain.rda"))
 st_write(germany, layer = "germany.shp", driver = "ESRI Shapefile", delete_layer = T,
-         dsn = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/spatial")
+         dsn = here("data/processed/spatial"))
 st_write(rivers, layer = "rivers.shp", driver = "ESRI Shapefile", delete_layer = T,
-         dsn = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/spatial")
+         dsn = here("data/processed/spatial"))
 st_write(danube, layer = "danube.shp", driver = "ESRI Shapefile", delete_layer = T,
-         dsn = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/spatial")
+         dsn = here("data/processed/spatial"))
 st_write(grazing, layer = "grazing.shp", driver = "ESRI Shapefile", delete_layer = T,
-         dsn = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/spatial")
+         dsn = here("data/processed/spatial"))
 st_write(dikes, layer = "dikes.shp", driver = "ESRI Shapefile", delete_layer = T,
-         dsn = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/spatial")
+         dsn = here("data/processed/spatial"))
 st_write(conservation_area, layer = "conservation_area.shp", driver = "ESRI Shapefile", delete_layer = T,
-         dsn = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/spatial")
+         dsn = here("data/processed/spatial"))
 st_write(ffh_area, layer = "ffh_area.shp", driver = "ESRI Shapefile", delete_layer = T,
-         dsn = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/spatial")
+         dsn = here("data/processed/spatial"))
 st_write(sites, layer = "sites.shp", driver = "ESRI Shapefile", delete_layer = T,
-         dsn = "Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/spatial")
-setwd("Z:/Documents/0_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/processed/spatial")
+         dsn = here("data/processed/spatial"))
+setwd(here("data/processed/spatial"))
 write_csv2(sites2, file = "sites2.csv")
 write_csv2(blocks, file = "blocks.csv")

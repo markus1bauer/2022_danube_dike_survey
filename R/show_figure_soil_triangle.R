@@ -9,12 +9,13 @@
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ### Packages ###
+library(here)
 library(tidyverse)
 library(soiltexture)
 
 ### Start ###
 rm(list = ls())
-setwd("Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/raw")
+setwd(here("data/raw"))
 
 
 ### Load data ###

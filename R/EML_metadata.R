@@ -3,6 +3,7 @@
 
 
 ### Packages ###
+library(here)
 library(EML)
 
 ### Start ###
@@ -101,6 +102,6 @@ eml <- list(
   dataset = dataset
   )
 
-setwd("Z:/Documents/0_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes")
+setwd(here())
 write_eml(eml, "METADATA.xml")
 eml_validate("METADATA.xml")
