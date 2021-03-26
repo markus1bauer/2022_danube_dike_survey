@@ -16,7 +16,7 @@ sandPerc;percentage of sand in the fine soil sample (fine soil <2mm);Dr. Häusle
 siltPerc;percentage of silt in the fine soil sample (fine soil <2mm);Dr. Häusler 2017-11-28, DIN ISO 11277;wt%;numeric;NA;grain size 0,063-0,002mm
 clayPerc;percentage of clay in the fine soil sample (fine soil <2mm);Dr. Häusler 2017-11-28, DIN ISO 11277;wt%;numeric;NA;grain size <0,002
 phosporous;CAL extract (Calcium-acetat lactat) of phosphorus (P2O5);Dr. Häusler 2017-11-28, VDLUFA method A 6.3.1.1 (2002);mg P2O5 (100g soil)^-1;numeric;NA;NA
-phosphorousClass;ferilization classification;Leitfaden Düngung, LfL (2007) 8.Aufl.;NA;factor;A = very low, C = optimum, E = very high;values for agricultural land not greenland
+phosphorousClass;ferilization classification;Leitfaden Düngung, LfL (2007) 8.Aufl.;NA;factor;for grassland: A < 5, B 5-7, C 8-20, D 21-30, E  >30 mg P2O5 / 100g Boden;values for agricultural land not greenland
 potassium;CAL extract (Calcium-acetat lactat) of potassium (K2O) ;Dr. Häusler 2017-11-28, VDLUFA method A 6.2.1.1 (2002);mg K2O (100gsoil)^-1;numeric;NA;NA
 magnesium;CaCl2 extract of magnesium (Mg);Dr. Häusler 2017-11-28, VDLUFA method A 6.2.4.1;mg Mg (100g soil)^-1;numeric;NA;NA
 topsoilDepth;measured depth of topsoil but if necessary taken from plans;NA;cm;numeric;NA;NA
@@ -29,7 +29,7 @@ plot;serial number of the plot;NA;NA;factor;NA;NA
 position;position on the dike;NA;NA;factor;m = middle part, o = upper part of the dike side;NA
 conf.low;dummy variable for confidence interval;NA;NA;numeric;NA;NA
 conf.high;dummy variable for confidence interval;NA;NA;numeric;NA;NA
-NtotalConc;the concentration of total N per m^2;fmMass * NotalPerc / 100, fmMass = fmDepth * fmDbd * 10;kg m^-2;numeric;NA;for explanation of the variables look in data_raw_sites_metadata
+NtotalConc;the concentration of total N per m^2;fmMass * NtotalPerc / 100, fmMass = fmDepth * fmDbd * 10;kg m^-2;numeric;NA;for explanation of the variables look in data_raw_sites_metadata
 graminoidCov;accumulated coverages of graminoid species;NA;%;numeric;NA;NA
 herbCov;accumulated coverages of herbal species;NA;%;numeric;NA;NA
 graminoidCovratio;ratio of graminoid's coverage to cumulated coverage of all species;graminoidCov / (graminoidCov + herbCov);ratio;numeric;NA;NA

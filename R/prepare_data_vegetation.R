@@ -135,14 +135,6 @@ traits <- read_csv2("data_raw_traits.csv", col_names = T, na = c("", "NA", "na")
 
 ### 1 Create simple variables #####################################################################################
 
-sites <- sites %>%
-  mutate(conf.low = c(1:length(id))) %>%
-  mutate(conf.high = c(1:length(id))) %>%
-  mutate(fmMass = fmDepth * fmDbd * 10) %>%
-  mutate(NtotalConc = fmMass * NtotalPerc / 100) %>%
-  mutate(plotAge = surveyYear - constructionYear) %>%
-  select(-fmDepth, -fmMass)
-
 traits <- traits %>%
   mutate(leanIndicator = if_else(
     !(is.na(table30)) | !(is.na(table33)) | !(is.na(table34)), "yes", "no"
@@ -150,6 +142,14 @@ traits <- traits %>%
   mutate(target = if_else(
     targetHerb == "yes" | targetGrass == "yes", "yes", "no"
   ))
+
+sites <- sites %>%
+  mutate(conf.low = c(1:length(id))) %>%
+  mutate(conf.high = c(1:length(id))) %>%
+  mutate(fmMass = fmDepth * fmDbd * 10) %>%
+  mutate(NtotalConc = fmMass * NtotalPerc / 100) %>%
+  mutate(plotAge = surveyYear - constructionYear) %>%
+  select(-fmDepth, -fmMass)
 
 
 ### 2 Coverages #####################################################################################
@@ -434,6 +434,8 @@ rm(list=setdiff(ls(), c("sites", "species", "traits")))
 
 
 ### 4 Biotope types #####################################################################################
+
+### a Calculate types -------------------------------------------------------------------------------------------
 biotopetypes <- sites %>%
   select(id, table33_2Richness, table33_3Richness, table33_4Richness, table33Cov, table34_2Richness, table34_3Richness, targetRichness, targetHerbRichness, arrhRichness, targetCov, leanCov, arrhCov, targetHerbCov, nitrogenCov) %>%
   mutate(table33Rich_proof = if_else(
@@ -522,6 +524,24 @@ sites <- left_join(sites, biotopetypes, by = "id") %>%
 traits <- traits %>%
   select(-targetArrhenatherion, -table30, -table33, -table34, -nitrogenIndicator, -nitrogenIndicator2, leanIndicator)
 rm(biotopetypes)  
+
+### b Calculate constance -------------------------------------------------------------------------------------------
+data <- sites %>%
+  select(id, plot, surveyYear, ffh) %>%
+  group_by(plot) %>%
+  mutate(count = n()) %>%
+  filter(count == max(count)) %>%
+  pivot_wider(id_cols = -id, names_from = "surveyYear", values_from = "ffh") %>%  #group_by(plot) %>%
+  rename(x17 = "2017", x18 = "2018", x19 = "2019") %>%
+  mutate(changeType = ifelse((x17 == "non-FFH" & x18 != "non-FFH" & x19 != "non-FFH"), "better", 
+                       ifelse((x17 != "non-FFH" & x18 == "non-FFH" & x19 != "non-FFH") | (x17 == "non-FFH" & x18 != "non-FFH" & x19 == "non-FFH") | (x17 == "non-FFH" & x18 == "non-FFH" & x19 != "non-FFH") | (x17 != "non-FFH" & x18 != "non-FFH" & x19 == "non-FFH"), "change", 
+                              ifelse((x17 == "non-FFH" & x18 == "non-FFH" & x19 == "non-FFH"), "non-FFH", 
+                                     ifelse(x17 == "6510" & x18 == "6510" & x19 == "6510", "FFH6510", 
+                                            ifelse(x17 == "6210" & x18 == "6210" & x19 == "6210", "FFH6210",
+                                                   ifelse(x17 != "non-FFH" & x18 != "non-FFH" & x19 != "non-FFH", "any-FFH", "worse"))))))) %>%
+  select(plot, changeType)
+sites <- data %>%
+  right_join(sites, by = "plot")
 
 
 ### 5 TBI #####################################################################################
@@ -944,7 +964,29 @@ length(traitsAll$name) / (herbCount - undefinedSpeciesCount)
 rm(list=setdiff(ls(), c("sites", "species", "traits", "tbiPa", "tbiAbu")))
 
 
+### 9 Ordination #####################################################################################
 
+### a NMDS -------------------------------------------------------------------------------------------
+nmds <- species %>%
+  pivot_longer(-name, "id", "value") %>%
+  pivot_wider(id, name) %>%
+  arrange(id) %>%
+  column_to_rownames("id")
+set.seed(1)
+(ordi <- metaMDS(nmds, try = 99, previous.best = T, na.rm = T))
+sites <- ordi %>%
+  scores() %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "id") %>%
+  as_tibble() %>%
+  select(id, NMDS1, NMDS2) %>%
+  right_join(sites, by = "id")
+
+### b PERMDISP -------------------------------------------------------------------------------------------
+(permdisp <- betadisper(d = vegdist(nmds), group = sites$plot))
+sites <- mutate(sites, permdisp = as.numeric(permdisp$distances))
+rm(permdisp, ordi, nmds)
+  
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # C Save processed data ##############################################################################
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
