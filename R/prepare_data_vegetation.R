@@ -42,7 +42,7 @@ species <- species %>%
   mutate_all(funs(str_replace(., ",", "."))) %>%
   mutate(id = as_factor(id)) %>%
   mutate_if(is_character, as.numeric) %>%
-  select(id, where(~ is.numeric(.x) && sum(.x, na.rm = T) !=0 ))
+  select(id, where(~ is.numeric(.x) && sum(.x, na.rm = T) != 0 ))
 species <- left_join(names, species, by = "id") %>% 
   select(-id) %>%
   mutate(name = as_factor(name))
@@ -71,22 +71,22 @@ rm(list = setdiff(ls(), c("species")))
 
 sites <- read_csv2("data_raw_sites.csv", col_names = T, na = c("", "NA", "na"), col_types = 
                      cols(
-                       .default = col_double(),
-                       id = col_factor(),
-                       block = col_factor(),
-                       location = col_factor(),
-                       side = col_factor(),
-                       exposition = col_factor(),
-                       ageCategory = col_factor(),
-                       surveyDate_2017 = col_date(),
-                       surveyDate_2018 = col_date(),
-                       surveyDate_2019 = col_date(),
-                       HCl = col_factor(),
-                       humusLevel = col_factor(),
-                       cnLevel = col_factor(),
-                       phosphorousClass = col_factor(),
-                       potassiumClass = col_factor(),
-                       magnesiumClass = col_character()
+                       .default = "d",
+                       id = "f",
+                       block = "f",
+                       location = "f",
+                       side = "f",
+                       exposition = "f",
+                       ageCategory = "f",
+                       surveyDate_2017 = "D",
+                       surveyDate_2018 = "D",
+                       surveyDate_2019 = "D",
+                       HCl = "f",
+                       humusLevel = "f",
+                       cnLevel = "f",
+                       phosphorousClass = "f",
+                       potassiumClass = "f",
+                       magnesiumClass = "f"
                      )) %>%
   select(id, block, location, RW, HW, side, exposition, constructionYear, starts_with("vegetationCov"), starts_with("vegetationHeight"), calciumcarbonatPerc, humusPerc, NtotalPerc, cnRatio, pH, sandPerc, siltPerc, clayPerc, phosphorous, phosphorousClass, potassium, magnesium, topsoilDepth, fmDepth, sceletonRatiov, fmDbd, ufcPerc, ufc) %>%
   pivot_longer(starts_with("vegetationCov") | starts_with("vegetationHeight"), names_to = "surveyYear", values_to ="value") %>%
@@ -97,7 +97,11 @@ sites <- read_csv2("data_raw_sites.csv", col_names = T, na = c("", "NA", "na"), 
   mutate(id = paste0("X", id)) %>%
   mutate(plot = str_sub(id, start = 2, end = 3)) %>%
   mutate(position = str_sub(id, start = 5, end = 5)) %>%
-### Remove plots with no species ###
+  mutate(locationAbb = str_sub(location, 1, 3)) %>%
+  mutate(locationAbb = str_to_upper(locationAbb)) %>%
+  mutate(locationAbb = str_c(locationAbb, constructionYear, sep = "-")) %>%
+  mutate(locationAbb = factor(locationAbb, levels = unique(locationAbb[order(constructionYear)]))) %>%
+  # Remove plots with no species ###
   filter(id %in% colnames(species[-1])) %>%
   mutate(id = as_factor(id)) %>%
   mutate(plot = as_factor(plot)) %>%
@@ -109,13 +113,13 @@ sites <- read_csv2("data_raw_sites.csv", col_names = T, na = c("", "NA", "na"), 
 
 traits <- read_csv2("data_raw_traits.csv", col_names = T, na = c("", "NA", "na"), col_types = 
                       cols(
-                        .default = col_factor(),
-                        l = col_double(),
-                        t = col_double(),
-                        k = col_double(),
-                        f = col_double(),
-                        r = col_double(),
-                        n = col_double()
+                        .default = "f",
+                        l = "d",
+                        t = "d",
+                        k = "d",
+                        f = "d",
+                        r = "d",
+                        n = "d"
                       )) %>%
 #Check congruency of traits and species table
 #traits$name[which(!(traits$name %in% species$name))]
@@ -986,6 +990,41 @@ sites <- ordi %>%
 (permdisp <- betadisper(d = vegdist(nmds), group = sites$plot))
 sites <- mutate(sites, permdisp = as.numeric(permdisp$distances))
 rm(permdisp, ordi, nmds)
+
+### c PCA  -------------------------------------------------------------------------------------------
+data <- sites %>%
+  select(id, plot, calciumcarbonatPerc, NtotalPerc, cnRatio, pH, sandPerc, siltPerc, clayPerc, phosphorous, potassium, magnesium, topsoilDepth, NtotalConc) %>%
+  group_by(plot) %>%
+  summarise(across(where(is.numeric), ~median(.x, na.rm = T))) %>%
+  select(-plot) 
+pca <- rda(X = decostand(data, method = "standardize"), scale = T)
+biplot(pca, display = "species")
+screeplot(pca, bstick = TRUE, type = "l", main = NULL)
+eigenvals <- pca %>%
+  eigenvals() %>%
+  summary() %>%
+  as_tibble() %>%
+  select(PC1:PC3) %>%
+  bind_cols(c("Eigenvalues", "Proportion Explained", "Cumulative Proportion")) %>%
+  rename("variables" = "...4") %>%
+  mutate(across(where(is.numeric), as.double))
+values <- pca %>%
+  summary()
+pca <- values$species[,1:3] %>%
+  as_tibble() %>%
+  bind_cols(c("calciumcarbonatPerc", "NtotalPerc", "cnRatio", "pH", "sandPerc", "siltPerc", "clayPerc", "phosphorous", "potassium", "magnesium", "topsoilDepth", "NtotalConc")) %>%
+  rename(variables = "...4") %>%
+  bind_rows(eigenvals)
+data <- as_tibble(values$sites[,1:3])
+sites <- sites %>%
+  select(id, plot, calciumcarbonatPerc, NtotalPerc, cnRatio, pH, sandPerc, siltPerc, clayPerc, phosphorous, potassium, magnesium, topsoilDepth, NtotalConc) %>%
+  group_by(plot) %>%
+  summarise(across(where(is.numeric), ~median(.x, na.rm = T))) %>%
+  select(plot) %>%
+  bind_cols(data) %>%
+  left_join(sites, by = "plot")
+rm(data, names, values, eigenvals)
+
   
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # C Save processed data ##############################################################################
@@ -998,3 +1037,5 @@ write_csv2(species, "data_processed_species.csv")
 write_csv2(traits, "data_processed_traits.csv")
 write_csv2(tbiAbu, "data_processed_tbiAbu.csv")
 write_csv2(tbiPa, "data_processed_tbiPa.csv")
+setwd(here("data/tables"))
+write_csv2(pca, "table_pca.csv")

@@ -20,23 +20,17 @@ setwd(here("data/processed"))
 ### Load data ###
 sites <- read_csv2("data_processed_sites.csv", col_names = T, na = "na", col_types = 
                     cols(
-                      .default = col_double(),
+                      .default = col_guess(),
                       id = col_factor(),
                       location = col_factor(),
                       block = col_factor(),
                       plot = col_factor(),
-                      position = col_factor(),
-                      dataset = col_factor(),
-                      side = col_factor(),
                       exposition = col_factor(),
-                      phosphorousClass = col_factor(c("A", "B", "C", "D", "E")),
-                      biotopeType = col_factor(),
-                      baykompv = col_factor(),
                       ffh = col_factor(),
-                      min8 = col_factor(),
-                      min9 = col_factor()
-                    )        
-)
+                      vegetationCov = col_double()
+                    )) %>%
+  select(id, plot, block, location, surveyYear, constructionYear, plotAge, exposition, PC1, PC2, PC3, ffh, changeType, vegetationCov, targetRichness, targetCov, ffh6510Richness, ffh6210Richness) %>%
+  mutate(surveyYearF = as_factor(surveyYear))
 
 species <- read_csv2("data_processed_species.csv", col_names = T, na = "na", col_types = 
                       cols(
@@ -61,9 +55,8 @@ speciesFFH <- species %>%
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-### 1 NMDS #####################################################################################
+### 1 NMDY #####################################################################################
 
-#### a ordination ----------------------------------------------------------------------------------------
 set.seed(1)
 (ordi <- metaMDS(species, try = 99, previous.best = T, na.rm = T))
 stressplot(ordi)
@@ -71,36 +64,24 @@ stressplot(ordi)
 #R²linear = .593
 #R²non-metric = .918
 
-#### b environmental factors ----------------------------------------------------------------------------------------
-### vectors ###
-(ef_vector1 <- envfit(ordi ~  vegetationCov + plotAge + topsoilDepth + phosphorous + pH + calciumcarbonatPerc + humusPerc + NtotalPerc + cnRatio + sandPerc + siltPerc + clayPerc + NtotalConc + ufc + targetRichness + ffh6510Richness + ffh6210Richness + targetCov, 
+### 2 Environmental factors #####################################################################################
+
+#### a Vectors ----------------------------------------------------------------------------------------
+(ef_vector1 <- envfit(ordi ~  surveyYear + plotAge + PC1 + PC2 + PC3 + vegetationCov + targetRichness + ffh6510Richness + ffh6210Richness + targetCov, 
               data = sites, permu = 999, na.rm = T))
 plot(ordi, type = "n"); plot(ef_vector1, add = T, p. = .99)
-(ef_vector2 <- envfit(ordi ~  vegetationCov + plotAge + topsoilDepth + phosphorous + NtotalConc + NtotalPerc + cnRatio + sandPerc + ffh6510Richness + ffh6210Richness, 
+(ef_vector2 <- envfit(ordi ~  surveyYear + plotAge + PC1 + PC2 + PC3, 
                       data = sites, permu = 999, na.rm = T))
 plot(ordi, type = "n"); plot(ef_vector2, add = T, p. = .99)
-### factors ###
-(ef_factor1 <- envfit(ordi ~  plot + block + side + surveyYear + exposition + location + ffh + biotopeType + biotopePoints + baykompv + phosphorousClass, 
+
+#### b factors ----------------------------------------------------------------------------------------
+(ef_factor1 <- envfit(ordi ~  plot + block + surveyYear + exposition + location + ffh + changeType, 
               data = sites, permu = 999, na.rm = T))
 plot(ordi, type = "n"); ordiellipse(ordi, sites$location, kind = "sd", draw = "lines", label = T)
+plot(ordi, type = "n"); ordiellipse(ordi, sites$plot, kind = "sd", draw = "lines", label = T)
 plot(ordi, type = "n"); ordiellipse(ordi, sites$surveyYear, kind = "sd", draw = "lines", label = T)
+plot(ordi, type = "n"); ordiellipse(ordi, sites$constructionYear, kind = "sd", draw = "lines", label = T)
 plot(ordi, type = "n"); ordiellipse(ordi, sites$exposition, kind = "sd", draw = "lines", label = T)
 plot(ordi, type = "n"); ordiellipse(ordi, sites$ffh, kind = "sd", draw = "lines", label = T)
-plot(ordi, type = "n"); ordiellipse(ordi, sites$plot, kind = "sd", draw = "lines", label = T)
+plot(ordi, type = "n"); ordiellipse(ordi, sites$changeType, kind = "sd", draw = "lines", label = T)
 
-
-### 2 PERMANOVA #####################################################################################
-
-#### a exposition ----------------------------------------------------------------------------------------
-(permdisp <- betadisper(d = vegdist(species), group = sites$exposition))
-permutest(permdisp, pairwise = T) # similar
-(permanova <- adonis(species ~ exposition, data = sites, 
-                          strata = sites$plot, permutations = 999, method = "bray"))
-densityplot(permustats(permanova)) # R² = .04, n.s.
-
-#### b ffh ----------------------------------------------------------------------------------------
-(permdisp <- betadisper(d = vegdist(speciesFFH), group = sitesFFH$ffh))
-permutest(permdisp, pairwise = T) # not similar
-(permanova <- adonis(speciesFFH ~ ffh, data = sitesFFH, 
-                     strata = sitesFFH$plot, permutations = 999, method = "bray"))
-densityplot(permustats(permanova)) # p= .004, R² = .03
