@@ -1,33 +1,33 @@
-ï»¿variable;definition;source;unit;type;value;comment
-name;botanical species name;see nomenclature;NA;factor;NA;NA
-descriptor;descriptor of the species;The Plant List;NA;character;NA;NA
-synonym;synonym for name;Wisskirchen & Haeupler 1998;NA;factor;NA;NA
-abb;abbreviation of species name;NA;NA;factor;NA;NA
-family;family of plant species;The Plant List;NA;factor;NA;NA
-nomenclature;nomenclature of species names;NA;NA;factor;PL = Plant List, WH = Wisskirchen & Haeupler 1998;NA
-group;grass-herb-legume groups;NA;NA;factor;top_grass, sub_grass, legume, herb;NA
-legal;legally protected in Germany;BArtSchV 2005 in floraweb.de;NA;factor;BG = besonders geschÃ¼tzt;NA
-rlg;Red list Germany;Metzing et al. 2018 in floraweb.de;NA;factor;NA = not threatened, V = warning list, 3, 2, 1;NA
-rlb;Red list Bavaria;StMUGV 2005 Rote Liste;NA;factor;NA = not threatened, V = warning list, 3, 2, 1;NA
-neophyte;is species a neophyte;floraweb.de;NA;factor;yes, no;NA
-l;Ellenberg L value;Ellenberg et al. 2001 in floraweb.de;NA;numeric;NA;NA
-t;Ellenberg T value;Ellenberg et al. 2001 in floraweb.de;NA;numeric;NA;NA
-k;Ellenberg K value;Ellenberg et al. 2001 in floraweb.de;NA;numeric;NA;NA
-f;Ellenberg F value;Ellenberg et al. 2001 in floraweb.de;NA;numeric;NA;NA
-fchange;Ellenberg changing moisture indicatior;Ellenberg et al. 2001 in floraweb.de;NA;factor;NA;NA
-r;Ellenberg R value;Ellenberg et al. 2001 in floraweb.de;NA;numeric;NA;NA
-n;Ellenberg N value;Ellenberg et al. 2001 in floraweb.de;NA;numeric;NA;NA
-targetHerb;herbal target species;LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 GE (p. 40ff.), GT (p. 70ff.), LR6510 (p. 88f.);NA;factor;yes, no;NA
-targetGrass;target grass species;LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 GE (p. 40ff.), GT (p. 70ff.), LR6510 (p. 88f.);NA;factor;yes, no;NA
-targetArrhenatherion;target species of the Arrhenatherion;LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 p. 42 section 1.;NA;factor;yes, no;NA
-ffh6510;species of the FFH type 6510;LfU & LWF (2018) Handbuch der Lebensraumtypen nach Anhang I der FFH-Richtlinie in Bayern p. 90;NA;factor;yes, no;NA
-ffh6210;species of the FFH type 6210;LfU & LWF (2018) Handbuch der Lebensraumtypen nach Anhang I der FFH-Richtlinie in Bayern p. 76;NA;factor;yes, no;NA
-table30;Tafel 30 of Â§ 30-SchlÃ¼ssel;LfU (2018) BestimmungsschlÃ¼ssel fÃ¼r FlÃ¤chen nach Â§ 30 BNatSchG / Art. 23 BayNatSchG;NA;factor;1 = category 1, 2 = category 2, 3 = category 3, 4 = category 4;NA
-table33;Tafel 33 of Â§ 30-SchlÃ¼ssel;LfU (2018) BestimmungsschlÃ¼ssel fÃ¼r FlÃ¤chen nach Â§ 30 BNatSchG / Art. 23 BayNatSchG;NA;factor;1 = category 1, 2 = category 2, 3 = category 3, 4 = category 4;NA
-table34;Tafel 34 of Â§ 30-SchlÃ¼ssel;LfU (2018) BestimmungsschlÃ¼ssel fÃ¼r FlÃ¤chen nach Â§ 30 BNatSchG / Art. 23 BayNatSchG;NA;factor;1 = category 1, 2 = category 2, 3 = category 3, 4 = category 4;NA
-nitrogenIndicator;species which are nitrogen indicator;LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 p. 40 section c;NA;factor;yes, no;NA
-nitrogenIndicator2;species which are nitrogen indicator ;XXX;NA;factor;yes, no;NA
-grazingIndicator;species which are indicators for grazed sites;LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 p. 42 section 2.;NA;factor;yes, no;NA
-ruderalIndicator;species which are indicators for ruderal conditions according to ???;XXX;NA;factor;yes, no;NA
-others;XXX;XXX;NA;factor;yes, no;NA
-calculationCWM;XXX;XXX;NA;factor;yes, no;NA
+variable,definition,source,unit,type,value,"comment						",,,,,,,,,,,,,,,,,,,,,,,,,
+name,botanical species name,see nomenclature,NA,factor,NA,"NA						",,,,,,,,,,,,,,,,,,,,,,,,,
+nomenclature,nomenclature of species names,www.worldfloraonline.org,NA,factor,NA,"NA					",,,,,,,,,,,,,,,,,,,,,,,,,
+synonym,synonym for name,Wisskirchen & Haeupler 1998,NA,factor,NA,"NA						",,,,,,,,,,,,,,,,,,,,,,,,,
+family,family of plant species,The Plant List,NA,factor,NA,"NA						",,,,,,,,,,,,,,,,,,,,,,,,,
+group,grass-herb-legume groups,NA,NA,factor,"top_grass	 sub_grass	 legume	 herb","NA			",,,,,,,,,,,,,,,,,,,,,,,,,
+legal,legally protected in Germany,BArtSchV 2005 in floraweb.de,NA,factor,BG = besonders geschützt,"NA						",,,,,,,,,,,,,,,,,,,,,,,,,
+rlg,Red list Germany,Metzing et al. 2018 in floraweb.de,NA,factor,"NA = not threatened	 V = warning list	3	2	 1","NA		",,,,,,,,,,,,,,,,,,,,,,,,,
+rlb,Red list Bavaria,StMUGV 2005 Rote Liste,NA,factor,"NA = not threatened	 V = warning list	3	2	 1","NA		",,,,,,,,,,,,,,,,,,,,,,,,,
+neophyte,is species a neophyte,floraweb.de,NA,factor,"yes	 no","NA					",,,,,,,,,,,,,,,,,,,,,,,,,
+l,Ellenberg L value,Ellenberg et al. 2001 in floraweb.de,NA,numeric,NA,"NA						",,,,,,,,,,,,,,,,,,,,,,,,,
+NOCH NICHT FERTIG,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"l	Ellenberg",L,"value	Ellenberg",et,al.,2001,in,"floraweb.de	NA	numeric	NA	""NA				""",,,,,,,,,,,,,,,,,,,,,,,,
+"t	Ellenberg",T,"value	Ellenberg",et,al.,2001,in,"floraweb.de	NA	numeric	NA	""NA				""",,,,,,,,,,,,,,,,,,,,,,,,
+"k	Ellenberg",K,"value	Ellenberg",et,al.,2001,in,"floraweb.de	NA	numeric	NA	""NA				""",,,,,,,,,,,,,,,,,,,,,,,,
+"f	Ellenberg",F,"value	Ellenberg",et,al.,2001,in,"floraweb.de	NA	numeric	NA	""NA				""",,,,,,,,,,,,,,,,,,,,,,,,
+"fchange	Ellenberg",changing,moisture,"indicatior	Ellenberg",et,al.,2001,in,"floraweb.de	NA	factor	NA	""NA				""",,,,,,,,,,,,,,,,,,,,,,,
+"r	Ellenberg",R,"value	Ellenberg",et,al.,2001,in,"floraweb.de	NA	numeric	NA	""NA				""",,,,,,,,,,,,,,,,,,,,,,,,
+"n	Ellenberg",N,"value	Ellenberg",et,al.,2001,in,"floraweb.de	NA	numeric	NA	""NA				""",,,,,,,,,,,,,,,,,,,,,,,,
+"targetHerb	herbal",target,"species	""LfU",-2018,Kartieranleitung,Biotopkartierung,Bayern,Teil,2,GE,(p.,"40ff.)	",GT,(p.,"70ff.)	",LR6510,(p.,"88f.)""	NA	factor	""yes	","no""	""NA	""",,,,,,,,,,,,,
+"targetGrass	target",grass,"species	""LfU",-2018,Kartieranleitung,Biotopkartierung,Bayern,Teil,2,GE,(p.,"40ff.)	",GT,(p.,"70ff.)	",LR6510,(p.,"88f.)""	NA	factor	""yes	","no""	""NA	""",,,,,,,,,,,,,
+"targetArrhenatherion	target",species,of,the,"Arrhenatherion	LfU",-2018,Kartieranleitung,Biotopkartierung,Bayern,Teil,2,p.,42,section,"1.	NA	factor	""yes	","no""	""NA			""",,,,,,,,,,,,,,,,
+"ffh6510	species",of,the,FFH,type,"6510	LfU",&,LWF,-2018,Handbuch,der,Lebensraumtypen,nach,Anhang,I,der,FFH-Richtlinie,in,Bayern,p.,"90	NA	factor	""yes	","no""	""NA			""",,,,,,,,,,
+"ffh6210	species",of,the,FFH,type,"6210	LfU",&,LWF,-2018,Handbuch,der,Lebensraumtypen,nach,Anhang,I,der,FFH-Richtlinie,in,Bayern,p.,"76	NA	factor	""yes	","no""	""NA			""",,,,,,,,,,
+"table30	Tafel",30,of,§,"30-Schlüssel	LfU",-2018,Bestimmungsschlüssel,für,Flächen,nach,§,30,BNatSchG,/,Art.,23,"BayNatSchG	NA	factor	""1",=,category,"1	",2,=,category,"2	",3,=,category,"3	",4,=,category,"4""	""NA	"""
+"table33	Tafel",33,of,§,"30-Schlüssel	LfU",-2018,Bestimmungsschlüssel,für,Flächen,nach,§,30,BNatSchG,/,Art.,23,"BayNatSchG	NA	factor	""1",=,category,"1	",2,=,category,"2	",3,=,category,"3	",4,=,category,"4""	""NA	"""
+"table34	Tafel",34,of,§,"30-Schlüssel	LfU",-2018,Bestimmungsschlüssel,für,Flächen,nach,§,30,BNatSchG,/,Art.,23,"BayNatSchG	NA	factor	""1",=,category,"1	",2,=,category,"2	",3,=,category,"3	",4,=,category,"4""	""NA	"""
+"nitrogenIndicator	species",which,are,nitrogen,"indicator	LfU",-2018,Kartieranleitung,Biotopkartierung,Bayern,Teil,2,p.,40,section,"c	NA	factor	""yes	","no""	""NA			""",,,,,,,,,,,,,,,,
+"nitrogenIndicator2	species",which,are,nitrogen,indicator,"	XXX	NA	factor	""yes	","no""	""NA			""",,,,,,,,,,,,,,,,,,,,,,,,,
+"grazingIndicator	species",which,are,indicators,for,grazed,"sites	LfU",-2018,Kartieranleitung,Biotopkartierung,Bayern,Teil,2,p.,42,section,"2.	NA	factor	""yes	","no""	""NA			""",,,,,,,,,,,,,,
+"ruderalIndicator	species",which,are,indicators,for,ruderal,conditions,according,to,"???	XXX	NA	factor	""yes	","no""	""NA			""",,,,,,,,,,,,,,,,,,,,,
+"others	XXX	XXX	NA	factor	""yes	","no""	""NA			""",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"calculationCWM	XXX	XXX	NA	factor	""yes	","no""	""NA			""",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

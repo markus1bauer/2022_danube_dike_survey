@@ -1,60 +1,60 @@
-ï»¿variable;definition;source;unit;type;value;comment
-id;serial number and position on the dike per year;NA;NA;factor;m = middle part, o = upper part of the dike side;NA
-pair;serial numer of a pair of plots (water and landside);NA;NA;numeric;NA;NA
-location;block factor;NA;NA;factor;NA;NA
-RW;Coordinates X (Rechtswert);NA;Gauss-Krueger Zone 4;numeric;NA;NA
-HW;Coordinates Y (Hochwert);NA;Gauss-Krueger Zone 4;numeric;NA;NA
-side;On which side is the plot on the dike;NA;NA;NA;water, land;NA
-exposition;exposition of the plots;NA;NA;NA;north, south, east, west;NA
-constructionYear;year in which the dike was constructed and seeded;NA;NA;numeric;NA;NA
-calciumcarbonatPerc;percentage of calcium carbonate (CaCO3) in fine soil (C550Ratio * 8,33);NA;wt%;numeric;NA;NA
-humusPerc;percentage of humus (CorgRatio * 1,72);NA;wt%;numeric;NA;NA
-NtotalPerc;total nitrogen percentage;NA;wt%;numeric;NA;NA
-cnRatio;CorgRatio / NtotalRatio;NA;NA;numeric;NA;9-11 is normal for agricultural land (LfL website)
-pH;pH measured in 0.01 M CaCl2 ;Dr. HÃ¤usler 2017-11-28, VDLUFA method A 5.1.1;NA;numeric;NA;NA
-sandPerc;percentage of sand in the fine soil sample (fine soil <2mm);Dr. HÃ¤usler 2017-11-28, DIN ISO 11277;wt%;numeric;NA;grain size 2-0,063mm
-siltPerc;percentage of silt in the fine soil sample (fine soil <2mm);Dr. HÃ¤usler 2017-11-28, DIN ISO 11277;wt%;numeric;NA;grain size 0,063-0,002mm
-clayPerc;percentage of clay in the fine soil sample (fine soil <2mm);Dr. HÃ¤usler 2017-11-28, DIN ISO 11277;wt%;numeric;NA;grain size <0,002
-phosporous;CAL extract (Calcium-acetat lactat) of phosphorus (P2O5);Dr. HÃ¤usler 2017-11-28, VDLUFA method A 6.3.1.1 (2002);mg P2O5 (100g soil)^-1;numeric;NA;NA
-phosphorousClass;ferilization classification;Leitfaden DÃ¼ngung, LfL (2007) 8.Aufl.;NA;factor;for grassland: A < 5, B 5-7, C 8-20, D 21-30, E  >30 mg P2O5 / 100g Boden;values for agricultural land not greenland
-potassium;CAL extract (Calcium-acetat lactat) of potassium (K2O) ;Dr. HÃ¤usler 2017-11-28, VDLUFA method A 6.2.1.1 (2002);mg K2O (100gsoil)^-1;numeric;NA;NA
-magnesium;CaCl2 extract of magnesium (Mg);Dr. HÃ¤usler 2017-11-28, VDLUFA method A 6.2.4.1;mg Mg (100g soil)^-1;numeric;NA;NA
-topsoilDepth;measured depth of topsoil but if necessary taken from plans;NA;cm;numeric;NA;NA
-skeletonRatiov;volume ratio of sceleton of total topsoil;NA;vol%;numeric;NA;NA
-fmDbd;dry bulk density of fine material;NA;g cm^-3;numeric;NA;NA
-ufcPerc;usable field capcity of topsoil in vol%;NA;vol%;numeric;NA;NA
-ufc;usable field capacity in topsoil in mm;NA;mm;numeric;NA;NA
-surveyYear;year of the vegetation survey;NA;NA;numeric;NA;NA
-plot;serial number of the plot;NA;NA;factor;NA;NA
-position;position on the dike;NA;NA;factor;m = middle part, o = upper part of the dike side;NA
-conf.low;dummy variable for confidence interval;NA;NA;numeric;NA;NA
-conf.high;dummy variable for confidence interval;NA;NA;numeric;NA;NA
-NtotalConc;the concentration of total N per m^2;fmMass * NtotalPerc / 100, fmMass = fmDepth * fmDbd * 10;kg m^-2;numeric;NA;for explanation of the variables look in data_raw_sites_metadata
-graminoidCov;accumulated coverages of graminoid species;NA;%;numeric;NA;NA
-herbCov;accumulated coverages of herbal species;NA;%;numeric;NA;NA
-graminoidCovratio;ratio of graminoid's coverage to cumulated coverage of all species;graminoidCov / (graminoidCov + herbCov);ratio;numeric;NA;NA
-accumulatedCov;accumulated coverage of all species;graminoidCov + herbCov;%;numeric;NA;NA
-targetCov;accumulated coverage of target species;NA;%;numeric;NA;for explanation of target species see column target in data_processed_traits_metadata
-speciesRichness;species richness;NA;NA;numeric;NA;NA
-rlgRichness;species richness of Red List Germany species;NA;NA;numeric;NA;NA
-rlbRichness;species richness of Red List Bavaria species;NA;NA;numeric;NA;NA
-targetRichness;species richness of target species;NA;NA;numeric;NA;for explanation of target species see column target in data_processed_traits_metadata
-ffh6510Richness;species richness of ffh6510 species;NA;NA;numeric;NA;NA
-ffh6210Richness;species richness of ffh6210 species;NA;NA;numeric;NA;NA
-targetRichratio;ratio of target species richness to total species richness;ragetRichness / speciesRichness;ratio;numeric;NA;NA
-biotopeType;"code of the ""Biotopwertliste""";LfU (2014) Bayerische Kompensationsverordnung (BayKompV). Arbeitshilfe zur Biotopwertliste.;NA;factor;NA;NA
-ffh;is the vegetation a FFH habitat type;LfU & LWF (2018) Handbuch der Lebensraumtypen nach Anhang I der FFH-Richtlinie in Bayern p. 76 and 90;NA;factor;NA;NA
-baykompv;"first part of the code of the ""Biotopwertliste""";LfU (2014) Bayerische Kompensationsverordnung (BayKompV). Arbeitshilfe zur Biotopwertliste.;NA;factor;NA;NA
-biotopePoints;"""Grundwert (GW)""/biotope points according to the ""Biotopwertliste""";LfU (2014) Bayerische Kompensationsverordnung (BayKompV). Arbeitshilfe zur Biotopwertliste.;NA;numeric;NA;points are between 0 and 15
-min8;at least 8 biotope points;NA;NA;factor;yes, no;NA
-min9;at least 9 biotope points;NA;NA;factor;yes, no;NA
-cwmAbuN;community weighted mean of Ellenberg N values (abundance based not presence-absence);NA;NA;numeric;NA;NA
-cwmAbuF;community weighted mean of Ellenberg F values (abundance based not presence-absence);NA;NA;numeric;NA;NA
-cwmAbuT;community weighted mean of Ellenberg T values (abundance based not presence-absence);NA;NA;numeric;NA;NA
-fdisAbuLHS;functional dispersion of specific leaf area, seed mass, and canopy height (abundance based not presence-absence);NA;NA;numeric;NA;NA
-fdisAbuSla;functional dispersion of specific leaf area (abundance based not presence-absence);NA;NA;numeric;NA;NA
-cwmAbuSla;community weighted mean of specific leaf area (abundance based not presence-absence);NA;mm^2/mg;numeric;NA;NA
-fdisAbuSeedmass;functional dispersion of seed mass (abundance based not presence-absence);NA;NA;numeric;NA;NA
-cwmAbuSeedmass;community weighted mean of seed mass (abundance based not presence-absence);NA;mg;numeric;NA;NA
-fdisAbuHeight;functional dispersion of canopy height (abundance based not presence-absence);NA;NA;numeric;NA;NA
-cwmAbuHeight;community weighted mean of canopy weight (abundance based not presence-absence);NA;m;numeric;NA;NA
+variable,definition,source,unit,type,value,"comment					"
+id,serial number and position on the dike per year,NA,NA,factor,"m = middle part	 o = upper part of the dike side","NA				"
+pair,serial numer of a pair of plots (water and landside),NA,NA,numeric,NA,"NA					"
+location,block factor,NA,NA,factor,NA,"NA					"
+RW,Coordinates X (Rechtswert),NA,Gauss-Krueger Zone 4,numeric,NA,"NA					"
+HW,Coordinates Y (Hochwert),NA,Gauss-Krueger Zone 4,numeric,NA,"NA					"
+side,On which side is the plot on the dike,NA,NA,NA,"water	 land","NA				"
+exposition,exposition of the plots,NA,NA,NA,"north	 south	 east	 west","NA		"
+constructionYear,year in which the dike was constructed and seeded,NA,NA,numeric,NA,"NA					"
+calciumcarbonatPerc,"percentage of calcium carbonate (CaCO3) in fine soil (C550Ratio * 8	33)",NA,wt%,numeric,NA,"NA				"
+humusPerc,"percentage of humus (CorgRatio * 1	72)",NA,wt%,numeric,NA,"NA				"
+NtotalPerc,total nitrogen percentage,NA,wt%,numeric,NA,"NA					"
+cnRatio,CorgRatio / NtotalRatio,NA,NA,numeric,NA,"9-11 is normal for agricultural land (LfL website)					"
+pH,pH measured in 0.01 M CaCl2 ,"Dr. Häusler 2017-11-28	 VDLUFA method A 5.1.1",NA,numeric,NA,"NA				"
+sandPerc,percentage of sand in the fine soil sample (fine soil <2mm),"Dr. Häusler 2017-11-28	 DIN ISO 11277",wt%,numeric,NA,"grain size 2-0	063mm			"
+siltPerc,percentage of silt in the fine soil sample (fine soil <2mm),"Dr. Häusler 2017-11-28	 DIN ISO 11277",wt%,numeric,NA,"grain size 0	063-0	002mm		"
+clayPerc,percentage of clay in the fine soil sample (fine soil <2mm),"Dr. Häusler 2017-11-28	 DIN ISO 11277",wt%,numeric,NA,"grain size <0	2			"
+phosporous,CAL extract (Calcium-acetat lactat) of phosphorus (P2O5),"Dr. Häusler 2017-11-28	 VDLUFA method A 6.3.1.1 (2002)",mg P2O5 (100g soil)^-1,numeric,NA,"NA				"
+phosphorousClass,ferilization classification,"Leitfaden Düngung	 LfL (2007) 8.Aufl.",NA,factor,"for grassland: A < 5	 B 5-7	 C 8-20	 D 21-30	 E  >30 mg P2O5 / 100g Boden",values for agricultural land not greenland
+potassium,CAL extract (Calcium-acetat lactat) of potassium (K2O) ,"Dr. Häusler 2017-11-28	 VDLUFA method A 6.2.1.1 (2002)",mg K2O (100gsoil)^-1,numeric,NA,"NA				"
+magnesium,CaCl2 extract of magnesium (Mg),"Dr. Häusler 2017-11-28	 VDLUFA method A 6.2.4.1",mg Mg (100g soil)^-1,numeric,NA,"NA				"
+topsoilDepth,measured depth of topsoil but if necessary taken from plans,NA,cm,numeric,NA,"NA					"
+skeletonRatiov,volume ratio of sceleton of total topsoil,NA,vol%,numeric,NA,"NA					"
+fmDbd,dry bulk density of fine material,NA,g cm^-3,numeric,NA,"NA					"
+ufcPerc,usable field capcity of topsoil in vol%,NA,vol%,numeric,NA,"NA					"
+ufc,usable field capacity in topsoil in mm,NA,mm,numeric,NA,"NA					"
+surveyYear,year of the vegetation survey,NA,NA,numeric,NA,"NA					"
+plot,serial number of the plot,NA,NA,factor,NA,"NA					"
+position,position on the dike,NA,NA,factor,"m = middle part	 o = upper part of the dike side","NA				"
+conf.low,dummy variable for confidence interval,NA,NA,numeric,NA,"NA					"
+conf.high,dummy variable for confidence interval,NA,NA,numeric,NA,"NA					"
+NtotalConc,the concentration of total N per m^2,"fmMass * NtotalPerc / 100	 fmMass = fmDepth * fmDbd * 10",kg m^-2,numeric,NA,"for explanation of the variables look in data_raw_sites_metadata				"
+graminoidCov,accumulated coverages of graminoid species,NA,%,numeric,NA,"NA					"
+herbCov,accumulated coverages of herbal species,NA,%,numeric,NA,"NA					"
+graminoidCovratio,ratio of graminoid's coverage to cumulated coverage of all species,graminoidCov / (graminoidCov + herbCov),ratio,numeric,NA,"NA					"
+accumulatedCov,accumulated coverage of all species,graminoidCov + herbCov,%,numeric,NA,"NA					"
+targetCov,accumulated coverage of target species,NA,%,numeric,NA,"for explanation of target species see column target in data_processed_traits_metadata					"
+speciesRichness,species richness,NA,NA,numeric,NA,"NA					"
+rlgRichness,species richness of Red List Germany species,NA,NA,numeric,NA,"NA					"
+rlbRichness,species richness of Red List Bavaria species,NA,NA,numeric,NA,"NA					"
+targetRichness,species richness of target species,NA,NA,numeric,NA,"for explanation of target species see column target in data_processed_traits_metadata					"
+ffh6510Richness,species richness of ffh6510 species,NA,NA,numeric,NA,"NA					"
+ffh6210Richness,species richness of ffh6210 species,NA,NA,numeric,NA,"NA					"
+targetRichratio,ratio of target species richness to total species richness,ragetRichness / speciesRichness,ratio,numeric,NA,"NA					"
+biotopeType,"code of the ""Biotopwertliste""",LfU (2014) Bayerische Kompensationsverordnung (BayKompV). Arbeitshilfe zur Biotopwertliste.,NA,factor,NA,"NA					"
+ffh,is the vegetation a FFH habitat type,LfU & LWF (2018) Handbuch der Lebensraumtypen nach Anhang I der FFH-Richtlinie in Bayern p. 76 and 90,NA,factor,NA,"NA					"
+baykompv,"first part of the code of the ""Biotopwertliste""",LfU (2014) Bayerische Kompensationsverordnung (BayKompV). Arbeitshilfe zur Biotopwertliste.,NA,factor,NA,"NA					"
+biotopePoints,"""Grundwert (GW)""/biotope points according to the ""Biotopwertliste""",LfU (2014) Bayerische Kompensationsverordnung (BayKompV). Arbeitshilfe zur Biotopwertliste.,NA,numeric,NA,"points are between 0 and 15					"
+min8,at least 8 biotope points,NA,NA,factor,"yes	 no","NA				"
+min9,at least 9 biotope points,NA,NA,factor,"yes	 no","NA				"
+cwmAbuN,community weighted mean of Ellenberg N values (abundance based not presence-absence),NA,NA,numeric,NA,"NA					"
+cwmAbuF,community weighted mean of Ellenberg F values (abundance based not presence-absence),NA,NA,numeric,NA,"NA					"
+cwmAbuT,community weighted mean of Ellenberg T values (abundance based not presence-absence),NA,NA,numeric,NA,"NA					"
+fdisAbuLHS,"functional dispersion of specific leaf area	 seed mass	 and canopy height (abundance based not presence-absence)",NA,NA,numeric,NA,"NA			"
+fdisAbuSla,functional dispersion of specific leaf area (abundance based not presence-absence),NA,NA,numeric,NA,"NA					"
+cwmAbuSla,community weighted mean of specific leaf area (abundance based not presence-absence),TRY datebase traitIDs 11 3115 3116 3117 3085 3086,mm^2/mg,numeric,NA,https://top-thesaurus.org/annotationInfo?viz=1&&trait=Specific_leaf_area
+fdisAbuSeedmass,functional dispersion of seed mass (abundance based not presence-absence),NA,NA,numeric,NA,"NA					"
+cwmAbuSeedmass,community weighted mean of seed mass (abundance based not presence-absence),TRY datebase traitID 26 seed dry mass ,mg,numeric,NA,https://top-thesaurus.org/annotationInfo?viz=1&&trait=Seed_dry_mass
+fdisAbuHeight,functional dispersion of canopy height (abundance based not presence-absence),NA,NA,numeric,NA,"NA					"
+cwmAbuHeight,community weighted mean of canopy weight (abundance based not presence-absence),TRY datebase traitIDs 3106 and 3107,m,numeric,NA,https://top-thesaurus.org/annotationInfo?viz=1&&trait=Plant_height_trait

@@ -21,9 +21,9 @@ rm(list = ls())
 setwd(here("data/processed"))
 
 ### Load data ###
-sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types = 
                      cols(
-                       .default = col_guess(),
+                       .default = "?",
                        id = "f",
                        location = "f",
                        block = "f",
@@ -32,8 +32,8 @@ sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA")
                        side = "f",
                        ffh = "f",
                        changeType = col_factor(c("FFH6510", "any-FFH", "better", "change", "worse", "non-FFH"))
-                     )) %>%
-  select(targetRichness, id, surveyYear, constructionYear, plotAge, location, block, plot, side, exposition, PC1, PC2, PC3, conf.low, conf.high) %>%
+                     )) #%>%
+  select(targetRichness, id, surveyYear, constructionYear, plotAge, location, block, plot, side, exposition, PC1, PC2, PC3, conf.low, conf.high, phosphorous) %>%
   mutate(n = targetRichness) %>%
   mutate(location = factor(location, levels = unique(location[order(constructionYear)]))) %>%
   mutate(plotAge = scale(plotAge, scale = T, center = F)) %>%
@@ -117,3 +117,10 @@ pd <- position_dodge(.6)
 setwd(here("outputs/figures"))
 ggsave("figure_targetRichness_pc2_(800dpi_8x7cm).tiff",
        dpi = 800, width = 8, height = 7, units = "cm")
+
+ggplot(sites, aes(x = phosphorous, y = targetRichness, colour = exposition)) +
+  geom_point() +
+  geom_smooth(method = lm, span = .3, se = F)
+ggplot(sites, aes(x = phosphorous, y = speciesRichness)) +
+  geom_point() +
+  stat_smooth(method = loess, span = 2)

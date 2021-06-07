@@ -27,7 +27,7 @@ register_google(key = "AIzaSyB5nQU_dgB_kPsQkk-_cq7pA0g1-2qka4E")
 ## 1 Sites #################################################################################################
 
 setwd(here("data/raw"))
-sites <- read_csv2("data_raw_sites.csv", col_names = T, na = "na", col_types = 
+sites <- read_csv("data_raw_sites.csv", col_names = T, na = "na", col_types = 
                      cols(
                        .default = col_double(),
                        id = col_factor(),
@@ -162,5 +162,10 @@ st_write(ffh_area, layer = "ffh_area.shp", driver = "ESRI Shapefile", delete_lay
 st_write(sites, layer = "sites.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
 setwd(here("data/processed/spatial"))
-write_csv2(sites2, file = "sites2.csv")
-write_csv2(blocks, file = "blocks.csv")
+write_csv(sites2, file = "sites2.csv")
+write_csv(blocks, file = "blocks.csv")
+sites2 %>%
+  select(id, lon, lat) %>%
+  mutate(id = as.character(id)) %>%
+  as.data.frame() %>%
+  pgirmess::writeGPX(type = "w", filename = "DEI_survey_plots.gpx")

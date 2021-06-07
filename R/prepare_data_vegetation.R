@@ -1,14 +1,29 @@
 # Prepare vegetation data ####
 # Markus Bauer
 
+## Content
+# 1 Create simple variables
+# 2 Coverages
+# 3 Species richness
+# 4 Biotope types
+# 5 CWM off Ellenberg
+# 6 Load functional plant traits
+# 7 Calculate CWM and FDis
+# 8 Beta diversity
+# 9 Environmental variables
 
 
 ### Packages ###
 library(here)
 library(tidyverse)
+library(naniar) #are_na()
+library(lubridate) #modify dates
 library(vegan)
 library(FD) #dbFD()
-library(naniar) #are_na()
+library(adespatial)
+remotes::install_github("larsito/tempo")
+library(tempo)
+
 
 ### Start ###
 #installr::updateR(browse_news = F, install_R = T, copy_packages = T, copy_Rprofile.site = T, keep_old_packages = T, update_packages = T, start_new_R = F, quit_R = T, print_R_versions = T, GUI = F)
@@ -24,7 +39,7 @@ setwd(here("data/raw"))
 
 ### 1 Species #####################################################################################
 
-species <- read_csv2("data_raw_species.csv", col_names = F, na = c("", "NA", "na"))
+species <- read_csv("data_raw_species.csv", col_names = F, na = c("", "NA", "na"))
 ### bring table in long format ###
 names <- species %>% 
   slice(1) %>%
@@ -39,10 +54,9 @@ species <- species %>%
   pivot_longer(-(X4), names_to = "id", values_to = "abu") %>%
   rename(plot = X4) %>%
   pivot_wider(names_from = plot, names_prefix = "X", values_from = abu) %>%
-  mutate_all(funs(str_replace(., ",", "."))) %>%
   mutate(id = as_factor(id)) %>%
   mutate_if(is_character, as.numeric) %>%
-  select(id, where(~ is.numeric(.x) && sum(.x, na.rm = T) != 0 ))
+  select(id, where(~ is.numeric(.x) && sum(.x, na.rm = T) != 0 )) # excludes sites with zero abundance
 species <- left_join(names, species, by = "id") %>% 
   select(-id) %>%
   mutate(name = as_factor(name))
@@ -65,33 +79,50 @@ species <- species %>%
   filter(sum > 0) %>%
   select(-sum) %>%
   pivot_wider(names_from = id, values_from = value)
-rm(list = setdiff(ls(), c("species"))) 
+
+specieslist <- species %>%
+  mutate_if(is.numeric, ~1 * (. != 0)) %>%
+  mutate(sum = rowSums(across(where(is.numeric)), na.rm = T), .keep = "unused") %>%
+  group_by(name) %>%
+  summarise(sum = sum(sum))
+#write_csv(specieslist, "specieslist.csv")
 
 ### 2 Sites #####################################################################################
 
-sites <- read_csv2("data_raw_sites.csv", col_names = T, na = c("", "NA", "na"), col_types = 
+sites <- read_csv("data_raw_sites.csv", col_names = T, na = c("", "NA", "na"), col_types = 
                      cols(
-                       .default = "d",
+                       .default = "?",
                        id = "f",
                        block = "f",
                        location = "f",
                        side = "f",
                        exposition = "f",
+                       constructionYear = "d",
                        ageCategory = "f",
-                       surveyDate_2017 = "D",
-                       surveyDate_2018 = "D",
-                       surveyDate_2019 = "D",
+                       surveyDate_2017 = col_date(format = "%d.%m.%Y"),
+                       surveyDate_2018 = col_date(format = "%d.%m.%Y"),
+                       surveyDate_2019 = col_date(format = "%d.%m.%Y"),
                        HCl = "f",
                        humusLevel = "f",
+                       humusPerc = "d",
+                       cnRatio = "d",
                        cnLevel = "f",
+                       phosphorous = "d",
                        phosphorousClass = "f",
+                       potassium = "d",
                        potassiumClass = "f",
-                       magnesiumClass = "f"
+                       magnesium = "d",
+                       magnesiumClass = "f",
+                       vegetationHeight_2019 = "d"
                      )) %>%
-  select(id, block, location, RW, HW, side, exposition, constructionYear, starts_with("vegetationCov"), starts_with("vegetationHeight"), calciumcarbonatPerc, humusPerc, NtotalPerc, cnRatio, pH, sandPerc, siltPerc, clayPerc, phosphorous, phosphorousClass, potassium, magnesium, topsoilDepth, fmDepth, sceletonRatiov, fmDbd, ufcPerc, ufc) %>%
+  select(id, block, location, RW, HW, riverkm, side, exposition, constructionYear, starts_with("vegetationCov"), starts_with("vegetationHeight"), calciumcarbonatPerc, humusPerc, NtotalPerc, cnRatio, pH, sandPerc, siltPerc, clayPerc, phosphorous, phosphorousClass, potassium, magnesium, topsoilDepth, fmDepth, sceletonRatiov, fmDbd, ufcPerc, ufc) %>%
   pivot_longer(starts_with("vegetationCov") | starts_with("vegetationHeight"), names_to = "surveyYear", values_to ="value") %>%
   separate(surveyYear, c("vegetationMeasure", "surveyYear"), "_", extra = "drop", fill = "right") %>%
   mutate(surveyYear = as.numeric(surveyYear)) %>%
+  mutate(surveyYearF = factor(surveyYear)) %>%
+  mutate(surveyYearFminus = factor(surveyYear -1)) %>%
+  mutate(constructionYearF = factor(constructionYear)) %>%
+  mutate(constructionYearFplus = factor(constructionYear + 1)) %>%
   pivot_wider(names_from = "vegetationMeasure", values_from = "value") %>%
   mutate(id = str_c(id, surveyYear, sep = "_"), .keep = "all") %>%
   mutate(id = paste0("X", id)) %>%
@@ -99,8 +130,8 @@ sites <- read_csv2("data_raw_sites.csv", col_names = T, na = c("", "NA", "na"), 
   mutate(position = str_sub(id, start = 5, end = 5)) %>%
   mutate(locationAbb = str_sub(location, 1, 3)) %>%
   mutate(locationAbb = str_to_upper(locationAbb)) %>%
-  mutate(locationAbb = str_c(locationAbb, constructionYear, sep = "-")) %>%
   mutate(locationAbb = factor(locationAbb, levels = unique(locationAbb[order(constructionYear)]))) %>%
+  mutate(locationYear = str_c(locationAbb, constructionYear, sep = "-")) %>%
   # Remove plots with no species ###
   filter(id %in% colnames(species[-1])) %>%
   mutate(id = as_factor(id)) %>%
@@ -108,12 +139,12 @@ sites <- read_csv2("data_raw_sites.csv", col_names = T, na = c("", "NA", "na"), 
   mutate(position = as_factor(position))
 
 
-
 ### 3 Traits #####################################################################################
 
-traits <- read_csv2("data_raw_traits.csv", col_names = T, na = c("", "NA", "na"), col_types = 
+traits <- read_csv("data_raw_traits.csv", col_names = T, na = c("", "NA", "na"), col_types = 
                       cols(
                         .default = "f",
+                        sociology = "d",
                         l = "d",
                         t = "d",
                         k = "d",
@@ -124,11 +155,18 @@ traits <- read_csv2("data_raw_traits.csv", col_names = T, na = c("", "NA", "na")
 #Check congruency of traits and species table
 #traits$name[which(!(traits$name %in% species$name))]
 #species$name[which(!(species$name %in% traits$name))]
-  left_join(species, traits, by = "name") %>%
-  select(name, abb, family, group, rlg, rlb, t, f, n, targetHerb, targetGrass, targetArrhenatherion, ffh6510, ffh6210, table30, table33, table34, nitrogenIndicator, nitrogenIndicator2, ruderalIndicator) %>%
+  right_join(species, traits, by = "name") %>%
+  select(name, family, group, rlg, rlb, t, f, n, sociology, targetHerb, targetGrass, targetArrhenatherion, ffh6510, ffh6210, table30, table33, table34, nitrogenIndicator, nitrogenIndicator2, ruderalIndicator) %>%
   mutate(name = as.character(name)) %>%
   arrange(name) %>%
-  mutate(name = as_factor(name))
+  mutate(name = as_factor(name)) %>%
+  separate(name, c("genus", "species", "ssp", "subspecies"), "_", remove = F, extra = "drop", fill = "right") %>%
+  mutate(genus = str_sub(genus, 1, 4)) %>%
+  mutate(species = str_sub(species, 1, 4)) %>%
+  mutate(subspecies = str_sub(subspecies, 1, 4)) %>%
+  unite(abb, genus, species, subspecies, sep = "") %>%
+  mutate(abb = str_replace(abb, "NA", "")) %>%
+  mutate(abb = as_factor(abb))
 
 
 
@@ -142,10 +180,19 @@ traits <- read_csv2("data_raw_traits.csv", col_names = T, na = c("", "NA", "na")
 traits <- traits %>%
   mutate(leanIndicator = if_else(
     !(is.na(table30)) | !(is.na(table33)) | !(is.na(table34)), "yes", "no"
-  )) %>%
+    )) %>%
   mutate(target = if_else(
     targetHerb == "yes" | targetGrass == "yes", "yes", "no"
-  ))
+    )) %>%
+  mutate(ruderal = if_else(
+    sociology >= 3300 & sociology < 3700, "yes", "no"
+    )) %>%
+  mutate(targetEllenberg = if_else(
+    sociology >= 5300 & sociology < 5400, "dry_grassland", if_else(
+      sociology >= 5400 & sociology < 6000, "hay_meadow", if_else(
+        sociology >= 5100 & sociology < 5200, "nardus_grassland", if_else(
+          sociology >= 5200 & sociology < 5300, "sand_grasland", "no"
+          )))))
 
 sites <- sites %>%
   mutate(conf.low = c(1:length(id))) %>%
@@ -437,7 +484,23 @@ sites <- sites %>%
 rm(list=setdiff(ls(), c("sites", "species", "traits")))
 
 
-### 4 Biotope types #####################################################################################
+### 4 Species eveness #####################################################################################
+
+sites <- species %>%
+  pivot_longer(-name, names_to = "id", values_to = "value") %>%
+  pivot_wider(names_from = "name", values_from = "value") %>%
+  column_to_rownames("id") %>%
+  diversity(index = "shannon") %>%
+  as_tibble(rownames = NA) %>%
+  rownames_to_column(var = "id") %>%
+  mutate(id = factor(id)) %>%
+  rename(shannon = value) %>%
+  right_join(sites, by = "id") %>%
+  mutate(eveness = shannon / log(speciesRichness))
+  
+
+
+### 5 Biotope types #####################################################################################
 
 ### a Calculate types -------------------------------------------------------------------------------------------
 biotopetypes <- sites %>%
@@ -548,49 +611,8 @@ sites <- data %>%
   right_join(sites, by = "plot")
 
 
-### 5 TBI #####################################################################################
 
-tbi <- species %>%
-  pivot_longer(-name, "id", "n") %>%
-  pivot_wider(id, name)
-tbi <- left_join(tbi, sites, by = "id") %>%
-  select(id, exposition, surveyYear, Achillea_millefolium:Rubus_fruticosus_agg) %>%
-  filter(surveyYear == 2017 | surveyYear == 2019) %>%
-  #tbiStart <- sites %>% select(id, plot, surveyYear) %>% filter(surveyYear == 2017)
-  #tbiEnd <- sites %>% select(id, plot, surveyYear) %>% filter(surveyYear == 2019)
-  #anti_join(tbiStart, tbiEnd, by = "plot")
-  #anti_join(tbiEnd, tbiStart, by = "plot")
-  #rm(tbiStart, tbiEnd)
-  filter(id != "X15_m_2017" &
-           id != "X16_m_2017" &
-           id != "X47_m_2017" &
-           id != "X48_m_2017" &
-           id != "X49_m_2017" &
-           id != "X50_m_2017" &
-           id != "X34_o_2019") %>%
-  column_to_rownames(var = "id") %>%
-  select(-surveyYear)
-
-### a Abundance data --------------------------------------------------------------------------------------------
-tbi2 <- select(tbi)
-tbiAbu <- tbi2[,colSums(tbi2) > 0]
-
-### b Presence-absence data--------------------------------------------------------------------------------------------
-tbiPa <- tbiAbu
-tbiPa[tbiPa > 0] = 1
-
-### c Abundance Exposition--------------------------------------------------------------------------------------------
-#tbi2 <- tbi %>%
-  #filter(exposition == "north") %>%
- # select(-exposition)
-#tbiAbuN <- tbi2[,colSums(tbi2) > 0]
-
-tbiAbu <- rownames_to_column(tbiAbu, var = "id")
-tbiPa <- rownames_to_column(tbiPa, var = "id")
-#tbiAbuN <- rownames_to_column(tbiAbuN, var = "id")
-rm(tbi, tbi2)
-
-### 6 CWM of Ellenberg #####################################################################################
+### 5 CWM of Ellenberg #####################################################################################
 
 ### a N value -------------------------------------------------------------------------------------------
 Ntraits <- traits %>%
@@ -635,10 +657,10 @@ Tweighted <- dbFD(Ttraits, Tspecies, w.abun = T,
 sites$cwmAbuN <- round(as.numeric(as.character(Nweighted$CWM$n)), 3)
 sites$cwmAbuF <- round(as.numeric(as.character(Fweighted$CWM$f)), 3)
 sites$cwmAbuT <- round(as.numeric(as.character(Tweighted$CWM$t)), 3)
-rm(list=setdiff(ls(), c("sites", "species", "traits", "tbiAbu", "tbiPa")))
+rm(list=setdiff(ls(), c("sites", "species", "traits")))
 
 
-### 7 Functional plant traits #####################################################################################
+### 6 Load functional plant traits #####################################################################################
 
 #### * read LEDA data #### 
 dataSLA <- data.table::fread("data_raw_LEDA_20210223_sla.txt", 
@@ -676,7 +698,6 @@ dataH <- data.table::fread("data_raw_LEDA_20210223_canopy_height.txt",
   rename(name = "SBS name") %>%
   rename(height = "single value [m]") %>%
   mutate(name = as_factor(str_replace_all(name, " ", "_")))
-
 
 data <- full_join(dataSLA, dataSM, by = "name") %>%
   full_join(dataH, by = "name")
@@ -863,7 +884,7 @@ traitsAll <- traits %>%
   drop_na()
 
 
-### 8 CWM and FDis of functional plant traits #####################################################################################
+### 7 CWM and FDis of functional plant traits #####################################################################################
 
 ### a LHS -------------------------------------------------------------------------------------------
 Tspecies <- semi_join(species, traitsLHS, by = "name")
@@ -965,20 +986,24 @@ TdiversityAbu <- dbFD(log_Ttraits, Tspecies, w.abun = T,
                       calc.FRic = F, calc.FDiv = F, corr = "cailliez")
 sites$fdisAbuAll <- TdiversityAbu$FDis
 length(traitsAll$name) / (herbCount - undefinedSpeciesCount)
-rm(list=setdiff(ls(), c("sites", "species", "traits", "tbiPa", "tbiAbu")))
+rm(list=setdiff(ls(), c("sites", "species", "traits")))
 
 
-### 9 Ordination #####################################################################################
+### 8 Beta diversity #####################################################################################
 
 ### a NMDS -------------------------------------------------------------------------------------------
-nmds <- species %>%
+### Prepare data ###
+data <- species %>%
   pivot_longer(-name, "id", "value") %>%
   pivot_wider(id, name) %>%
   arrange(id) %>%
   column_to_rownames("id")
+### Calculate NMDS ###
 set.seed(1)
-(ordi <- metaMDS(nmds, try = 99, previous.best = T, na.rm = T))
-sites <- ordi %>%
+(nmds <- metaMDS(data, dist = "bray", binary = F,
+                 try = 50, previous.best = T, na.rm = T))
+### Add to sites ###
+sites <- nmds %>%
   scores() %>%
   as.data.frame() %>%
   rownames_to_column(var = "id") %>%
@@ -987,19 +1012,82 @@ sites <- ordi %>%
   right_join(sites, by = "id")
 
 ### b PERMDISP -------------------------------------------------------------------------------------------
-(permdisp <- betadisper(d = vegdist(nmds), group = sites$plot))
-sites <- mutate(sites, permdisp = as.numeric(permdisp$distances))
-rm(permdisp, ordi, nmds)
+(permdisp <- betadisper(d = vegdist(nmds), 
+                        group = sites$plot))
+sites <- mutate(sites, 
+                permdisp = as.numeric(permdisp$distances))
 
-### c PCA  -------------------------------------------------------------------------------------------
+### c TBI -------------------------------------------------------------------------------------------
+### remove sites which are not surveyed every year ###
+tbisites <- sites %>%
+  select(id, plot, block, locationAbb, surveyYear, constructionYear) %>%
+  add_count(plot) %>%
+  filter(n == max(n)) %>%
+  select(-n) 
+which(table(tbisites$plot) == 0) # these plots are not complete
+tbispecies <- species %>%
+  pivot_longer(-name, "id", "value") %>%
+  pivot_wider(id, name) %>%
+  arrange(id) %>%
+  semi_join(tbisites, by = "id") %>%
+  column_to_rownames("id") %>%
+  select(which(!colSums(., na.rm = T) %in% 0)) %>% # excludes species with zero abundances
+  rownames_to_column(var = "id") %>%
+  mutate(year = factor(str_match(id, "\\d\\d\\d\\d"))) %>%
+  mutate(plot = factor(str_match(id, "\\d\\d"))) %>%
+  select(-id)
+### Separate each year in several tibbles ###
+species17 <- tbispecies %>%
+  filter(year == 2017) %>%
+  column_to_rownames("plot") %>%
+  select(-year)
+species18 <- tbispecies %>%
+  filter(year == 2018) %>%
+  column_to_rownames("plot") %>%
+  select(-year)
+species19 <- tbispecies %>%
+  filter(year == 2019) %>%
+  column_to_rownames("plot") %>%
+  select(-year)
+rm(tbisites, tbispecies)
+
+### c Synchrony -------------------------------------------------------------------------------------------
+data <- species %>%
+  pivot_longer(-name, "id", "value") %>%
+  pivot_wider(id, name) %>%
+  arrange(id) %>%
+  mutate(plot = factor(str_sub(id, 1, 3))) %>%
+  column_to_rownames(var = "id") %>%
+  add_count(plot) %>%
+  filter(n > 2) %>%
+  select(-n)
+data <- data %>%
+  split(data$plot, drop = T) %>%
+  map(~ (.x %>% select(-plot)))
+data <- lapply(data, calc_sync)
+data <- do.call("rbind", sync_indices) %>%
+  as.data.frame() %>%
+  rownames_to_column("plot") %>%
+  as_tibble() %>%
+  mutate(plot = str_extract(plot, "\\d\\d")) %>%
+  select(plot, log_varrat, log_varrat_t3, syn_total, syn_trend, syn_detrend)
+sites <- full_join(sites, data, by = "plot")
+
+
+### 9 Environmental variables #####################################################################################
+
+### a Soil PCA  -------------------------------------------------------------------------------------------
+### Prepare data ###
 data <- sites %>%
   select(id, plot, calciumcarbonatPerc, NtotalPerc, cnRatio, pH, sandPerc, siltPerc, clayPerc, phosphorous, potassium, magnesium, topsoilDepth, NtotalConc) %>%
   group_by(plot) %>%
   summarise(across(where(is.numeric), ~median(.x, na.rm = T))) %>%
-  select(-plot) 
+  select(-plot)
+### Calculate PCA ###
 pca <- rda(X = decostand(data, method = "standardize"), scale = T)
 biplot(pca, display = "species")
 screeplot(pca, bstick = TRUE, type = "l", main = NULL)
+### Make data frames ###
 eigenvals <- pca %>%
   eigenvals() %>%
   summary() %>%
@@ -1010,32 +1098,170 @@ eigenvals <- pca %>%
   mutate(across(where(is.numeric), as.double))
 values <- pca %>%
   summary()
-pca <- values$species[,1:3] %>%
+pca <- values$species[ ,1:3] %>%
   as_tibble() %>%
   bind_cols(c("calciumcarbonatPerc", "NtotalPerc", "cnRatio", "pH", "sandPerc", "siltPerc", "clayPerc", "phosphorous", "potassium", "magnesium", "topsoilDepth", "NtotalConc")) %>%
   rename(variables = "...4") %>%
   bind_rows(eigenvals)
 data <- as_tibble(values$sites[,1:3])
+### Add to sites ###
 sites <- sites %>%
   select(id, plot, calciumcarbonatPerc, NtotalPerc, cnRatio, pH, sandPerc, siltPerc, clayPerc, phosphorous, potassium, magnesium, topsoilDepth, NtotalConc) %>%
   group_by(plot) %>%
   summarise(across(where(is.numeric), ~median(.x, na.rm = T))) %>%
   select(plot) %>%
   bind_cols(data) %>%
-  left_join(sites, by = "plot")
-rm(data, names, values, eigenvals)
+  left_join(sites, by = "plot") %>%
+  select(-position, -calciumcarbonatPerc, -NtotalPerc, -cnRatio, -pH, -sandPerc, -siltPerc, -clayPerc, -phosphorous, -potassium, -magnesium, -topsoilDepth, -NtotalConc)
+rm(list=setdiff(ls(), c("sites", "species", "traits", "pca")))
 
-  
+### b Climate PCA  -------------------------------------------------------------------------------------------
+
+### * Temperature ####
+setwd(here("data/raw/temperature/data"))
+data <- read_csv("data_OBS_DEU_P1M_T2M.csv", col_names = T, na = c("", "NA", "na"), col_types = 
+                          cols(
+                            .default = "?"
+                          )) %>%
+  rename(date = Zeitstempel, value = Wert, site = SDO_ID) %>%
+  filter(date >= "2002-03-01") %>%
+  mutate(site = factor(site)) %>%
+  select(site, date, value) %>%
+  mutate(season = floor_date(date, "season")) %>%
+  mutate(year = year(season), season = factor(month(season))) %>%
+  mutate(season = fct_recode(season, "spring" = "3", "summer" = "6", "autumn" = "9", "winter" = "12")) %>%
+  group_by(year) %>%
+  mutate(yearMean = round(mean(value), digits = 1)) %>%
+  mutate(currentYear = if_else(season == "spring", 0, 1)) %>%
+  mutate(currentYear = year + currentYear) %>%
+  group_by(currentYear) %>%
+  mutate(currentMean = round(mean(value), digits = 1)) %>%
+  mutate(currentMean = if_else(season == "spring", currentMean, NA_real_)) %>%
+  group_by(year, season, yearMean, currentYear, currentMean) %>%
+  summarise(seasonMean = round(mean(value), digits = 1)) %>%
+  pivot_wider(id_cols = c(year, yearMean, currentMean), names_from = season, values_from = seasonMean) %>%
+  group_by(year) %>%
+  summarise(across(where(is.numeric), ~max(., na.rm = T))) %>% #warnings because of lates year (summer, autumn, winter)
+  mutate(year = factor(year))
+sites <- sites %>%
+  right_join(data %>% select(-currentMean),
+             by = c("constructionYearF" = "year")) %>%
+  rename("TempSpring_cYear" = "spring", "TempSummer_cYear" = "summer", "TempAutumn_cYear" = "autumn", "TempWinter_cYear" = "winter", "TempMean_cYear" = "yearMean") %>%
+  right_join(data %>% select(-currentMean), 
+             by = c("constructionYearFplus" = "year")) %>%
+  rename("TempSpring_cYearPlus" = "spring", "TempSummer_cYearPlus" = "summer", "TempAutumn_cYearPlus" = "autumn", "TempWinter_cYearPlus" = "winter", "TempMean_cYearPlus" = "yearMean") %>%
+  right_join(data %>% select(year, currentMean, spring), 
+             by = c("surveyYearF" = "year")) %>%
+  rename("TempMean_sYear" = "currentMean", "TempSpring_sYear" = "spring") %>%
+  right_join(data %>% select(year, summer, autumn, winter), 
+             by = c("surveyYearFminus" = "year")) %>%
+  rename("TempSummer_sYear" = "summer", "TempAutumn_sYear" = "autumn", "TempWinter_sYear" = "winter")
+
+### * Precipitation ####
+setwd(here("data/raw/precipitation/data"))
+data <- read_csv("data_OBS_DEU_P1M_RR.csv", col_names = T, na = c("", "NA", "na"), col_types = 
+                          cols(
+                            .default = "?"
+                          )) %>%
+  rename(date = Zeitstempel, value = Wert, site = SDO_ID) %>%
+  filter(date >= "2002-03-01") %>%
+  mutate(site = factor(site)) %>%
+  select(site, date, value) %>%
+  mutate(season = floor_date(date, "season")) %>%
+  mutate(year = year(season), season = factor(month(season))) %>%
+  mutate(season = fct_recode(season, "spring" = "3", "summer" = "6", "autumn" = "9", "winter" = "12")) %>%
+  group_by(site, year) %>%
+  mutate(yearSum = round(sum(value), digits = 0)) %>%
+  mutate(currentYear = if_else(season == "spring", 0, 1)) %>%
+  mutate(currentYear = year + currentYear) %>%
+  group_by(site, currentYear) %>%
+  mutate(currentSum = round(sum(value), digits = 0)) %>%
+  group_by(site, season, year, currentYear, yearSum, currentSum) %>%
+  summarise(seasonSum = round(sum(value), digits = 0)) %>%
+  group_by(year, season, currentYear) %>%
+  summarise(seasonMean = round(mean(seasonSum), digits = 0),
+            yearMean = round(mean(yearSum), digits = 0),
+            currentMean = round(mean(currentSum), digits = 0)) %>%
+  mutate(currentMean = if_else(season == "spring", currentMean, NA_real_)) %>%
+  pivot_wider(id_cols = c(year, yearMean, currentMean), names_from = season, values_from = seasonMean) %>%
+  group_by(year) %>%
+  summarise(across(where(is.numeric), ~max(., na.rm = T))) %>% #warnings because of lates year (summer, autumn, winter)
+  mutate(year = factor(year))
+sites <- sites %>%
+  right_join(data %>% select(-currentMean),
+             by = c("constructionYearF" = "year")) %>%
+  rename("PrecSpring_cYear" = "spring", "PrecSummer_cYear" = "summer", "PrecAutumn_cYear" = "autumn", "PrecWinter_cYear" = "winter", "PrecMean_cYear" = "yearMean") %>%
+  right_join(data %>% select(-currentMean), 
+             by = c("constructionYearFplus" = "year")) %>%
+  rename("PrecSpring_cYearPlus" = "spring", "PrecSummer_cYearPlus" = "summer", "PrecAutumn_cYearPlus" = "autumn", "PrecWinter_cYearPlus" = "winter", "PrecMean_cYearPlus" = "yearMean") %>%
+  right_join(data %>% select(year, currentMean, spring), 
+             by = c("surveyYearF" = "year")) %>%
+  rename("PrecMean_sYear" = "currentMean", "PrecSpring_sYear" = "spring") %>%
+  right_join(data %>% select(year, summer, autumn, winter), 
+             by = c("surveyYearFminus" = "year")) %>%
+  rename("PrecSummer_sYear" = "summer", "PrecAutumn_sYear" = "autumn", "PrecWinter_sYear" = "winter")
+
+### * Calculation ####
+### Prepare data ###
+data <- sites %>%
+  select(id, plot, 
+         TempMean_sYear, TempSpring_sYear, TempSummer_sYear, TempAutumn_sYear, TempWinter_sYear,
+         PrecMean_sYear, PrecSpring_sYear, PrecSummer_sYear, PrecAutumn_sYear, PrecWinter_sYear)
+data <- sites %>%
+  select(id, plot, 
+         TempMean_cYear, TempSpring_cYear, TempSummer_cYear, TempAutumn_cYear, TempWinter_cYear,
+         TempMean_cYearPlus, TempSpring_cYearPlus, TempSummer_cYearPlus, TempAutumn_cYearPlus, TempWinter_cYearPlus,
+         PrecMean_cYear, PrecSpring_cYear, PrecSummer_cYear, PrecAutumn_cYear, PrecWinter_cYear,
+         PrecMean_cYearPlus, PrecSpring_cYearPlus, PrecSummer_cYearPlus, PrecAutumn_cYearPlus, PrecWinter_cYearPlus) %>%
+  group_by(plot) %>%
+  summarise(across(where(is.numeric), ~median(.x, na.rm = T))) %>%
+  select(-plot)
+### Calculate PCA ###
+pca <- rda(X = decostand(data, method = "standardize"), scale = T)
+biplot(pca, display = "species")
+screeplot(pca, bstick = TRUE, type = "l", main = NULL)
+### Make data frames ###
+eigenvals <- pca %>%
+  eigenvals() %>%
+  summary() %>%
+  as_tibble() %>%
+  select(PC1:PC3) %>%
+  bind_cols(c("Eigenvalues", "Proportion Explained", "Cumulative Proportion")) %>%
+  rename("variables" = "...4") %>%
+  mutate(across(where(is.numeric), as.double))
+values <- pca %>%
+  summary()
+pca <- values$species[ ,1:3] %>%
+  as_tibble() %>%
+  bind_cols(c("calciumcarbonatPerc", "NtotalPerc", "cnRatio", "pH", "sandPerc", "siltPerc", "clayPerc", "phosphorous", "potassium", "magnesium", "topsoilDepth", "NtotalConc")) %>%
+  rename(variables = "...4") %>%
+  bind_rows(eigenvals)
+data <- as_tibble(values$sites[,1:3])
+### Add to sites ###
+sites2 <- sites %>%
+  select(id, plot, calciumcarbonatPerc, NtotalPerc, cnRatio, pH, sandPerc, siltPerc, clayPerc, phosphorous, potassium, magnesium, topsoilDepth, NtotalConc) %>%
+  group_by(plot) %>%
+  summarise(across(where(is.numeric), ~median(.x, na.rm = T))) %>%
+  select(plot) %>%
+  bind_cols(data) %>%
+  left_join(sites, by = "plot") %>%
+  select(-starts_with(Temp), -starts_with(Prec))
+rm(permdisp, data, nmds, names, values, eigenvals)
+
+
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # C Save processed data ##############################################################################
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
+### Data
 setwd(here("data/processed"))
-write_csv2(sites, "data_processed_sites.csv")
-write_csv2(species, "data_processed_species.csv")
-write_csv2(traits, "data_processed_traits.csv")
-write_csv2(tbiAbu, "data_processed_tbiAbu.csv")
-write_csv2(tbiPa, "data_processed_tbiPa.csv")
+write_csv(sites, "data_processed_sites.csv")
+write_csv(species, "data_processed_species.csv")
+write_csv(species17, "data_processed_species17.csv")
+write_csv(species18, "data_processed_species18.csv")
+write_csv(species19, "data_processed_species19.csv")
+write_csv(traits, "data_processed_traits.csv")
+
+### Tables
 setwd(here("data/tables"))
-write_csv2(pca, "table_pca.csv")
+write_csv(pca, "table_pca.csv")

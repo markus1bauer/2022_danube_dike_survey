@@ -1,61 +1,62 @@
-ï»¿variable;definition;source;unit;type;value;comment
-id;serial number and position on the dike;NA;NA;factor;m = middle part, o = upper part of the dike side;NA
-block;serial numer of a pair of plots (water and landside);NA;NA;numeric;NA;NA
-location;block factor;NA;NA;factor;NA;NA
-RW;Coordinates X (Rechtswert);NA;Gauss-Krueger Zone 4;numeric;NA;NA
-HW;Coordinates Y (Hochwert);NA;Gauss-Krueger Zone 4;numeric;NA;NA
-side;On which side is the plot on the dike;NA;NA;NA;water, land;NA
-exposition;exposition of the plots;NA;NA;NA;north, south, east, west;NA
-constructionYear;year in which the dike was constructed and seeded;NA;NA;numeric;NA;NA
-ageCategory;2016 and younger dikes are young;NA;NA;factor;new = 2016 and younger, old 2015 and older;NA
-surveyDate_2017;date of the first vegetation survey 2017;NA;NA;YYYY-mm-dd;NA;NA
-surveyDate_2018;date of the second vegetation survey 2018;NA;NA;YYYY-mm-dd;NA;NA
-surveyDate_2019;date of the third vegetation survey 2019;NA;NA;YYYY-mm-dd;NA;NA
-botanist_2017;person who surveyed the vegetation;NA;NA;character;NA;NA
-botanist_2018;person who surveyed the vegetation;NA;NA;character;NA;NA
-botanist_2019;person who surveyed the vegetation;NA;NA;character;NA;NA
-opensoilCov_2017;coverage of the open soil;NA;%;numeric;NA;NA
-opensoilCov_2018;coverage of the open soil;NA;%;numeric;NA;NA
-opensoilCov_2019;coverage of the open soil;NA;%;numeric;NA;NA
-mossCov_2017;coverage of the moss layer;NA;%;numeric;NA;NA
-mossCov_2018;coverage of the moss layer;NA;%;numeric;NA;NA
-mossCov_2019;coverage of the moss layer;NA;%;numeric;NA;NA
-litterCov_2017;coverage of the litter layer;NA;%;numeric;NA;NA
-litterCov_2018;coverage of the litter layer;NA;%;numeric;NA;NA
-litterCov_2019;coverage of the litter layer;NA;%;numeric;NA;NA
-vegetationCov_2017;coverage of the herb layer;NA;%;numeric;NA;NA
-vegetationCov_2018;coverage of the herb layer;NA;%;numeric;NA;NA
-vegetationCov_2019;coverage of the herb layer;NA;%;numeric;NA;NA
-vegetationHeight_2017;average height of the vegetation (measured in the field);NA;cm;numeric;NA;NA
-vegetationHeight_2018;average height of the vegetation (measured in the field);NA;cm;numeric;NA;NA
-vegetationHeight_2019;average height of the vegetation (measured in the field);NA;cm;numeric;NA;NA
-HCl;HCl 10% CaCO3;NA;NA;factor;NA;NA
-C550Perc;percentage of carbon after 550Â°C treatment;NA;wt%;numeric;NA;NA
-calciumcarbonatPerc;percentage of calcium carbonate (CaCO3) in fine soil (C550Ratio * 8,33);NA;wt%;numeric;NA;NA
-CorgPerc;percentage of organic carbon;NA;wt%;numeric;NA;NA
-humusPerc;percentage of humus (CorgRatio * 1,72);NA;wt%;numeric;NA;NA
-humusLevel;humus level;Bodenkundliche Kartieranleitung Tab. 15;NA;factor;h2, h3, h4;NA
-NtotalPerc;total nitrogen percentage;NA;wt%;numeric;NA;NA
-cnRatio;CorgRatio / NtotalRatio;NA;NA;numeric;NA;9-11 is normal for agricultural land (LfL website)
-cnLevel;humus quality level;NA;NA;factor;hq4, hy5;NA
-pH;pH measured in 0.01 M CaCl2 ;Dr. HÃ¤usler 2017-11-28, VDLUFA method A 5.1.1;NA;numeric;NA;NA
-sandPerc;percentage of sand in the fine soil sample (fine soil <2mm);Dr. HÃ¤usler 2017-11-28, DIN ISO 11277;wt%;numeric;NA;grain size 2-0,063mm
-siltPerc;percentage of silt in the fine soil sample (fine soil <2mm);Dr. HÃ¤usler 2017-11-28, DIN ISO 11277;wt%;numeric;NA;grain size 0,063-0,002mm
-clayPerc;percentage of clay in the fine soil sample (fine soil <2mm);Dr. HÃ¤usler 2017-11-28, DIN ISO 11277;wt%;numeric;NA;grain size <0,002
-phosporous;CAL extract (Calcium-acetat lactat) of phosphorus (P2O5);Dr. HÃ¤usler 2017-11-28, VDLUFA method A 6.3.1.1 (2002);mg P2O5 (100g soil)^-1;numeric;NA;NA
-phosphorousClass;ferilization classification;Leitfaden DÃ¼ngung, LfL (2007) 8.Aufl.;NA;factor;A = very low, C = optimum, E = very high;values for agricultural land not greenland
-potassium;CAL extract (Calcium-acetat lactat) of potassium (K2O) ;Dr. HÃ¤usler 2017-11-28, VDLUFA method A 6.2.1.1 (2002);mg K2O (100gsoil)^-1;numeric;NA;NA
-potassiumClass;ferilization classification;Leitfaden DÃ¼ngung, LfL (2007) 8.Aufl.;NA;factor;A = very low, C = optimum, E = very high;values for agricultural land not greenland
-magnesium;CaCl2 extract of magnesium (Mg);Dr. HÃ¤usler 2017-11-28, VDLUFA method A 6.2.4.1;mg Mg (100g soil)^-1;numeric;NA;NA
-magnesiumClass;ferilization classification;Leitfaden DÃ¼ngung, LfL (2007) 8.Aufl.;NA;factor;A = very low, C = optimum, E = very high;values for agricultural land not greenland
-topoilDepth_plan;depth of topsoil according to plans;NA;cm;numeric;NA;NA
-topsoilDepth_measured;measured depth of topsoil;NA;cm;numeric;NA;NA
-topsoilDepth;measured depth of topsoil but if necessary taken from plans;NA;cm;numeric;NA;NA
-fmDepth;measured depth of fine material ;NA;cm;numeric;NA;NA
-fmDbd;dry bulk density of fine material;NA;g cm^-3;numeric;NA;NA
-skeletonRatiov;volume ratio of sceleton of total topsoil;NA;vol%;numeric;NA;NA
-skeletonRatiom;mass ratio of sceleton incl. Rough organic material;NA;wt%;numeric;NA;NA
-skeletonLevel;level of sceleton ratio;Bodenkundliche Kartieranleitung Tab. 33;;factor;1, 2, 3, 4;NA
-ufcPerc;usable field capcity of topsoil in vol%;NA;vol%;numeric;NA;NA
-ufc;usable field capacity in topsoil in mm;NA;mm;numeric;NA;NA
-;;NA;;numeric;NA;NA
+variable,definition,source,unit,type,value,comment,,,
+id,serial number and position on the dike,NA,NA,factor,m = middle part, o = upper part of the dike side,NA,,
+block,serial numer of a pair of plots (water and landside),NA,NA,numeric,NA,NA,,,
+location,block factor,NA,NA,factor,NA,NA,,,
+RW,Coordinates X (Rechtswert),NA,Gauss-Krueger Zone 4,numeric,NA,NA,,,
+HW,Coordinates Y (Hochwert),NA,Gauss-Krueger Zone 4,numeric,NA,NA,,,
+riverkm,official km of river Danube,BayernAtlas,km,numeric,NA,NA,,,
+side,On which side is the plot on the dike,NA,NA,NA,water, land,NA,,
+exposition,exposition of the plots,NA,NA,NA,north, south, east, west,NA
+constructionYear,year in which the dike was constructed and seeded,NA,NA,numeric,NA,NA,,,
+ageCategory,2016 and younger dikes are young,NA,NA,factor,new = 2016 and younger, old 2015 and older,NA,,
+surveyDate_2017,date of the first vegetation survey 2017,NA,NA,YYYY-mm-dd,NA,NA,,,
+surveyDate_2018,date of the second vegetation survey 2018,NA,NA,YYYY-mm-dd,NA,NA,,,
+surveyDate_2019,date of the third vegetation survey 2019,NA,NA,YYYY-mm-dd,NA,NA,,,
+botanist_2017,person who surveyed the vegetation,NA,NA,character,NA,NA,,,
+botanist_2018,person who surveyed the vegetation,NA,NA,character,NA,NA,,,
+botanist_2019,person who surveyed the vegetation,NA,NA,character,NA,NA,,,
+opensoilCov_2017,coverage of the open soil,NA,%,numeric,NA,NA,,,
+opensoilCov_2018,coverage of the open soil,NA,%,numeric,NA,NA,,,
+opensoilCov_2019,coverage of the open soil,NA,%,numeric,NA,NA,,,
+mossCov_2017,coverage of the moss layer,NA,%,numeric,NA,NA,,,
+mossCov_2018,coverage of the moss layer,NA,%,numeric,NA,NA,,,
+mossCov_2019,coverage of the moss layer,NA,%,numeric,NA,NA,,,
+litterCov_2017,coverage of the litter layer,NA,%,numeric,NA,NA,,,
+litterCov_2018,coverage of the litter layer,NA,%,numeric,NA,NA,,,
+litterCov_2019,coverage of the litter layer,NA,%,numeric,NA,NA,,,
+vegetationCov_2017,coverage of the herb layer,NA,%,numeric,NA,NA,,,
+vegetationCov_2018,coverage of the herb layer,NA,%,numeric,NA,NA,,,
+vegetationCov_2019,coverage of the herb layer,NA,%,numeric,NA,NA,,,
+vegetationHeight_2017,average height of the vegetation (measured in the field),NA,cm,numeric,NA,NA,,,
+vegetationHeight_2018,average height of the vegetation (measured in the field),NA,cm,numeric,NA,NA,,,
+vegetationHeight_2019,average height of the vegetation (measured in the field),NA,cm,numeric,NA,NA,,,
+HCl,HCl 10% CaCO3,NA,NA,factor,NA,NA,,,
+C550Perc,percentage of carbon after 550°C treatment,NA,wt%,numeric,NA,NA,,,
+calciumcarbonatPerc,percentage of calcium carbonate (CaCO3) in fine soil (C550Ratio * 8,33),NA,wt%,numeric,NA,NA,,
+CorgPerc,percentage of organic carbon,NA,wt%,numeric,NA,NA,,,
+humusPerc,percentage of humus (CorgRatio * 1,72),NA,wt%,numeric,NA,NA,,
+humusLevel,humus level,Bodenkundliche Kartieranleitung Tab. 15,NA,factor,h2, h3, h4,NA,
+NtotalPerc,total nitrogen percentage,NA,wt%,numeric,NA,NA,,,
+cnRatio,CorgRatio / NtotalRatio,NA,NA,numeric,NA,9-11 is normal for agricultural land (LfL website),,,
+cnLevel,humus quality level,NA,NA,factor,hq4, hy5,NA,,
+pH,pH measured in 0.01 M CaCl2 ,Dr. Häusler 2017-11-28, VDLUFA method A 5.1.1,NA,numeric,NA,NA,,
+sandPerc,percentage of sand in the fine soil sample (fine soil <2mm),Dr. Häusler 2017-11-28, DIN ISO 11277,wt%,numeric,NA,grain size 2-0,063mm,
+siltPerc,percentage of silt in the fine soil sample (fine soil <2mm),Dr. Häusler 2017-11-28, DIN ISO 11277,wt%,numeric,NA,grain size 0,063-0,002mm
+clayPerc,percentage of clay in the fine soil sample (fine soil <2mm),Dr. Häusler 2017-11-28, DIN ISO 11277,wt%,numeric,NA,grain size <0,2,
+phosporous,CAL extract (Calcium-acetat lactat) of phosphorus (P2O5),Dr. Häusler 2017-11-28, VDLUFA method A 6.3.1.1 (2002),mg P2O5 (100g soil)^-1,numeric,NA,NA,,
+phosphorousClass,ferilization classification,Leitfaden Düngung, LfL (2007) 8.Aufl.,NA,factor,A = very low, C = optimum, E = very high,values for agricultural land not greenland
+potassium,CAL extract (Calcium-acetat lactat) of potassium (K2O) ,Dr. Häusler 2017-11-28, VDLUFA method A 6.2.1.1 (2002),mg K2O (100gsoil)^-1,numeric,NA,NA,,
+potassiumClass,ferilization classification,Leitfaden Düngung, LfL (2007) 8.Aufl.,NA,factor,A = very low, C = optimum, E = very high,values for agricultural land not greenland
+magnesium,CaCl2 extract of magnesium (Mg),Dr. Häusler 2017-11-28, VDLUFA method A 6.2.4.1,mg Mg (100g soil)^-1,numeric,NA,NA,,
+magnesiumClass,ferilization classification,Leitfaden Düngung, LfL (2007) 8.Aufl.,NA,factor,A = very low, C = optimum, E = very high,values for agricultural land not greenland
+topoilDepth_plan,depth of topsoil according to plans,NA,cm,numeric,NA,NA,,,
+topsoilDepth_measured,measured depth of topsoil,NA,cm,numeric,NA,NA,,,
+topsoilDepth,measured depth of topsoil but if necessary taken from plans,NA,cm,numeric,NA,NA,,,
+fmDepth,measured depth of fine material ,NA,cm,numeric,NA,NA,,,
+fmDbd,dry bulk density of fine material,NA,g cm^-3,numeric,NA,NA,,,
+skeletonRatiov,volume ratio of sceleton of total topsoil,NA,vol%,numeric,NA,NA,,,
+skeletonRatiom,mass ratio of sceleton incl. Rough organic material,NA,wt%,numeric,NA,NA,,,
+skeletonLevel,level of sceleton ratio,Bodenkundliche Kartieranleitung Tab. 33,,factor,1,2,3,4,NA
+ufcPerc,usable field capcity of topsoil in vol%,NA,vol%,numeric,NA,NA,,,
+ufc,usable field capacity in topsoil in mm,NA,mm,numeric,NA,NA,,,
+,,NA,,numeric,NA,NA,,,

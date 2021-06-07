@@ -22,9 +22,9 @@ setwd(here("data/processed"))
 ### Load data ###
 sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types = 
                      cols(
-                       .default = col_guess(),
+                       .default = "?",
                        id = "f",
-                       location = "f",
+                       locationAbb = "f",
                        block = "f",
                        plot = "f",
                        exposition = "f",
@@ -32,9 +32,8 @@ sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA")
                        ffh = "f",
                        changeType = col_factor(c("FFH6510", "any-FFH", "better", "change", "worse", "non-FFH"))
                      )) %>%
-  select(targetRichness, id, surveyYear, constructionYear, plotAge, location, block, plot, side, exposition, PC1, PC2, PC3, changeType, ffh) %>%
+  select(targetRichness, id, surveyYear, constructionYear, plotAge, locationAbb, block, plot, side, exposition, PC1, PC2, PC3, changeType, ffh) %>%
   mutate(n = targetRichness) %>%
-  mutate(location = factor(location, levels = unique(location[order(constructionYear)]))) %>%
   mutate(plotAge = scale(plotAge, scale = T, center = F)) %>%
   mutate(surveyYear = scale(surveyYear, scale = T, center = F)) %>%
   mutate(surveyYearF = as_factor(surveyYear)) %>%
@@ -47,13 +46,14 @@ sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA")
   ungroup() %>%
   slice_max(count, n = 1) %>%
   mutate(exposition = factor(exposition)) %>%
-  mutate(location = factor(location)) %>%
+  mutate(locationAbb = factor(locationAbb)) %>%
+  mutate(locationAbb = factor(locationAbb, levels = unique(locationAbb[order(constructionYear)]))) %>%
   mutate(plot = factor(plot)) %>%
   mutate(block = factor(block)) %>%
   select(-count)
 
 ### Choosen model ###
-m3 <- lmer((n) ~ (exposition + side + PC1 + PC2 + PC3 + surveyYearF + location) + 
+m3 <- lmer((n) ~ (exposition + side + PC1 + PC2 + PC3 + surveyYearF + locationAbb) + 
              (1|plot), sites, REML = F);
 
 ### Functions ###
@@ -91,8 +91,8 @@ dwplot(m,
                        sideland = "Side (Land vs. water)")) +
   scale_x_continuous(limits = c(-5, 12), breaks = seq(-100, 100, 2)) +
   xlab(expression(paste(Delta, " Target species richness [#]"))) +
-  annotate("text", label = expression(paste("R"^2*""[m]*"= 0.54")), x = 12, y = 5.3, hjust = T) +
-  annotate("text", label = expression(paste("R"^2*""[m2]*"= 0.27")), x = 12, y = 5, hjust = T) +
+  annotate("text", label = expression(paste("R"^2*""[m]*"= 0.27")), x = 12, y = 5.3, hjust = T) +
+  annotate("text", label = expression(paste("R"^2*""[m2]*"= 0.54")), x = 12, y = 5, hjust = T) +
   annotate("text", label = expression(paste("R"^2*""[c]*"= 0.712")), x = 12, y = 4.7, hjust = T) +
   themeMB()
 
