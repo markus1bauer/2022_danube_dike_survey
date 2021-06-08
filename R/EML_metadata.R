@@ -72,7 +72,7 @@ contact <-
     organizationName = "Technical University of Munich"
     )
 
-eml$creator
+
 ### 2 Coverage #####################################################################################
 
 geographicDescription <- "Danube dikes near Deggendorf"
@@ -145,3 +145,6 @@ eml <- list(
 setwd(here())
 write_eml(eml, "METADATA.xml")
 eml_validate("METADATA.xml")
+
+render_eml("METADATA.xml", open = F, outfile = "METADATA.html", publish_mode = F)
+

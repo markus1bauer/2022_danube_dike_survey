@@ -21,7 +21,7 @@ library(lubridate) #modify dates
 library(vegan)
 library(FD) #dbFD()
 library(adespatial)
-remotes::install_github("larsito/tempo")
+#remotes::install_github("larsito/tempo")
 library(tempo)
 
 

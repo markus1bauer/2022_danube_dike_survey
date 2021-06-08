@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<eml:eml xmlns:eml="https://eml.ecoinformatics.org/eml-2.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.2" packageId="2184bbe3-87c9-48f6-abd2-2e538292b042" system="uuid" xsi:schemaLocation="https://eml.ecoinformatics.org/eml-2.2.0 https://eml.ecoinformatics.org/eml-2.2.0/eml.xsd">
+<eml:eml xmlns:eml="https://eml.ecoinformatics.org/eml-2.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.2" packageId="dd5f3d4f-721e-40ed-af12-b1f42795c9cd" system="uuid" xsi:schemaLocation="https://eml.ecoinformatics.org/eml-2.2.0 https://eml.ecoinformatics.org/eml-2.2.0/eml.xsd">
   <dataset>
     <title>Danube old dikes</title>
     <creator id="https://orcid.org/0000-0001-5372-4174">
@@ -25,8 +25,8 @@
         <surName>Huber</surName>
       </individualName>
       <organizationName>Technical University of Munich</organizationName>
-      <positionName>Researcher</positionName>
       <electronicMailAddress>jakob.huber@posteo.de</electronicMailAddress>
+      <role>Researcher</role>
     </associatedParty>
     <associatedParty id="https://orcid.org/0000-0002-4990-3636">
       <individualName>
@@ -34,7 +34,6 @@
         <surName>Kollmann</surName>
       </individualName>
       <organizationName>Technical University of Munich</organizationName>
-      <positionName>Professor</positionName>
       <address>
         <deliveryPoint>Emil-Ramann-Strasse 6</deliveryPoint>
         <city>Freising</city>
@@ -44,6 +43,7 @@
       </address>
       <phone>0049-8161-714144</phone>
       <electronicMailAddress>jkollmann@wzw.tum.de</electronicMailAddress>
+      <role>Professor</role>
     </associatedParty>
     <pubDate>2022</pubDate>
     <abstract>Not written yet</abstract>
@@ -134,7 +134,7 @@
           </measurementScale>
         </attribute>
         <attribute>
-          <attributeName>surveyYear</attributeName>
+          <attributeName>constructionYear</attributeName>
           <attributeDefinition>year in which the vegetation was surveyed</attributeDefinition>
           <storageType>date</storageType>
           <measurementScale>
@@ -196,7 +196,101 @@
           </measurementScale>
         </attribute>
         <attribute>
-          <attributeName>Acinos_arvensis</attributeName>
+          <attributeName>Acinos arvensis</attributeName>
+          <attributeDefinition>the abundance of the species Acinos arvensis</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <numericDomain>
+                <numberType>real</numberType>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+      </attributeList>
+    </dataTable>
+    <dataTable>
+      <entityName>data_raw_species.csv</entityName>
+      <entityDescription>species abundances</entityDescription>
+      <attributeList>
+        <attribute>
+          <attributeName>plot_ID</attributeName>
+          <attributeDefinition>serial number of the plots</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>serial number of the plots</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>constructionYear</attributeName>
+          <attributeDefinition>year in which the vegetation was surveyed</attributeDefinition>
+          <storageType>date</storageType>
+          <measurementScale>
+            <dateTime>
+              <formatString>YYYY</formatString>
+              <dateTimeDomain/>
+            </dateTime>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>position</attributeName>
+          <attributeDefinition>position of the plot on the dike</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>m</code>
+                    <definition>middle part of the slope</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>u</code>
+                    <definition>upper part of the slope</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>l</code>
+                    <definition>lower part of the slope</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>plot_specification</attributeName>
+          <attributeDefinition>whole ID of a plot</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>whole ID of a plot</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Achillea millefolium</attributeName>
+          <attributeDefinition>the abundance of the species Achillea millefolium</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <numericDomain>
+                <numberType>real</numberType>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Acinos arvensis</attributeName>
           <attributeDefinition>the abundance of the species Acinos arvensis</attributeDefinition>
           <storageType>float</storageType>
           <measurementScale>
