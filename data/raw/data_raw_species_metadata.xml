@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eml:eml xmlns:eml="https://eml.ecoinformatics.org/eml-2.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.2" packageId="2184bbe3-87c9-48f6-abd2-2e538292b042" system="uuid" xsi:schemaLocation="https://eml.ecoinformatics.org/eml-2.2.0 https://eml.ecoinformatics.org/eml-2.2.0/eml.xsd">
+  <dataset>
+    <title>Danube old dikes</title>
+    <creator id="https://orcid.org/0000-0001-5372-4174">
+      <individualName>
+        <givenName>Markus</givenName>
+        <surName>Bauer</surName>
+      </individualName>
+      <organizationName>Technical University of Munich</organizationName>
+      <positionName>PhD student</positionName>
+      <address>
+        <deliveryPoint>Emil-Ramann-Strasse 6</deliveryPoint>
+        <city>Freising</city>
+        <administrativeArea>Bayern</administrativeArea>
+        <postalCode>85354</postalCode>
+        <country>Germany</country>
+      </address>
+      <phone>0049-152-56391781</phone>
+      <electronicMailAddress>markusbauer@mailbox.org</electronicMailAddress>
+    </creator>
+    <associatedParty>
+      <individualName>
+        <givenName>Jakob</givenName>
+        <surName>Huber</surName>
+      </individualName>
+      <organizationName>Technical University of Munich</organizationName>
+      <positionName>Researcher</positionName>
+      <electronicMailAddress>jakob.huber@posteo.de</electronicMailAddress>
+    </associatedParty>
+    <associatedParty id="https://orcid.org/0000-0002-4990-3636">
+      <individualName>
+        <givenName>Johannes</givenName>
+        <surName>Kollmann</surName>
+      </individualName>
+      <organizationName>Technical University of Munich</organizationName>
+      <positionName>Professor</positionName>
+      <address>
+        <deliveryPoint>Emil-Ramann-Strasse 6</deliveryPoint>
+        <city>Freising</city>
+        <administrativeArea>Bayern</administrativeArea>
+        <postalCode>85354</postalCode>
+        <country>Germany</country>
+      </address>
+      <phone>0049-8161-714144</phone>
+      <electronicMailAddress>jkollmann@wzw.tum.de</electronicMailAddress>
+    </associatedParty>
+    <pubDate>2022</pubDate>
+    <abstract>Not written yet</abstract>
+    <keywordSet>
+      <keyword>rivers</keyword>
+      <keyword>vegetation dynamics</keyword>
+      <keyword>restoration</keyword>
+      <keywordThesaurus>LTER controlled vocabulary</keywordThesaurus>
+    </keywordSet>
+    <keywordSet>
+      <keyword>beta diversity</keyword>
+      <keyword>temperate grassland</keyword>
+      <keyword>dike</keyword>
+      <keywordThesaurus>own vocabulary</keywordThesaurus>
+    </keywordSet>
+    <intellectualRights>CC-BY-4.0</intellectualRights>
+    <coverage>
+      <geographicCoverage>
+        <geographicDescription>Danube dikes near Deggendorf</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>12.59</westBoundingCoordinate>
+          <eastBoundingCoordinate>13.1162</eastBoundingCoordinate>
+          <northBoundingCoordinate>48.9039</northBoundingCoordinate>
+          <southBoundingCoordinate>48.675</southBoundingCoordinate>
+          <boundingAltitudes>
+            <altitudeMinimum>309</altitudeMinimum>
+            <altitudeMaximum>315</altitudeMaximum>
+            <altitudeUnits>meter</altitudeUnits>
+          </boundingAltitudes>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <temporalCoverage>
+        <rangeOfDates>
+          <beginDate>
+            <calendarDate>2017-06-01</calendarDate>
+          </beginDate>
+          <endDate>
+            <calendarDate>2021-07-31</calendarDate>
+          </endDate>
+        </rangeOfDates>
+      </temporalCoverage>
+      <taxonomicCoverage>
+        <taxonomicClassification>
+          <taxonRankName>Kingdom</taxonRankName>
+          <taxonRankValue>Plantae</taxonRankValue>
+          <taxonomicClassification>
+            <taxonRankName>Division</taxonRankName>
+            <taxonRankValue>Tracheophyta</taxonRankValue>
+            <taxonomicClassification>
+              <taxonRankName>Subdivision</taxonRankName>
+              <taxonRankValue>Spermatophytina</taxonRankValue>
+            </taxonomicClassification>
+          </taxonomicClassification>
+        </taxonomicClassification>
+      </taxonomicCoverage>
+    </coverage>
+    <contact>
+      <individualName>
+        <givenName>Markus</givenName>
+        <surName>Bauer</surName>
+      </individualName>
+      <organizationName>Technical University of Munich</organizationName>
+      <address>
+        <deliveryPoint>Emil-Ramann-Strasse 6</deliveryPoint>
+        <city>Freising</city>
+        <administrativeArea>Bayern</administrativeArea>
+        <postalCode>85354</postalCode>
+        <country>Germany</country>
+      </address>
+      <electronicMailAddress>markusbauer@mailbox.org</electronicMailAddress>
+    </contact>
+    <dataTable>
+      <entityName>data_raw_species.csv</entityName>
+      <entityDescription>species abundances</entityDescription>
+      <attributeList>
+        <attribute>
+          <attributeName>plot_ID</attributeName>
+          <attributeDefinition>serial number of the plots</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>serial number of the plots</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>surveyYear</attributeName>
+          <attributeDefinition>year in which the vegetation was surveyed</attributeDefinition>
+          <storageType>date</storageType>
+          <measurementScale>
+            <dateTime>
+              <formatString>YYYY</formatString>
+              <dateTimeDomain/>
+            </dateTime>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>position</attributeName>
+          <attributeDefinition>position of the plot on the dike</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>m</code>
+                    <definition>middle part of the slope</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>u</code>
+                    <definition>upper part of the slope</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>l</code>
+                    <definition>lower part of the slope</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>plot_specification</attributeName>
+          <attributeDefinition>whole ID of a plot</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>whole ID of a plot</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Achillea millefolium</attributeName>
+          <attributeDefinition>the abundance of the species Achillea millefolium</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <numericDomain>
+                <numberType>real</numberType>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Acinos_arvensis</attributeName>
+          <attributeDefinition>the abundance of the species Acinos arvensis</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <numericDomain>
+                <numberType>real</numberType>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+      </attributeList>
+    </dataTable>
+  </dataset>
+</eml:eml>

@@ -1,7 +1,7 @@
-﻿variable;definition;source;unit;type;value;comment
-plot_ID;serial number;NA;NA;factor;NA;NA
-constructionYear;year in which the dike was constructed and seeded;NA;NA;factor;NA;NA
-position;position of the block on the dike;NA;NA;factor;m = middle part, o = upper part of the dike side;NA
-plot_specification;whole ID;NA;NA;factor;NA;NA
-Achillea millefolium;the abundance of this species;NA;%;numeric;NA;NA
-etc.;the abundance of this species;NA;%;numeric;NA;NA
+﻿variable,definition,source,unit,type,value,comment
+plot_ID,serial number,NA,NA,factor,NA,NA
+constructionYear,year in which the dike was constructed and seeded,NA,NA,factor,NA,NA
+position,position of the block on the dike,NA,NA,factor,m = middle part,
+plot_specification,whole ID,NA,NA,factor,NA,NA
+Achillea millefolium,the abundance of this species,NA,%,numeric,NA,NA
+etc.,the abundance of this species,NA,%,numeric,NA,NA

@@ -5,29 +5,20 @@
 ### Packages ###
 library(here)
 library(EML)
+library(emld)
 
 ### Start ###
 rm(list = ls())
+setwd(here())
 
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Create infos about persons ##############################################################################
+# A Metadata ##############################################################################
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-creator <- eml$creator(
-  individualName = eml$individualName(
-    givenName = "Markus", 
-    surName = "Bauer"),
-  electronicMailAddress = "markusbauer@mailbox.org"
-)
-
-associatedParty <- list(
-  individualName = eml$individualName(
-    givenName = "Jakob", 
-    surName = "Huber")
-)
+### 1 Contact #####################################################################################
 
 address <- list(
   deliveryPoint = "Emil-Ramann-Strasse 6",
@@ -36,30 +27,53 @@ address <- list(
   postalCode = "85354",
   country = "Germany")
 
+creator <- eml$creator(
+  individualName = eml$individualName(
+    givenName = "Markus", 
+    surName = "Bauer"
+    ),
+  positionName = "PhD student",
+  organizationName = "Technical University of Munich",
+  address = address,
+  electronicMailAddress = "markusbauer@mailbox.org",
+  phone = "0049-152-56391781",
+  id = "https://orcid.org/0000-0001-5372-4174"
+)
+
+associatedParty <- list(
+  eml$associatedParty(
+    individualName = eml$individualName(
+      givenName = "Jakob", 
+      surName = "Huber"
+      ),
+    role = "Researcher",
+    organizationName = "Technical University of Munich",
+    electronicMailAddress = "jakob.huber@posteo.de"
+    ),
+  eml$associatedParty(
+    individualName = eml$individualName(
+      givenName = "Johannes", 
+      surName = "Kollmann"
+      ),
+    role = "Professor",
+    organizationName = "Technical University of Munich",
+    address = address,
+    electronicMailAddress = "jkollmann@wzw.tum.de",
+    phone = "0049-8161-714144",
+    id = "https://orcid.org/0000-0002-4990-3636"
+    )
+  )
+
 contact <- 
   list(
     individualName = creator$individualName,
     electronicMailAddress = creator$electronicMailAddress,
     address = address,
-    organizationName = "Technical University of Munich",
-    phone = "0049-152-56391781"
+    organizationName = "Technical University of Munich"
     )
 
-
-
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Create site and experiment infos ##############################################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-abstract <- "Not written yet"
-
-keywordSet <- list(
-    keywordThesaurus = "LTER controlled vocabulary",
-    keyword = list("rivers",
-                   "vegetation dynamics",
-                   "restoration")
-    )
+eml$creator
+### 2 Coverage #####################################################################################
 
 geographicDescription <- "Danube dikes near Deggendorf"
 
@@ -78,23 +92,49 @@ coverage <- set_coverage(
   )
 
 
+### 3 Description #####################################################################################
+
+pubDate = "2022"
+
+title = "Danube old dikes"
+
+abstract <- "Not written yet"
+
+keywordSet <- list(
+  list(
+    keywordThesaurus = "LTER controlled vocabulary",
+    keyword = list("rivers",
+                   "vegetation dynamics",
+                   "restoration")
+  ),
+  list(
+    keywordThesaurus = "own vocabulary",
+    keyword = list("beta diversity",
+                   "temperate grassland",
+                   "dike")
+    )
+)
+
+intellectualRights <- "CC-BY-4.0"
+
+
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# C finalize EML ##############################################################################
+# B finalize EML ##############################################################################
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 dataset <- list(
-    title = "Danube old dikes",
-    creator = creator,
-    pubDate = "2022",
-    language = "English",
-    intellectualRights = "CC BY 4.0",
-    abstract = abstract,
-    keywordSet = keywordSet,
-    coverage = coverage,
-    contact = contact
-    )
+  title = title,
+  pubDate = pubDate,
+  creator = creator,
+  associatedParty = associatedParty,
+  intellectualRights = intellectualRights,
+  abstract = abstract,
+  keywordSet = keywordSet,
+  coverage = coverage,
+  contact = contact
+  )
 
 eml <- list(
   packageId = uuid::UUIDgenerate(),

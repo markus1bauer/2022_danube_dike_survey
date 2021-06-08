@@ -1,16 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<eml:eml xmlns:eml="https://eml.ecoinformatics.org/eml-2.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.2" packageId="341d2b0c-1a3e-48ff-80f9-97783d9c8707" system="uuid" xsi:schemaLocation="https://eml.ecoinformatics.org/eml-2.2.0 https://eml.ecoinformatics.org/eml-2.2.0/eml.xsd">
+<eml:eml xmlns:eml="https://eml.ecoinformatics.org/eml-2.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.2" packageId="1a8b478a-0216-4484-a40f-f5f06862e8aa" system="uuid" xsi:schemaLocation="https://eml.ecoinformatics.org/eml-2.2.0 https://eml.ecoinformatics.org/eml-2.2.0/eml.xsd">
   <dataset>
     <title>Danube old dikes</title>
-    <creator>
+    <creator id="https://orcid.org/0000-0001-5372-4174">
       <individualName>
         <givenName>Markus</givenName>
         <surName>Bauer</surName>
       </individualName>
+      <organizationName>Technical University of Munich</organizationName>
+      <positionName>PhD student</positionName>
+      <address>
+        <deliveryPoint>Emil-Ramann-Strasse 6</deliveryPoint>
+        <city>Freising</city>
+        <administrativeArea>Bayern</administrativeArea>
+        <postalCode>85354</postalCode>
+        <country>Germany</country>
+      </address>
+      <phone>0049-152-56391781</phone>
       <electronicMailAddress>markusbauer@mailbox.org</electronicMailAddress>
     </creator>
+    <associatedParty>
+      <individualName>
+        <givenName>Jakob</givenName>
+        <surName>Huber</surName>
+      </individualName>
+      <organizationName>Technical University of Munich</organizationName>
+      <positionName>Researcher</positionName>
+      <electronicMailAddress>jakob.huber@posteo.de</electronicMailAddress>
+    </associatedParty>
+    <associatedParty id="https://orcid.org/0000-0002-4990-3636">
+      <individualName>
+        <givenName>Johannes</givenName>
+        <surName>Kollmann</surName>
+      </individualName>
+      <organizationName>Technical University of Munich</organizationName>
+      <positionName>Professor</positionName>
+      <address>
+        <deliveryPoint>Emil-Ramann-Strasse 6</deliveryPoint>
+        <city>Freising</city>
+        <administrativeArea>Bayern</administrativeArea>
+        <postalCode>85354</postalCode>
+        <country>Germany</country>
+      </address>
+      <phone>0049-8161-714144</phone>
+      <electronicMailAddress>jkollmann@wzw.tum.de</electronicMailAddress>
+    </associatedParty>
     <pubDate>2022</pubDate>
-    <language>English</language>
     <abstract>Not written yet</abstract>
     <keywordSet>
       <keyword>rivers</keyword>
@@ -18,7 +53,13 @@
       <keyword>restoration</keyword>
       <keywordThesaurus>LTER controlled vocabulary</keywordThesaurus>
     </keywordSet>
-    <intellectualRights>CC BY 4.0</intellectualRights>
+    <keywordSet>
+      <keyword>beta diversity</keyword>
+      <keyword>temperate grassland</keyword>
+      <keyword>dike</keyword>
+      <keywordThesaurus>own vocabulary</keywordThesaurus>
+    </keywordSet>
+    <intellectualRights>CC-BY-4.0</intellectualRights>
     <coverage>
       <geographicCoverage>
         <geographicDescription>Danube dikes near Deggendorf</geographicDescription>
@@ -72,7 +113,6 @@
         <postalCode>85354</postalCode>
         <country>Germany</country>
       </address>
-      <phone>0049-152-56391781</phone>
       <electronicMailAddress>markusbauer@mailbox.org</electronicMailAddress>
     </contact>
   </dataset>
