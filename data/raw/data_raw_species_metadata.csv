@@ -3,5 +3,5 @@ plot_ID,serial number of the plots,NA,serial number of the plots,NA,NA
 constructionYear,year in which the vegetation was surveyed,YYYY,NA,NA,NA
 position,position of the plot on the dike,NA,NA,NA,NA
 plot_specification,whole ID of a plot,NA,whole ID of a plot,NA,NA
-Achillea millefolium,the abundance of the species Achillea millefolium,NA,NA,NA,real
-Acinos arvensis,the abundance of the species Acinos arvensis,NA,NA,NA,real
+Achillea millefolium,the abundance of the species Achillea millefolium,NA,NA,percent,real
+Acinos arvensis,the abundance of the species Acinos arvensis,NA,NA,percent,real

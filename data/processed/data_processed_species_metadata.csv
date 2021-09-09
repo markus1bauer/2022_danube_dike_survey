@@ -1,4 +1,4 @@
-﻿variable;definition;source;unit;type;value;comment
-name;botanical species name;The Plant List (2021-02);NA;factor;NA;NA
-X01_m_2017;abundance of species in the plot X01_m_2017;NA;%;numeric;NA;X = general prefix, 01 = serial plot Number, m = position on the dike (m=middle, o=top), 2017 = year of survey
-etc. ;abundance of species in the plot XY;NA;%;numeric;NA;NA
+﻿attributeName,attributeDefinition,formatString,definition,unit,numberType,type,factor
+name,botanical species name related to the name ID in the file data_raw_traits,NA,botanical species name related to the name ID in the file data_raw_traits,NA,NA,character,NA
+X01_m_2017,abundance of species in the plot X01_m_2017,NA,NA,percent,real,numeric,NA
+etc. ,abundance of species in the plot XY,NA,NA,percent,real,numeric,NA

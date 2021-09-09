@@ -38,12 +38,12 @@ sites <- read_csv("data_raw_sites.csv", col_names = T, na = "na", col_types =
                        HCl = col_factor(),
                        humusLevel = col_factor(),
                        cnLevel = col_factor(),
-                       phosphorousClass = col_factor(),
+                       phosphorusClass = col_factor(),
                        potassiumClass = col_factor(),
                        magnesiumClass = col_character()
                      )) %>%
-  select(id, location, RW, HW, constructionYear, sandPerc, phosphorous, phosphorousClass) %>%
-  st_as_sf(coords = c("RW", "HW"), crs = 31468) %>%
+  select(id, location, X, Y, constructionYear, sandPerc, phosphorus, phosphorusClass) %>%
+  st_as_sf(coords = c("X", "Y"), crs = 31468) %>%
   st_transform(4326)
 
 coord <- as_tibble(st_coordinates(sites))
@@ -164,8 +164,9 @@ st_write(sites, layer = "sites.shp", driver = "ESRI Shapefile", delete_layer = T
 setwd(here("data/processed/spatial"))
 write_csv(sites2, file = "sites2.csv")
 write_csv(blocks, file = "blocks.csv")
+setwd(here("data/processed/spatial"))
 sites2 %>%
   select(id, lon, lat) %>%
   mutate(id = as.character(id)) %>%
   as.data.frame() %>%
-  pgirmess::writeGPX(type = "w", filename = "DEI_survey_plots.gpx")
+  pgirmess::writeGPX(type = "w", filename = "danube_old_dikes_plots.gpx")

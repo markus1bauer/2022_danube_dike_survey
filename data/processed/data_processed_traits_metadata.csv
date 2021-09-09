@@ -1,19 +1,24 @@
-﻿variable;definition;source;unit;type;value;comment
-name;botanical species name;see nomenclature;NA;factor;NA;NA
-abb;abbreviation of species name;NA;NA;factor;NA;NA
-family;family of plant species;The Plant List;NA;factor;NA;NA
-rlg;Red list Germany;Metzing et al. 2018 in floraweb.de;NA;factor;NA = not threatened, V = warning list, 3, 2, 1;NA
-rlb;Red list Bavaria;XXX;NA;factor;NA = not threatened, V = warning list, 3, 2, 1;NA
-t;Ellenberg T value;Ellenberg et al. 2001 in floraweb.de;NA;numeric;NA;NA
-f;Ellenberg F value;Ellenberg et al. 2001 in floraweb.de;NA;numeric;NA;NA
-n;Ellenberg N value;Ellenberg et al. 2001 in floraweb.de;NA;numeric;NA;NA
-targetHerb;herbal target species;LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 GE (p. 40ff.), GT (p. 70ff.), LR6510 (p. 88f.);NA;factor;yes, no;NA
-targetGrass;target grass species;LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 GE (p. 40ff.), GT (p. 70ff.), LR6510 (p. 88f.);NA;factor;yes, no;NA
-ffh6510;species of the FFH type 6510;LfU & LWF (2018) Handbuch der Lebensraumtypen nach Anhang I der FFH-Richtlinie in Bayern p. 90;NA;factor;yes, no;NA
-ffh6210;species of the FFH type 6210;LfU & LWF (2018) Handbuch der Lebensraumtypen nach Anhang I der FFH-Richtlinie in Bayern p. 76;NA;factor;yes, no;NA
-grazingIndicator;species which are indicators for grazed sites;LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 p. 42 section 2.;NA;factor;yes, no;NA
-ruderalIndicator;species which are indicators for ruderal conditions according to ???;XXX;NA;factor;yes, no;NA
-target;targetHerb + targetGrass;see column targetHerb and targetGrass;NA;factor;yes, no;NA
-sla;specific leaf area;LEDA;mm^2 / mg;numeric;NA;NA
-seedmass;seed mass;LEDA;mg;numeric;NA;NA
-height;canopy height;LEDA;m;numeric;NA;NA
+﻿attributeName,attributeDefinition,formatString,definition,unit,numberType,type,factor
+name,botanical species name,NA,botanical species name,NA,NA,character,NA
+srl,,,,,,,
+rmf,,,,,,,
+rld,,,,,,,
+lateral,,,,,,,
+abb,,,,,,,
+family,family of plant species from worldfloraonline.org,NA,family of plant species from worldfloraonline.org,NA,NA,character,NA
+group,grass-herb-legume groups,NA,NA,NA,NA,factor,top_grass/sub_grass/legume/herb
+legal,legally protected in Germany from BArtSchV 2005 in floraweb.de,NA,NA,NA,NA,factor,BG = besonders geschuetzt/SG = streng geschuetzt
+rlg,Red list Germany from Metzing et al. 2018 in floraweb.de,NA,NA,NA,NA,factor,NA = not threatened/V = warning list/3/2/1
+rlb,Red list Bavaria from StMUGV 2005 Rote Liste,NA,NA,NA,NA,factor,"NA = not threatened	 V = warning list	3	2	 1"
+neophyte,is species a neophyte from floraweb.de,NA,NA,NA,NA,factor,yes/no
+t,Ellenberg T value from Ellenberg et al. 2001 in floraweb.de,NA,NA,dimensionless,integer,numeric,NA
+f,Ellenberg F value from Ellenberg et al. 2001 in floraweb.de,NA,NA,dimensionless,integer,numeric,NA
+n,Ellenberg N value from Ellenberg et al. 2001 in floraweb.de,NA,NA,dimensionless,integer,numeric,NA
+targetHerb,herbal target species from LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 GE (p. 40ff.) GT (p. 70ff.) LR6510 (p. 88f.),NA,NA,NA,NA,factor,yes/no
+targetGrass,grass target species from LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 GE (p. 40ff.) GT (p. 70ff.) LR6510 (p. 88f.),NA,NA,NA,NA,factor,yes/no
+nitrogenIndicator,species which are nitrogen indicators LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 (p. 40),NA,NA,NA,NA,factor,yes/no
+leanIndicator,,,,,,,
+target,,,,,,,
+sla,specific leaf area from LEDA traitbase,NA,NA,millimeterSquaredPerMilligram,real,numeric,NA
+seedmass,seed mass  from LEDA traitbase,NA,NA,milligram,real,numeric,NA
+height,canopy height  from LEDA traitbase,NA,NA,meter,real,numeric,NA
