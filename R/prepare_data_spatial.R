@@ -2,9 +2,11 @@
 # Markus Bauer
 
 
+
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # A Preparation ################################################################################################################
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 ### Packages ###
 library(here)
@@ -26,37 +28,30 @@ register_google(key = "AIzaSyB5nQU_dgB_kPsQkk-_cq7pA0g1-2qka4E")
 
 ## 1 Sites #################################################################################################
 
-setwd(here("data/raw"))
-sites <- read_csv("data_raw_sites.csv", col_names = T, na = "na", col_types = 
+sites <- read_csv(here("data/raw/data_raw_sites.csv"), col_names = T, na = "na", col_types = 
                      cols(
-                       .default = col_double(),
-                       id = col_factor(),
-                       location = col_factor(),
-                       side = col_factor(),
-                       exposition = col_factor(),
-                       ageCategory = col_factor(),
-                       HCl = col_factor(),
-                       humusLevel = col_factor(),
-                       cnLevel = col_factor(),
-                       phosphorusClass = col_factor(),
-                       potassiumClass = col_factor(),
-                       magnesiumClass = col_character()
-                     )) %>%
-  select(id, location, X, Y, constructionYear, sandPerc, phosphorus, phosphorusClass) %>%
-  st_as_sf(coords = c("X", "Y"), crs = 31468) %>%
+                       .default = "?",
+                       id = "f",
+                       location = "f",
+                       side = "f",
+                       exposition = "f",
+                       ageCategory = "f"
+                       )) %>%
+  select(id, location, longitude, latitude, constructionYear, sandPerc, phosphorus, phosphorusClass) %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = 31468) %>%
   st_transform(4326)
 
 coord <- as_tibble(st_coordinates(sites))
 sites2 <- st_drop_geometry(sites) %>%
-  mutate(lon = coord$X) %>%
-  mutate(lat = coord$Y) %>%
+  mutate(longitude = coord$X) %>%
+  mutate(latitude = coord$Y) %>%
   as_tibble()
 rm(coord)
 
 blocks <- sites2 %>%
   group_by(location) %>%
-  summarise_at(c("lon", "lat", "constructionYear"), mean, na.rm = T) %>%
-  rename(lon_cent = lon, lat_cent = lat)
+  summarise(across(c(longitude, latitude), mean, na.rm = T)) %>%
+  rename(longitude_center = longitude, latitude_center = latitude)
 
 sites2 <- left_join(sites2, blocks, by = "location")
 
@@ -65,22 +60,23 @@ sites2 <- left_join(sites2, blocks, by = "location")
 
 setwd(here("data/raw/spatial"))
 
-data <- st_read("Deich.shp")
-data <- st_transform(data, crs = 4326)
-dikes <- st_crop(data, ymin = 48.65, ymax = 48.95, xmin = 12.55, xmax = 13.15)
+dikes <- st_read("Deich.shp") %>%
+  st_transform(crs = 4326) %>%
+  st_crop(ymin = 48.65, ymax = 48.95, xmin = 12.55, xmax = 13.15)
+
 bbox <- st_convex_hull(st_union(dikes))
 
-data <- st_read("beweidung_deiche_wwa_deg.shp")
-data <- st_transform(data, crs = 4326)
-grazing <- st_intersection(data, bbox)
+grazing <- st_read("beweidung_deiche_wwa_deg.shp") %>%
+  st_transform(crs = 4326) %>%
+  st_intersection(bbox)
   
-data <- st_read("nsg_epsg31468.shp")
-data <- st_transform(data, crs = 4326)
-conservation_area <- st_intersection(data, bbox)
+conservation_area <- st_read("nsg_epsg31468.shp") %>%
+  st_transform(crs = 4326) %>% #problem
+  st_intersection(bbox)
 
-data <- st_read("ffh_epsg31468.shp")
-data <- st_transform(data, crs = 4326)
-ffh_area <- st_intersection(data, bbox)
+ffh_area <- st_read("ffh_epsg31468.shp") %>%
+  st_transform(crs = 4326) %>% #problem
+  st_intersection(bbox)
 
 
 ## 3 Digitize shp files #################################################################################################
@@ -99,29 +95,29 @@ ffh_area <- st_intersection(data, bbox)
 
 ## 4 Background map #################################################################################################
 
-data <- raster::getData('GADM', country = 'DEU', level = 0, download = F)
-data <- st_as_sf(data)
-germany <- st_set_crs(data, 4326)
+germany <- raster::getData('GADM', country = 'DEU', level = 0, download = F) %>%
+  st_as_sf() %>%
+  st_set_crs(4326)
 
-data <- rnaturalearth::ne_download(scale = 10, type = 'rivers_lake_centerlines', category = 'physical')
-data <- st_as_sf(data)
-data <- st_set_crs(data, 4326)
-rivers <- st_intersection(data, bbox)
+rivers <- rnaturalearth::ne_download(scale = 10, type = 'rivers_lake_centerlines', category = 'physical') %>% #problem
+  st_as_sf() %>%
+  st_set_crs(4326) %>%
+  st_intersection(bbox)
 
 background_google <- get_map(
-  location = c(lon = 12.884, lat = 48.839),
+  location = c(left = 12.55, bottom = 48.65, right = 13.15, top = 48.95),
   zoom = 10, 
   scale = 1,
   maptype = "terrain",
-  source = "google"
+  source = "google" #problem
 )
 ggmap(background_google)
 
 background_toner <- get_map(
-  location = c(lon = 12.884, lat = 48.839),
+  location = c(left = 12.55, bottom = 48.65, right = 13.15, top = 48.95),
   zoom = 10, 
   scale = 1,
-  maptype = "toner-background",
+  maptype = "toner-background", #problem
   source = "stamen"
 )
 ggmap(background_toner)
@@ -142,28 +138,30 @@ ggmap(background_terrain)
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-save(background_google, file = paste0(here("data/processed/spatial"), "/", "background_google.rda"))
-save(background_toner, file = paste0(here("data/processed/spatial"), "/", "background_toner.rda"))
-save(background_terrain, file = paste0(here("data/processed/spatial"), "/", "background_terrain.rda"))
-st_write(germany, layer = "germany.shp", driver = "ESRI Shapefile", delete_layer = T,
+save(background_google, 
+     file = paste0(here("data/processed/spatial"), "/", "background_google.rda"))
+save(background_toner, 
+     file = paste0(here("data/processed/spatial"), "/", "background_toner.rda"))
+save(background_terrain, 
+     file = paste0(here("data/processed/spatial"), "/", "background_terrain.rda"))
+st_write(germany, layer = "germany_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
-st_write(rivers, layer = "rivers.shp", driver = "ESRI Shapefile", delete_layer = T,
+st_write(rivers, layer = "rivers_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
-st_write(danube, layer = "danube.shp", driver = "ESRI Shapefile", delete_layer = T,
+st_write(danube, layer = "danubeepsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
-st_write(grazing, layer = "grazing.shp", driver = "ESRI Shapefile", delete_layer = T,
+st_write(grazing, layer = "grazing_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
-st_write(dikes, layer = "dikes.shp", driver = "ESRI Shapefile", delete_layer = T,
+st_write(dikes, layer = "dikes_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
-st_write(conservation_area, layer = "conservation_area.shp", driver = "ESRI Shapefile", delete_layer = T,
+st_write(conservation_area, layer = "conservation_area_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
-st_write(ffh_area, layer = "ffh_area.shp", driver = "ESRI Shapefile", delete_layer = T,
+st_write(ffh_area, layer = "ffh_area_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
-st_write(sites, layer = "sites.shp", driver = "ESRI Shapefile", delete_layer = T,
+st_write(sites, layer = "sites_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
-setwd(here("data/processed/spatial"))
-write_csv(sites2, file = "sites2.csv")
-write_csv(blocks, file = "blocks.csv")
+write_csv(sites2, file = here("data/processed/spatial/sites2.csv"))
+write_csv(blocks, file = here("data/processed/spatial/blocks.csv"))
 setwd(here("data/processed/spatial"))
 sites2 %>%
   select(id, lon, lat) %>%
