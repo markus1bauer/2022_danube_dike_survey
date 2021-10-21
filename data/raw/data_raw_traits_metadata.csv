@@ -15,9 +15,9 @@ f,Ellenberg F value from Ellenberg et al. 2001 in floraweb.de,NA,NA,dimensionles
 fchange,Ellenberg value for changing moisture conditions from Ellenberg et al. 2001 in floraweb.de,NA,NA,NA,NA,factor,1 = changing moist/2 = intensive chaning moist conditions
 r,Ellenberg R value from Ellenberg et al. 2001 in floraweb.de,NA,NA,dimensionless,integer,numeric,NA
 n,Ellenberg N value from Ellenberg et al. 2001 in floraweb.de,NA,NA,dimensionless,integer,numeric,NA
-targetHerb,herbal target species from LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 GE (p. 40ff.) GT (p. 70ff.) LR6510 (p. 88f.),NA,NA,NA,NA,factor,yes/no
-targetGrass,grass target species from LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 GE (p. 40ff.) GT (p. 70ff.) LR6510 (p. 88f.),NA,NA,NA,NA,factor,yes/no
-targetArrhenaterion,target species of Arrhenatherion from LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 (p. 42 section 1),NA,NA,NA,NA,factor,yes/no
+targetHerb,herbal target species from LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 Typ GE (p. 40ff.) Typ  GT (p. 70ff.) Typ LR6510 (p. 88f.),NA,NA,NA,NA,factor,yes/no
+targetGrass,grass target species from LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 Typ GE (p. 40ff.) Typ GT (p. 70ff.) Typ LR6510 (p. 88f.),NA,NA,NA,NA,factor,yes/no
+targetArrhenaterion,target species of Arrhenatherion from LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 Typ GE6510 (p. 42 section 1),NA,NA,NA,NA,factor,yes/no
 ffh6510,species of the FFH type 6510 from LfU & LWF (2018) Handbuch der Lebensraumtypen nach Anhang I der FFH-Richtlinie in Bayern (p. 90),NA,NA,NA,NA,factor,yes/no
 ffh6210,species of the FFH type 6210 from LfU & LWF (2018) Handbuch der Lebensraumtypen nach Anhang I der FFH-Richtlinie in Bayern (p. 76),NA,NA,NA,NA,factor,yes/no
 table30,Tafel 30 of paragraph30-Schluessel from LfU (2018) Bestimmungsschluessel fuer Flaechen nach paragraph 30 BNatSchG/Art. 23 BayNatSchG,NA,NA,NA,NA,factor,yes/no
@@ -26,4 +26,3 @@ table34,Tafel 34 of paragraph30-Schluessel from LfU (2018) Bestimmungsschluessel
 nitrogenIndicator,species which are nitrogen indicators LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 (p. 40),NA,NA,NA,NA,factor,yes/no
 grazingIndicator,species which are grazing indicators LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 (p. 42),NA,NA,NA,NA,factor,yes/no
 ruderalIndicator,species which are ruderal indicators according to Jakob Huber and Johannes Kollmann,NA,NA,NA,NA,factor,yes/no
-others,other species according to Jakob Huber,NA,NA,NA,NA,factor,yes/no

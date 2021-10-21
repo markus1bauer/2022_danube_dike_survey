@@ -8,7 +8,6 @@ riverkm,official km of river Danube taken from the BayernAtlas,NA,NA,kilometer,i
 side,On which side is the plot on the dike,NA,NA,NA,NA,factor,water/land
 exposition,exposition of the plots,NA,NA,NA,NA,factor,north/south/east/west
 constructionYear,year in which the dike was constructed and seeded,YYYY,NA,NA,NA,Date,NA
-ageCategory,2016 and younger dikes are young,NA,NA,NA,NA,factor,new = 2016 and younger/ old = 2015 and older
 surveyDate_2017,date of the first vegetation survey 2017,YYYY-mm-dd,NA,NA,NA,Date,NA
 surveyDate_2018,date of the second vegetation survey 2018,YYYY-mm-dd,NA,NA,NA,Date,NA
 surveyDate_2019,date of the third vegetation survey 2019,YYYY-mm-dd,NA,NA,NA,Date,NA
