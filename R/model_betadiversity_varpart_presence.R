@@ -39,7 +39,9 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"),
          surveyYear, plotAge, PC1constructionYear, PC2constructionYear, PC3constructionYear,
          accumulatedCov) %>%
   mutate(surveyYearF = as_factor(surveyYear),
-         constructionYearF = as_factor(constructionYear)) %>%
+         expositionN = as.double(exposition),
+         sideN = as.double(side),
+         locationAbbN = as.double(locationAbb)) %>%
   filter(accumulatedCov > 0)
 
 species <- read_csv("data_processed_species.csv", col_names = T, na = c("na", "NA", ""), col_types = 
@@ -57,22 +59,10 @@ species <- read_csv("data_processed_species.csv", col_names = T, na = c("na", "N
 sites <- sites %>%
   column_to_rownames("id")
 
-data <- sites %>%
-  select(PC1soil, PC2soil, PC3soil,
-         riverkm,
-         plotAge, PC1constructionYear, PC2constructionYear, PC3constructionYear)
-
-### * check collinearity ####
-
-
 sites_soil <- sites %>%
-  select(PC1soil, PC2soil, PC3soil, exposition, side)
+  select(PC1soil, PC2soil, PC3soil, expositionN, sideN)
 sites_space <- sites %>%
   select(locationAbb, riverkm)
-#sites_time <- sites %>%
-#  select(surveyYearF, plotAge)
-#sites_spacetime <- sites %>%
-#  select(locationYear, riverkm, surveyYearF)
 sites_history <- sites %>%
   select(surveyYearF, plotAge, PC1constructionYear, PC2constructionYear, PC3constructionYear)
 
@@ -85,13 +75,18 @@ sites_history <- sites %>%
 
 ### 1 Beta diversity #####################################################################################
 
-### Calculate beta diversity: Baselga presence-absence ###
+### * check collinearity ####
+data <- sites %>%
+  select(where(is.numeric), -ends_with("N"), -accumulatedCov, -constructionYear, -surveyYear)
+GGally::ggpairs(data, lower = list(continuous = "smooth_loess"))
+#--> no correaltion r > 0.7 (Dormann et al. 2013 Ecography)
+
+### * Calculate: Baselga presence-absence ####
 (beta <- beta.div.comp(species, coef = "BS", quant = F)) #total = 0.33, substitution = 0.28, subsets = 0.05
-### Make data frames ###
 beta_total <- beta$D %>% # sörensen dissimilarity
   as.matrix() %>%
   as.data.frame()
-beta_substitution <- beta$repl %>% # replacement
+beta_substitution <- beta$repl %>% # replacement / simpson dissimilarity
   as.matrix()
 beta_subsets <- beta$rich %>% # nestedness
   as.matrix()
@@ -101,7 +96,6 @@ beta_subsets <- beta$rich %>% # nestedness
 
 ### a Overall beta diversity -----------------------------------------------------------------------------------
 
-### * Variation partitioning ####
 m1_total_varpart <- varpart(beta_total, sites_soil, sites_space, sites_history)
 plot(m1_total_varpart, 
      Xnames = c("Site", "Space", "History"),
@@ -111,23 +105,51 @@ plot(m1_total_varpart,
 ### b Substitution --------------------------------------------------------------------------------------------
 
 ### * full model ####
-m1_substitution <- dbrda(beta_substitution ~ PC1soil + PC2soil + PC3soil + exposition + side + 
+m1 <- dbrda(beta_substitution ~ PC1soil + PC2soil + PC3soil + exposition + side + 
                                        locationAbb + riverkm + 
                                        surveyYearF + plotAge + PC1constructionYear + PC2constructionYear + PC3constructionYear,
-                         data = sites)
-anova(m1_substitution, permutations = how(nperm = 999)) #P = .001
-RsquareAdj(m1_substitution) #R2adj = .51
-forward.sel(beta_substitution, 
-            data,
-            nperm = 9999)
+            data = sites)
+anova(m1, permutations = how(nperm = 999)) #P = .001
+(r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = .51
+
+
+### * forward selection ####
+m1 <- dbrda(beta_substitution ~ PC1soil + PC2soil + PC3soil + expositionN + sideN, 
+            data = sites)
+(r2adj <- RsquareAdj(m1)$adj.r.squared)
+sel <- forward.sel(beta_substitution, 
+                   sites_soil,
+                   adjR2thresh = r2adj,
+                   nperm = 9999)
+sel$p_adj <- p.adjust(sel$pval, method = 'holm', n = ncol(data));sel #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
+env.sign <- sort(sel$order)
+env.red <- data[ ,c(env.sign)]
+
+
+m <- dbrda(beta_substitution ~ exposition, data = sites); anova(m); RsquareAdj(m) # p = .001, R2 = .06
+m <- dbrda(beta_substitution ~ side, data = sites); anova(m); RsquareAdj(m) # p = .001, R2 = .045
+m <- dbrda(beta_substitution ~ locationAbb, data = sites); anova(m); RsquareAdj(m) # p = .001, R2 = .34
+m <- dbrda(beta_substitution ~ surveyYearF, data = sites); anova(m); RsquareAdj(m) # p = .001, R2 = .046
+# --> locationAbb, exposition, riverkm, surveyYearF, side, PC3cY, plotAge, PC1cY, PC1soil, PC2soil, PC3soil, PC2cY
+### step 1 ###
+m <- dbrda(beta_substitution ~ locationAbb, data = sites)
+anova(m, permutations = how(nperm = 999)) # .001
+RsquareAdj(m) #R2adj = .29
+### step 2 ###
+m <- dbrda(beta_substitution ~ locationAbb + exposition, data = sites)
+anova(m, permutations = how(nperm = 999)) # .001
+RsquareAdj(m) #R2adj = .34
+### step 3 ###
+m <- dbrda(beta_substitution ~ locationAbb + exposition + riverkm, data = sites)
+anova(m, permutations = how(nperm = 999)) # .001
+RsquareAdj(m) #R2adj = .40
+### step 4 ###
+m <- dbrda(beta_substitution ~ locationAbb + exposition + riverkm + surveyYearF, data = sites)
+anova(m, permutations = how(nperm = 999)) # .001
+RsquareAdj(m) #R2adj = .36
+
+
 ### * partial db-RDA ####
-m1_substitution <- dbrda(beta_substitution ~ PC1soil + # R2adj = .01 p = .001
-                 Condition(PC2soil + PC3soil + exposition + side + 
-                             locationAbb + riverkm + 
-                             surveyYearF + plotAge + PC1constructionYear + PC2constructionYear + PC3constructionYear),
-               data = sites)
-anova(m1_substitution, permutations = how(nperm = 999))
-RsquareAdj(m1_substitution)
 m1_substitution <- dbrda(beta_substitution ~ PC2soil + # R2adj = .01 p = .001
                           Condition(PC1soil + PC3soil + exposition + side + 
                                       locationAbb + riverkm + 

@@ -34,8 +34,7 @@ sites <- read_csv(here("data/raw/data_raw_sites.csv"), col_names = T, na = "na",
                        id = "f",
                        location = "f",
                        side = "f",
-                       exposition = "f",
-                       ageCategory = "f"
+                       exposition = "f"
                        )) %>%
   select(id, location, longitude, latitude, constructionYear, sandPerc, phosphorus, phosphorusClass) %>%
   st_as_sf(coords = c("longitude", "latitude"), crs = 31468) %>%
