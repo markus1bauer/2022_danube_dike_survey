@@ -22,9 +22,11 @@ rm(list = ls())
 register_google(key = "AIzaSyB5nQU_dgB_kPsQkk-_cq7pA0g1-2qka4E")
 
 
+
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # B Load shp files ##########################################################################################################
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 ## 1 Sites #################################################################################################
 
@@ -41,57 +43,58 @@ sites <- read_csv(here("data/raw/data_raw_sites.csv"), col_names = T, na = "na",
   st_transform(4326)
 
 coord <- as_tibble(st_coordinates(sites))
-sites2 <- st_drop_geometry(sites) %>%
+sites_basic <- st_drop_geometry(sites) %>%
   mutate(longitude = coord$X) %>%
   mutate(latitude = coord$Y) %>%
   as_tibble()
 rm(coord)
-
-blocks <- sites2 %>%
+#### Calculate center of blocks ###
+blocks <- sites_basic %>%
   group_by(location) %>%
   summarise(across(c(longitude, latitude), mean, na.rm = T)) %>%
   rename(longitude_center = longitude, latitude_center = latitude)
-
-sites2 <- left_join(sites2, blocks, by = "location")
+sites_basic <- left_join(sites_basic, blocks, by = "location")
 
 
 ## 2 Transform shp files #################################################################################################
 
 setwd(here("data/raw/spatial"))
 
-dikes <- st_read("Deich.shp") %>%
+dikes <- st_read("dikes_epsg31468.shp") %>%
   st_transform(crs = 4326) %>%
   st_crop(ymin = 48.65, ymax = 48.95, xmin = 12.55, xmax = 13.15)
 
 bbox <- st_convex_hull(st_union(dikes))
 
-grazing <- st_read("beweidung_deiche_wwa_deg.shp") %>%
+grazing <- st_read("grazing_epsg31468.shp") %>%
   st_transform(crs = 4326) %>%
   st_intersection(bbox)
   
-conservation_area <- st_read("nsg_epsg31468.shp") %>%
-  st_transform(crs = 4326) %>% #problem
-  st_intersection(bbox)
+conservation_area <- st_read("conservation_area_epsg31468.shp") %>%
+  st_transform(crs = 4326) #%>% 
+  st_intersection(bbox)#problem
 
 ffh_area <- st_read("ffh_epsg31468.shp") %>%
-  st_transform(crs = 4326) %>% #problem
-  st_intersection(bbox)
+  st_transform(crs = 4326) #%>% 
+  st_intersection(bbox) #problem
 
 
 ## 3 Digitize shp files #################################################################################################
 
 #data <- mapview() %>% editMap()
 #mapview(data$finished)
-#danube <- data$finished %>%
+#danube_isar <- data$finished %>%
   #st_as_sf() %>%
   #rename(river = X_leaflet_id) %>%
   #mutate(river = str_replace(as.character(river), ".", "Danube")) %>%
   #mutate(river = str_extract(river, "Danube")) %>%
   #st_crop(ymin = 48.65, ymax = 48.95, xmin = 12.55, xmax = 13.15)
-#plot(st_geometry(danube))
+#plot(st_geometry(danube_isar))
 #rm(data)
+### Here the digitized file ###
+danube_isar <- st_read(here("data/processed/spatial/danube_isar_digitized_epsg4326.shp"))
 
-
+  
 ## 4 Background map #################################################################################################
 
 germany <- raster::getData('GADM', country = 'DEU', level = 0, download = F) %>%
@@ -131,6 +134,30 @@ background_terrain <- get_map(
 ggmap(background_terrain)
 
 
+## 5 Calculate distance to river #################################################################################################
+
+### Prepare data ##
+coordinates_plots <- sites %>%
+  st_coordinates()
+coordinates_danube_isar <- danube_isar %>%
+  st_coordinates() %>%
+  as_tibble() %>%
+  select(X, Y)
+### Calculate distances ###
+distance <- geosphere::dist2Line(p = coordinates_plots, line = coordinates_danube_isar) %>%
+  as_tibble() %>%
+  rename(distance = distance_river)
+distance_river <- distance$distance_river
+sites_basic <- sites_basic %>%
+  add_column(distance_river)
+### Plot for proof ###
+dist.sf <- st_as_sf(distance, coords = c("lon", "lat")) %>%
+  st_set_crs(value = 4326)
+ggplot() +
+  geom_sf(data = danube_isar, fill = "grey50", color = "grey50") +
+  geom_sf(data = sites) +
+  geom_sf(data = dist.sf, colour = "grey60")
+
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # C Save ##############################################################################
@@ -147,8 +174,9 @@ st_write(germany, layer = "germany_epsg4326.shp", driver = "ESRI Shapefile", del
          dsn = here("data/processed/spatial"))
 st_write(rivers, layer = "rivers_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
-st_write(danube, layer = "danubeepsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
-         dsn = here("data/processed/spatial"))
+### Danube layer was one time digitized ###
+#st_write(danube_isar, layer = "danube_isar_digitized_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
+         #dsn = here("data/processed/spatial"))
 st_write(grazing, layer = "grazing_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
 st_write(dikes, layer = "dikes_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
@@ -159,11 +187,10 @@ st_write(ffh_area, layer = "ffh_area_epsg4326.shp", driver = "ESRI Shapefile", d
          dsn = here("data/processed/spatial"))
 st_write(sites, layer = "sites_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
-write_csv(sites2, file = here("data/processed/spatial/sites2.csv"))
+write_csv(sites_basic, file = here("data/processed/spatial/sites_basic.csv"))
 write_csv(blocks, file = here("data/processed/spatial/blocks.csv"))
-setwd(here("data/processed/spatial"))
-sites2 %>%
-  select(id, lon, lat) %>%
+sites_basic %>%
+  select(id, longitude, latitude) %>%
   mutate(id = as.character(id)) %>%
   as.data.frame() %>%
-  pgirmess::writeGPX(type = "w", filename = "danube_old_dikes_plots.gpx")
+  pgirmess::writeGPX(type = "w", filename = here("data/processed/spatial/danube_old_dikes_plots.gpx"))
