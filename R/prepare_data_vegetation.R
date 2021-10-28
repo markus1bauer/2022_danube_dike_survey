@@ -325,7 +325,7 @@ rm(list = ls(pattern = "[^species|traits|sites]"))
 
 ### 3 Alpha diversity #####################################################################################
 
-### a Species richness ----------------------------------------------------------------------------------------------------
+#### a Species richness ----------------------------------------------------------------------------------------------------
 speciesRichness <- left_join(species, traits, by = "name") %>%
   select(name, rlg, rlb, target, targetHerb, targetArrhenatherion, ffh6510, ffh6210, nitrogenIndicator, leanIndicator, table33, table34, starts_with("X")) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
@@ -429,7 +429,7 @@ sites <- sites %>%
   mutate(targetRichratio = targetRichness / speciesRichness,
          targetRichratio = round(targetRichratio, 3))
 
-### b Species eveness and shannon ----------------------------------------------------------------------
+#### b Species eveness and shannon ----------------------------------------------------------------------
 data <- species  %>%
   mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
   pivot_longer(-name, names_to = "id", values_to = "value") %>%
@@ -449,7 +449,7 @@ rm(list = ls(pattern = "[^species|traits|sites]"))
 
 ### 4 Biotope types #####################################################################################
 
-### a Calculate types -------------------------------------------------------------------------------------------
+#### a Calculate types -------------------------------------------------------------------------------------------
 biotopetypes <- sites %>%
   select(id, table33_2Richness, table33_3Richness, table33_4Richness, table33Cov, table34_2Richness, table34_3Richness, targetRichness, targetHerbRichness, arrhRichness, targetCov, leanCov, arrhCov, targetHerbCov, nitrogenCov) %>%
   mutate(table33Rich_proof = if_else(
@@ -529,7 +529,7 @@ sites <- left_join(sites, biotopetypes, by = "id") %>%
 traits <- traits %>%
   select(-targetArrhenatherion, -table30, -table33, -table34, -nitrogenIndicator, -nitrogenIndicator2, leanIndicator)
 
-### b Calculate constance -------------------------------------------------------------------------------------------
+#### b Calculate constance -------------------------------------------------------------------------------------------
 data <- sites %>%
   select(id, plot, surveyYear, ffh) %>%
   group_by(plot) %>%
@@ -562,7 +562,7 @@ data_species <- species %>%
 data_sites <- sites %>%
   filter(accumulatedCov > 0)
 
-### a NMDS -------------------------------------------------------------------------------------------
+#### a NMDS -------------------------------------------------------------------------------------------
 
 ### Calculate NMDS ###
 set.seed(1)
@@ -579,7 +579,7 @@ data <- nmds %>%
          NMDS2 = round(NMDS2, 4))
 sites <- left_join(sites, data, by = "id")
 
-### b PERMDISP -------------------------------------------------------------------------------------------
+#### b PERMDISP -------------------------------------------------------------------------------------------
 ### Presence-Absence data ###
 data <- betadisper(d = vegdist(data_species, method = "bray", binary = T),
                    group = data_sites$plot)
@@ -587,6 +587,7 @@ data <- enframe(data$distances) %>%
   rename(id = name, 
          permdispPresabs = value)
 sites <- left_join(sites, data, by = "id")
+
 
 ### Abundance data ###
 ### Presence-Absence data ###
@@ -597,7 +598,7 @@ data <- enframe(data$distances) %>%
          permdispAbu = value)
 sites <- left_join(sites, data, by = "id")
 
-### c TBI -------------------------------------------------------------------------------------------
+#### c TBI -------------------------------------------------------------------------------------------
 data <- species %>%
   select(where(~!all(is.na(.x)))) %>%
   pivot_longer(-name, names_to = "id", values_to = "value") %>%
@@ -620,7 +621,7 @@ for(i in unique(data$year)) {
            select(-year))
   }
 
-### d Synchrony -------------------------------------------------------------------------------------------
+#### d Synchrony -------------------------------------------------------------------------------------------
 data <- data_species %>%
   rownames_to_column(var = "id") %>%
   mutate(plot = factor(str_sub(id, 1, 3)),
@@ -643,12 +644,40 @@ data <- do.call("rbind", sync_indices) %>% #map() does not work because 'plot' i
   select(plot, log_varrat, log_varrat_t3, syn_total, syn_trend, syn_detrend)
 sites <- left_join(sites, data, by = "plot")
 
+#### e dbMEM -------------------------------------------------------------------------------------------
+source ('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/quickMEM.R')
+data_sites <- data_sites %>%
+  column_to_rownames("id") %>%
+  select(longitude, latitude)
+data_species <- decostand(data_species, "hellinger")
+m <- quickMEM(data_species, data_sites, 
+         alpha = 0.05, 
+         detrend = F,
+         method = "fwd",
+         rangexy = T,
+         perm.max = 999) #R2adj of minimum (final) model = 0.125 with 6 dbMEM eigenvectors (global model has 7 axis)
+m$RDA
+m$RDA_test
+m$RDA_axes_test
+dbMEMred <- dbMEMred %>%
+  rownames_to_column(var = "id") %>%
+  select(-MEM7)
+sites <- left_join(sites, dbMEMred, by = "id")
+
+#### f LCBD (Local Contributions to Beta Diversity) -------------------------------------------------------------------------------------------
+data <- beta.div(data_species, method = "hellinger", nperm = 9999)
+data$beta
+data$LCBD
+data$p.LCBD
+p.adjust(data$p.LCBD, "holm")
+row.names(data_species[which(p.adjust(data$p.LCBD, "holm") <= 0.05),]) #no plot is exceptional
+
 rm(list = ls(pattern = "[^species|traits|sites|species2017|species2018|species2019|species2021]"))
 
 
 ### 6 Environmental variables #####################################################################################
 
-### a Soil PCA  -------------------------------------------------------------------------------------------
+#### a Soil PCA  -------------------------------------------------------------------------------------------
 ### Prepare data ###
 data <- sites %>%
   select(id, plot, calciumcarbonatPerc, humusPerc, NtotalPerc, cnRatio, pH, sandPerc, siltPerc, clayPerc, phosphorus, potassium, magnesium, topsoilDepth, NtotalConc) %>%
@@ -693,7 +722,7 @@ sites <- left_join(sites, data, by = "plot") %>%
 
 rm(list = ls(pattern = "[^species|traits|sites|species2017|species2018|species2019|species2021|pcaSoil]"))
 
-### b Climate PCA  -------------------------------------------------------------------------------------------
+#### b Climate PCA  -------------------------------------------------------------------------------------------
 
 ### * Temperature ####
 data <- read_csv(here("data/raw/temperature/data/data_OBS_DEU_P1M_T2M.csv"), col_names = T, na = c("", "NA", "na"), col_types = 

@@ -27,7 +27,7 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA", 
                       plot = "f",
                       exposition = "f"
                     )) %>%
-  select(id, plot, block, locationAbb, surveyYear, exposition, vegetationCov, targetCov, graminoidCovratio, speciesRichness, targetRichness, shannon, eveness, accumulatedCov) %>%
+  select(id, plot, block, locationAbb, surveyYear, exposition, vegetationCov, targetCov, graminoidCovratio, speciesRichness, targetRichness, shannon, eveness, accumulatedCov, syn_total, syn_trend, syn_detrend) %>%
   mutate(surveyYearF = as_factor(surveyYear)) %>%
   filter(accumulatedCov > 0)
 
@@ -72,9 +72,12 @@ points(ordi, display = "sites", cex = gof * 300)
 ### 2 Environmental factors #####################################################################################
 
 #### a Vectors ----------------------------------------------------------------------------------------
-(ef_vector1 <- envfit(ordi ~  vegetationCov + graminoidCovratio + targetRichness + targetCov + speciesRichness + eveness + shannon, 
+(ef_vector1 <- envfit(ordi ~  vegetationCov + graminoidCovratio + targetRichness + targetCov + speciesRichness + eveness + shannon + syn_total + syn_trend + syn_detrend, 
               data = sites, permu = 999, na.rm = T))
 plot(ordi, type = "n"); plot(ef_vector1, add = T, p. = .99)
+(ef_vector2 <- envfit(ordi ~  graminoidCovratio + speciesRichness + eveness, 
+                      data = sites, permu = 999, na.rm = T))
+plot(ordi, type = "n"); plot(ef_vector2, add = T, p. = .99)
 
 #### b Factors ----------------------------------------------------------------------------------------
 (ef_factor1 <- envfit(ordi ~  surveyYearF + exposition, 

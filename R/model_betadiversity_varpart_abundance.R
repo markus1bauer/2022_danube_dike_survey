@@ -32,7 +32,7 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"),
                        ffh = "f",
                        vegetationCov = "d",
                        locationYear = "f"
-                     )) %>%
+                     )) #%>%
   select(id, plot, block, locationYear, constructionYear,
          exposition, side, PC1soil, PC2soil, PC3soil,
          locationAbb, riverkm,
