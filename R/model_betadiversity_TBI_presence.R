@@ -70,89 +70,107 @@ species21 <- read_csv("data_processed_species21.csv", col_names = T, na = "na", 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-## 1. 2017 vs. 2019 #####################################################################################
+
+## 1. 2017 vs. 2018 #####################################################################################
+
+res1718 <- TBI(species17, species18, method = "sorensen", 
+               nperm = 9999, test.t.perm = T, clock = T)
+res1718$BCD.summary #B = 0.223, C = 0.155, D = 0.378 (58.9% vs. 41.0%)
+res1718$t.test_B.C # p.perm = 0.0058
+tbi1718 <- as_tibble(res1718$BCD.mat) 
+tbi1718 <- sites %>%
+  filter(surveyYearF == "2017") %>%
+  select(plot, block, surveyYearF, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
+  add_column(tbi1718) %>%
+  mutate(plot = factor(plot)) %>%
+  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1718"))) %>%
+  as_tibble()
+colnames(tbi1718) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1soil", "PC2soil", "PC3soil", "B", "C", "D", "change", "comparison")
+#### Test plot
+plot(res1718, type = "BC")
+
+
+## 2. 2017 vs. 2019 #####################################################################################
 
 res1719 <- TBI(species17, species19, method = "sorensen", 
                nperm = 9999, test.t.perm = T, clock = T)
-res1719$BCD.summary #B = 0.216, C = 0.375, D = 0.591 (36% vs. 63%)
-res1719$t.test_B.C # p = 1e-04
+res1719$BCD.summary #B = 0.186, C = 0.212, D = 0.399 (46.7% vs. 53.2%)
+res1719$t.test_B.C # p.perm = 0.273
 tbi1719 <- as_tibble(res1719$BCD.mat) 
 tbi1719 <- sites %>%
-  filter(surveyYearF == "2018") %>%
-  select(plot, block, surveyYearF, locationYear, exposition, side, PC1, PC2, PC3) %>%
+  filter(surveyYearF == "2017") %>%
+  select(plot, block, surveyYearF, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
   add_column(tbi1719) %>%
   mutate(plot = factor(plot)) %>%
-  mutate(comparison = factor(str_replace(surveyYearF, "2018", "1719"))) %>%
+  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1719"))) %>%
   as_tibble()
-colnames(tbi1719) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1", "PC2", "PC3", "B", "C", "D", "change", "comparison")
+colnames(tbi1719) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1soil", "PC2soil", "PC3soil", "B", "C", "D", "change", "comparison")
 #### Test plot
 plot(res1719, type = "BC")
 
 
-## 2. 2017 vs. 2018 #####################################################################################
-
-res1718 <- TBI(species17, species18, method = "%diff", 
-               nperm = 9999, test.t.perm = T, clock = T)
-res1718$BCD.summary #B = 0.215, C = 0.255, D = 0.470 (46% vs. 54%)
-res1718$t.test_B.C # p = 1.1e-01
-tbi1718 <- as_tibble(res1718$BCD.mat) 
-tbi1718 <- sites %>%
-  filter(surveyYearF == "2017") %>%
-  select(plot, block, surveyYearF, locationYear, exposition, side, PC1, PC2, PC3) %>%
-  add_column(tbi1718) %>%
-  mutate(plot = factor(plot)) %>%
-  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1718"))) %>%
-  as_tibble()
-colnames(tbi1718) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1", "PC2", "PC3", "B", "C", "D", "change", "comparison")
-#### Test plot
-plot(res1718, type = "BC")
-
-
 ## 3. 2017 vs. 2021 #####################################################################################
 
-res1718 <- TBI(species17, species18, method = "%diff", 
+res1721 <- TBI(species17, species21, method = "sorensen", 
                nperm = 9999, test.t.perm = T, clock = T)
-res1718$BCD.summary #B = 0.215, C = 0.255, D = 0.470 (46% vs. 54%)
-res1718$t.test_B.C # p = 1.1e-01
-tbi1718 <- as_tibble(res1718$BCD.mat) 
-tbi1718 <- sites %>%
+res1721$BCD.summary #B = 0.184, C = 0.450, D = 0.590 (59.0% vs. 40.9%)
+res1721$t.test_B.C # p.perm = 0.0021
+tbi1721 <- as_tibble(res1721$BCD.mat) 
+tbi1721 <- sites %>%
   filter(surveyYearF == "2017") %>%
-  select(plot, block, surveyYearF, locationYear, exposition, side, PC1, PC2, PC3) %>%
-  add_column(tbi1718) %>%
+  select(plot, block, surveyYearF, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
+  add_column(tbi1721) %>%
   mutate(plot = factor(plot)) %>%
-  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1718"))) %>%
+  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1721"))) %>%
   as_tibble()
-colnames(tbi1718) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1", "PC2", "PC3", "B", "C", "D", "change", "comparison")
+colnames(tbi1721) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1soil", "PC2soil", "PC3soil", "B", "C", "D", "change", "comparison")
 #### Test plot
-plot(res1718, type = "BC")
+plot(res1721, type = "BC")
 
 
 ## 4. 2018 vs. 2019 #####################################################################################
 
-res1819 <- TBI(species18, species19, method = "%diff", 
-              nperm = 9999, test.t.perm = T, clock = T)
-res1819$BCD.summary #B = 0.175, C = 0.296, D = 0.471 (37% vs. 63%)
-res1819$t.test_B.C # p = 1e-04
-tbi1819 <- as_tibble(res1819$BCD.mat)
+res1819 <- TBI(species18, species19, method = "sorensen", 
+               nperm = 9999, test.t.perm = T, clock = T)
+res1819$BCD.summary #B = 0.118, C = 0.214, D = 0.332 (35.6% vs. 64.3%)
+res1819$t.test_B.C # p.perm = 1e-04
+tbi1819 <- as_tibble(res1819$BCD.mat) 
 tbi1819 <- sites %>%
-  filter(surveyYearF == "2019") %>%
-  select(plot, block, surveyYearF, locationYear, exposition, side, PC1, PC2, PC3) %>%
+  filter(surveyYearF == "2017") %>%
+  select(plot, block, surveyYearF, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
   add_column(tbi1819) %>%
   mutate(plot = factor(plot)) %>%
-  mutate(comparison = factor(str_replace(surveyYearF, "2019", "1819"))) %>%
+  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1819"))) %>%
   as_tibble()
-colnames(tbi1819) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1", "PC2", "PC3", "B", "C", "D", "change", "comparison")
+colnames(tbi1819) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1soil", "PC2soil", "PC3soil", "B", "C", "D", "change", "comparison")
 #### Test plot
 plot(res1819, type = "BC")
 
+## 5. 2019 vs. 2021 #####################################################################################
 
-## 3. Combined data sets #####################################################################################
+res1921 <- TBI(species19, species21, method = "sorensen", 
+               nperm = 9999, test.t.perm = T, clock = T)
+res1921$BCD.summary #B = 0.184, C = 0.450, D = 0.590 (59.0% vs. 40.9%)
+res1921$t.test_B.C # p.perm = 0.0021
+tbi1921 <- as_tibble(res1921$BCD.mat) 
+tbi1921 <- sites %>%
+  filter(surveyYearF == "2017") %>%
+  select(plot, block, surveyYearF, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
+  add_column(tbi1921) %>%
+  mutate(plot = factor(plot)) %>%
+  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1921"))) %>%
+  as_tibble()
+colnames(tbi1921) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1soil", "PC2soil", "PC3soil", "B", "C", "D", "change", "comparison")
+#### Test plot
+plot(res1921, type = "BC")
 
-tbi <- bind_rows(tbi1719, tbi1718, tbi1819) %>%
+
+## 6. Combined data sets #####################################################################################
+
+tbi <- bind_rows(tbi1718, tbi1819, tbi1921) %>%
   select(-change) %>%
-  pivot_longer(-c(plot:PC3, comparison), names_to = "index", values_to = "tbi") %>%
+  pivot_longer(-c(plot:PC3soil, comparison), names_to = "index", values_to = "tbi") %>%
   mutate(index = factor(index)) %>%
-  filter(comparison != 1719) %>%
   filter(exposition == "south" | exposition == "north")
   
 
@@ -165,7 +183,7 @@ library(DHARMa)
 library(emmeans)
 library(ggbeeswarm)
 library(ggeffects)
-m1 <- lmer(tbi ~ index * comparison * (exposition + side + PC1 + PC2 + PC3) +
+m1 <- lmer(tbi ~ index * comparison * (exposition + side + PC1soil + PC2soil + PC3soil) +
              index:exposition:comparison + index:side:comparison +
             (1 + exposition|locationYear), data = tbi)
 simulationOutput <- simulateResiduals(m1, plot = T)
@@ -173,9 +191,9 @@ MuMIn::r.squaredGLMM(m1)
 car::Anova(m1, type = 3)
 #rename B C D to declines increases and TBI
 #data2 <- rename(data, predicted = tbi, x = exposition, group = surveyYearF)
-ggplot(tbi, aes(y = tbi, x = PC2, colour = comparison)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = T) +
+ggplot(tbi, aes(y = tbi, x = exposition, colour = comparison)) +
+  geom_boxplot() +
+  #geom_smooth(method = "lm", se = T) +
   facet_grid(~index) +
   themeMB()
 
