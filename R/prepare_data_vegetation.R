@@ -626,10 +626,7 @@ for(i in unique(data_species$year)) {
   
   assign(nam, data_species %>%
            filter(year == i) %>%
-           select(-year) %>%
-           column_to_rownames("plot") %>%
-           select(which(!colSums(., na.rm = T) %in% 0)) %>%
-           rownames_to_column(var = "plot")
+           select(-year)
            )
   }
 

@@ -30,6 +30,7 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"),
                       exposition = "f",
                       side = "f"
                     )) %>%
+  filter(vegetationCov > 0) %>%
   select(id, plot, block, locationAbb, surveyYear, constructionYear, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
   mutate(surveyYearF = as_factor(surveyYear)) %>%
   mutate(constructionYearF = as_factor(constructionYear)) %>%
@@ -39,44 +40,28 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"),
 
 species17 <- read_csv("data_processed_species17.csv", col_names = T, na = "na", col_types = 
                       cols(
-                        .default = "d"
-                      )) %>%
-  mutate(across(where(is.numeric), ~replace(., is.na(.), 0)))  %>%
-  select(which(!colSums(., na.rm = T) %in% 0))
-
-species <- read_csv("data_processed_species.csv", col_names = T, na = "na", col_types = 
-                      cols(
                         .default = "d",
-                        name = "f"
-                      )) %>%  
-  mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
-  pivot_longer(-name, "id", "value") %>%
-  pivot_wider(id, name) %>%
-  arrange(id) %>%
-  semi_join(sites, by = "id") %>%
-  column_to_rownames("id") #%>%
-  select(which(!colSums(., na.rm = T) %in% 0)) %>%
-  rownames_to_column(var = "id") %>%
-  mutate(year = factor(str_match(id, "\\d\\d\\d\\d"))) %>%
-  mutate(plot = factor(str_match(id, "\\d\\d"))) %>%
-  select(-id)
-
-species17 <- species %>%
-  filter(year == 2017) %>%
-  column_to_rownames("plot") %>%
-  select(-year)
-species18 <- species %>%
-  filter(year == 2018) %>%
-  column_to_rownames("plot") %>%
-  select(-year)
-species19 <- species %>%
-  filter(year == 2019) %>%
-  column_to_rownames("plot") %>%
-  select(-year)
-species21 <- species %>%
-  filter(year == 2021) %>%
-  column_to_rownames("plot") %>%
-  select(-year)
+                        plot = "f"
+                      )) %>%
+  column_to_rownames(var = "plot")
+species18 <- read_csv("data_processed_species18.csv", col_names = T, na = "na", col_types = 
+                        cols(
+                          .default = "d",
+                          plot = "f"
+                        )) %>%
+  column_to_rownames(var = "plot")
+species19 <- read_csv("data_processed_species19.csv", col_names = T, na = "na", col_types = 
+                        cols(
+                          .default = "d",
+                          plot = "f"
+                        )) %>%
+  column_to_rownames(var = "plot")
+species21 <- read_csv("data_processed_species21.csv", col_names = T, na = "na", col_types = 
+                        cols(
+                          .default = "d",
+                          plot = "f"
+                        )) %>%
+  column_to_rownames(var = "plot")
 
 
 
