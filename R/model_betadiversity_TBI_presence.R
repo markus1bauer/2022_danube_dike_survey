@@ -37,16 +37,24 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"),
   filter(n == max(n)) %>%
   select(-n) 
 
+species17 <- read_csv("data_processed_species17.csv", col_names = T, na = "na", col_types = 
+                      cols(
+                        .default = "d"
+                      )) %>%
+  mutate(across(where(is.numeric), ~replace(., is.na(.), 0)))  %>%
+  select(which(!colSums(., na.rm = T) %in% 0))
+
 species <- read_csv("data_processed_species.csv", col_names = T, na = "na", col_types = 
                       cols(
                         .default = "d",
                         name = "f"
                       )) %>%  
+  mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
   pivot_longer(-name, "id", "value") %>%
   pivot_wider(id, name) %>%
   arrange(id) %>%
   semi_join(sites, by = "id") %>%
-  column_to_rownames("id") %>%
+  column_to_rownames("id") #%>%
   select(which(!colSums(., na.rm = T) %in% 0)) %>%
   rownames_to_column(var = "id") %>%
   mutate(year = factor(str_match(id, "\\d\\d\\d\\d"))) %>%
@@ -65,6 +73,10 @@ species19 <- species %>%
   filter(year == 2019) %>%
   column_to_rownames("plot") %>%
   select(-year)
+species21 <- species %>%
+  filter(year == 2021) %>%
+  column_to_rownames("plot") %>%
+  select(-year)
 
 
 
@@ -75,7 +87,7 @@ species19 <- species %>%
 
 ## 1. 2017 vs. 2019 #####################################################################################
 
-res1719 <- TBI(species17, species19, method = "%diff", 
+res1719 <- TBI(species17, species19, method = "sorensen", 
                nperm = 9999, test.t.perm = T, clock = T)
 res1719$BCD.summary #B = 0.216, C = 0.375, D = 0.591 (36% vs. 63%)
 res1719$t.test_B.C # p = 1e-04
@@ -110,7 +122,27 @@ colnames(tbi1718) <- c("plot", "block", "surveyYearF", "locationYear", "expositi
 #### Test plot
 plot(res1718, type = "BC")
 
-## 3. 2018 vs. 2019 #####################################################################################
+
+## 3. 2017 vs. 2021 #####################################################################################
+
+res1718 <- TBI(species17, species18, method = "%diff", 
+               nperm = 9999, test.t.perm = T, clock = T)
+res1718$BCD.summary #B = 0.215, C = 0.255, D = 0.470 (46% vs. 54%)
+res1718$t.test_B.C # p = 1.1e-01
+tbi1718 <- as_tibble(res1718$BCD.mat) 
+tbi1718 <- sites %>%
+  filter(surveyYearF == "2017") %>%
+  select(plot, block, surveyYearF, locationYear, exposition, side, PC1, PC2, PC3) %>%
+  add_column(tbi1718) %>%
+  mutate(plot = factor(plot)) %>%
+  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1718"))) %>%
+  as_tibble()
+colnames(tbi1718) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1", "PC2", "PC3", "B", "C", "D", "change", "comparison")
+#### Test plot
+plot(res1718, type = "BC")
+
+
+## 4. 2018 vs. 2019 #####################################################################################
 
 res1819 <- TBI(species18, species19, method = "%diff", 
               nperm = 9999, test.t.perm = T, clock = T)
