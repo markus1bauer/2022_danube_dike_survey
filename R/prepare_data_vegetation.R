@@ -96,7 +96,7 @@ sites <- read_csv("data_raw_sites.csv", col_names = T, na = c("", "NA", "na"), c
 
 ### 2 Species #####################################################################################
 
-species <- data.table::fread("20211004_data_raw_species.csv", 
+species <- data.table::fread("20211102_data_raw_species.csv", 
                              sep = ",",
                              dec = ".",
                              skip = 0,
@@ -115,7 +115,7 @@ species <- data.table::fread("20211004_data_raw_species.csv",
   ungroup() %>%
   select(name, sort(tidyselect::peek_vars()), -total, -presence) %>%
   select(name, all_of(sites$id)) %>%
-  na_if(0)
+  mutate(across(where(is.numeric), ~replace(., is.na(.), 0)))
 
 ### Create list with species names and their frequency ###
 specieslist <- species %>%
@@ -598,9 +598,17 @@ data <- enframe(data$distances) %>%
          permdispAbu = value)
 sites <- left_join(sites, data, by = "id")
 
+rm(list = ls(pattern = "[^species|traits|sites]"))
+
 #### c TBI -------------------------------------------------------------------------------------------
-data <- species %>%
+data_sites <- sites %>%
+  select(id, plot, vegetationCov) %>%
+  filter(vegetationCov > 0) %>%
+  add_count(plot) %>%
+  filter(n == max(n))
+data_species <- species %>%
   select(where(~!all(is.na(.x)))) %>%
+  mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
   pivot_longer(-name, names_to = "id", values_to = "value") %>%
   pivot_wider(id, name) %>%
   mutate(year = str_match(id, "\\d{4}"),
@@ -608,17 +616,21 @@ data <- species %>%
          year = factor(year),
          plot = factor(plot)) %>%
   arrange(id) %>%
-  select(-id, plot, year, tidyselect::peek_vars())
-  
+  semi_join(data_sites, by = "id") %>%
+  select(plot, year, tidyselect::peek_vars(), -id)
+
 ### Separate each year in several tibbles ###
 
-for(i in unique(data$year)) {
+for(i in unique(data_species$year)) {
   nam <- paste("species", i, sep = "")
   
-  assign(nam, data %>%
+  assign(nam, data_species %>%
            filter(year == i) %>%
+           select(-year) %>%
            column_to_rownames("plot") %>%
-           select(-year))
+           select(which(!colSums(., na.rm = T) %in% 0)) %>%
+           rownames_to_column(var = "plot")
+           )
   }
 
 #### d Synchrony -------------------------------------------------------------------------------------------
