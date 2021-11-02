@@ -13,6 +13,9 @@
 library(here)
 library(tidyverse)
 library(adespatial)
+library(lme4)  
+library(DHARMa)
+library(emmeans)
 
 ### Start ###
 rm(list = ls())
@@ -65,14 +68,14 @@ species21 <- read_csv("data_processed_species21.csv", col_names = T, na = "na", 
 
 
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # B Statistics ################################################################################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+## 1 Calculate TBI #####################################################################################
 
-## 1. 2017 vs. 2018 #####################################################################################
-
+### a 2017 vs. 2018 ---------------------------------------------------------------------------------------------
 res1718 <- TBI(species17, species18, method = "sorensen", 
                nperm = 9999, test.t.perm = T, clock = T)
 res1718$BCD.summary #B = 0.223, C = 0.155, D = 0.378 (58.9% vs. 41.0%)
@@ -89,9 +92,7 @@ colnames(tbi1718) <- c("plot", "block", "surveyYearF", "locationYear", "expositi
 #### Test plot
 plot(res1718, type = "BC")
 
-
-## 2. 2017 vs. 2019 #####################################################################################
-
+### b 2017 vs. 2019 ---------------------------------------------------------------------------------------------
 res1719 <- TBI(species17, species19, method = "sorensen", 
                nperm = 9999, test.t.perm = T, clock = T)
 res1719$BCD.summary #B = 0.186, C = 0.212, D = 0.399 (46.7% vs. 53.2%)
@@ -108,9 +109,7 @@ colnames(tbi1719) <- c("plot", "block", "surveyYearF", "locationYear", "expositi
 #### Test plot
 plot(res1719, type = "BC")
 
-
-## 3. 2017 vs. 2021 #####################################################################################
-
+### c 2017 vs. 2021 ---------------------------------------------------------------------------------------------
 res1721 <- TBI(species17, species21, method = "sorensen", 
                nperm = 9999, test.t.perm = T, clock = T)
 res1721$BCD.summary #B = 0.184, C = 0.450, D = 0.590 (59.0% vs. 40.9%)
@@ -127,9 +126,7 @@ colnames(tbi1721) <- c("plot", "block", "surveyYearF", "locationYear", "expositi
 #### Test plot
 plot(res1721, type = "BC")
 
-
-## 4. 2018 vs. 2019 #####################################################################################
-
+### d 2018 vs. 2019 ---------------------------------------------------------------------------------------------
 res1819 <- TBI(species18, species19, method = "sorensen", 
                nperm = 9999, test.t.perm = T, clock = T)
 res1819$BCD.summary #B = 0.118, C = 0.214, D = 0.332 (35.6% vs. 64.3%)
@@ -146,12 +143,11 @@ colnames(tbi1819) <- c("plot", "block", "surveyYearF", "locationYear", "expositi
 #### Test plot
 plot(res1819, type = "BC")
 
-## 5. 2019 vs. 2021 #####################################################################################
-
+### e 2019 vs. 2021 ---------------------------------------------------------------------------------------------
 res1921 <- TBI(species19, species21, method = "sorensen", 
                nperm = 9999, test.t.perm = T, clock = T)
-res1921$BCD.summary #B = 0.184, C = 0.450, D = 0.590 (59.0% vs. 40.9%)
-res1921$t.test_B.C # p.perm = 0.0021
+res1921$BCD.summary #B = 0.249, C = 0.140, D = 0.390 (63.8% vs. 36.1%)
+res1921$t.test_B.C # p.perm = 1e-04
 tbi1921 <- as_tibble(res1921$BCD.mat) 
 tbi1921 <- sites %>%
   filter(surveyYearF == "2017") %>%
@@ -164,48 +160,146 @@ colnames(tbi1921) <- c("plot", "block", "surveyYearF", "locationYear", "expositi
 #### Test plot
 plot(res1921, type = "BC")
 
-
-## 6. Combined data sets #####################################################################################
-
-tbi <- bind_rows(tbi1718, tbi1819, tbi1921) %>%
+### f Combine datasets ---------------------------------------------------------------------------------------------
+data <- bind_rows(tbi1718, tbi1819, tbi1921) %>%
   select(-change) %>%
   pivot_longer(-c(plot:PC3soil, comparison), names_to = "index", values_to = "tbi") %>%
-  mutate(index = factor(index)) %>%
+  mutate(index = factor(index),
+         exposition = factor(exposition),
+         block = factor(block),
+         locationYear = factor(locationYear)) %>%
   filter(exposition == "south" | exposition == "north")
-  
+
+
+## 2 Modelling #############################################################################################
+
+
+### 1 Data exploration #####################################################################################
+
+#### a Graphs ---------------------------------------------------------------------------------------------
+#2way
+ggplot(data, aes(x = comparison, y = tbi)) + 
+  geom_boxplot() +
+  geom_quasirandom() + 
+  facet_wrap(~index)
+ggplot(data, aes(x = exposition, y = tbi)) + 
+  geom_boxplot() +
+  geom_quasirandom() + 
+  facet_wrap(~index)
+ggplot(data, aes(x = side, y = tbi)) + 
+  geom_boxplot() +
+  geom_quasirandom() + 
+  facet_wrap(~index)
+ggplot(data, aes(x = PC1soil, y = tbi)) + 
+  geom_smooth(method = "lm") +
+  geom_point() + 
+  facet_wrap(~index)
+ggplot(data, aes(x = exp(PC2soil), y = tbi)) + 
+  geom_smooth(method = "lm") +
+  geom_point() + 
+  facet_wrap(~index)
+ggplot(data, aes(x = PC3soil, y = tbi)) + 
+  geom_smooth(method = "lm") +
+  geom_point() + 
+  facet_wrap(~index)
+#3way
+ggplot(data, aes(x = exposition, y = tbi, color = comparison)) + 
+  geom_boxplot() +
+  facet_wrap(~index)
+ggplot(data, aes(x = comparison, y = tbi, color = exposition)) + 
+  geom_boxplot() +
+  facet_wrap(~index)
+ggplot(data, aes(x = PC2soil, y = tbi, color = comparison)) + 
+  geom_smooth(method = "lm") +
+  geom_point() +
+  facet_wrap(~index)
+
+#### b Outliers, zero-inflation, transformations? -----------------------------------------------------
+dotchart((data$tbi), groups = factor(data$exposition), main = "Cleveland dotplot")
+data %>% count(locationYear)
+boxplot(data$tbi);#identify(rep(1, length(edata$rgr13)), edata$rgr13, labels = c(edata$n))
+plot(table((data$tbi)), type = "h", xlab = "Observed values", ylab = "Frequency")
+ggplot(data, aes(tbi)) + geom_density()
+ggplot(data, aes(sqrt(tbi))) + geom_density()
+ggplot(data, aes(PC2soil)) + geom_density()
+ggplot(data, aes(sqrt(PC2soil))) + geom_density()
+
+
+### 2 Model building ################################################################################
+
+#### a models ----------------------------------------------------------------------------------------
+#random structure
+m1a <- lmer(tbi ~ 1 + (1|plot) + (1|locationYear), data, REML = F)
+VarCorr(m1a) 
+m1b <- lmer(tbi ~ 1 + (1|plot), data, REML = F)
+VarCorr(m1b)
+m1c <- lmer(tbi ~ 1 + (1 + exposition|plot), data, REML = F)
+VarCorr(m1c);isSingular(m1c)
+#fixed effects
+m2 <- lmer(sqrt(tbi) ~ index * comparison * (exposition + PC1soil) + PC2soil + side + PC3soil + locationYear +
+             (1|plot), 
+           data = data)
+isSingular(m2);simulateResiduals(m2, plot = T)
+m3 <- lmer(sqrt(tbi) ~ index * comparison * (exposition + PC2soil) + PC1soil + side + PC3soil + locationYear +
+             (1|plot), 
+           data = data)
+isSingular(m3);simulateResiduals(m3, plot = T)
+m4 <- lmer(sqrt(tbi) ~ index * comparison + exposition + PC2soil + PC1soil + side + PC3soil + locationYear +
+             (1|plot), 
+           data = data)
+isSingular(m4);simulateResiduals(m4, plot = T)
+m5 <- lmer(sqrt(tbi) ~ index + comparison + exposition + PC1soil + PC2soil + side + PC3soil + locationYear +
+             (1 + exposition|plot), 
+           data = data)
+isSingular(m5);simulateResiduals(m5, plot = T)
+m6 <- lmer(sqrt(tbi) ~ index * comparison * exposition + PC1soil + PC2soil + side + PC3soil + locationYear +
+             (1|plot), 
+           data = data)
+isSingular(m6);simulateResiduals(m6, plot = T)
+
+
+
+#### b comparison -----------------------------------------------------------------------------------------
+anova(m2, m3, m4, m5, m6)
+rm(m1a, m1b, m1c, m2, m3, m4, m5)
+
+#### c model check -----------------------------------------------------------------------------------------
+simulationOutput <- simulateResiduals(m6, plot = F)
+plotResiduals(simulationOutput$scaledResiduals, data$locationYear)
+plotResiduals(simulationOutput$scaledResiduals, data$block)
+plotResiduals(simulationOutput$scaledResiduals, data$plot)
+plotResiduals(simulationOutput$scaledResiduals, data$index)
+plotResiduals(simulationOutput$scaledResiduals, data$comparison)
+plotResiduals(simulationOutput$scaledResiduals, data$exposition)
+plotResiduals(simulationOutput$scaledResiduals, data$side)
+plotResiduals(simulationOutput$scaledResiduals, data$PC1soil)
+plotResiduals(simulationOutput$scaledResiduals, data$PC2soil)
+plotResiduals(simulationOutput$scaledResiduals, data$PC3soil)
+
+
+### 3 Chosen model output ################################################################################
+
+### * Model output ####
+MuMIn::r.squaredGLMM(m6) #R2m = 0.626, R2c = 0.658
+VarCorr(m6)
+sjPlot::plot_model(m6, type = "re", show.values = T)
+car::Anova(m6, type = 3)
+
+### * Effect sizes ####
+(emm <- emmeans(m6, revpairwise ~ exposition * comparison | index, type = "response"))
+plot(emm, comparison = T)
+(emm <- emmeans(m1, revpairwise ~ side, type = "response"))
+
+### * Save ####
+table <- broom::tidy(car::Anova(m6, type = 3))
+write.csv(table, here("outputs/statistics/table_anova_tbi_presence.csv"))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # C Plotten ################################################################################################################
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-library(lme4)  
-library(DHARMa)
-library(emmeans)
 library(ggbeeswarm)
 library(ggeffects)
-m1 <- lmer(tbi ~ index * comparison * (exposition + side + PC1soil + PC2soil + PC3soil) +
-             index:exposition:comparison + index:side:comparison +
-            (1 + exposition|locationYear), data = tbi)
-simulationOutput <- simulateResiduals(m1, plot = T)
-MuMIn::r.squaredGLMM(m1)
-car::Anova(m1, type = 3)
-#rename B C D to declines increases and TBI
-#data2 <- rename(data, predicted = tbi, x = exposition, group = surveyYearF)
-ggplot(tbi, aes(y = tbi, x = exposition, colour = comparison)) +
-  geom_boxplot() +
-  #geom_smooth(method = "lm", se = T) +
-  facet_grid(~index) +
-  themeMB()
-
-setwd(here("outputs/figures"))
-ggsave("figure_4_tbi_PC2_(800dpi_16x10cm).tiff",
-       dpi = 800, width = 16, height = 10, units = "cm")
-
-ggplot(tbi, aes(y = tbi, x = exposition)) +
-  geom_quasirandom() +
-  geom_boxplot() +
-  facet_grid(~index) +
-  themeMB()
 
 themeMB <- function(){
   theme(
@@ -228,145 +322,27 @@ themeMB <- function(){
   )
 }
 
-pdata <- ggemmeans(m1, terms = c("exposition", "comparison", "index"), type = "fe") %>%
-  mutate(facet = fct_recode(facet, Declines = "B", Increases = "C", Total = "D")) %>%
-  mutate(group = fct_recode(group, "2017/normal vs. 2018/dry" = "1718", "2018/dry vs. 2019/dry" = "1819")) %>%
-  mutate(x = fct_recode(x, South = "south", North = "north"))
-pd <- position_dodge(.6)
+pdata <- ggemmeans(m6, terms = c("comparison", "index","exposition"), type = "fe") %>%
+  mutate(group = fct_recode(group, Losses = "B", Gains = "C", Total = "D")) %>%
+  mutate(x = fct_recode(x, "'17 vs. '18" = "1718", "'18 vs. '19" = "1819", "'19 vs. '21" = "1921")) %>%
+  mutate(facet = fct_recode(facet, South = "south", North = "north"))
+pd <- position_dodge(.1)
 (graph <- ggplot(pdata, 
                  aes(x, predicted, ymin = conf.low, ymax = conf.high, shape = group)) +
-    #geom_quasirandom(data = data2, aes(x, predicted), 
-     #                color = "grey70", dodge.width = .6, size = 0.7) +
+    #geom_quasirandom(data = sites, aes(x, predicted), 
+    #                 color = "grey70", dodge.width = .6, size = 0.7) +
     geom_errorbar(position = pd, width = 0.0, size = 0.4) +
     geom_point(position = pd, size = 2.5, fill = "white") +
     facet_grid(~ facet) +
     annotate("text", label = "n.s.", x = 2.2, y = 0.6) +
     scale_y_continuous(limits = c(0, 0.6), breaks = seq(-100, 100, 0.1)) +
-    scale_shape_manual(values = c(21, 16)) +
-    labs(x = "Exposition", y = "Temporal beta-diversity", shape = "") +
+    scale_shape_manual(values = c(25, 24, 16)) +
+    labs(x = "", y = "Temporal beta-diversity", shape = "") +
     themeMB() +
     theme()
 )
 
 ### Save ###
-setwd(here("outputs/figures"))
-ggsave("figure_4_tbi_(800dpi_9x5cm).tiff",
+ggsave(here("outputs/figures/figure_4_tbi_presence_year_(800dpi_9x5cm).tiff"),
        dpi = 800, width = 9, height = 5, units = "cm")
 
-
-### 1 Data exploration #####################################################################################
-
-#### a Graphs ---------------------------------------------------------------------------------------------
-#simple effects:
-ggplot(sites, aes(y = n, x = locationAbb)) + geom_boxplot() + geom_quasirandom()
-ggplot(sites, aes(y = n, x = constructionYear)) + geom_point() + geom_smooth(method = "lm") 
-ggplot(sites, aes(y = n, x = constructionYearF)) + geom_boxplot() + geom_quasirandom()
-ggplot(sites, aes(y = n, x = plotAge)) + geom_point() + geom_smooth(method = "lm") 
-ggplot(sites, aes(y = n, x = surveyYearF)) + geom_boxplot() + geom_quasirandom()
-ggplot(sites, aes(y = n, x = exposition)) + geom_boxplot() + geom_quasirandom()
-ggplot(sites, aes(y = n, x = side)) + geom_boxplot() + geom_quasirandom()
-ggplot(sites, aes(y = n, x = PC1)) + geom_point() + geom_smooth(method = "lm")
-ggplot(sites, aes(y = n, x = PC2)) + geom_point() + geom_smooth(method = "lm")
-ggplot(sites, aes(y = n, x = PC3)) + geom_point() + geom_smooth(method = "lm")
-ggplot(sites, aes(y = n, x = changeType)) + geom_boxplot() + geom_quasirandom()
-ggplot(sites, aes(y = n, x = ffh)) + geom_boxplot() + geom_quasirandom()
-ggplot(sites, aes(y = n, x = baykompv)) + geom_boxplot() + geom_quasirandom()
-ggplot(sites, aes(y = n, x = biotopeType)) + geom_boxplot() + geom_quasirandom()
-#2way
-ggplot(sites, aes(x = locationAbb, y = n, color = exposition)) + 
-  geom_boxplot() +
-  geom_quasirandom()
-ggplot(sites, aes(x = locationAbb, y = n, color = exposition)) + 
-  geom_boxplot() +
-  facet_wrap(~exposition)
-ggplot(sites, aes(x = locationAbb, y = n, color = surveyYearF)) + 
-  geom_boxplot()
-ggplot(sites, aes(x = PC2, y = n, color = surveyYearF)) + 
-  geom_point() + 
-  geom_smooth(method = "lm") + 
-  facet_wrap(~surveyYearF)
-ggplot(sites, aes(x = plotAge, y = n, color = changeType)) + 
-  geom_smooth(aes(group = plot), colour = "grey40", method = "lm", se = F, show.legend = F) + 
-  geom_point() + 
-  geom_smooth(method = "lm") + 
-  facet_wrap(~changeType)
-
-
-##### b Outliers, zero-inflation, transformations? -----------------------------------------------------
-dotchart((sites$n), groups = factor(sites$exposition), main = "Cleveland dotplot")
-sites %>% count(locationAbb)
-boxplot(sites$n);#identify(rep(1, length(edata$rgr13)), edata$rgr13, labels = c(edata$n))
-plot(table((sites$n)), type = "h", xlab = "Observed values", ylab = "Frequency")
-ggplot(sites, aes(n)) + geom_density()
-ggplot(sites, aes(sqrt(n))) + geom_density()
-
-
-## 2 Model building ################################################################################
-
-#### a models ----------------------------------------------------------------------------------------
-#random structure
-m1a <- lmer(n ~ 1 + (surveyYear|locationAbb/plot), sites, REML = F)
-VarCorr(m1a) # convergence problems
-m1b <- lmer(n ~ 1 + (surveyYear|plot), sites, REML = F)
-VarCorr(m1b) # convergence problems
-m1c <- lmer(n ~ 1 + (1|locationAbb/plot), sites, REML = F)
-VarCorr(m1c)
-m1d <- lmer(n ~ 1 + (1|plot), sites, REML = F)
-VarCorr(m1d)
-#fixed effects
-m2 <- lmer((n) ~ (exposition + side + PC1 + PC2 + PC3) + 
-             (1|plot), sites, REML = F)
-simulateResiduals(m2, plot = T)
-#fixed and site and year effects
-m3 <- lmer((n) ~ (exposition + side + PC1 + PC2 + PC3 + surveyYearF + locationAbb) +
-             (1|plot), sites, REML = F);
-simulateResiduals(m3, plot = T)
-isSingular(m3)
-#plotAge instead of location
-m4 <- lmer((n) ~ (exposition + side + PC1 + PC2 + PC3 + surveyYearF + plotAge) + 
-             (1|plot), sites, REML = F);
-simulateResiduals(m4, plot = T)
-isSingular(m4)
-
-m5 <- lmer((n) ~ (exposition + side + PC1 + PC2 + PC3 + surveyYearF + locationAbb) +
-             locationAbb:exposition + locationAbb:surveyYearF +
-             (1|plot), sites, REML = F);
-simulateResiduals(m5, plot = T)
-isSingular(m5)
-
-
-#### b comparison -----------------------------------------------------------------------------------------
-anova(m2, m3, m4)
-rm(m1a, m1b, m1c, m1d, m4)
-
-#### c model check -----------------------------------------------------------------------------------------
-simulationOutput <- simulateResiduals(m3, plot = F)
-plotResiduals(simulationOutput$scaledResiduals, sites$surveyYearF)
-plotResiduals(simulationOutput$scaledResiduals, sites$locationAbb)
-plotResiduals(simulationOutput$scaledResiduals, sites$block)
-plotResiduals(simulationOutput$scaledResiduals, sites$plot)
-plotResiduals(simulationOutput$scaledResiduals, sites$side)
-plotResiduals(simulationOutput$scaledResiduals, sites$exposition)
-plotResiduals(simulationOutput$scaledResiduals, sites$PC1)
-plotResiduals(simulationOutput$scaledResiduals, sites$PC2)
-plotResiduals(simulationOutput$scaledResiduals, sites$PC3)
-
-
-## 3 Chosen model output ################################################################################
-
-### Model output ---------------------------------------------------------------------------------------------
-MuMIn::r.squaredGLMM(m1)
-0.384 /  0.500
-VarCorr(m1)
-sjPlot::plot_model(m1, type = "re", show.values = T)
-car::Anova(m1, type = 2)
-
-### Effect sizes -----------------------------------------------------------------------------------------
-(emm <- emmeans(m1, revpairwise ~ exposition * comparison | index, type = "response"))
-plot(emm, comparison = T)
-(emm <- emmeans(m1, revpairwise ~ side, type = "response"))
-
-### Save ###
-table <- broom::tidy(car::Anova(m3, type = 2))
-setwd(here("data/tables"))
-write.csv2(table, "table_anova_cwmAbuSla.csv")
