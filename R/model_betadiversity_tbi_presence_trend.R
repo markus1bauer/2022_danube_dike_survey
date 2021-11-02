@@ -127,7 +127,7 @@ colnames(tbi1721) <- c("plot", "block", "surveyYearF", "locationYear", "expositi
 plot(res1721, type = "BC")
 
 ### d Combine datasets ---------------------------------------------------------------------------------------------
-data <- bind_rows(tbi1718, tbi1819, tbi1921) %>%
+data <- bind_rows(tbi1718, tbi1719, tbi1721) %>%
   select(-change) %>%
   pivot_longer(-c(plot:PC3soil, comparison), names_to = "index", values_to = "tbi") %>%
   mutate(index = factor(index),
@@ -245,19 +245,18 @@ plotResiduals(simulationOutput$scaledResiduals, data$PC3soil)
 ### 3 Chosen model output ################################################################################
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m6) #R2m = 0.626, R2c = 0.658
+MuMIn::r.squaredGLMM(m6) #R2m = 0.585, R2c = 0.684
 VarCorr(m6)
 sjPlot::plot_model(m6, type = "re", show.values = T)
 car::Anova(m6, type = 3)
 
 ### * Effect sizes ####
-(emm <- emmeans(m6, revpairwise ~ exposition * comparison | index, type = "response"))
+(emm <- emmeans(m6, revpairwise ~ comparison | exposition | index, type = "response"))
 plot(emm, comparison = T)
-(emm <- emmeans(m1, revpairwise ~ side, type = "response"))
 
 ### * Save ####
 table <- broom::tidy(car::Anova(m6, type = 3))
-write.csv(table, here("outputs/statistics/table_anova_tbi_presence.csv"))
+write.csv(table, here("outputs/statistics/table_anova_tbi_presence_trend.csv"))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # C Plotten ################################################################################################################
@@ -280,7 +279,7 @@ themeMB <- function(){
     legend.key = element_rect(fill = "transparent"),
     legend.justification = c("right", "top"),
     legend.direction = "vertical",
-    legend.position = c(.95, .45),
+    legend.position = c(.95, .15),
     legend.background = element_rect(fill = "transparent"),
     legend.margin = margin(0, 0, 0, 0, "cm"),
     plot.margin = margin(0, 0, 0, 0, "cm")
@@ -289,7 +288,7 @@ themeMB <- function(){
 
 pdata <- ggemmeans(m6, terms = c("comparison", "index","exposition"), type = "fe") %>%
   mutate(group = fct_recode(group, Losses = "B", Gains = "C", Total = "D")) %>%
-  mutate(x = fct_recode(x, "'17 vs. '18" = "1718", "'18 vs. '19" = "1819", "'19 vs. '21" = "1921")) %>%
+  mutate(x = fct_recode(x, "2018" = "1718", "2019" = "1719", "2021" = "1721")) %>%
   mutate(facet = fct_recode(facet, South = "south", North = "north"))
 pd <- position_dodge(.1)
 (graph <- ggplot(pdata, 
@@ -299,15 +298,15 @@ pd <- position_dodge(.1)
     geom_errorbar(position = pd, width = 0.0, size = 0.4) +
     geom_point(position = pd, size = 2.5, fill = "white") +
     facet_grid(~ facet) +
-    annotate("text", label = "n.s.", x = 2.2, y = 0.6) +
+    #annotate("text", label = "n.s.", x = 2.2, y = 0.6) +
     scale_y_continuous(limits = c(0, 0.6), breaks = seq(-100, 100, 0.1)) +
     scale_shape_manual(values = c(25, 24, 16)) +
-    labs(x = "", y = "Temporal beta-diversity", shape = "") +
+    labs(x = "", y = "Temporal beta diversity", shape = "") +
     themeMB() +
     theme()
 )
 
 ### Save ###
-ggsave(here("outputs/figures/figure_4_tbi_presence_year_(800dpi_9x5cm).tiff"),
+ggsave(here("outputs/figures/figure_4_tbi_presence_trend_(800dpi_9x5cm).tiff"),
        dpi = 800, width = 9, height = 5, units = "cm")
 

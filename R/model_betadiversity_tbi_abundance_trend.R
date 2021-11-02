@@ -127,7 +127,7 @@ colnames(tbi1721) <- c("plot", "block", "surveyYearF", "locationYear", "expositi
 plot(res1721, type = "BC")
 
 ### d Combine datasets ---------------------------------------------------------------------------------------------
-data <- bind_rows(tbi1718, tbi1819, tbi1921) %>%
+data <- bind_rows(tbi1718, tbi1719, tbi1721) %>%
   select(-change) %>%
   pivot_longer(-c(plot:PC3soil, comparison), names_to = "index", values_to = "tbi") %>%
   mutate(index = factor(index),
@@ -139,7 +139,6 @@ data <- bind_rows(tbi1718, tbi1819, tbi1921) %>%
 
 ## 2 Modelling #############################################################################################
 
-
 ### 1 Data exploration #####################################################################################
 
 #### a Graphs ---------------------------------------------------------------------------------------------
@@ -148,31 +147,8 @@ ggplot(data, aes(x = comparison, y = tbi)) +
   geom_boxplot() +
   geom_quasirandom() + 
   facet_wrap(~index)
-ggplot(data, aes(x = exposition, y = tbi)) + 
-  geom_boxplot() +
-  geom_quasirandom() + 
-  facet_wrap(~index)
-ggplot(data, aes(x = side, y = tbi)) + 
-  geom_boxplot() +
-  geom_quasirandom() + 
-  facet_wrap(~index)
-ggplot(data, aes(x = PC1soil, y = tbi)) + 
-  geom_smooth(method = "lm") +
-  geom_point() + 
-  facet_wrap(~index)
-ggplot(data, aes(x = exp(PC2soil), y = tbi)) + 
-  geom_smooth(method = "lm") +
-  geom_point() + 
-  facet_wrap(~index)
-ggplot(data, aes(x = PC3soil, y = tbi)) + 
-  geom_smooth(method = "lm") +
-  geom_point() + 
-  facet_wrap(~index)
 #3way
 ggplot(data, aes(x = exposition, y = tbi, color = comparison)) + 
-  geom_boxplot() +
-  facet_wrap(~index)
-ggplot(data, aes(x = comparison, y = tbi, color = exposition)) + 
   geom_boxplot() +
   facet_wrap(~index)
 ggplot(data, aes(x = PC2soil, y = tbi, color = comparison)) + 
@@ -202,28 +178,26 @@ VarCorr(m1b)
 m1c <- lmer(tbi ~ 1 + (1 + exposition|plot), data, REML = F)
 VarCorr(m1c);isSingular(m1c)
 #fixed effects
-m2 <- lmer(sqrt(tbi) ~ index * comparison * (exposition + PC1soil) + PC2soil + side + PC3soil + locationYear +
+m2 <- lmer((tbi) ~ index * comparison * (exposition + PC1soil) + PC2soil + side + PC3soil + locationYear +
              (1|plot), 
            data = data)
 isSingular(m2);simulateResiduals(m2, plot = T)
-m3 <- lmer(sqrt(tbi) ~ index * comparison * (exposition + PC2soil) + PC1soil + side + PC3soil + locationYear +
+m3 <- lmer((tbi) ~ index * comparison * (exposition + PC2soil) + PC1soil + side + PC3soil + locationYear +
              (1|plot), 
            data = data)
 isSingular(m3);simulateResiduals(m3, plot = T)
-m4 <- lmer(sqrt(tbi) ~ index * comparison + exposition + PC2soil + PC1soil + side + PC3soil + locationYear +
+m4 <- lmer((tbi) ~ index * comparison + exposition + PC2soil + PC1soil + side + PC3soil + locationYear +
              (1|plot), 
            data = data)
 isSingular(m4);simulateResiduals(m4, plot = T)
-m5 <- lmer(sqrt(tbi) ~ index + comparison + exposition + PC1soil + PC2soil + side + PC3soil + locationYear +
+m5 <- lmer((tbi) ~ index + comparison + exposition + PC1soil + PC2soil + side + PC3soil + locationYear +
              (1 + exposition|plot), 
            data = data)
 isSingular(m5);simulateResiduals(m5, plot = T)
-m6 <- lmer(sqrt(tbi) ~ index * comparison * exposition + PC1soil + PC2soil + side + PC3soil + locationYear +
+m6 <- lmer((tbi) ~ index * comparison * exposition + PC2soil + PC1soil + side + PC3soil + locationYear +
              (1|plot), 
            data = data)
 isSingular(m6);simulateResiduals(m6, plot = T)
-
-
 
 #### b comparison -----------------------------------------------------------------------------------------
 anova(m2, m3, m4, m5, m6)
@@ -246,7 +220,7 @@ plotResiduals(simulationOutput$scaledResiduals, data$PC3soil)
 ### 3 Chosen model output ################################################################################
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m6) #R2m = 0.470, R2c = 0.603
+MuMIn::r.squaredGLMM(m6) #R2m = 0.565, R2c = 0.726
 VarCorr(m6)
 sjPlot::plot_model(m6, type = "re", show.values = T)
 car::Anova(m6, type = 3)
@@ -257,7 +231,7 @@ plot(emm, comparison = T)
 
 ### * Save ####
 table <- broom::tidy(car::Anova(m6, type = 3))
-write.csv(table, here("outputs/statistics/table_anova_tbi_abundance_year.csv"))
+write.csv(table, here("outputs/statistics/table_anova_tbi_abundance_trend.csv"))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # C Plotten ################################################################################################################
@@ -288,8 +262,8 @@ themeMB <- function(){
 }
 
 pdata <- ggemmeans(m6, terms = c("comparison", "index","exposition"), type = "fe") %>%
-  mutate(group = fct_recode(group, Losses = "B", Gains = "C", Total = "D")) %>%
-  mutate(x = fct_recode(x, "'17 vs '18" = "1718", "'18 vs '19" = "1819", "'19 vs '21" = "1921")) %>%
+  mutate(group = fct_recode(group, Declines = "B", Increases = "C", Total = "D")) %>%
+  mutate(x = fct_recode(x, "2018" = "1718", "2019" = "1719", "2021" = "1721")) %>%
   mutate(facet = fct_recode(facet, South = "south", North = "north"))
 pd <- position_dodge(.1)
 (graph <- ggplot(pdata, 
@@ -300,7 +274,7 @@ pd <- position_dodge(.1)
     geom_point(position = pd, size = 2.5, fill = "white") +
     facet_grid(~ facet) +
     #annotate("text", label = "n.s.", x = 2.2, y = 0.6) +
-    scale_y_continuous(limits = c(0, 0.63), breaks = seq(-100, 100, 0.1)) +
+    scale_y_continuous(limits = c(0, 0.78), breaks = seq(-100, 100, 0.1)) +
     scale_shape_manual(values = c(25, 24, 16)) +
     labs(x = "", y = "Temporal beta diversity", shape = "") +
     themeMB() +
@@ -308,5 +282,5 @@ pd <- position_dodge(.1)
 )
 
 ### Save ###
-ggsave(here("outputs/figures/figure_4_tbi_abundance_year_(800dpi_9x5cm).tiff"),
+ggsave(here("outputs/figures/figure_4_tbi_abundance_trend_(800dpi_9x5cm).tiff"),
        dpi = 800, width = 9, height = 5, units = "cm")
