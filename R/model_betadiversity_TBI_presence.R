@@ -28,12 +28,9 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"),
                       plot = "c",
                       locationYear = "f",
                       exposition = "f",
-                      side = "f",
-                      ffh = "f",
-                      vegetationCov = "d",
-                      locationYear = "f"
+                      side = "f"
                     )) %>%
-  select(id, plot, block, locationAbb, surveyYear, constructionYear, locationYear, exposition, side, PC1, PC2, PC3) %>%
+  select(id, plot, block, locationAbb, surveyYear, constructionYear, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
   mutate(surveyYearF = as_factor(surveyYear)) %>%
   mutate(constructionYearF = as_factor(constructionYear)) %>%
   add_count(plot) %>%
