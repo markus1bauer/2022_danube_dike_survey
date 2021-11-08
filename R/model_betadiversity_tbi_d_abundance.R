@@ -66,23 +66,28 @@ ggplot(tbi, aes(x = exposition, y = y)) +
 ggplot(tbi, aes(x = PC1soil, y = y)) + 
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(tbi, aes(x = plotAge, y = y)) + 
-  geom_boxplot() +
-  geom_quasirandom()
+ggplot(tbi, aes(x = PC2soil, y = y)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(tbi, aes(x = constructionYear, y = y)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
 ggplot(tbi, aes(x = side, y = y)) + 
   geom_boxplot() +
   geom_quasirandom()
+ggplot(tbi, aes(x = riverkm, y = y)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(tbi, aes(x = distanceRiver, y = y)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(tbi, aes(x = locationYear, y = y)) + 
+  geom_boxplot()
 #2way
 ggplot(tbi, aes(x = exposition, y = y, color = comparison)) + 
   geom_boxplot() +
-  geom_quasirandom()
-ggplot(tbi, aes(x = riverkm, y = y, color = comparison)) + 
-  geom_point() +
-  geom_smooth(method = "lm")
-ggplot(tbi, aes(x = distanceRiver, y = y, color = comparison)) + 
-  geom_point() +
-  geom_smooth(method = "lm")
-ggplot(tbi, aes(x = as.numeric(plotAge), y = y, color = comparison)) + 
+  geom_quasirandom(dodge.width = .8)
+ggplot(tbi, aes(x = constructionYear, y = y, color = comparison)) + 
   geom_point() +
   geom_smooth(method = "lm")
 ggplot(tbi, aes(x = PC1soil, y = y, color = comparison)) + 
@@ -91,23 +96,11 @@ ggplot(tbi, aes(x = PC1soil, y = y, color = comparison)) +
 ggplot(tbi, aes(x = PC2soil, y = y, color = comparison)) + 
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(tbi, aes(x = locationYear, y = y)) + 
-  geom_boxplot()
-ggplot(tbi, aes(x = as.numeric(plotAge), y = y, color = exposition)) + 
+ggplot(tbi, aes(x = PC1soil, y = y, color = exposition)) + 
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(tbi, aes(x = riverkm, y = y, color = plotAge)) + 
-  geom_point() +
-  geom_smooth(method = "lm")
-ggplot(tbi, aes(x = PC1soil, y = y, color = plotAge)) + 
-  geom_point() +
-  geom_smooth(method = "lm", se = F)
 #3way
-ggplot(tbi, aes(x = riverkm, y = y, color = comparison)) + 
-  geom_point() +
-  geom_smooth(method = "lm") +
-  facet_wrap(~exposition)
-ggplot(tbi, aes(x = as.numeric(plotAge), y = y, color = comparison)) + 
+ggplot(tbi, aes(x = constructionYear, y = y, color = comparison)) + 
   geom_point() +
   geom_smooth(method = "lm") +
   facet_wrap(~exposition)
@@ -207,7 +200,7 @@ m4 <- lmer((y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + 
 MuMIn::r.squaredGLMM(m4) #R2m = 0.252, R2c = 0.376
 VarCorr(m4)
 sjPlot::plot_model(m4, type = "re", show.values = T)
-car::Anova(m4, type = 3)
+car::Anova(m4, type = 2)
 
 ### * Effect sizes ####
 (emm <- emmeans(m4, revpairwise ~ comparison, type = "response"))
