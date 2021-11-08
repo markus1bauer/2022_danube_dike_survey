@@ -24,13 +24,13 @@ rm(list = ls())
 setwd(here("data/processed"))
 
 ### Load data ###
-tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA", ""), col_types = 
+tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col_types = 
                     cols(
                       .default = "?",
                       id = "f",
                       locationAbb = "f",
                       block = "f",
-                      plot = "c",
+                      plot = "f",
                       locationYear = "f",
                       exposition = "f",
                       side = "f",
@@ -39,12 +39,8 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA", ""),
                       comparison = "f"
                     )) %>%
   #filter(vegetationCov > 0) %>%
-  filter(comparison %in% c("1718", "1819", "1921") & presabu == "abundance") %>%
-  mutate(plotAge = as_factor(plotAge),
-         plotAge = fct_collapse(plotAge, "12.5" = c("11", "14")),
-         comparison = factor(comparison),
-         exposition = factor(exposition)) %>%
-  rename(y = D)
+  filter(comparison %in% c("1718", "1819", "1921")) %>%
+  mutate(comparison = factor(comparison))
 
 
 
@@ -53,10 +49,9 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA", ""),
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-### 1 Data exploration #####################################################################################
+## 1 Data exploration #####################################################################################
 
-#### a Graphs ---------------------------------------------------------------------------------------------
-
+### a Graphs ---------------------------------------------------------------------------------------------
 #main
 ggplot(tbi, aes(x = comparison, y = y)) + 
   geom_boxplot() +
@@ -114,8 +109,7 @@ ggplot(tbi, aes(x = PC2soil, y = y, color = comparison)) +
   geom_smooth(method = "lm") +
   facet_wrap(~exposition)
 
-#### b Outliers, zero-inflation, transformations? -----------------------------------------------------
-
+### b Outliers, zero-inflation, transformations? -----------------------------------------------------
 dotchart((tbi$y), groups = factor(tbi$exposition), main = "Cleveland dotplot")
 tbi %>% count(locationYear)
 boxplot(tbi$y);#identify(rep(1, length(etbi$rgr13)), etbi$rgr13, labels = c(etbi$n))
@@ -124,10 +118,9 @@ ggplot(tbi, aes(y)) + geom_density()
 ggplot(tbi, aes(sqrt(y))) + geom_density()
 
 
-### 2 Model building ################################################################################
+## 2 Model building ################################################################################
 
-#### a models ----------------------------------------------------------------------------------------
-
+### a models ----------------------------------------------------------------------------------------
 #random structure
 m1a <- lmer(y ~ 1 + (1|locationYear), data = tbi, REML = F)
 VarCorr(m1a) 
@@ -135,19 +128,19 @@ m1b <- lmer(y ~ 1 + (1|locationAbb), data = tbi, REML = F)
 VarCorr(m1b)
 #fixed effects
 m1 <- lm((y) ~ comparison * exposition * (PC1soil + PC2soil + PC3soil) + side + plot, 
-         data = tbi)
+           data = tbi)
 simulateResiduals(m1, plot = T)
 m2 <- lm((y) ~ comparison * exposition + (PC1soil + PC2soil + PC3soil) + side + plot, 
-         data = tbi)
+           data = tbi)
 simulateResiduals(m2, plot = T)
 m3 <- lm((y) ~ comparison + exposition * (PC1soil + PC2soil + PC3soil) + side + plot, 
-         data = tbi)
+           data = tbi)
 simulateResiduals(m3, plot = T)
 m4 <- lm((y) ~ exposition + comparison * (PC1soil + PC2soil + PC3soil) + side + plot, 
-         data = tbi)
+           data = tbi)
 simulateResiduals(m4, plot = T)
 m5 <- lm((y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + plot,
-         data = tbi)
+           data = tbi)
 simulateResiduals(m5, plot = T)
 m6 <- lm((y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + plot,
          data = tbi)
@@ -157,15 +150,12 @@ m7 <- lm((y) ~ exposition + comparison * PC1soil + PC2soil + PC3soil + side + pl
 simulateResiduals(m7, plot = T)
 
 ### b comparison -----------------------------------------------------------------------------------------
-
 aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7))
 rm(m1a, m1b, m1c, m2, m3, m4, m5)
 
-#### c model check -----------------------------------------------------------------------------------------
-
-simulationOutput <- simulateResiduals(m4, plot = T)
+### c model check -----------------------------------------------------------------------------------------
+simulationOutput <- simulateResiduals(m2, plot = T)
 plotResiduals(simulationOutput$scaledResiduals, tbi$locationYear)
-plotResiduals(simulationOutput$scaledResiduals, tbi$block)
 plotResiduals(simulationOutput$scaledResiduals, tbi$plot)
 plotResiduals(simulationOutput$scaledResiduals, tbi$plotAge)
 plotResiduals(simulationOutput$scaledResiduals, tbi$comparison)
@@ -177,28 +167,30 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
 
 
-### 3 Chosen model output ################################################################################
+## 3 Chosen model output ################################################################################
 
-m4 <- lmer((y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + plotAge + locationYear + 
+m2 <- lmer((y) ~ comparison * exposition + (PC1soil + PC2soil + PC3soil) + side + locationYear +
              (1|plot), 
            REML = T,
            data = tbi)
-
-
+m2 <- lm((y) ~ comparison * exposition + (PC1soil + PC2soil + PC3soil) + side + locationYear + plot, 
+           data = tbi)
+isSingular(m2)
+anova(m2)
 ### * Model output ####
-MuMIn::r.squaredGLMM(m4) #R2m = 0.252, R2c = 0.376
-VarCorr(m4)
-sjPlot::plot_model(m4, type = "re", show.values = T)
-car::Anova(m4, type = 2)
-
+MuMIn::r.squaredGLMM(m2) #R2m = 0.363, R2c = 0.416
+VarCorr(m2)
+sjPlot::plot_model(m2, type = "re", show.values = T)
+car::Anova(m2, type = 2)
+anova(m2)
 ### * Effect sizes ####
-(emm <- emmeans(m4, revpairwise ~ comparison, type = "response"))
+(emm <- emmeans(m4, revpairwise ~ comparison * exposition, type = "response"))
 plot(emm, comparison = T)
 (emm <- emmeans(m4, revpairwise ~ side, type = "response"))
 
 ### * Save ####
-table <- broom::tidy(car::Anova(m4, type = 2))
-write.csv(table, here("outputs/statistics/table_anova_tbi_d_presence.csv"))
+table <- broom::tidy(car::Anova(m2, type = 3))
+write.csv(table, here("outputs/statistics/table_anova_tbi_bc_presence.csv"))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # C Plotten ################################################################################################################
