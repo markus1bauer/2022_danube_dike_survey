@@ -40,7 +40,11 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
                     )) %>%
   #filter(vegetationCov > 0) %>%
   filter(comparison %in% c("1718", "1819", "1921")) %>%
-  mutate(comparison = factor(comparison))
+  mutate(comparison = factor(comparison)) %>%
+  pivot_wider(names_from = "presabu", values_from = "D") %>%
+  group_by(plot, comparison, exposition, side, locationYear) %>%
+  summarise(across(c(presence, abundance, PC1soil, PC2soil, PC3soil), ~ max(.x, na.rm = T))) %>%
+  ungroup()
 
 
 
@@ -53,61 +57,26 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
 
 ### a Graphs ---------------------------------------------------------------------------------------------
 #main
-ggplot(tbi, aes(x = comparison, y = y)) + 
-  geom_boxplot() +
-  geom_quasirandom()
-ggplot(tbi, aes(x = exposition, y = y)) + 
-  geom_boxplot() +
-  geom_quasirandom()
-ggplot(tbi, aes(x = PC1soil, y = y)) + 
+ggplot(tbi, aes(x = presence, y = abundance)) + 
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(tbi, aes(x = PC2soil, y = y)) + 
-  geom_point() +
-  geom_smooth(method = "lm")
-ggplot(tbi, aes(x = constructionYear, y = y)) + 
-  geom_point() + 
-  geom_smooth(method = "lm")
-ggplot(tbi, aes(x = side, y = y)) + 
-  geom_boxplot() +
-  geom_quasirandom()
-ggplot(tbi, aes(x = riverkm, y = y)) + 
-  geom_point() +
-  geom_smooth(method = "lm")
-ggplot(tbi, aes(x = distanceRiver, y = y)) + 
-  geom_point() +
-  geom_smooth(method = "lm")
-ggplot(tbi, aes(x = locationYear, y = y)) + 
-  geom_boxplot()
 #2way
-ggplot(tbi, aes(x = exposition, y = y, color = comparison)) + 
-  geom_boxplot() +
-  geom_quasirandom(dodge.width = .8)
-ggplot(tbi, aes(x = constructionYear, y = y, color = comparison)) + 
+ggplot(tbi, aes(x = presence, y = abundance, color = exposition)) + 
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(tbi, aes(x = PC1soil, y = y, color = comparison)) + 
-  geom_point() +
-  geom_smooth(method = "lm")
-ggplot(tbi, aes(x = PC2soil, y = y, color = comparison)) + 
-  geom_point() +
-  geom_smooth(method = "lm")
-ggplot(tbi, aes(x = PC1soil, y = y, color = exposition)) + 
-  geom_point() +
-  geom_smooth(method = "lm")
-#3way
-ggplot(tbi, aes(x = constructionYear, y = y, color = comparison)) + 
-  geom_point() +
-  geom_smooth(method = "lm") +
-  facet_wrap(~exposition)
-ggplot(tbi, aes(x = PC1soil, y = y, color = comparison)) + 
-  geom_point() +
-  geom_smooth(method = "lm") +
-  facet_wrap(~exposition)
-ggplot(tbi, aes(x = PC2soil, y = y, color = comparison)) + 
-  geom_point() +
-  geom_smooth(method = "lm") +
-  facet_wrap(~exposition)
+ggplot(data = tbi) +
+  geom_density_2d_filled(aes(x = presence, y = abundance), data = tbi,
+                         alpha = .5,
+                         contour_var = "ndensity",
+                         show.legend = F) +
+  facet_wrap(~ exposition)
+ggplot(data = tbi, aes(x = presence, y = abundance, color = PC1soil, size = PC1soil)) +
+  geom_point()
+m <- lm(abundance ~ presence * PC1soil + comparison + exposition + locationYear + PC2soil + side, data = tbi)
+anova(m)
+simulateResiduals(m, plot = T)
+visreg::visreg2d(fit = m, xvar = "presence", yvar = "PC1soil")
+
 
 ### b Outliers, zero-inflation, transformations? -----------------------------------------------------
 dotchart((tbi$y), groups = factor(tbi$exposition), main = "Cleveland dotplot")
