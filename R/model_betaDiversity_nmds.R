@@ -27,7 +27,7 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA", 
                       plot = "f",
                       exposition = "f"
                     )) %>%
-  select(id, plot, block, locationAbb, surveyYear, exposition, vegetationCov, targetCov, graminoidCovratio, speciesRichness, targetRichness, shannon, eveness, accumulatedCov, syn_total, syn_trend, syn_detrend) %>%
+  #select(id, plot, block, locationAbb, surveyYear, exposition, vegetationCov, targetCov, graminoidCovratio, speciesRichness, targetRichness, shannon, eveness, accumulatedCov, syn_total, syn_trend, syn_detrend) %>%
   mutate(surveyYearF = as_factor(surveyYear)) %>%
   filter(accumulatedCov > 0)
 
@@ -52,7 +52,7 @@ species <- read_csv("data_processed_species.csv", col_names = T, na = c("na", "N
 
 ### 1 NMDY #####################################################################################
 
-### Claculate ###
+### Calculate ###
 set.seed(1)
 (ordi <- metaMDS(species, dist = "bray", binary = F,
                  try = 99, previous.best = T, na.rm = T))
@@ -72,11 +72,17 @@ points(ordi, display = "sites", cex = gof * 300)
 ### 2 Environmental factors #####################################################################################
 
 #### a Vectors ----------------------------------------------------------------------------------------
-(ef_vector1 <- envfit(ordi ~  vegetationCov + graminoidCovratio + targetRichness + targetCov + speciesRichness + eveness + shannon + syn_total + syn_trend + syn_detrend, 
-              data = sites, permu = 999, na.rm = T))
+(ef_vector1 <- envfit(ordi ~  vegetationCov + graminoidCovratio + targetRichness + targetCov + 
+                        speciesRichness + eveness + shannon + syn_total.x + syn_trend.x + syn_detrend.x +
+                        log_varrat.x + log_varrat_t3.x, 
+              data = sites, 
+              permu = 999, 
+              na.rm = T))
 plot(ordi, type = "n"); plot(ef_vector1, add = T, p. = .99)
-(ef_vector2 <- envfit(ordi ~  graminoidCovratio + speciesRichness + eveness, 
-                      data = sites, permu = 999, na.rm = T))
+(ef_vector2 <- envfit(ordi ~  graminoidCovratio + speciesRichness + eveness + log_varrat_t3.x, 
+                      data = sites, 
+                      permu = 999, 
+                      na.rm = T))
 plot(ordi, type = "n"); plot(ef_vector2, add = T, p. = .99)
 
 #### b Factors ----------------------------------------------------------------------------------------
@@ -84,4 +90,3 @@ plot(ordi, type = "n"); plot(ef_vector2, add = T, p. = .99)
               data = sites, permu = 999, na.rm = T))
 plot(ordi, type = "n"); ordiellipse(ordi, sites$surveyYearF, kind = "sd", draw = "lines", label = T)
 plot(ordi, type = "n"); ordiellipse(ordi, sites$exposition, kind = "sd", draw = "lines", label = T)
-
