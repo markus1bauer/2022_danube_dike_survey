@@ -24,7 +24,7 @@ rm(list = ls())
 setwd(here("data/processed"))
 
 ### Load data ###
-tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col_types = 
+tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA", ""), col_types = 
                     cols(
                       .default = "?",
                       id = "f",
@@ -39,7 +39,7 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
                       comparison = "f"
                     )) %>%
   #filter(vegetationCov > 0) %>%
-  filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
+  filter(comparison %in% c("1718", "1819", "1921") & presabu == "abundance") %>%
   mutate(plotAge = as_factor(plotAge),
          plotAge = fct_collapse(plotAge, "12.5" = c("11", "14")),
          comparison = factor(comparison),
@@ -127,8 +127,6 @@ boxplot(tbi$y);#identify(rep(1, length(etbi$rgr13)), etbi$rgr13, labels = c(etbi
 plot(table((tbi$y)), type = "h", xlab = "Observed values", ylab = "Frequency")
 ggplot(tbi, aes(y)) + geom_density()
 ggplot(tbi, aes(sqrt(y))) + geom_density()
-ggplot(tbi, aes(PC2soil)) + geom_density()
-ggplot(tbi, aes(sqrt(PC2soil))) + geom_density()
 
 
 ### 2 Model building ################################################################################
@@ -142,43 +140,48 @@ VarCorr(m1b)
 m1c <- lmer(y ~ 1 + (1|block/plot), tbi, REML = F)
 VarCorr(m1c);isSingular(m1c)
 #fixed effects
-m1 <- lmer(sqrt(y) ~ (comparison + exposition + PC1soil + PC2soil + PC3soil + side + plotAge)^2 + comparison:exposition:PC1soil + locationYear +
+m1 <- lmer((y) ~ (comparison + exposition + PC1soil + PC2soil + PC3soil + side + plotAge)^2 + comparison:exposition:PC1soil + locationYear +
              (1|plot), 
            REML = F,
            data = tbi)
 isSingular(m1);simulateResiduals(m1, plot = T)
-m2 <- lmer(sqrt(y) ~ comparison + (exposition * PC1soil) + PC2soil + PC3soil + side + plotAge + locationYear + 
+m2 <- lmer((y) ~ comparison + (exposition * PC1soil) + PC2soil + PC3soil + side + plotAge + locationYear + 
              (1|plot), 
            REML = F,
            data = tbi)
 isSingular(m2);simulateResiduals(m2, plot = T)
-m3 <- lmer(sqrt(y) ~ comparison * (exposition + PC2soil) + PC1soil + PC3soil + side + plotAge + locationYear +
+m3 <- lmer((y) ~ comparison + (exposition * PC2soil) + PC1soil + PC3soil + side + plotAge + locationYear +
              (1|plot), 
            REML = F,
            data = tbi)
 isSingular(m3);simulateResiduals(m3, plot = T)
-m4 <- lmer(sqrt(y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + plotAge + locationYear + 
+m4 <- lmer((y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + plotAge + locationYear + 
              (1|plot), 
            REML = F,
            data = tbi)
 isSingular(m4);simulateResiduals(m4, plot = T)
-m5 <- lmer(sqrt(y) ~ comparison * exposition * PC1soil + PC2soil + PC3soil + side + plotAge + locationYear +
+m5 <- lmer((y) ~ comparison * exposition * PC1soil + PC2soil + PC3soil + side + plotAge + locationYear +
              (1|plot),
            REML = F,
            data = tbi)
 isSingular(m5);simulateResiduals(m5, plot = T)
-m6 <- lmer(sqrt(y) ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + plotAge + locationYear +
+m6 <- lmer((y) ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + plotAge + locationYear +
              (1|plot),
            REML = F, 
            data = tbi)
 isSingular(m6);simulateResiduals(m6, plot = T)
+m7 <- lmer((y) ~ comparison + exposition * PC1soil * as.numeric(plotAge) + PC2soil + PC3soil + side + locationYear +
+             (1|plot),
+           REML = F, 
+           data = tbi)
+isSingular(m7);simulateResiduals(m7, plot = T)
 
 #### b comparison -----------------------------------------------------------------------------------------
-aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6))
+aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7))
 rm(m1a, m1b, m1c, m2, m3, m4, m5)
 
 #### c model check -----------------------------------------------------------------------------------------
-simulationOutput <- simulateResiduals(m4, plot = F)
+simulationOutput <- simulateResiduals(m4, plot = T)
 plotResiduals(simulationOutput$scaledResiduals, tbi$locationYear)
 plotResiduals(simulationOutput$scaledResiduals, tbi$block)
 plotResiduals(simulationOutput$scaledResiduals, tbi$plot)
@@ -194,17 +197,17 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
 
 ### 3 Chosen model output ################################################################################
 
-m4 <- lmer(sqrt(y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + plotAge + locationYear + 
+m4 <- lmer((y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + plotAge + locationYear + 
              (1|plot), 
            REML = T,
            data = tbi)
 
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m4) #R2m = 0.363, R2c = 0.416
+MuMIn::r.squaredGLMM(m4) #R2m = 0.252, R2c = 0.376
 VarCorr(m4)
 sjPlot::plot_model(m4, type = "re", show.values = T)
-car::Anova(m4, type = 2)
+car::Anova(m4, type = 3)
 
 ### * Effect sizes ####
 (emm <- emmeans(m4, revpairwise ~ comparison, type = "response"))
