@@ -41,103 +41,12 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"),
   filter(n == max(n)) %>%
   select(-n) 
 
-species17 <- read_csv("data_processed_species17.csv", col_names = T, na = "na", col_types = 
-                      cols(
-                        .default = "d",
-                        plot = "f"
-                      )) %>%
-  column_to_rownames(var = "plot")
-species18 <- read_csv("data_processed_species18.csv", col_names = T, na = "na", col_types = 
-                        cols(
-                          .default = "d",
-                          plot = "f"
-                        )) %>%
-  column_to_rownames(var = "plot")
-species19 <- read_csv("data_processed_species19.csv", col_names = T, na = "na", col_types = 
-                        cols(
-                          .default = "d",
-                          plot = "f"
-                        )) %>%
-  column_to_rownames(var = "plot")
-species21 <- read_csv("data_processed_species21.csv", col_names = T, na = "na", col_types = 
-                        cols(
-                          .default = "d",
-                          plot = "f"
-                        )) %>%
-  column_to_rownames(var = "plot")
-
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # B Statistics ################################################################################################################
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
-## 1 Calculate TBI #####################################################################################
-
-### a 2017 vs. 2018 ---------------------------------------------------------------------------------------------
-res1718 <- TBI(species17, species18, method = "sorensen", 
-               nperm = 9999, test.t.perm = T, clock = T)
-res1718$BCD.summary #B = 0.223, C = 0.155, D = 0.378 (58.9% vs. 41.0%)
-res1718$t.test_B.C # p.perm = 0.0058
-tbi1718 <- as_tibble(res1718$BCD.mat) 
-tbi1718 <- sites %>%
-  filter(surveyYearF == "2017") %>%
-  select(plot, block, surveyYearF, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
-  add_column(tbi1718) %>%
-  mutate(plot = factor(plot)) %>%
-  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1718"))) %>%
-  as_tibble()
-colnames(tbi1718) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1soil", "PC2soil", "PC3soil", "B", "C", "D", "change", "comparison")
-#### Test plot
-plot(res1718, type = "BC")
-
-### b 2017 vs. 2019 ---------------------------------------------------------------------------------------------
-res1719 <- TBI(species17, species19, method = "sorensen", 
-               nperm = 9999, test.t.perm = T, clock = T)
-res1719$BCD.summary #B = 0.186, C = 0.212, D = 0.399 (46.7% vs. 53.2%)
-res1719$t.test_B.C # p.perm = 0.273
-tbi1719 <- as_tibble(res1719$BCD.mat) 
-tbi1719 <- sites %>%
-  filter(surveyYearF == "2017") %>%
-  select(plot, block, surveyYearF, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
-  add_column(tbi1719) %>%
-  mutate(plot = factor(plot)) %>%
-  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1719"))) %>%
-  as_tibble()
-colnames(tbi1719) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1soil", "PC2soil", "PC3soil", "B", "C", "D", "change", "comparison")
-#### Test plot
-plot(res1719, type = "BC")
-
-### c 2017 vs. 2021 ---------------------------------------------------------------------------------------------
-res1721 <- TBI(species17, species21, method = "sorensen", 
-               nperm = 9999, test.t.perm = T, clock = T)
-res1721$BCD.summary #B = 0.184, C = 0.450, D = 0.590 (59.0% vs. 40.9%)
-res1721$t.test_B.C # p.perm = 0.0021
-tbi1721 <- as_tibble(res1721$BCD.mat) 
-tbi1721 <- sites %>%
-  filter(surveyYearF == "2017") %>%
-  select(plot, block, surveyYearF, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
-  add_column(tbi1721) %>%
-  mutate(plot = factor(plot)) %>%
-  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1721"))) %>%
-  as_tibble()
-colnames(tbi1721) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1soil", "PC2soil", "PC3soil", "B", "C", "D", "change", "comparison")
-#### Test plot
-plot(res1721, type = "BC")
-
-### d Combine datasets ---------------------------------------------------------------------------------------------
-data <- bind_rows(tbi1718, tbi1719, tbi1721) %>%
-  select(-change) %>%
-  pivot_longer(-c(plot:PC3soil, comparison), names_to = "index", values_to = "tbi") %>%
-  mutate(index = factor(index),
-         exposition = factor(exposition),
-         block = factor(block),
-         locationYear = factor(locationYear)) %>%
-  filter(exposition == "south" | exposition == "north")
-
-
-## 2 Modelling #############################################################################################
 
 ### 1 Data exploration #####################################################################################
 

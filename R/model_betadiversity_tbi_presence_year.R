@@ -12,6 +12,7 @@
 ### Packages ###
 library(here)
 library(tidyverse)
+library(ggbeeswarm)
 library(adespatial)
 library(lme4)  
 library(DHARMa)
@@ -22,7 +23,7 @@ rm(list = ls())
 setwd(here("data/processed"))
 
 ### Load data ###
-sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types = 
+sites <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col_types = 
                     cols(
                       .default = "?",
                       id = "f",
@@ -31,40 +32,13 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"),
                       plot = "c",
                       locationYear = "f",
                       exposition = "f",
-                      side = "f"
+                      side = "f",
+                      surveyYearF = "f",
+                      constructionYearF = "f",
+                      comparison = "f"
                     )) %>%
-  filter(vegetationCov > 0) %>%
-  select(id, plot, block, locationAbb, surveyYear, constructionYear, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
-  mutate(surveyYearF = as_factor(surveyYear)) %>%
-  mutate(constructionYearF = as_factor(constructionYear)) %>%
-  add_count(plot) %>%
-  filter(n == max(n)) %>%
-  select(-n) 
-
-species17 <- read_csv("data_processed_species17.csv", col_names = T, na = "na", col_types = 
-                      cols(
-                        .default = "d",
-                        plot = "f"
-                      )) %>%
-  column_to_rownames(var = "plot")
-species18 <- read_csv("data_processed_species18.csv", col_names = T, na = "na", col_types = 
-                        cols(
-                          .default = "d",
-                          plot = "f"
-                        )) %>%
-  column_to_rownames(var = "plot")
-species19 <- read_csv("data_processed_species19.csv", col_names = T, na = "na", col_types = 
-                        cols(
-                          .default = "d",
-                          plot = "f"
-                        )) %>%
-  column_to_rownames(var = "plot")
-species21 <- read_csv("data_processed_species21.csv", col_names = T, na = "na", col_types = 
-                        cols(
-                          .default = "d",
-                          plot = "f"
-                        )) %>%
-  column_to_rownames(var = "plot")
+  #filter(vegetationCov > 0) %>%
+  filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence")
 
 
 
@@ -73,101 +47,27 @@ species21 <- read_csv("data_processed_species21.csv", col_names = T, na = "na", 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-## 1 Calculate TBI #####################################################################################
-
-### a 2017 vs. 2018 ---------------------------------------------------------------------------------------------
-res1718 <- TBI(species17, species18, method = "sorensen", 
-               nperm = 9999, test.t.perm = T, clock = T)
-res1718$BCD.summary #B = 0.223, C = 0.155, D = 0.378 (58.9% vs. 41.0%)
-res1718$t.test_B.C # p.perm = 0.0058
-tbi1718 <- as_tibble(res1718$BCD.mat) 
-tbi1718 <- sites %>%
-  filter(surveyYearF == "2017") %>%
-  select(plot, block, surveyYearF, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
-  add_column(tbi1718) %>%
-  mutate(plot = factor(plot)) %>%
-  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1718"))) %>%
-  as_tibble()
-colnames(tbi1718) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1soil", "PC2soil", "PC3soil", "B", "C", "D", "change", "comparison")
-#### Test plot
-plot(res1718, type = "BC")
-
-### b 2018 vs. 2019 ---------------------------------------------------------------------------------------------
-res1819 <- TBI(species18, species19, method = "sorensen", 
-               nperm = 9999, test.t.perm = T, clock = T)
-res1819$BCD.summary #B = 0.118, C = 0.214, D = 0.332 (35.6% vs. 64.3%)
-res1819$t.test_B.C # p.perm = 1e-04
-tbi1819 <- as_tibble(res1819$BCD.mat) 
-tbi1819 <- sites %>%
-  filter(surveyYearF == "2017") %>%
-  select(plot, block, surveyYearF, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
-  add_column(tbi1819) %>%
-  mutate(plot = factor(plot)) %>%
-  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1819"))) %>%
-  as_tibble()
-colnames(tbi1819) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1soil", "PC2soil", "PC3soil", "B", "C", "D", "change", "comparison")
-#### Test plot
-plot(res1819, type = "BC")
-
-### c 2019 vs. 2021 ---------------------------------------------------------------------------------------------
-res1921 <- TBI(species19, species21, method = "sorensen", 
-               nperm = 9999, test.t.perm = T, clock = T)
-res1921$BCD.summary #B = 0.249, C = 0.140, D = 0.390 (63.8% vs. 36.1%)
-res1921$t.test_B.C # p.perm = 1e-04
-tbi1921 <- as_tibble(res1921$BCD.mat) 
-tbi1921 <- sites %>%
-  filter(surveyYearF == "2017") %>%
-  select(plot, block, surveyYearF, locationYear, exposition, side, PC1soil, PC2soil, PC3soil) %>%
-  add_column(tbi1921) %>%
-  mutate(plot = factor(plot)) %>%
-  mutate(comparison = factor(str_replace(surveyYearF, "2017", "1921"))) %>%
-  as_tibble()
-colnames(tbi1921) <- c("plot", "block", "surveyYearF", "locationYear", "exposition", "side", "PC1soil", "PC2soil", "PC3soil", "B", "C", "D", "change", "comparison")
-#### Test plot
-plot(res1921, type = "BC")
-
-### d Combine datasets ---------------------------------------------------------------------------------------------
-data <- bind_rows(tbi1718, tbi1819, tbi1921) %>%
-  select(-change) %>%
-  pivot_longer(-c(plot:PC3soil, comparison), names_to = "index", values_to = "tbi") %>%
-  mutate(index = factor(index),
-         exposition = factor(exposition),
-         block = factor(block),
-         locationYear = factor(locationYear)) %>%
-  filter(exposition == "south" | exposition == "north")
-
-
-## 2 Modelling #############################################################################################
-
-
 ### 1 Data exploration #####################################################################################
 
 #### a Graphs ---------------------------------------------------------------------------------------------
 #2way
-ggplot(data, aes(x = comparison, y = tbi)) + 
+ggplot(sites, aes(x = comparison, y = D)) + 
   geom_boxplot() +
   geom_quasirandom() + 
-  facet_wrap(~index)
-ggplot(data, aes(x = exposition, y = tbi)) + 
-  geom_boxplot() +
-  geom_quasirandom() + 
-  facet_wrap(~index)
-ggplot(data, aes(x = side, y = tbi)) + 
-  geom_boxplot() +
-  geom_quasirandom() + 
-  facet_wrap(~index)
-ggplot(data, aes(x = PC1soil, y = tbi)) + 
-  geom_smooth(method = "lm") +
-  geom_point() + 
-  facet_wrap(~index)
-ggplot(data, aes(x = exp(PC2soil), y = tbi)) + 
-  geom_smooth(method = "lm") +
-  geom_point() + 
-  facet_wrap(~index)
-ggplot(data, aes(x = PC3soil, y = tbi)) + 
-  geom_smooth(method = "lm") +
-  geom_point() + 
-  facet_wrap(~index)
+  facet_wrap(~exposition)
+ggplot(sites, aes(x = riverkm, y = D, color = comparison)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(sites, aes(x = plotAge, y = D, color = comparison)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(sites, aes(x = PC1soil, y = D, color = comparison)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(sites, aes(x = PC2soil, y = D, color = comparison)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+
 #3way
 ggplot(data, aes(x = exposition, y = tbi, color = comparison)) + 
   geom_boxplot() +

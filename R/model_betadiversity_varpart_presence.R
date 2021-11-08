@@ -43,7 +43,7 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"),
          expositionN = as.double(exposition),
          sideN = as.double(side),
          locationAbbN = as.double(locationAbb)) %>%
-  filter(accumulatedCov > 0)
+  filter(accumulatedCov > 0 & surveyYear = 2017)
 
 species <- read_csv("data_processed_species.csv", col_names = T, na = c("na", "NA", ""), col_types = 
                        cols(
