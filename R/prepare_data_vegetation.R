@@ -229,7 +229,6 @@ sites <- sites %>%
          fmMass = fmDepth * fmDbd * 10,
          fmMass = round(fmMass, 3),
          NtotalConc = fmMass * NtotalPerc / 100,
-         NtotalConc = round(NtotalConc, 3),
          plotAge = surveyYear - constructionYear,
          ageCategory = if_else(surveyYear > 2016, "young", "old")) %>%
   select(-fmDepth, -fmMass)
@@ -250,8 +249,7 @@ cover_total_and_graminoid <- cover %>%
   group_by(id, type) %>%
   summarise(total = sum(total, na.rm = T), .groups = "keep") %>%
   spread(type, total) %>%
-  mutate(accumulatedCov = graminoidCov + herbCov,
-         accumulatedCov = round(accumulatedCov, 1)) %>%
+  mutate(accumulatedCov = graminoidCov + herbCov) %>%
   ungroup()
 
 ### * Target species' coverage ####
@@ -316,9 +314,7 @@ sites <- sites %>%
   right_join(cover_table33, by = "id") %>%
   ### Calcute the ratio of target species richness of total species richness
   mutate(targetCovratio = targetCov / accumulatedCov,
-         graminoidCovratio = graminoidCov / accumulatedCov,
-         targetCovratio = round(targetCovratio, 3),
-         graminoidCovratio = round(graminoidCovratio, 3))
+         graminoidCovratio = graminoidCov / accumulatedCov)
 
 rm(list = ls(pattern = "[^species|traits|sites]"))
 
@@ -427,8 +423,7 @@ sites <- sites %>%
   right_join(speciesRichness_table34_2, by = "id") %>%
   right_join(speciesRichness_table34_3, by = "id") %>%
 ### Calcute the ratio of target species richness of total species richness
-  mutate(targetRichratio = targetRichness / speciesRichness,
-         targetRichratio = round(targetRichratio, 3))
+  mutate(targetRichratio = targetRichness / speciesRichness)
 
 ### b Species eveness and shannon ----------------------------------------------------------------------
 
@@ -579,9 +574,7 @@ data <- nmds %>%
   as.data.frame() %>%
   rownames_to_column(var = "id") %>%
   as_tibble() %>%
-  select(id, NMDS1, NMDS2) %>%
-  mutate(NMDS1 = round(NMDS1, 4),
-         NMDS2 = round(NMDS2, 4))
+  select(id, NMDS1, NMDS2)
 sites <- left_join(sites, data, by = "id")
 
 ### b PERMDISP -------------------------------------------------------------------------------------------
@@ -590,7 +583,6 @@ sites <- left_join(sites, data, by = "id")
 data <- betadisper(d = vegdist(data_species_nmds, method = "bray", binary = T),
                    group = data_sites$plot)
 data <- enframe(data$distances) %>%
-  mutate(value = round(value, digits = 4)) %>%
   rename(id = name, 
          permdispPresabs = value)
 sites <- left_join(sites, data, by = "id")
@@ -600,7 +592,6 @@ sites <- left_join(sites, data, by = "id")
 data <- betadisper(d = vegdist(data_species_nmds, method = "bray", binary = F),
                    group = data_sites$plot)
 data <- enframe(data$distances) %>%
-  mutate(value = round(value, digits = 4)) %>%
   rename(id = name, 
          permdispAbu = value)
 sites <- left_join(sites, data, by = "id")
@@ -783,7 +774,7 @@ data <- do.call("rbind", sync_indices) %>% #map() does not work because 'plot' i
   rownames_to_column("plot") %>%
   as_tibble() %>%
   mutate(plot = str_extract(plot, "\\d\\d")) %>%
-  select(plot, log_varrat, log_varrat_t3, syn_total, syn_trend, syn_detrend)
+  select(plot, syn_total, syn_trend, syn_detrend) #log_varrrat_t3 does not allow missing years
 sites <- left_join(sites, data, by = "plot")
 
 rm(list = ls(pattern = "[^species|traits|sites]"))
@@ -1196,16 +1187,34 @@ tbi <- sites %>%
   left_join(data, by = "plot") %>%
   rename(B = "B/(2A+B+C)", C = "C/(2A+B+C)", D = "D=(B+C)/(2A+B+C)", change = Change) %>%
   mutate(change = C - B) %>%
-  mutate(across(c(B, C, D, change), ~ round(.x, digits = 4)))
-
+  select(id, plot, exposition, side, block, location, locationAbb, locationYear, longitude, latitude, riverkm, distanceRiver, constructionYear, botanist, conf.low, conf.high, PC1soil, PC2soil, PC3soil, PC1constructionYear, PC2constructionYear, PC3constructionYear, B, C, D, comparison, presabu) %>%
+  mutate(across(c(PC1soil, PC2soil, PC3soil, 
+                  PC1constructionYear, PC2constructionYear, PC3constructionYear,
+                  B, C, D), 
+                ~ round(.x, digits = 4))) %>%
+  mutate(across(c(distanceRiver), 
+                ~ round(.x, digits = 1)))
+  
 rm(list = ls(pattern = "[^species|traits|sites|pcaSoil|pcaSurveyYear|pcaConstructionYear|tbi]"))
 
 
+## 8 Rounding ##############################################################################################
+
+sites <- sites %>%
+  mutate(across(c(NMDS1, NMDS2, permdispPresabs, permdispAbu, lcbd, 
+                  syn_total, syn_trend, syn_detrend, 
+                  PC1soil, PC2soil, PC3soil, PC1surveyYear, PC2surveyYear, PC3surveyYear, 
+                  PC1constructionYear, PC2constructionYear, PC3constructionYear), 
+                ~ round(.x, digits = 4))) %>%
+  mutate(across(c(NtotalPerc, targetCovratio, graminoidCovratio, targetRichratio, shannon, eveness), 
+                ~ round(.x, digits = 3))) %>%
+  mutate(across(c(distanceRiver, accumulatedCov), 
+                ~ round(.x, digits = 1)))
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# C Save processed data ##############################################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# C Save processed data ################################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 ### Data ###

@@ -34,16 +34,20 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
                       locationYear = "f",
                       exposition = "f",
                       side = "f",
-                      surveyYearF = "f",
-                      constructionYearF = "f",
                       comparison = "f"
                     )) %>%
   #filter(vegetationCov > 0) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
-  mutate(plotAge = as_factor(plotAge),
-         plotAge = fct_collapse(plotAge, "12.5" = c("11", "14")),
-         comparison = factor(comparison),
-         exposition = factor(exposition)) %>%
+  mutate(comparison = factor(comparison),
+         exposition = factor(exposition),
+         plot = factor(plot),
+         ageGroup = if_else(constructionYear %in% c(2002, 2003), "0203", if_else(
+           constructionYear %in% c(2006, 2007), "0607", if_else(
+             constructionYear == 2008, "2008", if_else(
+               constructionYear %in% c(2010, 2011), "1011", if_else(
+                 constructionYear %in% c(2012, 2013), "1213", "other"
+               ))))),
+         ageGroup = factor(ageGroup)) %>%
   rename(y = D)
 
 
@@ -64,15 +68,6 @@ ggplot(tbi, aes(x = comparison, y = y)) +
 ggplot(tbi, aes(x = exposition, y = y)) + 
   geom_boxplot() +
   geom_quasirandom()
-ggplot(tbi, aes(x = PC1soil, y = y)) + 
-  geom_point() +
-  geom_smooth(method = "lm")
-ggplot(tbi, aes(x = PC2soil, y = y)) + 
-  geom_point() +
-  geom_smooth(method = "lm")
-ggplot(tbi, aes(x = constructionYear, y = y)) + 
-  geom_point() + 
-  geom_smooth(method = "lm")
 ggplot(tbi, aes(x = side, y = y)) + 
   geom_boxplot() +
   geom_quasirandom()
@@ -84,13 +79,29 @@ ggplot(tbi, aes(x = distanceRiver, y = y)) +
   geom_smooth(method = "lm")
 ggplot(tbi, aes(x = locationYear, y = y)) + 
   geom_boxplot()
+ggplot(tbi, aes(x = ageGroup, y = y)) + 
+  geom_boxplot()
+ggplot(tbi, aes(x = constructionYear, y = y)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+ggplot(tbi, aes(x = PC1soil, y = (y))) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(tbi, aes(x = PC2soil, y = y)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(tbi, aes(x = PC1constructionYear, y = y)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(tbi, aes(x = PC2constructionYear, y = y)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
 #2way
 ggplot(tbi, aes(x = exposition, y = y, color = comparison)) + 
   geom_boxplot() +
   geom_quasirandom(dodge.width = .8)
-ggplot(tbi, aes(x = constructionYear, y = y, color = comparison)) + 
-  geom_point() +
-  geom_smooth(method = "lm")
+ggplot(tbi, aes(x = ageGroup, y = y, color = comparison)) + 
+  geom_boxplot()
 ggplot(tbi, aes(x = PC1soil, y = y, color = comparison)) + 
   geom_point() +
   geom_smooth(method = "lm")
@@ -98,6 +109,9 @@ ggplot(tbi, aes(x = PC2soil, y = y, color = comparison)) +
   geom_point() +
   geom_smooth(method = "lm")
 ggplot(tbi, aes(x = PC1soil, y = y, color = exposition)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(tbi, aes(x = PC1soil, y = y, color = ageGroup)) + 
   geom_point() +
   geom_smooth(method = "lm")
 #3way
@@ -123,7 +137,7 @@ plot(table((tbi$y)), type = "h", xlab = "Observed values", ylab = "Frequency")
 ggplot(tbi, aes(y)) + geom_density()
 ggplot(tbi, aes(sqrt(y))) + geom_density()
 ggplot(tbi, aes(PC2soil)) + geom_density()
-ggplot(tbi, aes(sqrt(PC2soil))) + geom_density()
+ggplot(tbi, aes(exp(PC2soil))) + geom_density()
 
 
 ### 2 Model building ################################################################################
@@ -136,32 +150,40 @@ VarCorr(m1a)
 m1b <- lmer(y ~ 1 + (1|locationAbb), data = tbi, REML = F)
 VarCorr(m1b)
 #fixed effects
-m1 <- lm((y) ~ comparison * exposition * (PC1soil + PC2soil + PC3soil) + side + plot, 
+m1 <- lm(log(y) ~ locationYear + PC1constructionYear + PC2constructionYear + (comparison + exposition + PC1soil + PC2soil)^2 + PC3soil + side + plot,
          data = tbi)
 simulateResiduals(m1, plot = T)
-m2 <- lm((y) ~ comparison * exposition + (PC1soil + PC2soil + PC3soil) + side + plot, 
+m2 <- lm(log(y) ~ locationYear + (comparison + exposition + PC1soil)^2 + exp(PC2soil) + PC3soil + side + plot, 
          data = tbi)
 simulateResiduals(m2, plot = T)
-m3 <- lm((y) ~ comparison + exposition * (PC1soil + PC2soil + PC3soil) + side + plot, 
+m3 <- lm(log(y) ~ locationYear + (comparison + exposition + exp(PC2soil))^2 + PC1soil + PC3soil + side + plot, 
          data = tbi)
 simulateResiduals(m3, plot = T)
-m4 <- lm((y) ~ exposition + comparison * (PC1soil + PC2soil + PC3soil) + side + plot, 
+m4 <- lm((y) ~ locationYear + exposition + comparison + PC1soil + exp(PC2soil) + PC3soil + side + plot, 
          data = tbi)
 simulateResiduals(m4, plot = T)
-m5 <- lm((y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + plot,
+m4 <- lmer(log(y) ~ exposition + comparison + PC1soil + exp(PC2soil) + PC3soil + side + 
+             (1|locationYear/plot), 
+           REML = T,
+         data = tbi)
+simulateResiduals(m4, plot = T)
+m5 <- lm(log(y) ~ locationYear + comparison + exposition + PC1soil + exp(PC2soil) + side + plot,
          data = tbi)
 simulateResiduals(m5, plot = T)
-m6 <- lm((y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + plot,
+m6 <- lm(log(y) ~ locationYear + exposition + comparison * PC1soil + exp(PC2soil) + side + plot,
          data = tbi)
 simulateResiduals(m6, plot = T)
-m7 <- lm((y) ~ exposition + comparison * PC1soil + PC2soil + PC3soil + side + plot,
-         data = tbi)
-simulateResiduals(m7, plot = T)
 
 ### b comparison -----------------------------------------------------------------------------------------
 
-aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7))
+aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6))
 rm(m1a, m1b, m1c, m2, m3, m4, m5)
+car::Anova(m4, type = 2)
+visreg::visreg(m4, "PC1soil", "comparison", trans = exp)
+mydf <- ggeffects::ggpredict(m4, terms = c("PC1soil", "comparison"))
+plot(mydf, add.data = T)
+mydf <- ggeffects::ggpredict(m4, terms = c("side"))
+plot(mydf, add.data = T)
 
 #### c model check -----------------------------------------------------------------------------------------
 
@@ -191,7 +213,7 @@ m4 <- lmer(sqrt(y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + sid
 MuMIn::r.squaredGLMM(m4) #R2m = 0.363, R2c = 0.416
 VarCorr(m4)
 sjPlot::plot_model(m4, type = "re", show.values = T)
-car::Anova(m4, type = 2)
+car::Anova(m9, type = 2)
 
 ### * Effect sizes ####
 (emm <- emmeans(m4, revpairwise ~ comparison, type = "response"))
