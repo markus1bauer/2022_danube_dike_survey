@@ -36,7 +36,7 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
                     side = "c",
                     comparison = "f"
                   )) %>%
-  select(-matches("PC.constructionYear"), -conf.low, -conf.high, -locationYear) %>%
+  select(-matches("PC.constructionYear"), -conf.low, -conf.high) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "abundance") %>%
   mutate(side = if_else(side == "water_creek", "water", side),
          ageGroup = if_else(constructionYear %in% c(2002, 2003), "0203", if_else(
@@ -45,13 +45,15 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
                constructionYear %in% c(2010, 2011), "1011", if_else(
                  constructionYear %in% c(2012, 2013), "1213", "other"
                ))))),
+         constructionYearF = if_else(constructionYear %in% c(2003, 2006), 2003.6, constructionYear),
+         constructionYearF = factor(constructionYearF),
          ageGroup = fct_relevel(ageGroup, "2008", after = 2),
          plot = factor(plot),
          comparison = factor(comparison),
          exposition = factor(exposition),
          side = factor(side),
          ageGroup = factor(ageGroup),
-         constructionYearF = factor(constructionYear)) %>%
+         locationYear = factor(locationYear)) %>%
   rename(y = D)
 
 
@@ -130,6 +132,7 @@ ggplot(tbi, aes(x = PC2soil, y = y, color = comparison)) +
 
 dotchart((tbi$y), groups = factor(tbi$exposition), main = "Cleveland dotplot")
 tbi %>% count(locationYear)
+tbi %>% count(constructionYearF)
 boxplot(tbi$y);#identify(rep(1, length(etbi$rgr13)), etbi$rgr13, labels = c(etbi$n))
 plot(table((tbi$y)), type = "h", xlab = "Observed values", ylab = "Frequency")
 ggplot(tbi, aes(y)) + geom_density()
@@ -139,7 +142,7 @@ ggplot(tbi, aes(exp(PC2soil))) + geom_density()
 
 #### * check collinearity ####
 data <- tbi %>%
-  select(where(is.numeric), -conf.low, -conf.high, -constructionYear, -B, -C, -y)
+  select(where(is.numeric), -constructionYear, -B, -C, -y)
 GGally::ggpairs(data, lower = list(continuous = "smooth_loess"))
 #--> xx ~ xx has r > 0.7 (Dormann et al. 2013 Ecography) --> xx has to be excluded
 
@@ -149,49 +152,49 @@ GGally::ggpairs(data, lower = list(continuous = "smooth_loess"))
 ### a models ----------------------------------------------------------------------------------------
 
 #random structure
-m1a <- lmer(y ~ 1 + (1|locationYear), data = tbi, REML = T)
+m1a <- lmer(y ~ 1 + (1|locationAbb), data = tbi, REML = T)
 VarCorr(m1a) 
-m1b <- lmer(y ~ 1 + (1|locationYear/plot), data = tbi, REML = T)
+m1b <- lmer(y ~ 1 + (1|locationAbb/plot), data = tbi, REML = T)
 VarCorr(m1b)
 m1c <- lmer(y ~ 1 + (1|plot), data = tbi, REML = T)
 VarCorr(m1c)
 #fixed effects
-m1 <- lmer(log(y) ~ locationAbb + (comparison + exposition + PC1soil + PC2soil)^2 + PC3soil + side + constructionYearF + log(distanceRiver) +
+m1 <- lmer(y ~ scale(longitude) + scale(latitude) + (comparison + exposition + PC1soil + PC2soil)^2 + PC3soil + side + constructionYearF + log(distanceRiver) +
              (1|plot), 
            REML = F,
            data = tbi)
 simulateResiduals(m1, plot = T)
-m2 <- lmer(log(y) ~ locationAbb + (comparison + exposition + PC1soil)^2 + (PC2soil) + PC3soil + side + constructionYearF + log(distanceRiver) +
+m2 <- lmer(y ~ scale(longitude) + scale(latitude) + (comparison + exposition + PC1soil)^2 + (PC2soil) + PC3soil + side + constructionYearF + log(distanceRiver) +
              (1|plot), 
            REML = F, 
            data = tbi)
 simulateResiduals(m2, plot = T)
-m3 <- lmer(log(y) ~ locationAbb + (comparison + exposition + (PC2soil))^2 + PC1soil + PC3soil + side + constructionYearF + log(distanceRiver) +
+m3 <- lmer(y ~ scale(longitude) + scale(latitude) + (comparison + exposition + (PC2soil))^2 + PC1soil + PC3soil + side + constructionYearF + log(distanceRiver) +
              (1|plot), 
            REML = F, 
            data = tbi)
 simulateResiduals(m3, plot = T)
-m4 <- lmer(log(y) ~ locationAbb + comparison + exposition * PC1soil + (PC2soil) + PC3soil + side + constructionYearF + log(distanceRiver) +
+m4 <- lmer(y ~ scale(longitude) + scale(latitude) + comparison + exposition * PC1soil + (PC2soil) + PC3soil + side + constructionYearF + log(distanceRiver) +
              (1|plot), 
            REML = F, 
            data = tbi)
 simulateResiduals(m4, plot = T)
-m5 <- lmer(log(y) ~ comparison + exposition * (PC2soil) + PC1soil + PC3soil + side + constructionYearF + log(distanceRiver) +
+m5 <- lmer(y ~ scale(longitude) + scale(latitude) + comparison + exposition * (PC2soil) + PC1soil + PC3soil + side + constructionYearF + log(distanceRiver) +
              (1|plot), 
            REML = F,
            data = tbi)
 simulateResiduals(m5, plot = T)
-m6 <- lmer(log(y) ~ locationAbb + comparison * exposition + PC1soil + (PC2soil) + PC3soil + side + constructionYearF + log(distanceRiver) +
+m6 <- lmer(y ~ scale(longitude) + scale(latitude) + comparison * exposition + PC1soil + (PC2soil) + PC3soil + side + constructionYearF + log(distanceRiver) +
              (1|plot), 
            REML = F,
            data = tbi)
 simulateResiduals(m6, plot = T)
-m7 <- lmer(log(y) ~ locationAbb + comparison * PC1soil + exposition + (PC2soil) + PC3soil + side + constructionYearF + log(distanceRiver) +
+m7 <- lmer(y ~ scale(longitude) + scale(latitude) + comparison * PC1soil + exposition + (PC2soil) + PC3soil + side + constructionYearF + log(distanceRiver) +
              (1|plot), 
            REML = F,
            data = tbi)
 simulateResiduals(m7, plot = T)
-m8 <- lmer(log(y) ~ locationAbb + comparison + exposition + PC1soil + (PC2soil) + PC3soil + side + constructionYearF + log(distanceRiver) +
+m8 <- lmer(y ~ locationYear + comparison + exposition + PC1soil + (PC2soil) + PC3soil + side + log(distanceRiver) +
              (1|plot), 
            REML = F,
            data = tbi)
@@ -201,25 +204,17 @@ simulateResiduals(m8, plot = T)
 
 aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c))
 aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
-sjPlot::plot_model(m5, type = "emm", terms = c("PC2soil", "exposition"), show.data = T)
-ggsave(here("outputs/figures/figure_tbi_d_presence_PC2_exposition_(800dpi_9x5cm).tiff"),
-       dpi = 800, width = 9, height = 5, units = "cm")
-sjPlot::plot_model(m5, type = "emm", terms = c("side"), show.data = F)
-sjPlot::plot_model(m5, type = "emm", terms = c("comparison"), show.data = F)
-sjPlot::plot_model(m5, type = "emm", terms = c("exposition"), show.data = F)
-sjPlot::plot_model(m5, type = "emm", terms = c("constructionYearF"), show.data = F)
-sjPlot::plot_model(m5, type = "emm", terms = c("distanceRiver"), show.data = F)
-sjPlot::plot_model(m5)
-ggsave(here("outputs/figures/figure_tbi_d_presence_(800dpi_9x5cm).tiff"),
-       dpi = 800, width = 9, height = 5, units = "cm")
-sjPlot::plot_model(m4, type = "emm", terms = c("PC1soil", "exposition"), show.data = T)
-dotwhisker::dwplot(list(m5, m4, m8), show_intercept = T)
+car::Anova(m8, type = 2)
+sjPlot::plot_model(m8, type = "pred", terms = c("distanceRiver"), show.data = T)
+ggsave(here("outputs/figures/figure_tbi_d_abundance_distanceRiver_(800dpi_9x5cm).tiff"), dpi = 800, width = 9, height = 5, units = "cm")
+sjPlot::plot_model(m8)
+ggsave(here("outputs/figures/figure_tbi_d_abundance_(800dpi_9x5cm).tiff"), dpi = 800, width = 9, height = 5, units = "cm")
+dotwhisker::dwplot(list(m8, m4, m7), show_intercept = T)
 rm(m1a, m1b, m1c, m2, m3, m4, m5)
-car::Anova(m5, type = 3)
 
 #### c model check -----------------------------------------------------------------------------------------
-
-simulationOutput <- simulateResiduals(m4, plot = T)
+tbi$locationYear <- factor(tbi$locationYear)
+simulationOutput <- simulateResiduals(m8, plot = T)
 plotResiduals(simulationOutput$scaledResiduals, tbi$locationYear)
 plotResiduals(simulationOutput$scaledResiduals, tbi$block)
 plotResiduals(simulationOutput$scaledResiduals, tbi$plot)
