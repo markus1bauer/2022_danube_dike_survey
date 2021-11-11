@@ -38,20 +38,10 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
                   )) %>%
   select(-matches("PC.constructionYear"), -conf.low, -conf.high) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
-  mutate(side = if_else(side == "water_creek", "water", side),
-         ageGroup = if_else(constructionYear %in% c(2002, 2003), "0203", if_else(
-           constructionYear %in% c(2006, 2007), "0607", if_else(
-             constructionYear == 2008, "2008", if_else(
-               constructionYear %in% c(2010, 2011), "1011", if_else(
-                 constructionYear %in% c(2012, 2013), "1213", "other"
-               ))))),
-         ageGroup = fct_relevel(ageGroup, "2008", after = 2),
-         plot = factor(plot),
+  mutate(plot = factor(plot),
          comparison = factor(comparison),
          exposition = factor(exposition),
-         side = factor(side),
-         ageGroup = factor(ageGroup),
-         constructionYearF = factor(constructionYear)) %>%
+         side = factor(side)) %>%
   rename(y = D)
 
 
@@ -81,17 +71,13 @@ ggplot(tbi, aes(x = riverkm, y = (y))) +
 ggplot(tbi, aes(x = log(distanceRiver), y = (y))) + 
   geom_point() +
   geom_smooth(method = "loess")
-ggplot(tbi, aes(x = locationYear, y = y)) + 
-  geom_boxplot()
-ggplot(tbi, aes(x = ageGroup, y = y)) + 
-  geom_boxplot()
 ggplot(tbi, aes(x = constructionYear, y = y)) + 
   geom_point() + 
   geom_smooth(method = "loess")
 ggplot(tbi, aes(x = PC1soil, y = (y))) + 
   geom_point() +
   geom_smooth(method = "loess")
-ggplot(tbi, aes(x = sqrt(PC2soil), y = y)) + 
+ggplot(tbi, aes(x = (PC2soil), y = y)) + 
   geom_point() +
   geom_smooth(method = "loess")
 #2way
