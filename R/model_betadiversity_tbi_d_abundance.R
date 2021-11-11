@@ -82,7 +82,7 @@ ggplot(tbi, aes(x = riverkm, y = (y))) +
   geom_smooth(method = "loess")
 ggplot(tbi, aes(x = log(distanceRiver), y = (y))) + 
   geom_point() +
-  geom_smooth(method = "loess")
+  geom_smooth(method = "lm")
 ggplot(tbi, aes(x = locationYear, y = y)) + 
   geom_boxplot()
 ggplot(tbi, aes(x = ageGroup, y = y)) + 
@@ -205,7 +205,7 @@ simulateResiduals(m8, plot = T)
 aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c))
 aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
 car::Anova(m8, type = 2)
-sjPlot::plot_model(m8, type = "emm", terms = c("distanceRiver"), show.data = T)
+sjPlot::plot_model(m8, type = "eff", terms = c("distanceRiver"), show.data = F)
 ggsave(here("outputs/figures/figure_tbi_d_abundance_distanceRiver_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
 sjPlot::plot_model(m8)
 ggsave(here("outputs/figures/figure_tbi_d_abundance_(800dpi_16x10cm).tiff"), dpi = 800, width = 16, height = 10, units = "cm")
