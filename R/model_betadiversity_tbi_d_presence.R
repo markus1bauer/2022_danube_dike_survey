@@ -25,18 +25,18 @@ setwd(here("data/processed"))
 
 ### Load data ###
 tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col_types = 
-                    cols(
-                      .default = "?",
-                      id = "f",
-                      locationAbb = "f",
-                      block = "f",
-                      plot = "c",
-                      locationYear = "f",
-                      exposition = "f",
-                      side = "c",
-                      comparison = "f"
-                    )) %>%
-  #filter(vegetationCov > 0) %>%
+                  cols(
+                    .default = "?",
+                    id = "f",
+                    locationAbb = "f",
+                    block = "f",
+                    plot = "c",
+                    locationYear = "f",
+                    exposition = "f",
+                    side = "c",
+                    comparison = "f"
+                  )) %>%
+  select(-matches("PC.constructionYear"), -conf.low, -conf.high, -locationYear) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
   mutate(side = if_else(side == "water_creek", "water", side),
          ageGroup = if_else(constructionYear %in% c(2002, 2003), "0203", if_else(
@@ -92,12 +92,6 @@ ggplot(tbi, aes(x = PC1soil, y = (y))) +
   geom_point() +
   geom_smooth(method = "loess")
 ggplot(tbi, aes(x = sqrt(PC2soil), y = y)) + 
-  geom_point() +
-  geom_smooth(method = "loess")
-ggplot(tbi, aes(x = (PC1constructionYear), y = y)) + 
-  geom_point() +
-  geom_smooth(method = "loess")
-ggplot(tbi, aes(x = PC2constructionYear, y = y)) + 
   geom_point() +
   geom_smooth(method = "loess")
 #2way
