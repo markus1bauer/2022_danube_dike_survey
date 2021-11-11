@@ -194,7 +194,7 @@ m7 <- lmer(y ~ scale(longitude) + scale(latitude) + comparison * PC1soil + expos
            REML = F,
            data = tbi)
 simulateResiduals(m7, plot = T)
-m8 <- lmer(y ~ locationYear + comparison + exposition + PC1soil + (PC2soil) + PC3soil + side + log(distanceRiver) +
+m8 <- lmer(y ~ comparison + exposition + PC1soil + (PC2soil) + PC3soil + side + log(distanceRiver) + locationYear + 
              (1|plot), 
            REML = F,
            data = tbi)
@@ -205,10 +205,10 @@ simulateResiduals(m8, plot = T)
 aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c))
 aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
 car::Anova(m8, type = 2)
-sjPlot::plot_model(m8, type = "pred", terms = c("distanceRiver"), show.data = T)
-ggsave(here("outputs/figures/figure_tbi_d_abundance_distanceRiver_(800dpi_9x5cm).tiff"), dpi = 800, width = 9, height = 5, units = "cm")
+sjPlot::plot_model(m8, type = "emm", terms = c("distanceRiver"), show.data = T)
+ggsave(here("outputs/figures/figure_tbi_d_abundance_distanceRiver_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
 sjPlot::plot_model(m8)
-ggsave(here("outputs/figures/figure_tbi_d_abundance_(800dpi_9x5cm).tiff"), dpi = 800, width = 9, height = 5, units = "cm")
+ggsave(here("outputs/figures/figure_tbi_d_abundance_(800dpi_16x10cm).tiff"), dpi = 800, width = 16, height = 10, units = "cm")
 dotwhisker::dwplot(list(m8, m4, m7), show_intercept = T)
 rm(m1a, m1b, m1c, m2, m3, m4, m5)
 

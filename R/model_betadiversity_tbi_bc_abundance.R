@@ -191,7 +191,7 @@ m7 <- lmer(y ~ comparison * PC1soil + exposition + (PC2soil) + PC3soil + side + 
            REML = F,
            data = tbi)
 simulateResiduals(m7, plot = T)
-m8 <- lmer(y ~ comparison + (exposition + PC1soil + (PC2soil) + PC3soil + side) + constructionYearF + riverkm + log(distanceRiver) +
+m8 <- lmer(y ~ comparison + (exposition + PC1soil + (PC2soil) + PC3soil + side) + log(distanceRiver) + locationYear +
              comparison:exposition +
              (1|plot), 
            REML = T,
@@ -201,13 +201,13 @@ m8 <- lmer(y ~ comparison + (exposition + PC1soil + (PC2soil) + PC3soil + side) 
 
 aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c))
 aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
-car::Anova(m4, type = 2)
+car::Anova(m8, type = 3)
 sjPlot::plot_model(m5, type = "emm", terms = c("PC2soil", "exposition"), show.data = T, jitter = .7)
-sjPlot::plot_model(m4, type = "emm", terms = c("PC1soil", "exposition"), show.data = T, jitter = .7)
+sjPlot::plot_model(m8, type = "emm", terms = c("comparison", "exposition"), show.data = F, jitter = .7)
 sjPlot::plot_model(m8, type = "emm", terms = c("comparison"), show.data = F, jitter = 0.7)
 ggsave(here("outputs/figures/figure_tbi_bc_abundance_comparison_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
 sjPlot::plot_model(m8)
-ggsave(here("outputs/figures/figure_tbi_bc_abundance_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
+ggsave(here("outputs/figures/figure_tbi_bc_abundance_(800dpi_16x10cm).tiff"), dpi = 800, width = 16, height = 10, units = "cm")
 dotwhisker::dwplot(list(m8, m4, m7), show_intercept = T)
 rm(m1a, m1b, m1c, m2, m3, m4, m5)
 

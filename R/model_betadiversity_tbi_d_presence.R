@@ -36,7 +36,7 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
                     side = "c",
                     comparison = "f"
                   )) %>%
-  select(-matches("PC.constructionYear"), -conf.low, -conf.high, -locationYear) %>%
+  select(-matches("PC.constructionYear"), -conf.low, -conf.high) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
   mutate(side = if_else(side == "water_creek", "water", side),
          ageGroup = if_else(constructionYear %in% c(2002, 2003), "0203", if_else(
@@ -177,7 +177,7 @@ m4 <- lmer(log(y) ~ locationAbb + comparison + exposition * PC1soil + (PC2soil) 
            REML = F, 
          data = tbi)
 simulateResiduals(m4, plot = T)
-m5 <- lmer(log(y) ~ comparison + exposition * (PC2soil) + PC1soil + PC3soil + side + constructionYearF + log(distanceRiver) +
+m5 <- lmer(log(y) ~ comparison + exposition * (PC2soil) + PC1soil + PC3soil + side + log(distanceRiver) + locationYear + 
              (1|plot), 
            REML = F,
          data = tbi)
@@ -203,16 +203,15 @@ simulateResiduals(m8, plot = T)
 aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c))
 aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
 sjPlot::plot_model(m5, type = "emm", terms = c("PC2soil", "exposition"), show.data = T)
-ggsave(here("outputs/figures/figure_tbi_d_presence_PC2_exposition_(800dpi_9x5cm).tiff"),
-       dpi = 800, width = 9, height = 5, units = "cm")
-sjPlot::plot_model(m5, type = "emm", terms = c("side"), show.data = F)
+ggsave(here("outputs/figures/figure_tbi_d_presence_PC2_exposition_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
 sjPlot::plot_model(m5, type = "emm", terms = c("comparison"), show.data = F)
+ggsave(here("outputs/figures/figure_tbi_d_presence_comparison_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
+sjPlot::plot_model(m5, type = "emm", terms = c("side"), show.data = F)
 sjPlot::plot_model(m5, type = "emm", terms = c("exposition"), show.data = F)
 sjPlot::plot_model(m5, type = "emm", terms = c("constructionYearF"), show.data = F)
 sjPlot::plot_model(m5, type = "emm", terms = c("distanceRiver"), show.data = F)
 sjPlot::plot_model(m5)
-ggsave(here("outputs/figures/figure_tbi_d_presence_(800dpi_9x5cm).tiff"),
-       dpi = 800, width = 9, height = 5, units = "cm")
+ggsave(here("outputs/figures/figure_tbi_d_presence_(800dpi_16x10cm).tiff"), dpi = 800, width = 16, height = 10, units = "cm")
 sjPlot::plot_model(m4, type = "emm", terms = c("PC1soil", "exposition"), show.data = T)
 dotwhisker::dwplot(list(m5, m4, m8), show_intercept = T)
 rm(m1a, m1b, m1c, m2, m3, m4, m5)
