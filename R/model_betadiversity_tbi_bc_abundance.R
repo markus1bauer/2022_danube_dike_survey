@@ -13,10 +13,8 @@
 library(here)
 library(tidyverse)
 library(ggbeeswarm)
-library(adespatial)
 library(lme4)  
 library(DHARMa)
-library(AICcmodavg)
 library(emmeans)
 
 ### Start ###
@@ -199,8 +197,8 @@ m8 <- lmer(y ~ comparison + (exposition + PC1soil + (PC2soil) + PC3soil + side) 
 
 ### b comparison -----------------------------------------------------------------------------------------
 
-aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c))
-aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
+AICcmodavg::aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c))
+AICcmodavg::aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
 car::Anova(m8, type = 3)
 sjPlot::plot_model(m5, type = "emm", terms = c("PC2soil", "exposition"), show.data = T, jitter = .7)
 sjPlot::plot_model(m8, type = "emm", terms = c("comparison", "exposition"), show.data = F, jitter = .7)

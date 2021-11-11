@@ -13,10 +13,8 @@
 library(here)
 library(tidyverse)
 library(ggbeeswarm)
-library(adespatial)
 library(lme4)  
 library(DHARMa)
-library(AICcmodavg)
 library(emmeans)
 
 ### Start ###
@@ -137,7 +135,7 @@ m7 <- lm((y) ~ exposition + comparison * PC1soil + PC2soil + PC3soil + side + pl
 simulateResiduals(m7, plot = T)
 
 ### b comparison -----------------------------------------------------------------------------------------
-aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7))
+AICcmodavg::aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7))
 rm(m1a, m1b, m1c, m2, m3, m4, m5)
 
 ### c model check -----------------------------------------------------------------------------------------

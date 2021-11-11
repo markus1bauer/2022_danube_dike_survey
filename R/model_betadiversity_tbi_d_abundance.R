@@ -13,10 +13,8 @@
 library(here)
 library(tidyverse)
 library(ggbeeswarm)
-library(adespatial)
 library(lme4)  
 library(DHARMa)
-library(AICcmodavg)
 library(emmeans)
 
 ### Start ###
@@ -202,8 +200,8 @@ simulateResiduals(m8, plot = T)
 
 ### b comparison -----------------------------------------------------------------------------------------
 
-aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c))
-aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
+AICcmodavg::aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c))
+AICcmodavg::aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
 car::Anova(m8, type = 2)
 sjPlot::plot_model(m8, type = "eff", terms = c("distanceRiver"), show.data = F)
 ggsave(here("outputs/figures/figure_tbi_d_abundance_distanceRiver_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
@@ -250,56 +248,4 @@ plot(emm, comparison = T)
 ### * Save ####
 table <- broom::tidy(car::Anova(m4, type = 2))
 write.csv(table, here("outputs/statistics/table_anova_tbi_d_presence.csv"))
-
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# C Plotten ################################################################################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-library(ggbeeswarm)
-library(ggeffects)
-
-themeMB <- function(){
-  theme(
-    panel.background = element_rect(fill = "white"),
-    text  = element_text(size = 9, color = "black"),
-    axis.text  = element_text(size = 9, color = "black"),
-    legend.text  = element_text(size = 8, color = "black"),
-    strip.text = element_text(size = 9, color = "black"),
-    axis.text.y = element_text(angle = 0, hjust = 0.5),
-    axis.line.y = element_line(),
-    axis.line.x = element_blank(),
-    axis.ticks.x = element_blank(),
-    legend.key = element_rect(fill = "transparent"),
-    legend.justification = c("right", "top"),
-    legend.direction = "vertical",
-    legend.position = c(.95, .45),
-    legend.background = element_rect(fill = "transparent"),
-    legend.margin = margin(0, 0, 0, 0, "cm"),
-    plot.margin = margin(0, 0, 0, 0, "cm")
-  )
-}
-
-pdata <- ggemmeans(m6, terms = c("comparison", "index","exposition"), type = "fe") %>%
-  mutate(group = fct_recode(group, Losses = "B", Gains = "C", Total = "y")) %>%
-  mutate(x = fct_recode(x, "'17 vs. '18" = "1718", "'18 vs. '19" = "1819", "'19 vs. '21" = "1921")) %>%
-  mutate(facet = fct_recode(facet, South = "south", North = "north"))
-pd <- position_dodge(.1)
-(graph <- ggplot(pdata, 
-                 aes(x, predicted, ymin = conf.low, ymax = conf.high, shape = group)) +
-    #geom_quasirandom(tbi = tbi, aes(x, predicted), 
-    #                 color = "grey70", dodge.width = .6, size = 0.7) +
-    geom_errorbar(position = pd, width = 0.0, size = 0.4) +
-    geom_point(position = pd, size = 2.5, fill = "white") +
-    facet_grid(~ facet) +
-    annotate("text", label = "n.s.", x = 2.2, y = 0.6) +
-    scale_y_continuous(limits = c(0, 0.6), breaks = seq(-100, 100, 0.1)) +
-    scale_shape_manual(values = c(25, 24, 16)) +
-    labs(x = "", y = "Temporal beta-diversity", shape = "") +
-    themeMB() +
-    theme()
-)
-
-### Save ###
-ggsave(here("outputs/figures/figure_4_tbi_presence_year_(800dpi_9x5cm).tiff"),
-       dpi = 800, width = 9, height = 5, units = "cm")
 
