@@ -13,11 +13,8 @@
 library(here)
 library(tidyverse)
 library(ggbeeswarm)
-library(adespatial)
 library(lme4)  
 library(DHARMa)
-library(AICcmodavg)
-library(emmeans)
 
 ### Start ###
 rm(list = ls())
@@ -54,7 +51,6 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
 ## 1 Data exploration #####################################################################################
 
 #### * Graphs #####
-
 #main
 ggplot(tbi, aes(x = comparison, y = y)) + 
   geom_boxplot() +
@@ -186,8 +182,8 @@ simulateResiduals(m8, plot = T)
 
 ### b comparison -----------------------------------------------------------------------------------------
 
-aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c))
-aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
+AICcmodavg::aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c))
+AICcmodavg::aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
 car::Anova(m5, type = 3)
 sjPlot::plot_model(m5, type = "emm", terms = c("PC2soil", "exposition"), show.data = T)
 ggsave(here("outputs/figures/figure_tbi_d_presence_PC2_exposition_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
