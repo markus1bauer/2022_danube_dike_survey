@@ -25,8 +25,8 @@ library(adespatial)
 library(tempo) #calc_sync()
 
 
-### Start ###3-trs5mF2122
-#installr::updateR(browse_news = F, install_R = T, copy_packages = T, copy_Rprofile.site = T, keep_old_packages = T, update_packages = T, start_new_R = F, quit_R = T, print_R_versions = T, GUI = F)
+### Start ###
+installr::updateR(browse_news = F, install_R = T, copy_packages = T, copy_Rprofile.site = T, keep_old_packages = T, update_packages = T, start_new_R = F, quit_R = T, print_R_versions = T, GUI = F)
 #sessionInfo()
 rm(list = ls())
 setwd(here("data/raw"))
