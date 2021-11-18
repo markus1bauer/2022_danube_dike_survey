@@ -36,7 +36,6 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"),
   select(id, plot, block, locationYear, constructionYear, longitude, latitude,
          exposition, side, PC1soil, PC2soil, PC3soil,
          locationAbb, riverkm, distanceRiver,
-         MEM1_2018, MEM2_2018, 
          surveyYear, plotAge, PC1constructionYear, PC2constructionYear, PC3constructionYear,
          accumulatedCov) %>%
   mutate(surveyYearF = as_factor(surveyYear),
