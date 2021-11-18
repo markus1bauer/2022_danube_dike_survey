@@ -26,7 +26,7 @@ library(tempo) #calc_sync()
 
 
 ### Start ###
-installr::updateR(browse_news = F, install_R = T, copy_packages = T, copy_Rprofile.site = T, keep_old_packages = T, update_packages = T, start_new_R = F, quit_R = T, print_R_versions = T, GUI = F)
+#installr::updateR(browse_news = F, install_R = T, copy_packages = T, copy_Rprofile.site = T, keep_old_packages = T, update_packages = T, start_new_R = F, quit_R = T, print_R_versions = T, GUI = T)
 #sessionInfo()
 rm(list = ls())
 setwd(here("data/raw"))
@@ -566,16 +566,15 @@ data_species_nmds <- data_species %>%
   column_to_rownames(var = "id")
 ### Calculate NMDS ###
 set.seed(1)
-(nmds <- metaMDS(data_species_nmds, dist = "bray", binary = F,
-                 try = 50, previous.best = T, na.rm = T))
+#(nmds <- metaMDS(data_species_nmds, dist = "bray", binary = F, try = 50, previous.best = T, na.rm = T))
 ### Add to sites ###
-data <- nmds %>%
-  scores() %>%
-  as.data.frame() %>%
-  rownames_to_column(var = "id") %>%
-  as_tibble() %>%
-  select(id, NMDS1, NMDS2)
-sites <- left_join(sites, data, by = "id")
+#data <- nmds %>%
+  #scores() %>%
+  #as.data.frame() %>%
+  #rownames_to_column(var = "id") %>%
+  #as_tibble() %>%
+  #select(id, NMDS1, NMDS2)
+#sites <- left_join(sites, data, by = "id")
 
 ### b PERMDISP -------------------------------------------------------------------------------------------
 
@@ -693,6 +692,116 @@ m <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
               rangexy = T,
               perm.max = 999) #R2adj of minimum (final) model = 0.064 
 m$RDA_test # p = 0.002
+m$RDA_axes_test # 2 sig axes
+m$RDA # PC1 = 0.096, PC2 = 0.085
+dbMEMred <- dbMEMred %>%
+  rownames_to_column(var = "id") %>%
+  select(id, MEM1, MEM2) %>%
+  rename(MEM1_2021 = MEM1, MEM2_2021 = MEM2)
+sites <- left_join(sites, dbMEMred, by = "id")
+
+### c2 dbMEM 2 -------------------------------------------------------------------------------------------
+
+data <- data_sites %>%
+  add_count(plot) %>%
+  filter(n == max(n) & surveyYear == 2021) %>%
+  select(id, plot)
+
+### * 2017 ####
+data_sites_dbMEM <- data_sites %>%
+  filter(surveyYear == 2017) %>%
+  semi_join(data, by = "plot") %>%
+  select(id, longitude, latitude)
+data_species_dbMEM <- data_species %>%
+  semi_join(data_sites_dbMEM, by = "id") %>%
+  column_to_rownames(var = "id") %>%
+  decostand("hellinger")
+data_sites_dbMEM <- data_sites_dbMEM %>%
+  column_to_rownames("id")
+m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
+              alpha = 0.05, 
+              detrend = F,
+              method = "fwd",
+              rangexy = T,
+              perm.max = 999) #R2adj of minimum (final) model = 0.034
+m$RDA_test # p = 0.002
+m$RDA_axes_test #1 sig axes
+m$RDA # PC1 = 0.114
+dbMEMred <- dbMEMred %>%
+  rownames_to_column(var = "id") %>%
+  select(id, MEM1) %>%
+  rename(MEM1_2017 = MEM1)
+sites <- left_join(sites, dbMEMred, by = "id")
+
+### * 2018 ####
+data_sites_dbMEM <- data_sites %>%
+  filter(surveyYear == 2018) %>%
+  semi_join(data, by = "plot") %>%
+  select(id, longitude, latitude)
+data_species_dbMEM <- data_species %>%
+  semi_join(data_sites_dbMEM, by = "id") %>%
+  column_to_rownames(var = "id") %>%
+  decostand("hellinger")
+data_sites_dbMEM <- data_sites_dbMEM %>%
+  column_to_rownames("id")
+m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
+              alpha = 0.05, 
+              detrend = F,
+              method = "fwd",
+              rangexy = T,
+              perm.max = 999) #R2adj of minimum (final) model = 0.
+m$RDA_test # p = 
+m$RDA_axes_test #  sig. axes
+m$RDA # PC1 = 
+dbMEMred <- dbMEMred %>%
+  rownames_to_column(var = "id") %>%
+  select(id, MEM1) %>%
+  rename(MEM1_2018 = MEM1)
+sites <- left_join(sites, dbMEMred, by = "id")
+
+### * 2019 ####
+data_sites_dbMEM <- data_sites %>%
+  filter(surveyYear == 2019) %>%
+  semi_join(data, by = "plot") %>%
+  select(id, longitude, latitude)
+data_species_dbMEM <- data_species %>%
+  semi_join(data_sites_dbMEM, by = "id") %>%
+  column_to_rownames(var = "id") %>%
+  decostand("hellinger")
+data_sites_dbMEM <- data_sites_dbMEM %>%
+  column_to_rownames("id")
+m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
+              alpha = 0.05, 
+              detrend = F,
+              method = "fwd",
+              rangexy = T,
+              perm.max = 999) #R2adj of minimum (final) model = 0.056
+m$RDA_test # p = 0.001
+m$RDA_axes_test # 1sig axes
+m$RDA # PC1 = 0.080
+dbMEMred <- dbMEMred %>%
+  rownames_to_column(var = "id") %>%
+  select(id, MEM1) %>%
+  rename(MEM1_2019 = MEM1)
+sites <- left_join(sites, dbMEMred, by = "id")
+
+### * 2021 ####
+data_sites_dbMEM <- data_sites %>%
+  filter(surveyYear == 2021) %>%
+  select(id, longitude, latitude)
+data_species_dbMEM <- data_species %>%
+  semi_join(data_sites_dbMEM, by = "id") %>%
+  column_to_rownames(var = "id") %>%
+  decostand("hellinger")
+data_sites_dbMEM <- data_sites_dbMEM %>%
+  column_to_rownames("id")
+m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
+              alpha = 0.05, 
+              detrend = F,
+              method = "fwd",
+              rangexy = T,
+              perm.max = 999) #R2adj of minimum (final) model = 0.064 
+m$RDA_test # p = 0.001
 m$RDA_axes_test # 2 sig axes
 m$RDA # PC1 = 0.096, PC2 = 0.085
 dbMEMred <- dbMEMred %>%

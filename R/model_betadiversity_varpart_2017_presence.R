@@ -124,7 +124,7 @@ anova(m1, permutations = how(nperm = 999)) #P = .001
 ### Soil ###
 m1 <- dbrda(beta_substitution ~ PC1soil + PC2soil + PC3soil + expositionN + sideN, 
             data = sites)
-(r2adj <- RsquareAdj(m1)$adj.r.squared) # R2adj = 0.066
+(r2adj <- RsquareAdj(m1)$adj.r.squared)
 sel <- forward.sel(beta_substitution, 
                    sites_soil,
                    adjR2thresh = r2adj,
@@ -135,7 +135,7 @@ sites_soil_selected <- sites %>%
 ### Space ###
 m1 <- dbrda(beta_substitution ~ locationAbb + riverkm + distanceRiver, 
             data = sites)
-(r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = 0.324
+(r2adj <- RsquareAdj(m1)$adj.r.squared)
 sel <- forward.sel(beta_substitution, 
                    sites_space,
                    adjR2thresh = r2adj,
@@ -146,7 +146,7 @@ sites_space_selected <- sites %>%
 ### History ###
 m1 <- dbrda(beta_substitution ~ plotAge + PC1constructionYear + PC2constructionYear + PC3constructionYear, 
             data = sites)
-(r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = 0.114
+(r2adj <- RsquareAdj(m1)$adj.r.squared)
 sel <- forward.sel(beta_substitution, 
                    sites_history,
                    adjR2thresh = r2adj,
@@ -237,46 +237,4 @@ anova(m1, permutations = how(nperm = 999)) #P = .964
 (r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = -.326
 
 ### * forward selection ####
-### Soil ###
-m1 <- dbrda(beta_subsets ~ PC1soil + PC2soil + PC3soil + expositionN + sideN, 
-            data = sites)
-(r2adj <- RsquareAdj(m1)$adj.r.squared) # R2adj = -.065
-sel <- forward.sel(beta_subsets, 
-                   sites_soil,
-                   adjR2thresh = r2adj,
-                   nperm = 9999)
-sel$p_adj <- p.adjust(sel$pvalue, method = 'holm', n = ncol(sites_soil));sel #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
-sites_soil_selected <- sites %>% 
-  select()
-### Space ###
-m1 <- dbrda(beta_subsets ~ locationAbb + riverkm + distanceRiver, 
-            data = sites)
-(r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = -.298
-sel <- forward.sel(beta_subsets, 
-                   sites_space,
-                   adjR2thresh = r2adj,
-                   nperm = 9999)
-sel$p_adj <- p.adjust(sel$pvalue, method = 'holm', n = ncol(sites_space));sel #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
-sites_space_selected <- sites %>% 
-  select()
-### History ###
-m1 <- dbrda(beta_subsets ~ plotAge + PC1constructionYear + PC2constructionYear + PC3constructionYear, 
-            data = sites)
-(r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = -.164
-sel <- forward.sel(beta_subsets, 
-                   sites_history,
-                   adjR2thresh = r2adj,
-                   nperm = 9999)
-sel$p_adj <- p.adjust(sel$pvalue, method = 'holm', n = ncol(sites_history));sel #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
-sites_history_selected <- sites %>% 
-  select()
-
-### * Variation partitioning ####
-m1_subsets_varpart <- varpart(beta_subsets, sites_soil_selected, sites_space_selected, sites_history_selected)
-tiff(here("outputs/figures/figure_betadiversity_2017_subsets_presence_(800dpi_8x8cm).tiff"),
-     res = 72, width = 12, height = 12, units = "cm", compression = "none")
-plot(m1_subsets_varpart, 
-     Xnames = c("Site", "Space", "History"),
-     cutoff = 0.01, digits = 2, bg = NA, id.size = 1)
-dev.off()
-## --> no variation partitioning possible since no variable explains enough
+# --> now forward selection because full model is not significant
