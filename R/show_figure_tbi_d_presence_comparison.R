@@ -97,7 +97,7 @@ data <- tbi %>%
              x = c(1, 2, 3), 
              y = c(.8, .8, .8)) +
     scale_y_continuous(limits = c(0, .8), breaks = seq(-100, 400, .1)) +
-    labs(x = "", y = "TBI") +
+    labs(x = "", y = expression(Dissimilarity~"["*TBI[sor]*"]")) +
     themeMB())
 
 ### Save ###

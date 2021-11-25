@@ -50,7 +50,7 @@ sites_basic <- st_drop_geometry(sites) %>%
 rm(coord)
 #### Calculate center of blocks ###
 blocks <- sites_basic %>%
-  group_by(location) %>%
+  group_by(location, constructionYear) %>%
   summarise(across(c(longitude, latitude), mean, na.rm = T)) %>%
   rename(longitude_center = longitude, latitude_center = latitude)
 sites_basic <- left_join(sites_basic, blocks, by = "location")

@@ -72,15 +72,15 @@ themeMB <- function(){
 # B Plot ##############################################################################################
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_model <- ggeffect(m5, type = "emm", c("comparison"), back.transform = T) %>%
+data_model <- ggeffect(m5, type = "emm", c("side"), back.transform = T) %>%
   mutate(predicted = exp(predicted),
          conf.low = exp(conf.low),
          conf.high = exp(conf.high),
-         x = fct_recode(x, "2017 vs 2018" = "1718", "'18 vs '19" = "1819", "'19 vs '21" = "1921"))
+         x = fct_recode(x, "Water slope" = "water", "Land slope" = "land"))
 
 data <- tbi %>%
-  rename(predicted = y, x = comparison) %>%
-  mutate(x = fct_recode(x, "2017 vs 2018" = "1718", "'18 vs '19" = "1819", "'19 vs '21" = "1921"))
+  rename(predicted = y, x = side) %>%
+  mutate(x = fct_recode(x, "Water slope" = "water", "Land slope" = "land"))
 
 (graph_a <- ggplot() +
     geom_quasirandom(data = data, 
@@ -93,13 +93,13 @@ data <- tbi %>%
                aes(x, predicted),
                size = 2) +
     annotate("text", 
-             label =c("ab", "a", "b"), 
-             x = c(1, 2, 3), 
-             y = c(.8, .8, .8)) +
+             label =c("a", "b"), 
+             x = c(1, 2), 
+             y = c(.8, .8)) +
     scale_y_continuous(limits = c(0, .8), breaks = seq(-100, 400, .1)) +
-    labs(x = "", y = "TBI") +
+    labs(x = "", y = expression(Dissimilarity~"["*TBI[sor]*"]")) +
     themeMB())
 
 ### Save ###
-ggsave(here("outputs/figures/figure_tbi_d_pres_comparison_(800dpi_8x8cm).tiff"),
+ggsave(here("outputs/figures/figure_tbi_d_pres_side_(800dpi_8x8cm).tiff"),
        dpi = 800, width = 8, height = 8, units = "cm")

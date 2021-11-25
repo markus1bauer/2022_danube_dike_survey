@@ -24,21 +24,20 @@ rm(list = ls())
 setwd(here("data/processed/spatial"))
 
 ### Load data ###
-germany <- st_read("germany.shp")
-danube <- st_read("danube.shp")
+germany <- st_read("germany_epsg4326.shp")
+danube <- st_read("danube_isar_digitized_epsg4326.shp")
 danube$river[2] <- "Isar"
-sites <- st_read("sites.shp")
-grazing <- st_read("grazing.shp")
-conservation_area <- st_read("conservation_area.shp")
-ffh_area <- st_read("ffh_area.shp")
-dikes <- st_read("dikes.shp")
-sites2 <- read_csv2("sites2.csv", col_names = T, col_types = 
-                      cols(
-                        id = col_factor(),
-                        phosphorousClass = col_factor(levels = c("A","B","C","D","E"))
-                        )
-                      )
-blocks <- read_csv2("blocks.csv", col_names = T, col_types = 
+sites <- st_read("sites_epsg4326.shp") %>%
+  mutate(id = str_match(id, "\\d{2}")) %>%
+  filter(id %in% c("01", "02", "03", "04", "05", "06", "09", 10, 11, 12, 13, 14, 21, 22, 23, 24, 27, 28, 34, 39, 40, 41, 42, 43, 44, 45, 46, 51, 53, 54, 55, 56, 61, 62, 63, 64, 65, 66, 67, 68, 70)) %>%
+  mutate(id = as_factor(id))
+sites_ggmap <- st_coordinates(sites) %>%
+  as_tibble()
+grazing <- st_read("grazing_epsg4326.shp")
+conservation_area <- st_read("conservation_area_epsg4326.shp")
+ffh_area <- st_read("ffh_area_epsg4326.shp")
+dikes <- st_read("dikes_epsg4326.shp")
+blocks <- read_csv("blocks.csv", col_names = T, col_types = 
                       cols(location = col_factor())
                     )
 load("background_toner.rda")
@@ -71,9 +70,9 @@ themeMB <- function(){
 
 ### a Map of project site -----------------------------------------------------------------------
 (graphSites <- ggmap(background_terrain, 
-                      base_layer = ggplot(sites2, aes(x = lon_cent, y = lat_cent))) +
+                      base_layer = ggplot(sites_ggmap, aes(x = X, y = Y))) +
     geom_point(size = 2, color = "black", pch = 15) +
-    geom_text_repel(data = blocks, aes(label = constructionYear, x = lon_cent, y = lat_cent),
+    geom_text_repel(data = blocks, aes(label = constructionYear, x = longitude_center, y = latitude_center),
                     min.segment.length = 0) +
     scale_x_continuous(breaks = seq(10, 15, 0.1)) +
     scale_y_continuous(breaks = seq(48, 50, 0.1)) +
@@ -114,7 +113,7 @@ ggsave("figure_1_map_ggmap_(300dpi_17x11cm).tiff",
 
 ### a Map of project site -----------------------------------------------------------------------
 (graphSites <- ggplot() +
-  geom_sf(data = ffh_area, fill = "grey50", color = "grey50") +
+  #geom_sf(data = ffh_area, fill = "grey50", color = "grey50") +
   geom_sf(data = dikes) +
   geom_sf(data = danube, colour = "grey60") +
   geom_sf(data = sites, colour = "red", size = 2) +
@@ -141,6 +140,9 @@ ggsave("figure_1_map_ggplot_(300dpi_17x11cm).tiff",
        path = here("outputs/figures"))
 ggsave("figure_1_map_ggplot2_(300dpi_12x8cm).tiff", 
        dpi = 300, width = 12, height = 8, units = "cm",
+       path = here("outputs/figures"))
+ggsave("figure_1_map_ggplot3_(300dpi_17x11cm).tiff", 
+       dpi = 300, width = 17, height = 11, units = "cm",
        path = here("outputs/figures"))
 
 
