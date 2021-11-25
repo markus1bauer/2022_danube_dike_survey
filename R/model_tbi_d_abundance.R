@@ -196,19 +196,15 @@ m8 <- lmer(y ~ comparison + exposition + PC1soil + (PC2soil) + PC3soil + side + 
              (1|plot), 
            REML = F,
            data = tbi)
-simulateResiduals(m8, plot = T)
+isSingular(m8);simulateResiduals(m8, plot = T)
 
 ### b comparison -----------------------------------------------------------------------------------------
 
 AICcmodavg::aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c))
 AICcmodavg::aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
-car::Anova(m8, type = 2)
-sjPlot::plot_model(m8, type = "eff", terms = c("distanceRiver"), show.data = F)
-ggsave(here("outputs/figures/figure_tbi_d_abundance_distanceRiver_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
-sjPlot::plot_model(m8)
-ggsave(here("outputs/figures/figure_tbi_d_abundance_(800dpi_16x10cm).tiff"), dpi = 800, width = 16, height = 10, units = "cm")
 dotwhisker::dwplot(list(m8, m4, m7), show_intercept = T)
-rm(m1a, m1b, m1c, m2, m3, m4, m5)
+m8 <- update(m8, REML = T)
+rm(list = setdiff(ls(), c("tbi", "m8")))
 
 #### c model check -----------------------------------------------------------------------------------------
 tbi$locationYear <- factor(tbi$locationYear)
@@ -228,24 +224,24 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
 
 ### 3 Chosen model output ################################################################################
 
-m4 <- lmer((y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + plotAge + locationYear + 
-             (1|plot), 
-           REML = T,
-           data = tbi)
-
-
 ### * Model output ####
-MuMIn::r.squaredGLMM(m4) #R2m = 0.252, R2c = 0.376
-VarCorr(m4)
-sjPlot::plot_model(m4, type = "re", show.values = T)
-car::Anova(m4, type = 2)
-
-### * Effect sizes ####
-(emm <- emmeans(m4, revpairwise ~ comparison, type = "response"))
-plot(emm, comparison = T)
-(emm <- emmeans(m4, revpairwise ~ side, type = "response"))
+MuMIn::r.squaredGLMM(m8) #R2m = 0.271, R2c = 0.367
+VarCorr(m8)
+sjPlot::plot_model(m8, type = "re", show.values = T)
+car::Anova(m8, type = 2)
 
 ### * Save ####
-table <- broom::tidy(car::Anova(m4, type = 2))
-write.csv(table, here("outputs/statistics/table_anova_tbi_d_presence.csv"))
+table <- broom::tidy(car::Anova(m8, type = 2))
+write.csv(table, here("outputs/statistics/table_anova_tbi_d_abundance.csv"))
 
+dotwhisker::dwplot(m8, show_intercept = F, vline = geom_vline(
+  xintercept = 0,
+  color = "black",
+  linetype = 2
+)) +
+  themeMB()
+
+sjPlot::plot_model(m8, type = "eff", terms = c("distanceRiver"), show.data = F)
+ggsave(here("outputs/figures/figure_tbi_d_abundance_distanceRiver_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
+sjPlot::plot_model(m8)
+ggsave(here("outputs/figures/figure_tbi_d_abundance_(800dpi_16x10cm).tiff"), dpi = 800, width = 16, height = 10, units = "cm")
