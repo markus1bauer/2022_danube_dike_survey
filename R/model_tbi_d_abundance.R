@@ -141,7 +141,7 @@ ggplot(tbi, aes(exp(PC2soil))) + geom_density()
 #### * check collinearity ####
 data <- tbi %>%
   select(where(is.numeric), -constructionYear, -B, -C, -y)
-GGally::ggpairs(data, lower = list(continuous = "smooth_loess"))
+#GGally::ggpairs(data, lower = list(continuous = "smooth_loess"))
 #--> xx ~ xx has r > 0.7 (Dormann et al. 2013 Ecography) --> xx has to be excluded
 
 

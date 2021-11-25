@@ -224,18 +224,3 @@ emtrends(m5, revpairwise ~ exposition, var = "y", mult.name = "exposition")
 ### * Save ####
 table <- broom::tidy(car::Anova(m5, type = 3))
 write.csv(table, here("outputs/statistics/table_anova_tbi_d_presence.csv"))
-
-
-car::Anova(m5, type = 3)
-sjPlot::plot_model(m4, type = "emm", terms = c("PC1soil", "exposition"), show.data = T)
-ggsave(here("outputs/figures/figure_tbi_d_presence_PC2_exposition_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
-sjPlot::plot_model(m5, type = "emm", terms = c("comparison"), show.data = F)
-ggsave(here("outputs/figures/figure_tbi_d_presence_comparison_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
-sjPlot::plot_model(m5, type = "emm", terms = c("side"), show.data = F)
-ggsave(here("outputs/figures/figure_tbi_d_presence_side_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
-sjPlot::plot_model(m5, type = "emm", terms = c("exposition"), show.data = F)
-sjPlot::plot_model(m5, type = "emm", terms = c("constructionYearF"), show.data = F)
-sjPlot::plot_model(m5, type = "emm", terms = c("distanceRiver"), show.data = F)
-sjPlot::plot_model(m5)
-ggsave(here("outputs/figures/figure_tbi_d_presence_(800dpi_16x10cm).tiff"), dpi = 800, width = 16, height = 10, units = "cm")
-sjPlot::plot_model(m4, type = "emm", terms = c("PC1soil", "exposition"), show.data = T)
