@@ -93,7 +93,7 @@ data <- tbi %>%
                aes(x, predicted),
                size = 2) +
     annotate("text", 
-             label =c("ab", "a", "b"), 
+             label = c("ab", "a", "b"), 
              x = c(1, 2, 3), 
              y = c(.8, .8, .8)) +
     scale_y_continuous(limits = c(0, .8), breaks = seq(-100, 400, .1)) +
