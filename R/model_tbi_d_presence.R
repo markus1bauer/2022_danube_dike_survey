@@ -92,7 +92,7 @@ ggplot(tbi, aes(x = PC2soil, y = y, color = comparison)) +
 ggplot(tbi, aes(x = PC1soil, y = y, color = exposition)) + 
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(tbi, aes(x = exp(PC2soil), y = y, color = exposition)) + 
+ggplot(tbi, aes(x = (PC2soil), y = y, color = exposition)) + 
   geom_point() +
   geom_smooth(method = "lm")
 

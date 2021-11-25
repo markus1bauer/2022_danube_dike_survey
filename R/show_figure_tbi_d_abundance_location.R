@@ -103,7 +103,7 @@ data <- tbi %>%
              label = expression(italic(Chi)^2*"(11) ="~26.4*","~italic(p)~"="~5.6%*%10^-3), 
              x = 9, 
              y = 1,
-             size = 4) +
+             size = 3) +
     scale_y_continuous(limits = c(-.15, 1), breaks = seq(0, 400, .1)) +
     labs(x = "", y = expression(Dissimilarity~"["*TBI[bc]*"]")) +
     themeMB())

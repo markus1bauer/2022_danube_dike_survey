@@ -193,7 +193,8 @@ m8 <- lmer(y ~ comparison + (exposition + PC1soil + (PC2soil) + PC3soil + side) 
              comparison:exposition +
              (1|plot), 
            REML = F,
-           data = tbi);simulateResiduals(m8, plot = T)
+           data = tbi)
+simulateResiduals(m8, plot = T)
 
 ### b comparison -----------------------------------------------------------------------------------------
 
@@ -238,63 +239,11 @@ sjPlot::plot_model(m2, type = "re", show.values = T)
 car::Anova(m2, type = 2)
 anova(m2)
 ### * Effect sizes ####
-(emm <- emmeans(m4, revpairwise ~ comparison * exposition, type = "response"))
+(emm <- emmeans(m8, revpairwise ~ comparison | exposition, type = "response"))
 plot(emm, comparison = T)
 (emm <- emmeans(m4, revpairwise ~ side, type = "response"))
 
 ### * Save ####
 table <- broom::tidy(car::Anova(m2, type = 3))
 write.csv(table, here("outputs/statistics/table_anova_tbi_bc_presence.csv"))
-
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# C Plotten ################################################################################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-library(ggbeeswarm)
-library(ggeffects)
-
-themeMB <- function(){
-  theme(
-    panel.background = element_rect(fill = "white"),
-    text  = element_text(size = 9, color = "black"),
-    axis.text  = element_text(size = 9, color = "black"),
-    legend.text  = element_text(size = 8, color = "black"),
-    strip.text = element_text(size = 9, color = "black"),
-    axis.text.y = element_text(angle = 0, hjust = 0.5),
-    axis.line.y = element_line(),
-    axis.line.x = element_blank(),
-    axis.ticks.x = element_blank(),
-    legend.key = element_rect(fill = "transparent"),
-    legend.justification = c("right", "top"),
-    legend.direction = "vertical",
-    legend.position = c(.95, .45),
-    legend.background = element_rect(fill = "transparent"),
-    legend.margin = margin(0, 0, 0, 0, "cm"),
-    plot.margin = margin(0, 0, 0, 0, "cm")
-  )
-}
-
-pdata <- ggemmeans(m6, terms = c("comparison", "index","exposition"), type = "fe") %>%
-  mutate(group = fct_recode(group, Losses = "B", Gains = "C", Total = "y")) %>%
-  mutate(x = fct_recode(x, "'17 vs. '18" = "1718", "'18 vs. '19" = "1819", "'19 vs. '21" = "1921")) %>%
-  mutate(facet = fct_recode(facet, South = "south", North = "north"))
-pd <- position_dodge(.1)
-(graph <- ggplot(pdata, 
-                 aes(x, predicted, ymin = conf.low, ymax = conf.high, shape = group)) +
-    #geom_quasirandom(tbi = tbi, aes(x, predicted), 
-    #                 color = "grey70", dodge.width = .6, size = 0.7) +
-    geom_errorbar(position = pd, width = 0.0, size = 0.4) +
-    geom_point(position = pd, size = 2.5, fill = "white") +
-    facet_grid(~ facet) +
-    annotate("text", label = "n.s.", x = 2.2, y = 0.6) +
-    scale_y_continuous(limits = c(0, 0.6), breaks = seq(-100, 100, 0.1)) +
-    scale_shape_manual(values = c(25, 24, 16)) +
-    labs(x = "", y = "Temporal beta-diversity", shape = "") +
-    themeMB() +
-    theme()
-)
-
-### Save ###
-ggsave(here("outputs/figures/figure_4_tbi_presence_year_(800dpi_9x5cm).tiff"),
-       dpi = 800, width = 9, height = 5, units = "cm")
 

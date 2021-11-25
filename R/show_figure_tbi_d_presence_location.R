@@ -76,18 +76,14 @@ themeMB <- function(){
 data_model <- ggeffect(m5, type = "emm", c("locationYear"), back.transform = T) %>%
   mutate(predicted = exp(predicted),
          conf.low = exp(conf.low),
-         conf.high = exp(conf.high))#,
-         #x = fct_recode(x, "2017 vs 2018" = "1718", "'18 vs '19" = "1819", "'19 vs '21" = "1921"))
+         conf.high = exp(conf.high))
 
 data <- tbi %>%
-  rename(predicted = y, x = locationYear) #%>%
-  #mutate(x = fct_recode(x, "2017 vs 2018" = "1718", "'18 vs '19" = "1819", "'19 vs '21" = "1921"))
-  #mutate(x = fct_recode(x, "2017 vs 2018" = "1718", "'18 vs '19" = "1819", "'19 vs '21" = "1921"))
-
+  rename(predicted = y, x = locationYear) 
 (graph_a <- ggplot() +
-    geom_quasirandom(data = data, 
-                     aes(x = x, predicted),
-                     dodge.width = .6, size = 1, shape = 16, color = "grey75") + 
+    #geom_quasirandom(data = data, 
+    #                 aes(x = x, predicted),
+    #                 dodge.width = .6, size = 1, shape = 16, color = "grey75") + 
     geom_hline(yintercept = mean(tbi$y), linetype = 2) +
     geom_errorbar(data = data_model, 
                   aes(x, predicted, ymin = conf.low, ymax = conf.high), 
@@ -97,10 +93,10 @@ data <- tbi %>%
                size = 2) +
     annotate("text", 
              label = expression(italic(Chi)^2*"(11) ="~13.4*","~italic(p)~"="~2.7%*%10^-1), 
-             x = 10, 
-             y = .9,
-             size = 2) +
-    scale_y_continuous(limits = c(0, .9), breaks = seq(-100, 400, .1)) +
+             x = 9, 
+             y = 1,
+             size = 3) +
+    scale_y_continuous(limits = c(-.15, 1), breaks = seq(0, 400, .1)) +
     labs(x = "", y = expression(Dissimilarity~"["*TBI[sor]*"]")) +
     themeMB())
 
