@@ -155,41 +155,41 @@ VarCorr(m1b)
 m1c <- lmer(y ~ 1 + (1|plot), data = tbi, REML = T)
 VarCorr(m1c)
 #fixed effects
-m1 <- lmer(y ~ (comparison + exposition + PC1soil + exp(PC2soil))^2 + PC3soil + side + log(distanceRiver) + locationYear +
+m1 <- lmer(y ~ (comparison + exposition + PC1soil + exp(PC2soil))^2 + PC3soil + side + log(distanceRiver) + locationAbb +
              (1|plot), 
            REML = F,
            data = tbi);simulateResiduals(m1, plot = T)
-m2 <- lmer(y ~ (comparison + exposition + PC1soil)^2 + (PC2soil) + PC3soil + side + log(distanceRiver) + locationYear +
+m2 <- lmer(y ~ (comparison + exposition + PC1soil)^2 + (PC2soil) + PC3soil + side + log(distanceRiver) + locationAbb +
              (1|plot), 
            REML = F, 
            data = tbi)
 simulateResiduals(m2, plot = T)
-m3 <- lmer(y ~ (comparison + exposition + (PC2soil))^2 + PC1soil + PC3soil + side + log(distanceRiver) + locationYear +
+m3 <- lmer(y ~ (comparison + exposition + (PC2soil))^2 + PC1soil + PC3soil + side + log(distanceRiver) + locationAbb +
              (1|plot), 
            REML = F, 
            data = tbi)
 simulateResiduals(m3, plot = T)
-m4 <- lmer(y ~ comparison + exposition * PC1soil + (PC2soil) + PC3soil + side + log(distanceRiver) + locationYear +
+m4 <- lmer(y ~ comparison + exposition * PC1soil + (PC2soil) + PC3soil + side + log(distanceRiver) + locationAbb +
              (1|plot), 
            REML = F, 
            data = tbi)
 simulateResiduals(m4, plot = T)
-m5 <- lmer(y ~ comparison + exposition * (PC2soil) + PC1soil + PC3soil + side + riverkm + log(distanceRiver) + locationYear +
+m5 <- lmer(y ~ comparison + exposition * (PC2soil) + PC1soil + PC3soil + side + log(distanceRiver) + locationAbb +
              (1|plot), 
            REML = F,
            data = tbi)
 simulateResiduals(m5, plot = T)
-m6 <- lmer(y ~ comparison * exposition + PC1soil + (PC2soil) + PC3soil + side + log(distanceRiver) + locationYear +
+m6 <- lmer(y ~ comparison * exposition + PC1soil + (PC2soil) + PC3soil + side + log(distanceRiver) + locationAbb +
              (1|plot), 
            REML = F,
            data = tbi)
 simulateResiduals(m6, plot = T)
-m7 <- lmer(y ~ comparison * PC1soil + exposition + (PC2soil) + PC3soil + side + log(distanceRiver) + locationYear +
+m7 <- lmer(y ~ comparison * PC1soil + exposition + (PC2soil) + PC3soil + side + log(distanceRiver) + locationAbb +
              (1|plot), 
            REML = F,
            data = tbi)
 simulateResiduals(m7, plot = T)
-m8 <- lmer(y ~ comparison + exposition + PC1soil + (PC2soil) + PC3soil + side + log(distanceRiver) + locationYear +
+m8 <- lmer(y ~ comparison + exposition + PC1soil + (PC2soil) + PC3soil + side + log(distanceRiver) + locationAbb +
              (1|plot), 
            REML = F,
            data = tbi)
@@ -210,8 +210,8 @@ dotwhisker::dwplot(list(m8, m5),
                      colour = "grey60",
                      linetype = 2)) +
   theme_classic()
-m8 <- update(m8, REML = F)
-rm(list = setdiff(ls(), c("tbi", "m8")))
+m <- update(m8, REML = F)
+rm(list = setdiff(ls(), c("tbi", "m")))
 
 ### c model check -----------------------------------------------------------------------------------------
 
@@ -233,15 +233,15 @@ car::vif(m8) # all < 3 (Zuur et al. 2010 Methods Ecol Evol) --> remove riverkm
 ## 3 Chosen model output ################################################################################
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m8) #R2m = 0.378, R2c = 0.378
-VarCorr(m8)
-sjPlot::plot_model(m8, type = "re", show.values = T)
-car::Anova(m8, type = 2)
+MuMIn::r.squaredGLMM(m) #R2m = 0.369, R2c = 0.369
+VarCorr(m)
+sjPlot::plot_model(m, type = "re", show.values = T)
+car::Anova(m, type = 2)
 
 ### * Effect sizes ####
-(emm <- emmeans(m8, revpairwise ~ comparison, type = "response"))
+(emm <- emmeans(m, revpairwise ~ comparison, type = "response"))
 plot(emm, comparison = T)
 
 ### * Save ####
-table <- broom::tidy(car::Anova(m8, type = 2))
+table <- broom::tidy(car::Anova(m, type = 2))
 write.csv(table, here("outputs/statistics/table_anova_tbi_bc_abundance.csv"))

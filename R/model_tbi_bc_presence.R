@@ -139,9 +139,9 @@ ggplot(tbi, aes(exp(PC2soil))) + geom_density()
 #### * check collinearity ####
 data <- tbi %>%
   select(where(is.numeric), -constructionYear, -D, -B, -C, -y)
-GGally::ggpairs(data, lower = list(continuous = "smooth_loess"))
-#--> xx ~ xx has r > 0.7 (Dormann et al. 2013 Ecography) --> xx has to be excluded
-rm(data)
+#GGally::ggpairs(data, lower = list(continuous = "smooth_loess"))
+#--> riverkm ~ longitude/latitude has r > 0.7 (Dormann et al. 2013 Ecography)
+
 
 ## 2 Model building ################################################################################
 
@@ -155,64 +155,62 @@ VarCorr(m1b)
 m1c <- lmer(y ~ 1 + (1|plot), data = tbi, REML = T)
 VarCorr(m1c)
 #fixed effects
-m1 <- lmer(y ~ (comparison + exposition + PC1soil + exp(PC2soil))^2 + PC3soil + side + locationAbb + ageGroup + log(distanceRiver) +
+m1 <- lmer(y ~ (comparison + exposition + PC1soil + exp(PC2soil))^2 + PC3soil + side + locationYear + log(distanceRiver) +
              (1|plot), 
            REML = F,
            data = tbi);simulateResiduals(m1, plot = T)
-m2 <- lmer(y ~ (comparison + exposition + PC1soil)^2 + (PC2soil) + PC3soil + side + constructionYearF + locationAbb + log(distanceRiver) +
+m2 <- lmer(y ~ (comparison + exposition + PC1soil)^2 + (PC2soil) + PC3soil + side + locationYear + locationAbb + log(distanceRiver) +
              (1|plot), 
            REML = F, 
            data = tbi)
 simulateResiduals(m2, plot = T)
-m3 <- lmer(y ~ (comparison + exposition + exp(PC2soil))^2 + PC1soil + PC3soil + side + constructionYearF + locationAbb + log(distanceRiver) +
+m3 <- lmer(y ~ (comparison + exposition + exp(PC2soil))^2 + PC1soil + PC3soil + side + locationYear + log(distanceRiver) +
              (1|plot), 
            REML = F, 
            data = tbi)
 simulateResiduals(m3, plot = T)
-m4 <- lmer(y ~ comparison + exposition * PC1soil + (PC2soil) + PC3soil + side + constructionYearF + locationAbb + log(distanceRiver) +
+m4 <- lmer(y ~ comparison + exposition * PC1soil + (PC2soil) + PC3soil + side + locationYear + log(distanceRiver) +
              (1|plot), 
            REML = F, 
            data = tbi)
 simulateResiduals(m4, plot = T)
-m5 <- lmer(y ~ comparison + exposition * (PC2soil) + PC1soil + PC3soil + side + constructionYearF + locationAbb + log(distanceRiver) +
+m5 <- lmer(y ~ comparison + exposition * (PC2soil) + PC1soil + PC3soil + side + locationYear + log(distanceRiver) +
              (1|plot), 
            REML = F,
            data = tbi)
 simulateResiduals(m5, plot = T)
-m6 <- lmer(y ~ comparison * exposition + PC1soil + (PC2soil) + PC3soil + side + constructionYearF + locationAbb + log(distanceRiver) +
+m6 <- lmer(y ~ comparison * exposition + PC1soil + (PC2soil) + PC3soil + side + locationYear + log(distanceRiver) +
              (1|plot), 
            REML = F,
            data = tbi)
 simulateResiduals(m6, plot = T)
-m7 <- lmer(y ~ comparison * PC1soil + exposition + (PC2soil) + PC3soil + side + constructionYearF + locationAbb + log(distanceRiver) +
+m7 <- lmer(y ~ comparison * PC1soil + exposition + (PC2soil) + PC3soil + side + locationYear + log(distanceRiver) +
              (1|plot), 
            REML = F,
            data = tbi)
 simulateResiduals(m7, plot = T)
-m8 <- lmer(y ~ comparison + (exposition + PC1soil + (PC2soil) + PC3soil + side) + log(distanceRiver) + locationYear + 
+m8 <- lmer(y ~ comparison + exposition + PC1soil + (PC2soil) + PC3soil + side + log(distanceRiver) + locationYear + 
              comparison:exposition +
              (1|plot), 
-           REML = T,
+           REML = F,
            data = tbi)
 simulateResiduals(m8, plot = T)
+m9 <- lm((y) ~ comparison * exposition + (PC1soil + PC2soil + PC3soil) + side + locationYear + plot, 
+         data = tbi)
+anova(m9)
 
 ### b comparison -----------------------------------------------------------------------------------------
 
 AICcmodavg::aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c))
 AICcmodavg::aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
-car::Anova(m8, type = 3)
-sjPlot::plot_model(m8, type = "emm", terms = c("exposition", "comparison"), show.data = F, jitter = .7)
-ggsave(here("outputs/figures/figure_tbi_bc_presence_exposition_comparison_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
-sjPlot::plot_model(m8)
-ggsave(here("outputs/figures/figure_tbi_bc_presence_(800dpi_16x10cm).tiff"), dpi = 800, width = 16, height = 10, units = "cm")
-dotwhisker::dwplot(list(m8, m4, m7), show_intercept = T)
-rm(m1a, m1b, m1c, m2, m3, m4, m5)
+dotwhisker::dwplot(list(m6, m8, m3), show_intercept = T)
+m <- update(m6, REML = T)
+rm(list = setdiff(ls(), c("tbi", "m")))
 
 ### c model check -----------------------------------------------------------------------------------------
-simulationOutput <- simulateResiduals(m2, plot = T)
-plotResiduals(simulationOutput$scaledResiduals, tbi$locationYear)
+simulationOutput <- simulateResiduals(m, plot = T)
+plotResiduals(simulationOutput$scaledResiduals, factor(tbi$locationYear))
 plotResiduals(simulationOutput$scaledResiduals, tbi$plot)
-plotResiduals(simulationOutput$scaledResiduals, tbi$plotAge)
 plotResiduals(simulationOutput$scaledResiduals, tbi$comparison)
 plotResiduals(simulationOutput$scaledResiduals, tbi$exposition)
 plotResiduals(simulationOutput$scaledResiduals, tbi$side)
@@ -220,31 +218,21 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$PC1soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC2soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
-car::vif(m2) # all < 3 (Zuur et al. 2010 Methods Ecol Evol)
+car::vif(m) # all < 3 (Zuur et al. 2010 Methods Ecol Evol) --> remove riverkm
 
 
 ## 3 Chosen model output ################################################################################
 
-m2 <- lmer((y) ~ comparison * exposition + (PC1soil + PC2soil + PC3soil) + side + locationYear +
-             (1|plot), 
-           REML = T,
-           data = tbi)
-m2 <- lm((y) ~ comparison * exposition + (PC1soil + PC2soil + PC3soil) + side + locationYear + plot, 
-           data = tbi)
-isSingular(m2)
-anova(m2)
 ### * Model output ####
-MuMIn::r.squaredGLMM(m2) #R2m = 0.373, R2c = 0.373
-VarCorr(m2)
-sjPlot::plot_model(m2, type = "re", show.values = T)
-car::Anova(m2, type = 2)
-anova(m2)
+MuMIn::r.squaredGLMM(m) #R2m = 0.373, R2c = 0.373
+VarCorr(m)
+sjPlot::plot_model(m, type = "re", show.values = T)
+car::Anova(m, type = 3)
+
 ### * Effect sizes ####
-(emm <- emmeans(m8, revpairwise ~ comparison | exposition, type = "response"))
+(emm <- emmeans(m, revpairwise ~ comparison | exposition, type = "response"))
 plot(emm, comparison = T)
-(emm <- emmeans(m4, revpairwise ~ side, type = "response"))
 
 ### * Save ####
-table <- broom::tidy(car::Anova(m2, type = 3))
+table <- broom::tidy(car::Anova(m, type = 3))
 write.csv(table, here("outputs/statistics/table_anova_tbi_bc_presence.csv"))
-

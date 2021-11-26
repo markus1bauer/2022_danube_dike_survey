@@ -184,12 +184,12 @@ dotwhisker::dwplot(list(m5, m4, m9),
                      linetype = 2)
                    ) +
   theme_classic()
-m5 <- update(m5, REML = T)
-rm(list = setdiff(ls(), c("tbi", "m5")))
+m <- update(m5, REML = T)
+rm(list = setdiff(ls(), c("tbi", "m")))
 
 ### c model check -----------------------------------------------------------------------------------------
 
-simulationOutput <- simulateResiduals(m5, plot = T)
+simulationOutput <- simulateResiduals(m, plot = T)
 plotResiduals(simulationOutput$scaledResiduals, tbi$locationYear)
 plotResiduals(simulationOutput$scaledResiduals, tbi$block)
 plotResiduals(simulationOutput$scaledResiduals, tbi$plot)
@@ -201,22 +201,22 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$PC2soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
 recalculateOutput = recalculateResiduals(simulationOutput , group = tbi$id)
-car::vif(m5) # all < 3 (Zuur et al. 2010 Methods Ecol Evol)
+car::vif(m) # all < 3 (Zuur et al. 2010 Methods Ecol Evol)
 
 
 ## 3 Chosen model output ################################################################################
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m5) #R2m = 0.373, R2c = 0.427
-VarCorr(m5)
-sjPlot::plot_model(m5, type = "re", show.values = T)
-car::Anova(m5, type = 3)
+MuMIn::r.squaredGLMM(m) #R2m = 0.373, R2c = 0.427
+VarCorr(m)
+sjPlot::plot_model(m, type = "re", show.values = T)
+car::Anova(m, type = 3)
 
 ### * Effect sizes ####
-(emm <- emmeans(m5, revpairwise ~ side, type = "response"))
-(emm <- emmeans(m5, revpairwise ~ comparison, type = "response"))
+(emm <- emmeans(m, revpairwise ~ side, type = "response"))
 plot(emm, comparison = T)
+(emm <- emmeans(m, revpairwise ~ comparison, type = "response"))
 
 ### * Save ####
-table <- broom::tidy(car::Anova(m5, type = 3))
+table <- broom::tidy(car::Anova(m, type = 3))
 write.csv(table, here("outputs/statistics/table_anova_tbi_d_presence.csv"))
