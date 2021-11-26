@@ -80,11 +80,14 @@ data_model <- ggeffect(m5, type = "emm", c("locationYear"), back.transform = T) 
 
 data <- tbi %>%
   rename(predicted = y, x = locationYear) 
+
 (graph_a <- ggplot() +
     #geom_quasirandom(data = data, 
     #                 aes(x = x, predicted),
     #                 dodge.width = .6, size = 1, shape = 16, color = "grey75") + 
-    geom_hline(yintercept = mean(tbi$y), linetype = 2) +
+    geom_hline(yintercept = c(mean(tbi$y), mean(tbi$y) + 0.5 * sd(tbi$y), mean(tbi$y) - 0.5 * sd(tbi$y)), 
+               linetype = c(1, 2, 2),
+               color = "grey50") +
     geom_errorbar(data = data_model, 
                   aes(x, predicted, ymin = conf.low, ymax = conf.high), 
                   width = 0.0, size = 0.4) +
