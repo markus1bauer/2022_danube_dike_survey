@@ -141,8 +141,8 @@ ggplot(tbi, aes(exp(PC2soil))) + geom_density()
 #### * check collinearity ####
 data <- tbi %>%
   select(where(is.numeric), -constructionYear, -B, -C, -y)
-#GGally::ggpairs(data, lower = list(continuous = "smooth_loess"))
-#--> xx ~ xx has r > 0.7 (Dormann et al. 2013 Ecography) --> xx has to be excluded
+GGally::ggpairs(data, lower = list(continuous = "smooth_loess"))
+#--> riverkm ~ longitutde/latitude has r > 0.7 (Dormann et al. 2013 Ecography) --> longitude and latitude have to be excluded
 
 
 ## 2 Model building ################################################################################
@@ -207,12 +207,10 @@ m8 <- update(m8, REML = T)
 rm(list = setdiff(ls(), c("tbi", "m8")))
 
 #### c model check -----------------------------------------------------------------------------------------
-tbi$locationYear <- factor(tbi$locationYear)
 simulationOutput <- simulateResiduals(m8, plot = T)
 plotResiduals(simulationOutput$scaledResiduals, tbi$locationYear)
 plotResiduals(simulationOutput$scaledResiduals, tbi$block)
 plotResiduals(simulationOutput$scaledResiduals, tbi$plot)
-plotResiduals(simulationOutput$scaledResiduals, tbi$plotAge)
 plotResiduals(simulationOutput$scaledResiduals, tbi$comparison)
 plotResiduals(simulationOutput$scaledResiduals, tbi$exposition)
 plotResiduals(simulationOutput$scaledResiduals, tbi$side)
@@ -220,6 +218,7 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$PC1soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC2soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
+car::vif(m8) # all < 3 (Zuur et al. 2010 Methods Ecol Evol)
 
 
 ### 3 Chosen model output ################################################################################
@@ -233,15 +232,3 @@ car::Anova(m8, type = 2)
 ### * Save ####
 table <- broom::tidy(car::Anova(m8, type = 2))
 write.csv(table, here("outputs/statistics/table_anova_tbi_d_abundance.csv"))
-
-dotwhisker::dwplot(m8, show_intercept = F, vline = geom_vline(
-  xintercept = 0,
-  color = "black",
-  linetype = 2
-)) +
-  themeMB()
-
-sjPlot::plot_model(m8, type = "eff", terms = c("distanceRiver"), show.data = F)
-ggsave(here("outputs/figures/figure_tbi_d_abundance_distanceRiver_(800dpi_9x10cm).tiff"), dpi = 800, width = 9, height = 10, units = "cm")
-sjPlot::plot_model(m8)
-ggsave(here("outputs/figures/figure_tbi_d_abundance_(800dpi_16x10cm).tiff"), dpi = 800, width = 16, height = 10, units = "cm")

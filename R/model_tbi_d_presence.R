@@ -110,7 +110,7 @@ ggplot(tbi, aes(exp(PC2soil))) + geom_density()
 #### * check collinearity ####
 data <- tbi %>%
   select(where(is.numeric), -constructionYear, -y)
-GGally::ggpairs(data, lower = list(continuous = "smooth_loess"))
+#GGally::ggpairs(data, lower = list(continuous = "smooth_loess"))
 #--> riverkm ~ longitude/latitude has r > 0.7 (Dormann et al. 2013 Ecography)
 
 
@@ -125,7 +125,6 @@ m1b <- lmer(log(y) ~ 1 + (1|locationYear/plot), data = tbi, REML = T)
 VarCorr(m1b)
 m1c <- lmer(log(y) ~ 1 + (1|plot), data = tbi, REML = T)
 VarCorr(m1c)
-AICcmodavg::aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c)) # m1c is parsimonous
 #fixed effects
 m1 <- lmer(log(y) ~ (comparison + exposition + PC1soil + (PC2soil))^2 + PC3soil + side + log(distanceRiver) + locationYear +
              (1|plot), 
@@ -175,6 +174,7 @@ simulateResiduals(m9, plot = T)
 
 ### b comparison -----------------------------------------------------------------------------------------
 
+AICcmodavg::aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c)) # m1c is parsimonous
 AICcmodavg::aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8, "m9" = m9))
 dotwhisker::dwplot(list(m5, m4, m9), 
                    show_intercept = F,
@@ -201,9 +201,6 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$PC2soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
 recalculateOutput = recalculateResiduals(simulationOutput , group = tbi$id)
-testSpatialAutocorrelation(recalculateOutput, 
-                           y = aggregate(tbi$longitude, list(tbi$id), mean)$x, 
-                           x = aggregate(tbi$latitude, list(tbi$id), mean)$x)
 car::vif(m5) # all < 3 (Zuur et al. 2010 Methods Ecol Evol)
 
 
@@ -219,7 +216,6 @@ car::Anova(m5, type = 3)
 (emm <- emmeans(m5, revpairwise ~ side, type = "response"))
 (emm <- emmeans(m5, revpairwise ~ comparison, type = "response"))
 plot(emm, comparison = T)
-emtrends(m5, revpairwise ~ exposition, var = "y", mult.name = "exposition")
 
 ### * Save ####
 table <- broom::tidy(car::Anova(m5, type = 3))

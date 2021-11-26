@@ -192,7 +192,7 @@ simulateResiduals(m7, plot = T)
 m8 <- lmer(y ~ comparison + (exposition + PC1soil + (PC2soil) + PC3soil + side) + log(distanceRiver) + locationYear + 
              comparison:exposition +
              (1|plot), 
-           REML = F,
+           REML = T,
            data = tbi)
 simulateResiduals(m8, plot = T)
 
@@ -220,6 +220,7 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$PC1soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC2soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
+car::vif(m2) # all < 3 (Zuur et al. 2010 Methods Ecol Evol)
 
 
 ## 3 Chosen model output ################################################################################
@@ -233,7 +234,7 @@ m2 <- lm((y) ~ comparison * exposition + (PC1soil + PC2soil + PC3soil) + side + 
 isSingular(m2)
 anova(m2)
 ### * Model output ####
-MuMIn::r.squaredGLMM(m2) #R2m = 0.363, R2c = 0.416
+MuMIn::r.squaredGLMM(m2) #R2m = 0.373, R2c = 0.373
 VarCorr(m2)
 sjPlot::plot_model(m2, type = "re", show.values = T)
 car::Anova(m2, type = 2)
