@@ -18,7 +18,7 @@ library(here)
 library(patchwork)
 
 ### Start ###
-rm(list = setdiff(ls(), c("graph_a", "graph_b")))
+rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
 
 
 
@@ -27,12 +27,13 @@ rm(list = setdiff(ls(), c("graph_a", "graph_b")))
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-(graph_a | graph_b) +
-  plot_layout(guides = 'collect', ncol = 2) +
+(graph_a | graph_b) /
+  (graph_c | graph_d) +
+  plot_layout(guides = 'collect') +
   plot_annotation(tag_levels = "A", tag_prefix = "", tag_suffix = "") &
   theme(plot.tag = element_text(size = 10, face = "bold"),
         legend.position = "bottom")
 
 ### Save ###
-ggsave(here("outputs/figures/figure_2_(800dpi_17x10cm).tiff"),
-       dpi = 800, width = 17, height = 10, units = "cm")
+ggsave(here("outputs/figures/figure_2_(800dpi_17x17cm).tiff"),
+       dpi = 800, width = 17, height = 17, units = "cm")

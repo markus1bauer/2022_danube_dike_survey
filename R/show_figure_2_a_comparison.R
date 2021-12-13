@@ -17,12 +17,12 @@ library(ggeffects)
 library(ggbeeswarm)
 
 ### Start ###
-rm(list = ls())
+rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
 setwd(here("data/processed"))
 
 
 ### Load data ###
-tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col_types = 
+tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                   cols(
                     .default = "?",
                     id = "f",
@@ -34,7 +34,6 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
                     side = "f",
                     comparison = "f"
                   )) %>%
-  select(-B, -C) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
   mutate(comparison = factor(comparison),
          locationYear = factor(locationYear),
