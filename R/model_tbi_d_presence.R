@@ -1,6 +1,6 @@
 # Calculate TBI ####
 # Markus Bauer
-# Citation: Bauer M, Huber J, Kollmann J (202x)
+# Citation: Bauer M, Huber J, Kollmann J (2022)
 
 
 
@@ -31,18 +31,25 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
                     plot = "f",
                     locationYear = "f",
                     exposition = "f",
-                    side = "f",
+                    side = "c",
                     comparison = "f"
                   )) %>%
-  select(-matches("PC.constructionYear"), -conf.low, -conf.high, -B, -C) %>%
+  select(-location, -B, -C) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
-  mutate(comparison = factor(comparison),
-         locationYear = factor(locationYear),
-         block = factor(block),
+  mutate(side = if_else(side == "water_creek", "water", side),
          plot = factor(plot),
-         exposition = factor(exposition)
-         ) %>%
+         comparison = factor(comparison),
+         exposition = factor(exposition),
+         side = factor(side),
+         constructionYear = factor(constructionYear),
+         locationYear = factor(locationYear)) %>%
   rename(y = D)
+
+data_collinearity <- tbi %>%
+  select(where(is.numeric))
+
+tbi <- tbi %>%
+  mutate(across(where(is.numeric) & !y, scale))
 
 
 
@@ -108,9 +115,7 @@ ggplot(tbi, aes(PC2soil)) + geom_density()
 ggplot(tbi, aes(exp(PC2soil))) + geom_density()
 
 #### * check collinearity ####
-data <- tbi %>%
-  select(where(is.numeric), -constructionYear, -y)
-#GGally::ggpairs(data, lower = list(continuous = "smooth_loess"))
+#GGally::ggpairs(data_collinearity, lower = list(continuous = "smooth_loess"))
 #--> riverkm ~ longitude/latitude has r > 0.7 (Dormann et al. 2013 Ecography)
 
 
@@ -126,47 +131,47 @@ VarCorr(m1b)
 m1c <- lmer(log(y) ~ 1 + (1|plot), data = tbi, REML = T)
 VarCorr(m1c)
 #fixed effects
-m1 <- lmer(log(y) ~ (comparison + exposition + PC1soil + (PC2soil))^2 + PC3soil + side + log(distanceRiver) + locationYear +
+m1 <- lmer(log(y) ~ (comparison + exposition + PC1soil + PC2soil)^2 + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
            REML = F,
          data = tbi)
 simulateResiduals(m1, plot = T)
-m2 <- lmer(log(y) ~ (comparison + exposition + PC1soil)^2 + (PC2soil) + PC3soil + side + log(distanceRiver) + locationYear +
+m2 <- lmer(log(y) ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
            REML = F, 
          data = tbi)
 simulateResiduals(m2, plot = T)
-m3 <- lmer(log(y) ~ (comparison + exposition + (PC2soil))^2 + PC1soil + PC3soil + side + log(distanceRiver) + locationYear +
+m3 <- lmer(log(y) ~ (comparison + exposition + PC2soil)^2 + PC1soil + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
            REML = F, 
          data = tbi)
 simulateResiduals(m3, plot = T)
-m4 <- lmer(log(y) ~ comparison + exposition * PC1soil + (PC2soil) + PC3soil + side + log(distanceRiver) + locationYear +
+m4 <- lmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
            REML = F, 
          data = tbi)
 simulateResiduals(m4, plot = T)
-m5 <- lmer(log(y) ~ comparison + exposition * (PC2soil) + PC1soil + PC3soil + side + log(distanceRiver) + locationYear + 
+m5 <- lmer(log(y) ~ comparison + exposition * PC2soil + PC1soil + PC3soil + side + distanceRiver + locationYear + 
              (1|plot), 
            REML = F,
          data = tbi)
 simulateResiduals(m5, plot = T)
-m6 <- lmer(log(y) ~ comparison * exposition + PC1soil + (PC2soil) + PC3soil + side + log(distanceRiver) + locationYear +
+m6 <- lmer(log(y) ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
            REML = F,
          data = tbi)
 simulateResiduals(m6, plot = T)
-m7 <- lmer(log(y) ~ comparison * PC1soil + exposition + (PC2soil) + PC3soil + side + log(distanceRiver) + locationYear +
+m7 <- lmer(log(y) ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
            REML = F,
          data = tbi)
 simulateResiduals(m7, plot = T)
-m8 <- lmer(log(y) ~ comparison * PC2soil + exposition + PC1soil + PC3soil + side + log(distanceRiver) + locationYear +
+m8 <- lmer(log(y) ~ comparison * PC2soil + exposition + PC1soil + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
            REML = F,
            data = tbi)
 simulateResiduals(m8, plot = T)
-m9 <- lmer(log(y) ~ comparison + exposition + PC1soil + (PC2soil) + PC3soil + side + log(distanceRiver) + locationYear +
+m9 <- lmer(log(y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
            REML = F,
            data = tbi)
@@ -191,7 +196,6 @@ rm(list = setdiff(ls(), c("tbi", "m")))
 
 simulationOutput <- simulateResiduals(m, plot = T)
 plotResiduals(simulationOutput$scaledResiduals, tbi$locationYear)
-plotResiduals(simulationOutput$scaledResiduals, tbi$block)
 plotResiduals(simulationOutput$scaledResiduals, tbi$plot)
 plotResiduals(simulationOutput$scaledResiduals, tbi$comparison)
 plotResiduals(simulationOutput$scaledResiduals, tbi$exposition)
@@ -200,7 +204,9 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$PC1soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC2soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
-recalculateOutput = recalculateResiduals(simulationOutput , group = tbi$id)
+recalculateOutput = recalculateResiduals(simulationOutput , group = tbi$plot)
+testSpatialAutocorrelation(recalculateOutput, x = tbi$longitude, y = tbi$latitude)
+
 car::vif(m) # all < 3 (Zuur et al. 2010 Methods Ecol Evol)
 
 

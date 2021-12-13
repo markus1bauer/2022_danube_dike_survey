@@ -550,54 +550,8 @@ rm(list = ls(pattern = "[^species|traits|sites]"))
 
 ## 5 Beta diversity #####################################################################################
 
-### * Prepare data ####
-data_sites <- sites %>%
-  filter(accumulatedCov > 0)
-data_species <- species %>%
-  pivot_longer(-name, "id", "value") %>%
-  pivot_wider(id, name) %>%
-  arrange(id) %>%
-  semi_join(data_sites, by = "id") %>%
-  mutate(across(where(is.numeric), ~replace(., is.na(.), 0)))
 
-### a NMDS -------------------------------------------------------------------------------------------
-
-data_species_nmds <- data_species %>%
-  column_to_rownames(var = "id")
-### Calculate NMDS ###
-set.seed(1)
-#(nmds <- metaMDS(data_species_nmds, dist = "bray", binary = F, try = 50, previous.best = T, na.rm = T))
-### Add to sites ###
-#data <- nmds %>%
-  #scores() %>%
-  #as.data.frame() %>%
-  #rownames_to_column(var = "id") %>%
-  #as_tibble() %>%
-  #select(id, NMDS1, NMDS2)
-#sites <- left_join(sites, data, by = "id")
-
-### b PERMDISP -------------------------------------------------------------------------------------------
-
-### Presence-Absence data ###
-data <- betadisper(d = vegdist(data_species_nmds, method = "bray", binary = T),
-                   group = data_sites$plot)
-data <- enframe(data$distances) %>%
-  rename(id = name, 
-         permdispPresabs = value)
-sites <- left_join(sites, data, by = "id")
-
-### Abundance data ###
-### Presence-Absence data ###
-data <- betadisper(d = vegdist(data_species_nmds, method = "bray", binary = F),
-                   group = data_sites$plot)
-data <- enframe(data$distances) %>%
-  rename(id = name, 
-         permdispAbu = value)
-sites <- left_join(sites, data, by = "id")
-
-rm(list = ls(pattern = "[^species|traits|sites|data_sites|data_species]"))
-
-### c dbMEM -------------------------------------------------------------------------------------------
+### c dbMEM (all plots) -------------------------------------------------------------------------------------------
 
 source('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/quickMEM.R')
 ### * 2017 ####
@@ -700,17 +654,25 @@ dbMEMred <- dbMEMred %>%
   rename(MEM1_2021 = MEM1, MEM2_2021 = MEM2)
 sites <- left_join(sites, dbMEMred, by = "id")
 
-### c2 dbMEM 2 -------------------------------------------------------------------------------------------
+### d dbMEM (41 plots) -------------------------------------------------------------------------------------------
 
-data <- data_sites %>%
+### * Prepare data ####
+source('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/quickMEM.R')
+data_sites <- sites %>%
+  filter(accumulatedCov > 0) %>%
   add_count(plot) %>%
-  filter(n == max(n) & surveyYear == 2021) %>%
-  select(id, plot)
+  filter(n == max(n))
+data_species <- species %>%
+  pivot_longer(-name, "id", "value") %>%
+  pivot_wider(id, name) %>%
+  arrange(id) %>%
+  semi_join(data_sites, by = "id") %>%
+  mutate(across(where(is.numeric), ~replace(., is.na(.), 0)))
+
 
 ### * 2017 ####
 data_sites_dbMEM <- data_sites %>%
   filter(surveyYear == 2017) %>%
-  semi_join(data, by = "plot") %>%
   select(id, longitude, latitude)
 data_species_dbMEM <- data_species %>%
   semi_join(data_sites_dbMEM, by = "id") %>%
@@ -727,7 +689,7 @@ m <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
 m$RDA_test # p = 0.002
 m$RDA_axes_test #1 sig axes
 m$RDA # PC1 = 0.114
-dbMEMred <- dbMEMred %>%
+dbMEMred <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM1) %>%
   rename(MEM1_2017 = MEM1)
@@ -757,7 +719,7 @@ dbMEMred <- dbMEMred %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM1) %>%
   rename(MEM1_2018 = MEM1)
-sites <- left_join(sites, dbMEMred, by = "id")
+#sites <- left_join(sites, dbMEMred, by = "id")
 
 ### * 2019 ####
 data_sites_dbMEM <- data_sites %>%
@@ -810,7 +772,7 @@ dbMEMred <- dbMEMred %>%
   rename(MEM1_2021 = MEM1, MEM2_2021 = MEM2)
 sites <- left_join(sites, dbMEMred, by = "id")
 
-#### d LCBD (Local Contributions to Beta Diversity) -------------------------------------------------------------------------------------------
+### d LCBD (Local Contributions to Beta Diversity) -------------------------------------------------------------------------------------------
 
 #### * 2017 ####
 data_species_lcbd <- data_species %>%
@@ -895,10 +857,11 @@ rm(list = ls(pattern = "[^species|traits|sites]"))
 
 ### Prepare data ###
 data <- sites %>%
-  select(id, plot, calciumcarbonatPerc, humusPerc, NtotalPerc, cnRatio, pH, sandPerc, siltPerc, clayPerc, phosphorus, potassium, magnesium, topsoilDepth, NtotalConc) %>%
-  group_by(plot) %>%
-  summarise(across(where(is.numeric), ~median(.x, na.rm = T))) %>%
-  select(-plot)
+  filter(accumulatedCov > 0) %>%
+  add_count(plot) %>%
+  filter(n == max(n) & surveyYear == 2017) %>%
+  select(plot, calciumcarbonatPerc, humusPerc, NtotalPerc, cnRatio, pH, sandPerc, siltPerc, clayPerc, phosphorus, potassium, magnesium, topsoilDepth, NtotalConc) %>%
+  column_to_rownames(var = "plot")
 ### Calculate PCA ###
 pca <- rda(X = decostand(data, method = "standardize"), scale = T)
 biplot(pca, display = "species")
@@ -915,17 +878,21 @@ eigenvals <- pca %>%
 values <- pca %>%
   summary()
 ### create summary table ###
-pcaSoil <- values$species[ ,1:3] %>%
+pcaSoil <- values$species[ ,1:4] %>%
   as_tibble() %>%
   bind_cols(c("calciumcarbonatPerc", "humusPerc", "NtotalPerc", "cnRatio", "pH", "sandPerc", "siltPerc", "clayPerc", "phosphorous", "potassium", "magnesium", "topsoilDepth", "NtotalConc")) %>%
-  rename(variables = "...4") %>%
+  rename(variables = "...5") %>%
   bind_rows(eigenvals)
-data <- as_tibble(values$sites[,1:3]) %>%
+data <- as_tibble(values$sites[,1:4]) %>%
   rename(PC1soil = PC1,
          PC2soil = PC2,
-         PC3soil = PC3)
+         PC3soil = PC3,
+         PC4soil = PC4)
 ### Add to sites ###
 data <- sites %>%
+  filter(accumulatedCov > 0) %>%
+  add_count(plot) %>%
+  filter(n == max(n) & surveyYear == 2017) %>%
   group_by(plot) %>%
   slice(1) %>%
   ungroup() %>%
@@ -1146,10 +1113,10 @@ rm(list = ls(pattern = "[^species|traits|sites|pcaSoil|pcaSurveyYear|pcaConstruc
 
 ### * Prepare data ####
 data_sites <- sites %>%
-  select(id, plot, vegetationCov) %>%
-  filter(vegetationCov > 0) %>%
+  filter(accumulatedCov > 0) %>%
   add_count(plot) %>%
-  filter(n == max(n))
+  filter(n == max(n)) %>%
+  select(id, plot)
 data_species <- species %>%
   select(where(~!all(is.na(.x)))) %>%
   mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
@@ -1296,13 +1263,11 @@ tbi <- sites %>%
   left_join(data, by = "plot") %>%
   rename(B = "B/(2A+B+C)", C = "C/(2A+B+C)", D = "D=(B+C)/(2A+B+C)", change = Change) %>%
   mutate(change = C - B) %>%
-  select(id, plot, exposition, side, block, location, locationAbb, locationYear, longitude, latitude, riverkm, distanceRiver, constructionYear, botanist, conf.low, conf.high, PC1soil, PC2soil, PC3soil, PC1constructionYear, PC2constructionYear, PC3constructionYear, B, C, D, comparison, presabu) %>%
-  mutate(across(c(PC1soil, PC2soil, PC3soil, 
-                  PC1constructionYear, PC2constructionYear, PC3constructionYear,
+  select(plot, exposition, side, block, location, locationYear, longitude, latitude, riverkm, distanceRiver, constructionYear, PC1soil, PC2soil, PC3soil, B, C, D, comparison, presabu) %>%
+  mutate(across(c(PC1soil, PC2soil, PC3soil,
+                  distanceRiver,
                   B, C, D), 
-                ~ round(.x, digits = 4))) %>%
-  mutate(across(c(distanceRiver), 
-                ~ round(.x, digits = 1)))
+                ~ round(.x, digits = 4))) 
   
 rm(list = ls(pattern = "[^species|traits|sites|pcaSoil|pcaSurveyYear|pcaConstructionYear|tbi]"))
 
@@ -1310,7 +1275,7 @@ rm(list = ls(pattern = "[^species|traits|sites|pcaSoil|pcaSurveyYear|pcaConstruc
 ## 8 Rounding ##############################################################################################
 
 sites <- sites %>%
-  mutate(across(c(NMDS1, NMDS2, permdispPresabs, permdispAbu, lcbd, 
+  mutate(across(c(lcbd, 
                   syn_total, syn_trend, syn_detrend, 
                   PC1soil, PC2soil, PC3soil, PC1surveyYear, PC2surveyYear, PC3surveyYear, 
                   PC1constructionYear, PC2constructionYear, PC3constructionYear), 

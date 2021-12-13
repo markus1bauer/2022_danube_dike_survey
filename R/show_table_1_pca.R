@@ -13,13 +13,43 @@ library(gt)
 
 ### Start ###
 rm(list = ls())
-setwd(here("data/processed"))
+setwd(here("outputs/tables"))
 
 ### Load data ###
-data <- read_csv2("data_processed_pca.csv", col_names = T, na = "na", col_types = 
+data <- read_csv("table_pca_soil.csv", col_names = T, na = c("na", "NA", " "), col_types = 
                      cols(
-                       .default = col_guess())) %>%
-   relocate(variables)
+                       .default = "?")) %>%
+  relocate(variables) %>%
+  select(-PC4) %>%
+  filter(variables != "Eigenvalues" & variables != "Proportion Explained" & variables != "Cumulative Proportion") %>%
+  mutate(across(where(is.numeric), ~round(., digits = 2))) %>%
+  mutate(variables = fct_relevel(variables, c("topsoilDepth",
+                                              "sandPerc",
+                                              "siltPerc",
+                                              "clayPerc",
+                                              "pH",
+                                              "calciumcarbonatPerc",
+                                              "humusPerc",
+                                              "cnRatio",
+                                              "NtotalPerc",
+                                              "NtotalConc",
+                                              "phosphorous",
+                                              "potassium",
+                                              "magnesium")),
+         variables = fct_recode(variables, 
+                                "Topsoil depth" = "topsoilDepth",
+                                "Sand" = "sandPerc",
+                                "Silt" = "siltPerc",
+                                "Clay" = "clayPerc",
+                                "Humus" = "humusPerc",
+                                "CaCO3" = "calciumcarbonatPerc",
+                                "C:N ratio" = "cnRatio",
+                                "N" = "NtotalPerc",
+                                "N concentration" = "NtotalConc",
+                                "P" = "phosphorous",
+                                "K" = "potassium",
+                                "Mg2+" = "magnesium")) %>%
+  arrange(variables)
 
 
 
@@ -30,10 +60,12 @@ data <- read_csv2("data_processed_pca.csv", col_names = T, na = "na", col_types 
 
 (table <- data %>%
     gt() %>%
+
+### General settings ####
     opt_table_lines(
        extent = "none"
     ) %>%
-    tab_options( #general settings
+    tab_options( 
        table.font.style = "Arial",
        table.font.size = px(12),
        table.font.color = "black",
@@ -49,26 +81,8 @@ data <- read_csv2("data_processed_pca.csv", col_names = T, na = "na", col_types 
        table_body.border.bottom.width = px(2),
        table_body.border.top.width = px(1)
     ) %>%
-    #general alignments
-    tab_style( 
-       style = cell_text(
-          v_align = "top",
-          align = "center"
-       ),
-       locations = cells_column_labels(
-          columns = T
-       )
-    ) %>%
-    tab_style(
-       style = cell_text(
-          align = "center",
-          v_align = "middle"
-       ),
-       locations = cells_body(
-          columns = T
-       )
-    ) %>%
-    #alignment of first column
+
+### Alignment of first column ####
     tab_style(
        style = cell_text(
           align = "left"
@@ -85,9 +99,10 @@ data <- read_csv2("data_processed_pca.csv", col_names = T, na = "na", col_types 
           columns = "variables"
        )
     ) %>%
-    #heading
+   
+### Heading ####
     tab_header( 
-       title = "Table 1"
+       title = ""
     ) %>%
     tab_style(
        style = cell_text(
@@ -95,7 +110,8 @@ data <- read_csv2("data_processed_pca.csv", col_names = T, na = "na", col_types 
        ),
        locations = cells_title()
     ) %>%
-    #spanners
+   
+### Spanners ####
     #tab_spanner( 
     # label = "Treatments",
     #columns = vars(
@@ -119,23 +135,29 @@ data <- read_csv2("data_processed_pca.csv", col_names = T, na = "na", col_types 
  #locations = cells_column_spanners(
  #    spanners = T
  #)) %>%
- #column labels
+
+### Column labels ####
  cols_label( 
-    variables = md("**Variable**")
+    variables = md(""),
+    PC1 = md("**PC1 (43%)**"),
+    PC2 = md("**PC2 (21%)**"),
+    PC3 = md("**PC3 (10%)**"),
  ) %>%
-    #footnote
-    tab_source_note( 
-       source_note = "PCA for old dikes"
-    ) %>%
-    #Highlight certain cells   
+  
+### Footnote ####
+    #tab_source_note( 
+    #   source_note = "PCA for old dikes"
+    #) %>%
+
+### Highlight certain cells ####
     tab_style(
        style = list(
           cell_fill(color = "grey"),
           cell_text(weight = "bold")
        ),
        locations = cells_body(
-          columns = "PC1",
-          rows = PC1 >= 1.2 & PC1 < 2 | PC1 <= -1.2
+          columns = PC1,
+          rows = PC1 >= 1.2 & PC1 < 2 | PC1 <= -1.16
        )) %>%
     tab_style(
        style = list(
@@ -143,7 +165,7 @@ data <- read_csv2("data_processed_pca.csv", col_names = T, na = "na", col_types 
           cell_text(weight = "bold")
        ),
        locations = cells_body(
-          columns = "PC2",
+          columns = PC2,
           rows = PC2 >= .9 & PC2 < 2 | PC2 <= -1
        )) %>%
     tab_style(
@@ -152,11 +174,41 @@ data <- read_csv2("data_processed_pca.csv", col_names = T, na = "na", col_types 
           cell_text(weight = "bold")
        ),
        locations = cells_body(
-          columns = "PC3",
-          rows = PC3 >= 1 & PC3 < 1.15 | PC3 <= -1
-       ))
+          columns = PC3,
+          rows = PC3 >= .9 & PC3 < 1.15 | PC3 <= -1
+       )) %>%
+  
+  ### Make subscripts ####
+   text_transform(
+    locations = cells_body(
+      columns = c(variables),
+      rows = c(6, 9, 10)
+    ),
+    fn = function(x){
+      x <- c("3", "total", "concentration")
+      text <- c("CaCO", "N", "N")
+      glue::glue("{text}<sub>{x}</sub>")
+    }
+  ) %>%
+  text_transform(
+    locations = cells_body(
+      columns = c(variables),
+      rows = c(13)
+    ),
+    fn = function(x){
+      x <- c("2+")
+      text <- c("Mg")
+      glue::glue("{text}<sup>{x}</sup>")
+    }
+  )
+   
 )
 
-### Save ###
-setwd(here("outputs/tables"))
-gtsave(table, "table_1_pca.png")
+
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# C Save ################################################################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+gtsave(table, here("outputs/tables/table_3_pca_soil.png"))

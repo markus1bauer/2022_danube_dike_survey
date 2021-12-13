@@ -34,22 +34,18 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
                     side = "c",
                     comparison = "f"
                   )) %>%
-  select(-matches("PC.constructionYear"), -conf.low, -conf.high) %>%
+  select(-matches("PC.constructionYear"), -conf.low, -conf.high, -location) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
   mutate(side = if_else(side == "water_creek", "water", side),
-         ageGroup = if_else(constructionYear %in% c(2002, 2003), "0203", if_else(
-           constructionYear %in% c(2006, 2007), "0607", if_else(
-             constructionYear == 2008, "2008", if_else(
-               constructionYear %in% c(2010, 2011), "1011", if_else(
-                 constructionYear %in% c(2012, 2013), "1213", "other"
-               ))))),
-         ageGroup = fct_relevel(ageGroup, "2008", after = 2),
          plot = factor(plot),
          comparison = factor(comparison),
          exposition = factor(exposition),
          side = factor(side),
-         ageGroup = factor(ageGroup),
-         constructionYearF = factor(constructionYear)) %>%
+         constructionYearF = factor(constructionYear),
+         riverkm = scale(riverkm, center = T, scale = T),
+         distanceRiver = scale(distanceRiver, center = T, scale = T),
+         longitude = scale(longitude, center = T, scale = T),
+         latitude = scale(latitude, center = T, scale = T)) %>%
   mutate(y = C - B)
 
 
@@ -155,7 +151,7 @@ VarCorr(m1b)
 m1c <- lmer(y ~ 1 + (1|plot), data = tbi, REML = T)
 VarCorr(m1c)
 #fixed effects
-m1 <- lmer(y ~ (comparison + exposition + PC1soil + exp(PC2soil))^2 + PC3soil + side + locationYear + log(distanceRiver) +
+m1 <- lmer(y ~ (comparison + exposition + PC1soil + PC2soil)^2 + PC3soil + side + locationYear + log(distanceRiver) +
              (1|plot), 
            REML = F,
            data = tbi);simulateResiduals(m1, plot = T)
