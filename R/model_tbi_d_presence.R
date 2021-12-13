@@ -206,14 +206,13 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
 recalculateOutput = recalculateResiduals(simulationOutput , group = tbi$plot)
 testSpatialAutocorrelation(recalculateOutput, x = tbi$longitude, y = tbi$latitude)
-
 car::vif(m) # all < 3 (Zuur et al. 2010 Methods Ecol Evol)
 
 
 ## 3 Chosen model output ################################################################################
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m) #R2m = 0.373, R2c = 0.427
+MuMIn::r.squaredGLMM(m) #R2m = 0.391, R2c = 0.446
 VarCorr(m)
 sjPlot::plot_model(m, type = "re", show.values = T)
 car::Anova(m, type = 3)
@@ -222,6 +221,7 @@ car::Anova(m, type = 3)
 (emm <- emmeans(m, revpairwise ~ side, type = "response"))
 plot(emm, comparison = T)
 (emm <- emmeans(m, revpairwise ~ comparison, type = "response"))
+sjPlot::plot_model(m, type = "emm", terms = c("PC2soil", "exposition"), show.data = T)
 
 ### * Save ####
 table <- broom::tidy(car::Anova(m, type = 3))

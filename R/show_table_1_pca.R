@@ -13,10 +13,10 @@ library(gt)
 
 ### Start ###
 rm(list = ls())
-setwd(here("outputs/tables"))
+setwd(here("outputs/statistics"))
 
 ### Load data ###
-data <- read_csv("table_pca_soil.csv", col_names = T, na = c("na", "NA", " "), col_types = 
+data <- read_csv("pca_soil.csv", col_names = T, na = c("na", "NA", " "), col_types = 
                      cols(
                        .default = "?")) %>%
   relocate(variables) %>%

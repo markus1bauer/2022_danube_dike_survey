@@ -1298,6 +1298,6 @@ write_csv(traits, here("data/processed/data_processed_traits.csv"))
 write_csv(tbi, here("data/processed/data_processed_tbi.csv"))
 
 ### Tables ###
-write_csv(pcaSoil, here("outputs/tables/table_pca_soil.csv"))
-write_csv(pcaSurveyYear, here("outputs/tables/table_pca_survey_year.csv"))
-write_csv(pcaConstuctionYear, here("outputs/tables/table_pca_construction_year.csv"))
+write_csv(pcaSoil, here("outputs/statistics/pca_soil.csv"))
+write_csv(pcaSurveyYear, here("outputs/statistics/pca_survey_year.csv"))
+write_csv(pcaConstuctionYear, here("outputs/statistics/pca_construction_year.csv"))
