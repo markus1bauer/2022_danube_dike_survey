@@ -225,4 +225,4 @@ sjPlot::plot_model(m, type = "emm", terms = c("PC2soil", "exposition"), show.dat
 
 ### * Save ####
 table <- broom::tidy(car::Anova(m, type = 3))
-write.csv(table, here("outputs/statistics/table_anova_tbi_d_presence.csv"))
+write.csv(table, here("outputs/statistics/anova_tbi_d_presence.csv"))

@@ -34,18 +34,17 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
                     side = "f",
                     comparison = "f"
                   )) %>%
-  select(-matches("PC.constructionYear"), -conf.low, -conf.high, -B, -C) %>%
+  select(-B, -C) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
   mutate(comparison = factor(comparison),
          locationYear = factor(locationYear),
-         block = factor(block),
          plot = factor(plot),
          exposition = factor(exposition)
   ) %>%
   rename(y = D)
 
 ### * Model ####
-m5 <- lmer(log(y) ~ comparison + exposition * (PC2soil) + PC1soil + PC3soil + side + log(distanceRiver) + locationYear + 
+m5 <- lmer(log(y) ~ comparison + exposition * PC2soil + PC1soil + PC3soil + side + distanceRiver + locationYear + 
              (1|plot), 
            REML = T,
            data = tbi)
@@ -76,11 +75,11 @@ data_model <- ggeffect(m5, type = "emm", c("comparison"), back.transform = T) %>
   mutate(predicted = exp(predicted),
          conf.low = exp(conf.low),
          conf.high = exp(conf.high),
-         x = fct_recode(x, "2017 vs 2018" = "1718", "'18 vs '19" = "1819", "'19 vs '21" = "1921"))
+         x = fct_recode(x, "2017 vs 2018" = "1718", "2018 vs 2019" = "1819", "2019 vs 2021" = "1921"))
 
 data <- tbi %>%
   rename(predicted = y, x = comparison) %>%
-  mutate(x = fct_recode(x, "2017 vs 2018" = "1718", "'18 vs '19" = "1819", "'19 vs '21" = "1921"))
+  mutate(x = fct_recode(x, "2017 vs 2018" = "1718", "2018 vs 2019" = "1819", "2019 vs 2021" = "1921"))
 
 (graph_a <- ggplot() +
     geom_quasirandom(data = data, 
@@ -101,5 +100,5 @@ data <- tbi %>%
     themeMB())
 
 ### Save ###
-ggsave(here("outputs/figures/figure_tbi_d_pres_comparison_(800dpi_8x8cm).tiff"),
+ggsave(here("outputs/figures/figure_2_a_(800dpi_8x8cm).tiff"),
        dpi = 800, width = 8, height = 8, units = "cm")
