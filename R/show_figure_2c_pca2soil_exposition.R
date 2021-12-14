@@ -92,8 +92,8 @@ data <- tbi %>%
                size = 1, color = "grey70", fill = "grey70") +
     geom_line(data = data_model,
               aes(x = x, y = predicted, group = group)) +
-    scale_y_continuous(limits = c(0, .8), breaks = seq(-100, 400, .1)) +
-    scale_x_continuous(breaks = seq(-100, 400, .5)) +
+    scale_y_continuous(limits = c(0, .9), breaks = seq(-100, 400, .1)) +
+    scale_x_continuous(breaks = seq(-100, 400, 1)) +
     scale_fill_manual(values = c("grey40", "grey70")) +
     scale_shape_manual(values = c("circle filled", "circle open")) +
     annotate("text",
@@ -101,7 +101,7 @@ data <- tbi %>%
              x = c(-1.6, 0.7),
              y = c(0, 0),
              size = 2.5) +
-    labs(x = "PC2", y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]"), color = "Exposition", fill = "Exposition", shape = "Exposition") +
+    labs(x = expression(PC2[soil]), y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]"), color = "Exposition", fill = "Exposition", shape = "Exposition") +
     themeMB() +
     theme(legend.position = c(.8, .9)))
 

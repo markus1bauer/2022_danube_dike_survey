@@ -22,20 +22,13 @@ rm(list = ls())
 setwd(here("data/processed"))
 
 ### Load data ###
-tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col_types = 
+tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                   cols(
-                    .default = "?",
-                    id = "f",
-                    locationAbb = "f",
-                    block = "f",
-                    plot = "f",
-                    locationYear = "f",
-                    exposition = "f",
-                    side = "f",
-                    comparison = "f"
+                    .default = "?"
                   )) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
   mutate(plot = factor(plot),
+         block = factor(block),
          comparison = factor(comparison),
          exposition = factor(exposition),
          side = factor(side),
@@ -47,7 +40,7 @@ data_collinearity <- tbi %>%
   select(where(is.numeric))
 
 tbi <- tbi %>%
-  mutate(across(where(is.numeric) & !y, scale))
+  mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale))
 
 
 
@@ -109,12 +102,11 @@ boxplot(tbi$y);#identify(rep(1, length(etbi$rgr13)), etbi$rgr13, labels = c(etbi
 plot(table((tbi$y)), type = "h", xlab = "Observed values", ylab = "Frequency")
 ggplot(tbi, aes(y)) + geom_density()
 ggplot(tbi, aes(log(y))) + geom_density()
-ggplot(tbi, aes(PC2soil)) + geom_density()
-ggplot(tbi, aes(exp(PC2soil))) + geom_density()
 
 #### * check collinearity ####
 #GGally::ggpairs(data_collinearity, lower = list(continuous = "smooth_loess"))
 #--> riverkm ~ longitude/latitude has r > 0.7 (Dormann et al. 2013 Ecography)
+rm(data_collinearity)
 
 
 ## 2 Model building ################################################################################

@@ -13,8 +13,7 @@
 library(here)
 library(tidyverse)
 library(lme4)
-library(ggeffects)
-library(ggbeeswarm)
+library(dotwhisker)
 
 ### Start ###
 rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
@@ -45,7 +44,8 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"),
   mutate(across(where(is.numeric) & !y, scale))
 
 ### * Model ####
-m5 <- lmer(log(y) ~ comparison + exposition * PC2soil + PC1soil + PC3soil + side + distanceRiver + locationYear + 
+m5 <- lmer(log(y) ~ comparison + exposition + side + PC1soil + PC2soil + PC3soil + distanceRiver + locationYear + 
+             exposition:PC2soil +
              (1|plot), 
            REML = T,
            data = tbi)
@@ -56,12 +56,11 @@ themeMB <- function(){
     panel.background = element_rect(fill = "white"),
     text  = element_text(size = 9, color = "black"),
     strip.text = element_text(size = 10),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, size = 9, color = "black"),
-    axis.line.x = element_line(),
-    axis.line.y = element_blank(),
+    axis.text.y = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
+    axis.text.x = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
+    axis.title.x = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
     axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
+    axis.line = element_line(),
     legend.key = element_rect(fill = "white"),
     legend.position = "none",
     legend.margin = margin(0, 0, 0, 0, "cm"),
@@ -75,33 +74,29 @@ themeMB <- function(){
 # B Plot ##############################################################################################
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_model <- ggeffect(m5, type = "emm", c("locationYear"), back.transform = T) %>%
-  mutate(predicted = exp(predicted),
-         conf.low = exp(conf.low),
-         conf.high = exp(conf.high),
-         cross = if_else(x %in% c("PFE-2008", "IRL-2003"), "filled", "open"))
 
-data <- tbi %>%
-  rename(predicted = y, x = locationYear) 
-
-(graph_b <- ggplot() +
-    geom_quasirandom(data = data, 
-                     aes(x = x, predicted),
-                     dodge.width = .6, size = 1, shape = 16, color = "grey70") + 
-    geom_hline(yintercept = c(mean(tbi$y), mean(tbi$y) + 0.5 * sd(tbi$y), mean(tbi$y) - 0.5 * sd(tbi$y)), 
-               linetype = c(1, 2, 2),
-               color = "grey70") +
-    geom_errorbar(data = data_model, 
-                  aes(x, predicted, ymin = conf.low, ymax = conf.high), 
-                  width = 0.0, size = 0.4) +
-    geom_point(data = data_model,
-               aes(x, predicted, shape = cross),
-               size = 2) +
-    scale_y_continuous(limits = c(0, .9), breaks = seq(0, 400, .1)) +
-    scale_shape_manual(values = c("circle", "circle open")) +
-    labs(x = "", y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]")) +
-    themeMB())
+(graph_d <- m5 %>% 
+   broom.mixed::tidy(conf.int = T, conf.level = .95) %>%
+   filter(
+     !str_detect(term, "location*") & 
+       !str_detect(term, "comparison*") & 
+       !str_detect(term, "sd_*") &
+       !str_detect(term, "expositionnorth:PC2soil") &
+       !str_detect(term, "(Intercept)")) %>%
+   mutate(cross = if_else(term %in% c("sideland"), "filled", "open"),
+          term = fct_relevel(term, c("PC3soil", "PC2soil", "PC1soil", "distanceRiver", "sideland", "expositionnorth")),
+          term = fct_recode(term,
+                            "South | North exposition" = "expositionnorth",
+                            "Water | Land side" = "sideland",
+                            "Distance to river" = "distanceRiver")) %>%
+   ggplot(aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high)) +
+   geom_vline(xintercept = 0, linetype = 2, color = "black") +
+   geom_point(aes(shape = cross), size = 2) +
+   geom_linerange() +
+   scale_shape_manual(values = c("circle", "circle open")) +
+   labs(x = expression("log("*italic('D')[sor]*")")) +
+   themeMB())
 
 ### Save ###
-ggsave(here("outputs/figures/figure_2b_(800dpi_8x8cm).tiff"),
+ggsave(here("outputs/figures/figure_2d_(800dpi_8x8cm).tiff"),
        dpi = 800, width = 8, height = 8, units = "cm")

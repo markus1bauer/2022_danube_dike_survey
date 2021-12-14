@@ -1263,7 +1263,7 @@ tbi <- sites %>%
   left_join(data, by = "plot") %>%
   rename(B = "B/(2A+B+C)", C = "C/(2A+B+C)", D = "D=(B+C)/(2A+B+C)", change = Change) %>%
   mutate(change = C - B) %>%
-  select(plot, exposition, side, block, location, locationYear, longitude, latitude, riverkm, distanceRiver, constructionYear, PC1soil, PC2soil, PC3soil, B, C, D, comparison, presabu) %>%
+  select(plot, block, exposition, side, block, location, constructionYear, locationYear, longitude, latitude, riverkm, distanceRiver, PC1soil, PC2soil, PC3soil, conf.low, conf.high, B, C, D, comparison, presabu) %>%
   mutate(across(c(PC1soil, PC2soil, PC3soil,
                   distanceRiver,
                   B, C, D), 
