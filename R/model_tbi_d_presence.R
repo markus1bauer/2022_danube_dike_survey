@@ -31,13 +31,11 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
                     plot = "f",
                     locationYear = "f",
                     exposition = "f",
-                    side = "c",
+                    side = "f",
                     comparison = "f"
                   )) %>%
-  select(-location, -B, -C) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
-  mutate(side = if_else(side == "water_creek", "water", side),
-         plot = factor(plot),
+  mutate(plot = factor(plot),
          comparison = factor(comparison),
          exposition = factor(exposition),
          side = factor(side),
@@ -74,7 +72,7 @@ ggplot(tbi, aes(x = side, y = y)) +
 ggplot(tbi, aes(x = riverkm, y = (y))) + 
   geom_point() +
   geom_smooth(method = "loess")
-ggplot(tbi, aes(x = log(distanceRiver), y = (y))) + 
+ggplot(tbi, aes(x = (distanceRiver), y = log(y))) + 
   geom_point() +
   geom_smooth(method = "lm")
 ggplot(tbi, aes(x = constructionYear, y = y)) + 

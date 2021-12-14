@@ -40,7 +40,8 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"),
          plot = factor(plot),
          exposition = factor(exposition)
   ) %>%
-  rename(y = D)
+  rename(y = D) %>%
+  mutate(across(where(is.numeric) & !y, scale))
 
 ### * Model ####
 m5 <- lmer(log(y) ~ comparison + exposition + side + PC1soil + PC2soil + PC3soil + distanceRiver + locationYear + 
@@ -88,14 +89,14 @@ themeMB <- function(){
                             "South | North exposition" = "expositionnorth",
                             "Water | Land side" = "sideland",
                             "Distance to river" = "distanceRiver")) %>%
-   rename(Estimate = estimate) %>%
-   ggplot(aes(x = Estimate, y = term, xmin = conf.low, xmax = conf.high)) +
+   ggplot(aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high)) +
+   geom_vline(xintercept = 0, linetype = 2, color = "black") +
    geom_point(aes(shape = cross), size = 2) +
    geom_linerange() +
-   geom_vline(xintercept = 0, linetype = 2) +
    scale_shape_manual(values = c("circle", "circle open")) +
+   labs(x = expression("log("*italic('D')[sor]*")")) +
    themeMB())
-  
+
 ### Save ###
-ggsave(here("outputs/figures/figure_2_d_(800dpi_8x8cm).tiff"),
+ggsave(here("outputs/figures/figure_2d_(800dpi_8x8cm).tiff"),
        dpi = 800, width = 8, height = 8, units = "cm")

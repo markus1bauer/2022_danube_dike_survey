@@ -40,7 +40,8 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"),
          plot = factor(plot),
          exposition = factor(exposition)
   ) %>%
-  rename(y = D)
+  rename(y = D) %>%
+  mutate(across(where(is.numeric) & !y, scale))
 
 ### * Model ####
 m5 <- lmer(log(y) ~ comparison + exposition * PC2soil + PC1soil + PC3soil + side + distanceRiver + locationYear + 
@@ -65,7 +66,6 @@ themeMB <- function(){
 }
 
 
-
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # B Plot ##############################################################################################
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -83,7 +83,10 @@ data <- tbi %>%
 (graph_a <- ggplot() +
     geom_quasirandom(data = data, 
                      aes(x = x, predicted),
-                     dodge.width = .6, size = 1, shape = 16, color = "grey75") + 
+                     dodge.width = .6, size = 1, shape = 16, color = "grey70") + 
+    geom_hline(yintercept = c(data_model$predicted[1], data_model$conf.low[1], data_model$conf.high[1]), 
+               linetype = c(1, 2, 2),
+               color = "grey70") +
     geom_errorbar(data = data_model, 
                   aes(x, predicted, ymin = conf.low, ymax = conf.high), 
                   width = 0.0, size = 0.4) +
@@ -95,9 +98,9 @@ data <- tbi %>%
              x = c(1, 2, 3), 
              y = c(.8, .8, .8)) +
     scale_y_continuous(limits = c(0, .8), breaks = seq(-100, 400, .1)) +
-    labs(x = "", y = expression(Dissimilarity~"["*TBI[sor]*"]")) +
+    labs(x = "", y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]")) +
     themeMB())
 
 ### Save ###
-ggsave(here("outputs/figures/figure_2_a_(800dpi_8x8cm).tiff"),
+ggsave(here("outputs/figures/figure_2a_(800dpi_8x8cm).tiff"),
        dpi = 800, width = 8, height = 8, units = "cm")
