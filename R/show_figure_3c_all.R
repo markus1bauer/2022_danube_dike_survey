@@ -1,0 +1,93 @@
+# Show figure 2 ####
+# Markus Bauer
+# Citation: Markus Bauer 
+
+
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation ################################################################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+### Packages ###
+library(here)
+library(tidyverse)
+library(lme4)
+library(dotwhisker)
+
+### Start ###
+rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
+setwd(here("data/processed"))
+
+
+### Load data ###
+tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"), col_types = 
+                  cols(
+                    .default = "?",
+                    exposition = col_factor(levels = c("south", "north")),
+                    side = col_factor(levels = c("water", "land"))
+                  )) %>%
+  filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
+  mutate(plot = factor(plot),
+         block = factor(block),
+         comparison = factor(comparison),
+         exposition = factor(exposition),
+         side = factor(side),
+         constructionYear = factor(constructionYear),
+         locationYear = factor(locationYear)) %>%
+  mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale)) %>%
+  mutate(y = C - B)
+
+### * Model ####
+m6 <- blme::blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + locationYear + distanceRiver + 
+                    (1|plot), 
+                  REML = T,
+                  data = tbi)
+
+### * Functions ####
+themeMB <- function(){
+  theme(
+    panel.background = element_rect(fill = "white"),
+    text  = element_text(size = 9, color = "black"),
+    strip.text = element_text(size = 10),
+    axis.text.y = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
+    axis.text.x = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
+    axis.title.x = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
+    axis.title.y = element_blank(),
+    axis.line = element_line(),
+    legend.key = element_rect(fill = "white"),
+    legend.position = "none",
+    legend.margin = margin(0, 0, 0, 0, "cm"),
+    plot.margin = margin(0, 0, 0, 0, "cm")
+  )
+}
+
+
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Plot ##############################################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+(graph_c <- m6 %>% 
+   broom.mixed::tidy(conf.int = T, conf.level = .95) %>%
+   filter(
+     !str_detect(term, "location*") & 
+       !str_detect(term, "comparison*") & 
+       !str_detect(term, "sd_*") &
+       !str_detect(term, "(Intercept)")) %>%
+   mutate(term = fct_relevel(term, c("PC3soil", "PC2soil", "PC1soil", "distanceRiver", "sideland", "expositionnorth")),
+          term = fct_recode(term,
+                            "South | North exposition" = "expositionnorth",
+                            "Water | Land side" = "sideland",
+                            "Distance to river" = "distanceRiver")) %>%
+   ggplot(aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high)) +
+   geom_vline(xintercept = 0, linetype = 2, color = "black") +
+   geom_point(size = 2, shape = 1) +
+   geom_linerange() +
+   labs(x = expression(Temporal~"beta"~diversity:~Gains-Losses~"["*italic('C')[sor]-italic('B')[sor]*"]")) +
+   themeMB())
+
+### Save ###
+ggsave(here("outputs/figures/figure_3c_(800dpi_8x8cm).tiff"),
+       dpi = 800, width = 16, height = 8, units = "cm")

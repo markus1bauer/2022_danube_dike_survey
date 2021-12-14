@@ -195,12 +195,12 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
 plotResiduals(simulationOutput$scaledResiduals, tbi$riverkm)
 car::vif(m) # all < 3 (Zuur et al. 2010 Methods Ecol Evol) --> remove riverkm
-summary(m)
+
 
 ## 3 Chosen model output ################################################################################
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m) #R2m = 0.377, R2c = 0.377
+MuMIn::r.squaredGLMM(m) #R2m = 0.37, R2c = 0.396
 VarCorr(m)
 sjPlot::plot_model(m, type = "re", show.values = T)
 car::Anova(m, type = 3)
