@@ -56,7 +56,7 @@ themeMB <- function(){
     panel.background = element_rect(fill = "white"),
     text  = element_text(size = 9, color = "black"),
     strip.text = element_text(size = 10),
-    axis.text.y = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
+    axis.text.y = element_text(angle = 0, hjust = 1, size = 9, color = "black"),
     axis.text.x = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
     axis.title.x = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
     axis.title.y = element_blank(),
