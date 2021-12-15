@@ -12,7 +12,7 @@
 ### Packages ###
 library(here)
 library(tidyverse)
-library(lme4)
+library(blme)
 library(ggeffects)
 library(ggbeeswarm)
 
@@ -25,8 +25,6 @@ setwd(here("data/processed"))
 tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                   cols(
                     .default = "?",
-                    id = "f",
-                    locationAbb = "f",
                     block = "f",
                     plot = "f",
                     locationYear = "f",
@@ -44,10 +42,12 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"),
   mutate(across(where(is.numeric) & !y, scale))
 
 ### * Model ####
-m5 <- lmer(log(y) ~ comparison + exposition * PC2soil + PC1soil + PC3soil + side + distanceRiver + locationYear + 
-             (1|plot), 
-           REML = T,
-           data = tbi)
+m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+              (1|plot), 
+            REML = T,
+            control = lmerControl(optimizer = "Nelder_Mead"),
+            cov.prior = wishart,
+            data = tbi)
 
 ### * Functions ####
 themeMB <- function(){
@@ -59,7 +59,7 @@ themeMB <- function(){
     axis.title = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
     axis.line = element_line(),
     legend.key = element_rect(fill = "white"),
-    legend.position = "bottom",
+    legend.position = "none",
     legend.margin = margin(0, 0, 0, 0, "cm"),
     plot.margin = margin(0, 0, 0, 0, "cm")
   )
@@ -70,10 +70,11 @@ themeMB <- function(){
 # B Plot ##############################################################################################
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_model <- ggeffect(m5, type = "emm", c("comparison"), back.transform = T) %>%
+data_model <- ggeffect(m2, type = "emm", c("comparison"), back.transform = T) %>%
   mutate(predicted = exp(predicted),
          conf.low = exp(conf.low),
          conf.high = exp(conf.high),
+         cross = if_else(x %in% c("1819"), "filled", "open"),
          x = fct_recode(x, "2017 vs 2018" = "1718", "2018 vs 2019" = "1819", "2019 vs 2021" = "1921"))
 
 data <- tbi %>%
@@ -84,20 +85,17 @@ data <- tbi %>%
     geom_quasirandom(data = data, 
                      aes(x = x, predicted),
                      dodge.width = .6, size = 1, shape = 16, color = "grey70") + 
-    geom_hline(yintercept = c(data_model$predicted[1], data_model$conf.low[1], data_model$conf.high[1]), 
+    geom_hline(yintercept = c(mean(tbi$y), mean(tbi$y) + 0.5 * sd(tbi$y), mean(tbi$y) - 0.5 * sd(tbi$y)), 
                linetype = c(1, 2, 2),
                color = "grey70") +
     geom_errorbar(data = data_model, 
                   aes(x, predicted, ymin = conf.low, ymax = conf.high), 
                   width = 0.0, size = 0.4) +
     geom_point(data = data_model,
-               aes(x, predicted),
+               aes(x, predicted, shape = cross),
                size = 2) +
-    annotate("text", 
-             label = c("ab", "a", "b"), 
-             x = c(1, 2, 3), 
-             y = c(.8, .8, .8)) +
     scale_y_continuous(limits = c(0, .9), breaks = seq(-100, 400, .1)) +
+    scale_shape_manual(values = c("circle", "circle open")) +
     labs(x = "", y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]")) +
     themeMB())
 

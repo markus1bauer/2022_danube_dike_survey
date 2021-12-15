@@ -13,7 +13,6 @@
 library(here)
 library(tidyverse)
 library(ggbeeswarm)
-library(lme4)
 library(lmerTest)
 library(DHARMa)
 library(emmeans)
@@ -114,65 +113,54 @@ rm(data_collinearity)
 
 ### a models ----------------------------------------------------------------------------------------
 
-#random structure
-m1a <- lmer(log(y) ~ 1 + (1|locationYear), data = tbi, REML = T)
-VarCorr(m1a) 
-m1b <- lmer(log(y) ~ 1 + (1|locationYear/plot), data = tbi, REML = T)
-VarCorr(m1b)
-m1c <- lmer(log(y) ~ 1 + (1|plot), data = tbi, REML = T)
-VarCorr(m1c)
-#fixed effects
-m1 <- lmer(log(y) ~ (comparison + exposition + PC1soil + PC2soil)^2 + PC3soil + side + distanceRiver + locationYear +
+### * random structure ####
+m1a <- blmer(log(y) ~ 1 + (1|locationYear), data = tbi, REML = F)
+m1b <- blmer(log(y) ~ 1 + (1|locationYear/plot), data = tbi, REML = F)
+m1c <- blmer(log(y) ~ 1 + (1|plot), data = tbi, REML = F)
+MuMIn::AICc(m1a, m1b, m1c) # m1c most parsimonous
+
+library(blme)
+#### * fixed effects ####
+m1 <- blmer(log(y) ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
            REML = F,
-         data = tbi)
+           control = lmerControl(optimizer = "Nelder_Mead"),
+           cov.prior = wishart,
+           data = tbi)
 simulateResiduals(m1, plot = T)
-m2 <- lmer(log(y) ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
-           REML = F, 
-         data = tbi)
+           REML = F,
+           control = lmerControl(optimizer = "Nelder_Mead"),
+           cov.prior = wishart,
+           data = tbi)
 simulateResiduals(m2, plot = T)
-m3 <- lmer(log(y) ~ (comparison + exposition + PC2soil)^2 + PC1soil + PC3soil + side + distanceRiver + locationYear +
+m3 <- blmer(log(y) ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
-           REML = F, 
-         data = tbi)
+            REML = F,
+            control = lmerControl(optimizer = "Nelder_Mead"),
+            cov.prior = wishart,
+            data = tbi)
 simulateResiduals(m3, plot = T)
-m4 <- lmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m4 <- blmer(log(y) ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
-           REML = F, 
-         data = tbi)
+           REML = F,
+           control = lmerControl(optimizer = "Nelder_Mead"),
+           cov.prior = wishart,
+           data = tbi)
 simulateResiduals(m4, plot = T)
-m5 <- lmer(log(y) ~ comparison + exposition * PC2soil + PC1soil + PC3soil + side + distanceRiver + locationYear + 
+m5 <- blmer(log(y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
            REML = F,
-         data = tbi)
+           control = lmerControl(optimizer = "Nelder_Mead"),
+           cov.prior = wishart,
+           data = tbi)
 simulateResiduals(m5, plot = T)
-m6 <- lmer(log(y) ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
-             (1|plot), 
-           REML = F,
-         data = tbi)
-simulateResiduals(m6, plot = T)
-m7 <- lmer(log(y) ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side + distanceRiver + locationYear +
-             (1|plot), 
-           REML = F,
-         data = tbi)
-simulateResiduals(m7, plot = T)
-m8 <- lmer(log(y) ~ comparison * PC2soil + exposition + PC1soil + PC3soil + side + distanceRiver + locationYear +
-             (1|plot), 
-           REML = F,
-           data = tbi)
-simulateResiduals(m8, plot = T)
-m9 <- lmer(log(y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
-             (1|plot), 
-           REML = F,
-           data = tbi)
-simulateResiduals(m9, plot = T)
 
 ### b comparison -----------------------------------------------------------------------------------------
 
-AICcmodavg::aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c)) # m1c is parsimonous
-AICcmodavg::aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8, "m9" = m9))
-dotwhisker::dwplot(list(m5, m4, m9), 
+MuMIn::AICc(m1, m2, m3, m4, m5) # m2 most parsimonous; Use AICc and not AIC since ratio n/K < 40 (Burnahm & Anderson 2002 p. 66)
+dotwhisker::dwplot(list(m2, m5), 
                    show_intercept = F,
                    vline = geom_vline(
                      xintercept = 0,
@@ -180,11 +168,7 @@ dotwhisker::dwplot(list(m5, m4, m9),
                      linetype = 2)
                    ) +
   theme_classic()
-m <- update(m5, REML = T)
-m <- blme::blmer(log(y) ~ comparison + exposition * PC2soil + PC1soil + PC3soil + side + distanceRiver + locationYear + 
-             (1|plot), 
-           REML = T,
-           data = tbi)
+m <- update(m2, REML = T)
 rm(list = setdiff(ls(), c("tbi", "m")))
 
 ### c model check -----------------------------------------------------------------------------------------
@@ -199,23 +183,27 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$PC1soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC2soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
+plotResiduals(simulationOutput$scaledResiduals, tbi$riverkm)
 car::vif(m) # all < 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol)
 
 
 ## 3 Chosen model output ################################################################################
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m) #R2m = 0.378, R2c = 0.488
+MuMIn::r.squaredGLMM(m) #R2m = 0.367, R2c = 0.490
 VarCorr(m)
 sjPlot::plot_model(m, type = "re", show.values = T)
-anova(m, type = 3, ddf = "Satterthwaite")
+dotwhisker::dwplot(list(m), 
+                   show_intercept = F,
+                   vline = geom_vline(
+                     xintercept = 0,
+                     colour = "grey60",
+                     linetype = 2)
+                   ) +
+  theme_classic()
 
 ### * Effect sizes ####
 (emm <- emmeans(m, revpairwise ~ side, type = "response"))
 plot(emm, comparison = T)
 (emm <- emmeans(m, revpairwise ~ comparison, type = "response"))
-sjPlot::plot_model(m, type = "emm", terms = c("PC2soil", "exposition"), show.data = T)
-
-### * Save ####
-table <- broom::tidy(car::Anova(m, type = 3))
-write.csv(table, here("outputs/statistics/anova_tbi_d_presence.csv"))
+sjPlot::plot_model(m, type = "emm", terms = c("PC1soil", "exposition"), show.data = T)
