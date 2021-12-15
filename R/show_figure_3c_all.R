@@ -85,9 +85,9 @@ themeMB <- function(){
    geom_vline(xintercept = 0, linetype = 2, color = "black") +
    geom_point(size = 2, shape = 1) +
    geom_linerange() +
-   labs(x = expression(Temporal~"beta"~diversity:~Gains-Losses~"["*italic('C')[sor]-italic('B')[sor]*"]")) +
+   labs(x = expression(Gains-Losses~"["*italic('C')[sor]-italic('B')[sor]*"]")) +
    themeMB())
 
 ### Save ###
 ggsave(here("outputs/figures/figure_3c_(800dpi_8x8cm).tiff"),
-       dpi = 800, width = 16, height = 8, units = "cm")
+       dpi = 800, width = 8, height = 8, units = "cm")

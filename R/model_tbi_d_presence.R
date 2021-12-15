@@ -13,7 +13,8 @@
 library(here)
 library(tidyverse)
 library(ggbeeswarm)
-library(lme4)  
+library(lme4)
+library(lmerTest)
 library(DHARMa)
 library(emmeans)
 
@@ -180,6 +181,10 @@ dotwhisker::dwplot(list(m5, m4, m9),
                    ) +
   theme_classic()
 m <- update(m5, REML = T)
+m <- blme::blmer(log(y) ~ comparison + exposition * PC2soil + PC1soil + PC3soil + side + distanceRiver + locationYear + 
+             (1|plot), 
+           REML = T,
+           data = tbi)
 rm(list = setdiff(ls(), c("tbi", "m")))
 
 ### c model check -----------------------------------------------------------------------------------------
@@ -194,18 +199,16 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$PC1soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC2soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
-recalculateOutput = recalculateResiduals(simulationOutput , group = tbi$plot)
-testSpatialAutocorrelation(recalculateOutput, x = tbi$longitude, y = tbi$latitude)
-car::vif(m) # all < 3 (Zuur et al. 2010 Methods Ecol Evol)
+car::vif(m) # all < 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol)
 
 
 ## 3 Chosen model output ################################################################################
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m) #R2m = 0.391, R2c = 0.446
+MuMIn::r.squaredGLMM(m) #R2m = 0.378, R2c = 0.488
 VarCorr(m)
 sjPlot::plot_model(m, type = "re", show.values = T)
-car::Anova(m, type = 3)
+anova(m, type = 3, ddf = "Satterthwaite")
 
 ### * Effect sizes ####
 (emm <- emmeans(m, revpairwise ~ side, type = "response"))

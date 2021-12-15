@@ -13,7 +13,8 @@
 library(here)
 library(tidyverse)
 library(ggbeeswarm)
-library(lme4)  
+library(lme4)
+library(lmerTest)
 library(DHARMa)
 library(emmeans)
 
@@ -106,6 +107,7 @@ ggplot(tbi, aes(log(y))) + geom_density()
 #### * check collinearity ####
 #GGally::ggpairs(data_collinearity, lower = list(continuous = "smooth_loess"))
 #--> riverkm ~ longitude/latitude has r > 0.7 (Dormann et al. 2013 Ecography)
+rm(data_collinearity)
 
 
 ## 2 Model building ################################################################################
@@ -183,6 +185,7 @@ m <- blme::blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + sid
 rm(list = setdiff(ls(), c("tbi", "m")))
 
 ### c model check -----------------------------------------------------------------------------------------
+
 simulationOutput <- simulateResiduals(m, plot = T)
 plotResiduals(simulationOutput$scaledResiduals, tbi$locationYear)
 plotResiduals(simulationOutput$scaledResiduals, tbi$plot)
@@ -194,7 +197,7 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$PC2soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
 plotResiduals(simulationOutput$scaledResiduals, tbi$riverkm)
-car::vif(m) # all < 3 (Zuur et al. 2010 Methods Ecol Evol) --> remove riverkm
+car::vif(m) # all < 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol) --> remove riverkm
 
 
 ## 3 Chosen model output ################################################################################
@@ -203,12 +206,10 @@ car::vif(m) # all < 3 (Zuur et al. 2010 Methods Ecol Evol) --> remove riverkm
 MuMIn::r.squaredGLMM(m) #R2m = 0.37, R2c = 0.396
 VarCorr(m)
 sjPlot::plot_model(m, type = "re", show.values = T)
-car::Anova(m, type = 3)
 
 ### * Effect sizes ####
 (emm <- emmeans(m, revpairwise ~ comparison | exposition, type = "response"))
 plot(emm, comparison = T)
 
 ### * Save ####
-table <- broom::tidy(car::Anova(m, type = 3))
-write.csv(table, here("outputs/statistics/anova_tbi_bc_presence.csv"))
+#No ANOVA table for blme model
