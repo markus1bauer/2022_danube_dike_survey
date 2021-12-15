@@ -12,8 +12,7 @@
 ### Packages ###
 library(here)
 library(tidyverse)
-library(lme4)
-library(dotwhisker)
+library(blme)
 
 ### Start ###
 rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
@@ -44,11 +43,12 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"),
   mutate(across(where(is.numeric) & !y, scale))
 
 ### * Model ####
-m5 <- lmer(log(y) ~ comparison + exposition + side + PC1soil + PC2soil + PC3soil + distanceRiver + locationYear + 
-             exposition:PC2soil +
-             (1|plot), 
-           REML = T,
-           data = tbi)
+m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+              (1|plot), 
+            REML = T,
+            control = lmerControl(optimizer = "Nelder_Mead"),
+            cov.prior = wishart,
+            data = tbi)
 
 ### * Functions ####
 themeMB <- function(){
@@ -75,13 +75,13 @@ themeMB <- function(){
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-(graph_d <- m5 %>% 
+(graph_d <- m2 %>% 
    broom.mixed::tidy(conf.int = T, conf.level = .95) %>%
    filter(
      !str_detect(term, "location*") & 
       !str_detect(term, "comparison*") & 
       !str_detect(term, "sd_*") &
-      !str_detect(term, "expositionnorth:PC2soil") &
+      !str_detect(term, "expositionnorth:PC1soil") &
       !str_detect(term, "(Intercept)")) %>%
    mutate(cross = if_else(term %in% c("sideland"), "filled", "open"),
           term = fct_relevel(term, c("PC3soil", "PC2soil", "PC1soil", "distanceRiver", "sideland", "expositionnorth")),

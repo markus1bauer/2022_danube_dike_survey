@@ -12,7 +12,7 @@
 ### Packages ###
 library(here)
 library(tidyverse)
-library(lme4)
+library(blme)
 library(ggeffects)
 library(ggbeeswarm)
 
@@ -45,10 +45,12 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"),
   mutate(across(where(is.numeric) & !y, scale))
 
 ### * Model ####
-m5 <- lmer(log(y) ~ comparison + exposition * PC2soil + PC1soil + PC3soil + side + distanceRiver + locationYear + 
-             (1|plot), 
-           REML = T,
-           data = tbi)
+m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+              (1|plot), 
+            REML = T,
+            control = lmerControl(optimizer = "Nelder_Mead"),
+            cov.prior = wishart,
+            data = tbi)
 
 ### * Functions ####
 themeMB <- function(){
@@ -75,7 +77,7 @@ themeMB <- function(){
 # B Plot ##############################################################################################
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_model <- ggeffect(m5, type = "emm", c("locationYear"), back.transform = T) %>%
+data_model <- ggeffect(m2, type = "emm", c("locationYear"), back.transform = T) %>%
   mutate(predicted = exp(predicted),
          conf.low = exp(conf.low),
          conf.high = exp(conf.high),
@@ -97,7 +99,7 @@ data <- tbi %>%
     geom_point(data = data_model,
                aes(x, predicted, shape = cross),
                size = 2) +
-    scale_y_continuous(limits = c(0, .9), breaks = seq(0, 400, .1)) +
+    scale_y_continuous(limits = c(0, .92), breaks = seq(0, 400, .1)) +
     scale_shape_manual(values = c("circle", "circle open")) +
     labs(x = "", y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]")) +
     themeMB())

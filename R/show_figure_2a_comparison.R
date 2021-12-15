@@ -94,7 +94,7 @@ data <- tbi %>%
     geom_point(data = data_model,
                aes(x, predicted, shape = cross),
                size = 2) +
-    scale_y_continuous(limits = c(0, .9), breaks = seq(-100, 400, .1)) +
+    scale_y_continuous(limits = c(0, .92), breaks = seq(-100, 400, .1)) +
     scale_shape_manual(values = c("circle", "circle open")) +
     labs(x = "", y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]")) +
     themeMB())

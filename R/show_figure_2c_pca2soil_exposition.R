@@ -12,7 +12,7 @@
 ### Packages ###
 library(here)
 library(tidyverse)
-library(lme4)
+library(blme)
 library(ggeffects)
 
 ### Start ###
@@ -44,10 +44,12 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"),
   mutate(across(where(is.numeric) & !y, scale))
 
 ### * Model ####
-m5 <- lmer(log(y) ~ comparison + exposition * PC2soil + PC1soil + PC3soil + side + distanceRiver + locationYear + 
-             (1|plot), 
-           REML = T,
-           data = tbi)
+m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+              (1|plot), 
+            REML = T,
+            control = lmerControl(optimizer = "Nelder_Mead"),
+            cov.prior = wishart,
+            data = tbi)
 
 ### * Functions ####
 themeMB <- function(){
@@ -73,7 +75,7 @@ themeMB <- function(){
 # B Plot ##############################################################################################
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_model <- ggeffect(m5, type = "emm", c("PC2soil", "exposition"), back.transform = T) %>%
+data_model <- ggeffect(m2, type = "emm", c("PC1soil", "exposition"), back.transform = T) %>%
   mutate(predicted = exp(predicted),
          conf.low = exp(conf.low),
          conf.high = exp(conf.high),
@@ -92,7 +94,7 @@ data <- tbi %>%
                size = 1, color = "grey70", fill = "grey70") +
     geom_line(data = data_model,
               aes(x = x, y = predicted, group = group)) +
-    scale_y_continuous(limits = c(0, .9), breaks = seq(-100, 400, .1)) +
+    scale_y_continuous(limits = c(0, .92), breaks = seq(-100, 400, .1)) +
     scale_x_continuous(breaks = seq(-100, 400, 1)) +
     scale_fill_manual(values = c("grey40", "grey70")) +
     scale_shape_manual(values = c("circle filled", "circle open")) +
@@ -101,7 +103,7 @@ data <- tbi %>%
              x = c(-1.6, 0.7),
              y = c(0, 0),
              size = 2.5) +
-    labs(x = expression(PC2[soil]), y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]"), color = "Exposition", fill = "Exposition", shape = "Exposition") +
+    labs(x = expression(PC1[soil]), y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]"), color = "Exposition", fill = "Exposition", shape = "Exposition") +
     themeMB() +
     theme(legend.position = c(.8, .9)))
 
