@@ -12,7 +12,7 @@
 ### Packages ###
 library(here)
 library(tidyverse)
-library(lme4)
+library(blme)
 library(ggeffects)
 library(ggbeeswarm)
 
@@ -37,10 +37,12 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"),
   mutate(y = C - B)
 
 ### * Model ####
-m6 <- blme::blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + locationYear + distanceRiver + 
-                   (1|plot), 
-                 REML = T,
-                 data = tbi)
+m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+              (1|plot), 
+            REML = F,
+            control = lmerControl(optimizer = "Nelder_Mead"),
+            cov.prior = wishart,
+            data = tbi)
 
 ### * Functions ####
 themeMB <- function(){
@@ -65,7 +67,7 @@ themeMB <- function(){
 # B Plot ##############################################################################################
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_model <- ggeffect(m6, type = "emm", c("comparison", "exposition"), back.transform = T) %>%
+data_model <- ggeffect(m3, type = "emm", c("comparison", "exposition"), back.transform = T) %>%
   mutate(cross = if_else(x %in% c("1718", "1921") & group == "north", "open", "filled"),
          x = fct_recode(x, "2017 vs 2018" = "1718", "2018 vs 2019" = "1819", "2019 vs 2021" = "1921"),
          group = fct_recode(group, "North" = "north", "South" = "south"))
