@@ -13,8 +13,7 @@
 library(here)
 library(tidyverse)
 library(ggbeeswarm)
-library(lme4)
-library(lmerTest)
+library(blme)
 library(DHARMa)
 library(emmeans)
 
@@ -114,63 +113,53 @@ rm(data_collinearity)
 
 ### a models ----------------------------------------------------------------------------------------
 
-#random structure
-m1a <- lmer(y ~ 1 + (1|locationYear), data = tbi, REML = T)
-VarCorr(m1a) 
-m1b <- lmer(y ~ 1 + (1|locationYear/plot), data = tbi, REML = T)
-VarCorr(m1b)
-m1c <- lmer(y ~ 1 + (1|plot), data = tbi, REML = T)
-VarCorr(m1c)
-#fixed effects
-m1 <- lmer(y ~ (comparison + exposition + PC1soil + PC2soil)^2 + PC3soil + side + locationYear + distanceRiver +
-             (1|plot), 
-           REML = F,
-           data = tbi)
+### * Random structure ####
+m1a <- blmer(y ~ 1 + (1|locationYear), data = tbi, REML = T)
+m1b <- blmer(y ~ 1 + (1|locationYear/plot), data = tbi, REML = T)
+m1c <- blmer(y ~ 1 + (1|plot), data = tbi, REML = T)
+MuMIn::AICc(m1a, m1b, m1c) #m1b most parsimonious
+
+### * Fixed effects ####
+m1 <- blmer(y ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side + distanceRiver + locationYear +
+              (1|plot), 
+            REML = F,
+            control = lmerControl(optimizer = "Nelder_Mead"),
+            cov.prior = wishart,
+            data = tbi)
 simulateResiduals(m1, plot = T)
-m2 <- lmer(y ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side + locationYear + distanceRiver +
-             (1|plot), 
-           REML = F, 
-           data = tbi)
+m2 <- blmer(y ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+              (1|plot), 
+            REML = F,
+            control = lmerControl(optimizer = "Nelder_Mead"),
+            cov.prior = wishart,
+            data = tbi)
 simulateResiduals(m2, plot = T)
-m3 <- lmer(y ~ (comparison + exposition + PC2soil)^2 + PC1soil + PC3soil + side + locationYear + distanceRiver + 
-             (1|plot), 
-           REML = F, 
-           data = tbi)
+m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+              (1|plot), 
+            REML = F,
+            control = lmerControl(optimizer = "Nelder_Mead"),
+            cov.prior = wishart,
+            data = tbi)
 simulateResiduals(m3, plot = T)
-m4 <- lmer(y ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + locationYear + distanceRiver +
-             (1|plot), 
-           REML = F, 
-           data = tbi)
+m4 <- blmer(y ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side + distanceRiver + locationYear +
+              (1|plot), 
+            REML = F,
+            control = lmerControl(optimizer = "Nelder_Mead"),
+            cov.prior = wishart,
+            data = tbi)
 simulateResiduals(m4, plot = T)
-m5 <- lmer(y ~ comparison + exposition * PC2soil + PC1soil + PC3soil + side + locationYear + distanceRiver +
-             (1|plot), 
-           REML = F,
-           data = tbi)
+m5 <- blmer(y ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+              (1|plot), 
+            REML = F,
+            control = lmerControl(optimizer = "Nelder_Mead"),
+            cov.prior = wishart,
+            data = tbi)
 simulateResiduals(m5, plot = T)
-m6 <- lmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + locationYear + distanceRiver + 
-             (1|plot), 
-           REML = F,
-           data = tbi)
-simulateResiduals(m6, plot = T)
-m7 <- lmer(y ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side + locationYear + distanceRiver +
-             (1|plot), 
-           REML = F,
-           data = tbi)
-simulateResiduals(m7, plot = T)
-m8 <- lmer(y ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + locationYear + distanceRiver + 
-             (1|plot), 
-           REML = F,
-           data = tbi)
-simulateResiduals(m8, plot = T)
-m9 <- lm(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + locationYear + plot, 
-         data = tbi)
-simulateResiduals(m9, plot = T)
 
 ### b comparison -----------------------------------------------------------------------------------------
 
-AICcmodavg::aictab(cand.set = list("m1a" = m1a, "m1b" = m1b, "m1c" = m1c)) #--> m1c
-AICcmodavg::aictab(cand.set = list("m1" = m1, "m2" = m2, "m3" = m3, "m4" = m4, "m5" = m5, "m6" = m6, "m7" = m7, "m8" = m8))
-dotwhisker::dwplot(list(m6, m3), 
+MuMIn::AICc(m1, m2, m3, m4, m5) # m4 most parsimonious; Use AICc and not AIC since ratio n/K < 40 (Burnahm & Anderson 2002 p. 66)
+dotwhisker::dwplot(list(m4, m3), #m4 bad model critique m3 ok 
                    show_intercept = F,
                    vline = geom_vline(
                      xintercept = 0,
@@ -178,10 +167,7 @@ dotwhisker::dwplot(list(m6, m3),
                      linetype = 2)
                    ) +
   theme_classic()
-m <- blme::blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + locationYear + distanceRiver + 
-                   (1|plot), 
-                 REML = T,
-                 data = tbi)
+m <- update(m3, REML = T)
 rm(list = setdiff(ls(), c("tbi", "m")))
 
 ### c model check -----------------------------------------------------------------------------------------
@@ -197,19 +183,17 @@ plotResiduals(simulationOutput$scaledResiduals, tbi$PC2soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, tbi$distanceRiver)
 plotResiduals(simulationOutput$scaledResiduals, tbi$riverkm)
-car::vif(m) # all < 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol) --> remove riverkm
+car::vif(m) # --> remove riverkm > 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol) 
 
 
 ## 3 Chosen model output ################################################################################
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m) #R2m = 0.37, R2c = 0.396
+MuMIn::r.squaredGLMM(m) #R2m = 0.370, R2c = 0.396
 VarCorr(m)
 sjPlot::plot_model(m, type = "re", show.values = T)
 
 ### * Effect sizes ####
 (emm <- emmeans(m, revpairwise ~ comparison | exposition, type = "response"))
 plot(emm, comparison = T)
-
-### * Save ####
-#No ANOVA table for blme model
+sjPlot::plot_model(m, type = "emm", terms = c("comparison", "exposition"), show.data = F)

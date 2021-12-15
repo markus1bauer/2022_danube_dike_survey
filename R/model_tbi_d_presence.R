@@ -114,12 +114,11 @@ rm(data_collinearity)
 ### a models ----------------------------------------------------------------------------------------
 
 ### * random structure ####
-m1a <- blmer(log(y) ~ 1 + (1|locationYear), data = tbi, REML = F)
-m1b <- blmer(log(y) ~ 1 + (1|locationYear/plot), data = tbi, REML = F)
-m1c <- blmer(log(y) ~ 1 + (1|plot), data = tbi, REML = F)
+m1a <- blmer(log(y) ~ 1 + (1|locationYear), data = tbi, REML = T)
+m1b <- blmer(log(y) ~ 1 + (1|locationYear/plot), data = tbi, REML = T)
+m1c <- blmer(log(y) ~ 1 + (1|plot), data = tbi, REML = T)
 MuMIn::AICc(m1a, m1b, m1c) # m1c most parsimonous
 
-library(blme)
 #### * fixed effects ####
 m1 <- blmer(log(y) ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side + distanceRiver + locationYear +
              (1|plot), 
@@ -159,7 +158,7 @@ simulateResiduals(m5, plot = T)
 
 ### b comparison -----------------------------------------------------------------------------------------
 
-MuMIn::AICc(m1, m2, m3, m4, m5) # m2 most parsimonous; Use AICc and not AIC since ratio n/K < 40 (Burnahm & Anderson 2002 p. 66)
+MuMIn::AICc(m1, m2, m3, m4, m5) # m2 most parsimonious; Use AICc and not AIC since ratio n/K < 40 (Burnahm & Anderson 2002 p. 66)
 dotwhisker::dwplot(list(m2, m5), 
                    show_intercept = F,
                    vline = geom_vline(
