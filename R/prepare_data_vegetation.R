@@ -1272,7 +1272,9 @@ tbi <- sites %>%
 rm(list = ls(pattern = "[^species|traits|sites|pcaSoil|pcaSurveyYear|pcaConstructionYear|tbi]"))
 
 
-## 8 Rounding ##############################################################################################
+## 8 Finalization ##############################################################################################
+
+### a Rounding -------------------------------------------------------------------------------------------
 
 sites <- sites %>%
   mutate(across(c(lcbd, 
@@ -1285,6 +1287,12 @@ sites <- sites %>%
   mutate(across(c(distanceRiver, accumulatedCov), 
                 ~ round(.x, digits = 1)))
 
+### b Plot selection -------------------------------------------------------------------------------------------
+
+sites <- sites %>%
+  filter(accumulatedCov > 0) %>%
+  add_count(plot) %>%
+  filter(surveyYear == 2018 & n == max(n))
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # C Save processed data ################################################################################
@@ -1292,10 +1300,10 @@ sites <- sites %>%
 
 
 ### Data ###
-write_csv(sites, here("data/processed/data_processed_sites.csv"))
+write_csv(sites, here("data/processed/data_processed_sites_spatial.csv"))
 write_csv(species, here("data/processed/data_processed_species.csv"))
 write_csv(traits, here("data/processed/data_processed_traits.csv"))
-write_csv(tbi, here("data/processed/data_processed_tbi.csv"))
+write_csv(tbi, here("data/processed/data_processed_sites_temporal.csv"))
 
 ### Tables ###
 write_csv(pcaSoil, here("outputs/statistics/pca_soil.csv"))

@@ -24,7 +24,9 @@ setwd(here("data/processed"))
 ### Load data ###
 tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                   cols(
-                    .default = "?"
+                    .default = "?",
+                    exposition = col_factor(levels = c("south", "north")),
+                    side = col_factor(levels = c("land", "water"))
                   )) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
   mutate(plot = factor(plot),
@@ -37,7 +39,7 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"),
   mutate(y = C - B)
 
 data_collinearity <- tbi %>%
-  select(where(is.numeric), -conf.low, -conf.high, -B, -C, -D, -y)
+  select(ends_with("ude"), riverkm, distanceRiver, starts_with("PC"))
 
 tbi <- tbi %>%
   mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale))
@@ -120,35 +122,35 @@ m1c <- blmer(y ~ 1 + (1|plot), data = tbi, REML = T)
 MuMIn::AICc(m1a, m1b, m1c) #m1b most parsimonious
 
 ### * Fixed effects ####
-m1 <- blmer(y ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m1 <- blmer(y ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side + distanceRiver + locationYear + 
               (1|plot), 
             REML = F,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,
             data = tbi)
 simulateResiduals(m1, plot = T)
-m2 <- blmer(y ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m2 <- blmer(y ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + 
               (1|plot), 
             REML = F,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,
             data = tbi)
 simulateResiduals(m2, plot = T)
-m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + 
               (1|plot), 
             REML = F,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,
             data = tbi)
 simulateResiduals(m3, plot = T)
-m4 <- blmer(y ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m4 <- blmer(y ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side + distanceRiver + locationYear + 
               (1|plot), 
             REML = F,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,
             data = tbi)
 simulateResiduals(m4, plot = T)
-m5 <- blmer(y ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m5 <- blmer(y ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + 
               (1|plot), 
             REML = F,
             control = lmerControl(optimizer = "Nelder_Mead"),
@@ -189,9 +191,17 @@ car::vif(m) # --> remove riverkm > 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol
 ## 3 Chosen model output ################################################################################
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m) #R2m = 0.370, R2c = 0.396
+MuMIn::r.squaredGLMM(m) #R2m = 0.413, R2c = 0.438
 VarCorr(m)
 sjPlot::plot_model(m, type = "re", show.values = T)
+dotwhisker::dwplot(m, 
+                   show_intercept = F,
+                   vline = geom_vline(
+                     xintercept = 0,
+                     colour = "grey60",
+                     linetype = 2)
+) +
+  theme_classic()
 
 ### * Effect sizes ####
 (emm <- emmeans(m, revpairwise ~ comparison | exposition, type = "response"))

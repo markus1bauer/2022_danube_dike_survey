@@ -24,26 +24,29 @@ setwd(here("data/processed"))
 ### Load data ###
 tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                   cols(
-                    .default = "?",
-                    block = "f",
-                    plot = "f",
-                    locationYear = "f",
-                    exposition = "f",
-                    side = "f",
-                    comparison = "f"
+                    .default = "?"
                   )) %>%
-  filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
-  mutate(comparison = factor(comparison),
-         locationYear = factor(locationYear),
-         plot = factor(plot),
-         exposition = factor(exposition)
-  ) %>%
-  rename(y = D) %>%
+  filter(comparison %in% c("1718", "1819", "1921")) %>%
+  pivot_wider(id_cols = c(plot, comparison, exposition, side, block, 
+                          location, locationYear, constructionYear, 
+                          longitude, latitude, riverkm, distanceRiver, 
+                          PC1soil, PC2soil, PC3soil, conf.low, conf.high), 
+              names_from = "presabu", 
+              values_from = "D") %>%
+  mutate(plot = factor(plot),
+         block = factor(block),
+         comparison = factor(comparison),
+         exposition = factor(exposition),
+         side = factor(side),
+         constructionYear = factor(constructionYear),
+         locationYear = factor(locationYear)) %>%
+  rename(y = presence) %>%
   mutate(across(where(is.numeric) & !y, scale))
 
 ### * Model ####
-m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
-              (1|plot), 
+m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + 
+              side + distanceRiver + locationYear + abundance +
+            (1|plot), 
             REML = T,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,

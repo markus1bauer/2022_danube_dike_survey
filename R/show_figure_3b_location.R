@@ -24,7 +24,9 @@ setwd(here("data/processed"))
 ### Load data ###
 tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                   cols(
-                    .default = "?"
+                    .default = "?",
+                    exposition = col_factor(levels = c("south", "north")),
+                    side = col_factor(levels = c("land", "water"))
                   )) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
   mutate(plot = factor(plot),
@@ -38,7 +40,8 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"),
   mutate(y = C - B)
 
 ### * Model ####
-m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + 
+              side + distanceRiver + locationYear + 
               (1|plot), 
             REML = F,
             control = lmerControl(optimizer = "Nelder_Mead"),

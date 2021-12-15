@@ -23,27 +23,29 @@ setwd(here("data/processed"))
 tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                   cols(
                     .default = "?",
-                    id = "f",
-                    locationAbb = "f",
-                    block = "f",
-                    plot = "f",
-                    locationYear = "f",
-                    exposition = "f",
-                    side = "f",
-                    comparison = "f"
+                    side = col_factor(levels = c("land", "water")),
+                    exposition = col_factor(levels = c("south", "north"))
                   )) %>%
-  filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
-  mutate(comparison = factor(comparison),
-         locationYear = factor(locationYear),
+  filter(comparison %in% c("1718", "1819", "1921")) %>%
+  pivot_wider(id_cols = c(plot, comparison, exposition, side, block, 
+                          location, locationYear, constructionYear, 
+                          longitude, latitude, riverkm, distanceRiver, 
+                          PC1soil, PC2soil, PC3soil, conf.low, conf.high), 
+              names_from = "presabu", 
+              values_from = "D") %>%
+  mutate(plot = factor(plot),
          block = factor(block),
-         plot = factor(plot),
-         exposition = factor(exposition)
-  ) %>%
-  rename(y = D) %>%
+         comparison = factor(comparison),
+         exposition = factor(exposition),
+         side = factor(side),
+         constructionYear = factor(constructionYear),
+         locationYear = factor(locationYear)) %>%
+  rename(y = presence) %>%
   mutate(across(where(is.numeric) & !y, scale))
 
 ### * Model ####
-m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + 
+              side + distanceRiver + locationYear + abundance +
               (1|plot), 
             REML = T,
             control = lmerControl(optimizer = "Nelder_Mead"),
@@ -81,14 +83,16 @@ themeMB <- function(){
      !str_detect(term, "location*") & 
       !str_detect(term, "comparison*") & 
       !str_detect(term, "sd_*") &
-      !str_detect(term, "expositionnorth:PC1soil") &
       !str_detect(term, "(Intercept)")) %>%
-   mutate(cross = if_else(term %in% c("sideland"), "filled", "open"),
-          term = fct_relevel(term, c("PC3soil", "PC2soil", "PC1soil", "distanceRiver", "sideland", "expositionnorth")),
+   mutate(cross = if_else(term %in% c("sidewater", "abundance"), "filled", "open"),
+          term = fct_relevel(term, c("expositionnorth:PC1soil", "PC3soil", "PC2soil", "PC1soil", 
+                                     "distanceRiver", "sidewater", "expositionnorth", "abundance")),
           term = fct_recode(term,
                             "South | North exposition" = "expositionnorth",
-                            "Water | Land side" = "sideland",
-                            "Distance to river" = "distanceRiver")) %>%
+                            "Land | Water side" = "sidewater",
+                            "Distance to river" = "distanceRiver",
+                            "D [bc]" = "abundance",
+                            "Exposition:PC1soil" = "expositionnorth:PC1soil")) %>%
    ggplot(aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high)) +
    geom_vline(xintercept = 0, linetype = 2, color = "black") +
    geom_point(aes(shape = cross), size = 2) +

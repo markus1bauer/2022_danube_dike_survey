@@ -25,7 +25,7 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"),
                   cols(
                     .default = "?",
                     exposition = col_factor(levels = c("south", "north")),
-                    side = col_factor(levels = c("water", "land"))
+                    side = col_factor(levels = c("land", "water"))
                   )) %>%
   filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
   mutate(plot = factor(plot),
@@ -39,7 +39,8 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"),
   mutate(y = C - B)
 
 ### * Model ####
-m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + 
+              side + distanceRiver + locationYear + 
               (1|plot), 
             REML = F,
             control = lmerControl(optimizer = "Nelder_Mead"),
@@ -75,17 +76,18 @@ themeMB <- function(){
    broom.mixed::tidy(conf.int = T, conf.level = .95) %>%
    filter(
      !str_detect(term, "location*") & 
-       !str_detect(term, "comparison*") & 
+       !str_detect(term, "comparison") & 
        !str_detect(term, "sd_*") &
        !str_detect(term, "(Intercept)")) %>%
-   mutate(term = fct_relevel(term, c("PC3soil", "PC2soil", "PC1soil", "distanceRiver", "sideland", "expositionnorth")),
+   mutate(term = fct_relevel(term, c("PC3soil", "PC2soil", "PC1soil", 
+                                     "distanceRiver", "sidewater", "expositionnorth")),
           term = fct_recode(term,
                             "South | North exposition" = "expositionnorth",
-                            "Water | Land side" = "sideland",
+                            "Water | Land side" = "sidewater",
                             "Distance to river" = "distanceRiver")) %>%
    ggplot(aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high)) +
    geom_vline(xintercept = 0, linetype = 2, color = "black") +
-   geom_point(size = 2, shape = 1) +
+   geom_point(size = 2, shape = "circle open") +
    geom_linerange() +
    labs(x = expression(Gains-Losses~"["*italic('C')[sor]-italic('B')[sor]*"]")) +
    themeMB())
