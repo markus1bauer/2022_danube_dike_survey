@@ -82,7 +82,7 @@ data_model <- ggeffect(m2, type = "emm", c("PC1soil", "exposition"), back.transf
          group = fct_recode(group, "North" = "north", "South" = "south"))
 
 data <- tbi %>%
-  rename(predicted = y, x = PC2soil, group = exposition) %>%
+  rename(predicted = y, x = PC1soil, group = exposition) %>%
   mutate(group = fct_recode(group, "North" = "north", "South" = "south"))
 
 (graph_c <- ggplot() +
@@ -99,8 +99,8 @@ data <- tbi %>%
     scale_fill_manual(values = c("grey40", "grey70")) +
     scale_shape_manual(values = c("circle filled", "circle open")) +
     annotate("text",
-             label = c("Phosphorus", "Sand"),
-             x = c(-1.6, 0.7),
+             label = c("Nitrogen", "Sand"),
+             x = c(-1.8, 2.8),
              y = c(0, 0),
              size = 2.5) +
     labs(x = expression(PC1[soil]), y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]"), color = "Exposition", fill = "Exposition", shape = "Exposition") +
