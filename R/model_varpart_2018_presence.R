@@ -140,7 +140,7 @@ sel <- forward.sel(beta_substitution,
                    sites_space,
                    adjR2thresh = r2adj,
                    nperm = 9999)
-(sel$p_adj <- p.adjust(sel$pvalue, method = 'holm', n = ncol(sites_space))) #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
+sel$p_adj <- p.adjust(sel$pvalue, method = 'holm', n = ncol(sites_space));sel #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 sites_space_selected <- sites %>%
   select(locationAbbN)
 ### History ###
@@ -165,11 +165,18 @@ plot(m1_substitution_varpart,
 dev.off()
 
 ### * partial db-RDA ####
-### Space / locationAbb###
-m1_substitution <- dbrda(beta_substitution ~ locationAbb,
+### Soil / PC3soil ###
+m1_substitution <- dbrda(beta_substitution ~ PC3soil +
+                           Condition(locationAbb),
                          data = sites)
-anova(m1_substitution, permutations = how(nperm = 999)) #p = .001
-RsquareAdj(m1_substitution) # R2adj = .020
+anova(m1_substitution, permutations = how(nperm = 9999)) #p = .579
+RsquareAdj(m1_substitution) # R2adj = .017
+### Space / locationAbb ###
+m1_substitution <- dbrda(beta_substitution ~ locationAbb +
+                           Condition(PC3soil),
+                         data = sites)
+anova(m1_substitution, permutations = how(nperm = 9999)) #p = 1e-04
+RsquareAdj(m1_substitution) # R2adj = .179
 
 ### c Subsets --------------------------------------------------------------------------------------------
 
@@ -178,8 +185,8 @@ m1 <- dbrda(beta_subsets ~ PC1soil + PC2soil + PC3soil + exposition + side +
               locationAbb + riverkm + distanceRiver +
               plotAge + PC1constructionYear + PC2constructionYear,
             data = sites)
-anova(m1, permutations = how(nperm = 999)) #P = .392
-(r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = .126
+anova(m1, permutations = how(nperm = 9999)) #P = .523
+(r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = -.015
 
 ### * forward selection ####
 # --> now forward selection because full model is not significant

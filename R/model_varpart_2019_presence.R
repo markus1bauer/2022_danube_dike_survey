@@ -20,7 +20,7 @@ rm(list = ls())
 setwd(here("data/processed"))
 
 ### Load data ###
-sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                      cols(
                        .default = "?",
                        id = "f",
@@ -36,7 +36,6 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"),
   select(id, plot, block, locationYear, constructionYear, longitude, latitude,
          exposition, side, PC1soil, PC2soil, PC3soil,
          locationAbb, riverkm, distanceRiver,
-         MEM1_2019, 
          surveyYear, plotAge, PC1constructionYear, PC2constructionYear, PC3constructionYear,
          accumulatedCov) %>%
   mutate(surveyYearF = as_factor(surveyYear),
@@ -115,11 +114,11 @@ plot(m1_total_varpart,
 
 ### * full model ####
 m1 <- dbrda(beta_substitution ~ PC1soil + PC2soil + PC3soil + exposition + side + 
-              locationAbb + riverkm + distanceRiver + MEM1_2019 +
+              locationAbb + riverkm + distanceRiver + 
               plotAge + PC1constructionYear + PC2constructionYear + PC3constructionYear,
             data = sites)
-anova(m1, permutations = how(nperm = 999)) #P = .001
-(r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = .296
+anova(m1, permutations = how(nperm = 9999)) #P = 1e-04
+(r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = .309
 
 ### * forward selection ####
 ### Soil ###
@@ -132,7 +131,7 @@ sel <- forward.sel(beta_substitution,
                    nperm = 9999)
 sel$p_adj <- p.adjust(sel$pvalue, method = 'holm', n = ncol(sites_soil));sel #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 sites_soil_selected <- sites %>%
-  select(expositionN, sideN)
+  select(expositionN, PC3soil)
 ### Space ###
 m1 <- dbrda(beta_substitution ~ locationAbb + riverkm + distanceRiver, 
             data = sites)
@@ -167,31 +166,31 @@ dev.off()
 
 ### * partial db-RDA ####
 ### Soil ###
-m1_substitution <- dbrda(beta_substitution ~ exposition + side +
+m1_substitution <- dbrda(beta_substitution ~ exposition + PC3soil +
                            Condition(PC1constructionYear),
                          data = sites)
-anova(m1_substitution, permutations = how(nperm = 999)) #p = .007
+anova(m1_substitution, permutations = how(nperm = 9999)) #p = 1.1e-02
 RsquareAdj(m1_substitution) # R2adj = .062
 ### History / PC1constructionYear ###
 m1_substitution <- dbrda(beta_substitution ~ PC1constructionYear + 
-                           Condition(exposition + side),
+                           Condition(exposition + PC3soil),
                          data = sites)
-anova(m1_substitution, permutations = how(nperm = 999)) #p = .003
-RsquareAdj(m1_substitution) # R2adj = .045
+anova(m1_substitution, permutations = how(nperm = 9999)) #p =9.0e-03
+RsquareAdj(m1_substitution) # R2adj = .034
 ### exposition ###
 m1_substitution <- dbrda(beta_substitution ~ exposition +
-                           Condition(side + 
+                           Condition(PC3soil + 
                                        PC1constructionYear),
                          data = sites)
-anova(m1_substitution, permutations = how(nperm = 999)) #p = .006
-RsquareAdj(m1_substitution) # R2adj = .041
-### exposition ###
-m1_substitution <- dbrda(beta_substitution ~ side +
+anova(m1_substitution, permutations = how(nperm = 9999)) #p = 3.2e-03
+RsquareAdj(m1_substitution) # R2adj = .046
+### PC3soil ###
+m1_substitution <- dbrda(beta_substitution ~ PC3soil +
                            Condition(exposition + 
                                        PC1constructionYear),
                          data = sites)
-anova(m1_substitution, permutations = how(nperm = 999)) #p = .066
-RsquareAdj(m1_substitution) # R2adj = .019
+anova(m1_substitution, permutations = how(nperm = 9999)) #p = 2.7e-01
+RsquareAdj(m1_substitution) # R2adj = .006
 
 ### c Subsets --------------------------------------------------------------------------------------------
 
@@ -200,8 +199,8 @@ m1 <- dbrda(beta_subsets ~ PC1soil + PC2soil + PC3soil + exposition + side +
               locationAbb + riverkm + distanceRiver +
               plotAge + PC1constructionYear + PC2constructionYear,
             data = sites)
-anova(m1, permutations = how(nperm = 999)) #P = .300
-(r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = .164
+anova(m1, permutations = how(nperm = 9999)) #P = 2.5e-01
+(r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = .185
 
 ### * forward selection ####
 # --> now forward selection because full model is not significant
