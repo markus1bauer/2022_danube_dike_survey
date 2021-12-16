@@ -99,7 +99,7 @@ beta_subsets <- beta$rich %>% # nestedness
 
 ### a Overall variation partitioning -----------------------------------------------------------------------------------
 
-m1_total_varpart <- varpart(beta_total, sites_soil, sites_space, sites_history)
+(m1_total_varpart <- varpart(beta_total, sites_soil, sites_space, sites_history))
 plot(m1_total_varpart, 
      Xnames = c("Site", "Space", "History"),
      cutoff = 0.01, digits = 1, bg = NA, id.size = 1)
@@ -117,30 +117,30 @@ m1 <- dbrda(beta_substitution ~ PC1soil + PC2soil + PC3soil + exposition + side 
               locationAbb + riverkm + distanceRiver + 
               plotAge + PC1constructionYear + PC2constructionYear,
             data = sites)
-anova(m1, permutations = how(nperm = 999)) #P = .001
-(r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = .283
+anova(m1, permutations = how(nperm = 9999)) #P = 1e-04***
+(r2adj <- RsquareAdj(m1)$adj.r.squared) #R2adj = .313
 
 ### * forward selection ####
 ### Soil ###
 m1 <- dbrda(beta_substitution ~ PC1soil + PC2soil + PC3soil + exposition + side, 
             data = sites)
-(r2adj <- RsquareAdj(m1)$adj.r.squared)
+r2adj <- RsquareAdj(m1)$adj.r.squared
 sel <- forward.sel(beta_substitution, 
                    sites_soil,
                    adjR2thresh = r2adj,
                    nperm = 9999)
-#sel$p_adj <- p.adjust(sel$pvalue, method = 'holm', n = ncol(sites_soil));sel #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
+sel$p_adj <- p.adjust(sel$pvalue, method = 'holm', n = ncol(sites_soil));sel #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 sites_soil_selected <- sites %>%
-  select()
+  select(PC3soil)
 ### Space ###
 m1 <- dbrda(beta_substitution ~ locationAbb + riverkm + distanceRiver, 
             data = sites)
-(r2adj <- RsquareAdj(m1)$adj.r.squared)
+r2adj <- RsquareAdj(m1)$adj.r.squared
 sel <- forward.sel(beta_substitution, 
                    sites_space,
                    adjR2thresh = r2adj,
                    nperm = 9999)
-sel$p_adj <- p.adjust(sel$pvalue, method = 'holm', n = ncol(sites_space));sel #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
+(sel$p_adj <- p.adjust(sel$pvalue, method = 'holm', n = ncol(sites_space))) #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 sites_space_selected <- sites %>%
   select(locationAbbN)
 ### History ###
@@ -156,7 +156,13 @@ sites_history_selected <- sites %>%
   select()
 
 ### * Variation partitioning ####
-#--> not possible since only history is significant
+(m1_substitution_varpart <- varpart(beta_substitution, sites_soil_selected, sites_space_selected))
+tiff(here("outputs/figures/figure_betadiversity_2018_substitution_presence_(800dpi_8x8cm).tiff"),
+     res = 72, width = 12, height = 12, units = "cm", compression = "none")
+plot(m1_substitution_varpart, 
+     Xnames = c("Site", "Space"),
+     cutoff = 0.01, digits = 2, bg = NA)
+dev.off()
 
 ### * partial db-RDA ####
 ### Space / locationAbb###
