@@ -98,7 +98,7 @@ themeMB <- function(){
    geom_point(aes(shape = cross), size = 2) +
    geom_linerange() +
    scale_shape_manual(values = c("circle", "circle open")) +
-   labs(x = expression("log("*italic('D')[sor]*")")) +
+   labs(x = expression("Estimate [log("*italic('D')[sor]*")]")) +
    themeMB())
 
 ### Save ###

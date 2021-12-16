@@ -89,7 +89,7 @@ themeMB <- function(){
    geom_vline(xintercept = 0, linetype = 2, color = "black") +
    geom_point(size = 2, shape = "circle open") +
    geom_linerange() +
-   labs(x = expression(Gains-Losses~"["*italic('C')[sor]-italic('B')[sor]*"]")) +
+   labs(x = expression(Estimate~"["*italic('C')[sor]-italic('B')[sor]*"]")) +
    themeMB())
 
 ### Save ###
