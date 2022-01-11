@@ -45,6 +45,11 @@ sites <- read_csv(here("data/raw/data_raw_sites.csv"), col_names = T, na = "na",
                        exposition = "f"
                        )) %>%
   select(id, location, longitude, latitude, constructionYear, sandPerc, phosphorus, phosphorusClass) %>%
+  mutate(plot = str_sub(id, start = 1, end = 2),
+         locationAbb = str_sub(location, 1, 3),
+         locationAbb = str_to_upper(locationAbb),
+         locationAbb = factor(locationAbb, levels = unique(locationAbb[order(constructionYear)])),
+         locationYear = str_c(locationAbb, constructionYear, sep = "-")) %>%
   st_as_sf(coords = c("longitude", "latitude"), crs = 31468) %>%
   st_transform(4326)
 
@@ -54,12 +59,12 @@ sites_basic <- st_drop_geometry(sites) %>%
   mutate(latitude = coord$Y) %>%
   as_tibble()
 rm(coord)
-#### Calculate center of blocks ###
-blocks <- sites_basic %>%
-  group_by(location, constructionYear) %>%
-  summarise(across(c(longitude, latitude), mean, na.rm = T)) %>%
+#### Calculate center of locations ###
+locations <- sites_basic %>%
+  group_by(locationYear) %>%
+  summarise(across(c(longitude, latitude, constructionYear), mean, na.rm = T)) %>%
   rename(longitude_center = longitude, latitude_center = latitude)
-sites_basic <- left_join(sites_basic, blocks, by = "location")
+sites_basic <- left_join(sites_basic, locations %>% select(-constructionYear), by = "locationYear")
 
 
 ## 2 Transform shp files #################################################################################################
@@ -98,7 +103,7 @@ ffh_area <- st_read("ffh_epsg31468.shp") %>%
 #plot(st_geometry(danube_isar))
 #rm(data)
 ### Here the digitized file ###
-danube_isar <- st_read(here("data/processed/spatial/danube_isar_digitized_epsg4326.shp"))
+danube_isar <- st_read(here("data/raw/spatial/danube_isar_digitized_epsg4326.shp"))
 
   
 ## 4 Background map #################################################################################################
@@ -152,7 +157,7 @@ coordinates_danube_isar <- danube_isar %>%
 ### Calculate distances ###
 distance <- geosphere::dist2Line(p = coordinates_plots, line = coordinates_danube_isar) %>%
   as_tibble() %>%
-  rename(distance = distance_river)
+  rename(distance_river = distance)
 distance_river <- distance$distance_river
 sites_basic <- sites_basic %>%
   add_column(distance_river)
@@ -163,6 +168,7 @@ ggplot() +
   geom_sf(data = danube_isar, fill = "grey50", color = "grey50") +
   geom_sf(data = sites) +
   geom_sf(data = dist.sf, colour = "grey60")
+
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -194,7 +200,7 @@ st_write(ffh_area, layer = "ffh_area_epsg4326.shp", driver = "ESRI Shapefile", d
 st_write(sites, layer = "sites_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
 write_csv(sites_basic, file = here("data/processed/spatial/sites_basic.csv"))
-write_csv(blocks, file = here("data/processed/spatial/blocks.csv"))
+write_csv(locations, file = here("data/processed/spatial/locations.csv"))
 sites_basic %>%
   select(id, longitude, latitude) %>%
   mutate(id = as.character(id)) %>%

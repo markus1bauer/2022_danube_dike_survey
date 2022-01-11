@@ -1,5 +1,11 @@
-# Show map of the Danube old dikes ####
+# Beta diversity on dike grasslands
+# Plot map of study site ####
 # Markus Bauer
+# 2022-01-11
+# Citation: 
+## Bauer M, Huber J, Kollmann J (submitted) 
+## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
+## Unpublished data.
 
 
 
@@ -25,21 +31,28 @@ setwd(here("data/processed/spatial"))
 
 ### Load data ###
 germany <- st_read("germany_epsg4326.shp")
-danube <- st_read("danube_isar_digitized_epsg4326.shp")
+danube <- st_read(here("data/raw/spatial/danube_isar_digitized_epsg4326.shp"))
 danube$river[2] <- "Isar"
+filter <- read_csv(here("data/processed/data_processed_sites_spatial.csv"), col_names = T, na = c("na", "NA"), col_types = 
+                    cols(
+                      .default = "?"
+                    )) %>%
+  filter(surveyYear == 2017)
 sites <- st_read("sites_epsg4326.shp") %>%
-  mutate(id = str_match(id, "\\d{2}")) %>%
-  filter(id %in% c("01", "02", "03", "04", "05", "06", "09", 10, 11, 12, 13, 14, 21, 22, 23, 24, 27, 28, 34, 39, 40, 41, 42, 43, 44, 45, 46, 51, 53, 54, 55, 56, 61, 62, 63, 64, 65, 66, 67, 68, 70)) %>%
-  mutate(id = as_factor(id))
+  semi_join(filter, by = "plot") %>%
+  mutate(plot = factor(plot))
 sites_ggmap <- st_coordinates(sites) %>%
   as_tibble()
 grazing <- st_read("grazing_epsg4326.shp")
 conservation_area <- st_read("conservation_area_epsg4326.shp")
 ffh_area <- st_read("ffh_area_epsg4326.shp")
 dikes <- st_read("dikes_epsg4326.shp")
-blocks <- read_csv("blocks.csv", col_names = T, col_types = 
-                      cols(location = col_factor())
-                    )
+locations <- read_csv("locations.csv", col_names = T, col_types = 
+                      cols(
+                        locationYear = "f"
+                        )
+                    ) %>%
+  semi_join(filter, by = "locationYear")
 load("background_toner.rda")
 load("background_terrain.rda")
 load("background_google.rda")
@@ -49,6 +62,8 @@ load("background_google.rda")
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # B Plot ##############################################################################
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 themeMB <- function(){
   theme(
     panel.background = element_rect(fill = NA),
@@ -69,10 +84,11 @@ themeMB <- function(){
 ## 1 Map with ggmap ##############################################################################
 
 ### a Map of project site -----------------------------------------------------------------------
+
 (graphSites <- ggmap(background_terrain, 
                       base_layer = ggplot(sites_ggmap, aes(x = X, y = Y))) +
     geom_point(size = 2, color = "black", pch = 15) +
-    geom_text_repel(data = blocks, aes(label = constructionYear, x = longitude_center, y = latitude_center),
+    geom_text_repel(data = locations, aes(label = constructionYear, x = longitude_center, y = latitude_center),
                     min.segment.length = 0) +
     scale_x_continuous(breaks = seq(10, 15, 0.1)) +
     scale_y_continuous(breaks = seq(48, 50, 0.1)) +
@@ -86,6 +102,7 @@ themeMB <- function(){
  )
 
 ### b Germany -----------------------------------------------------------------------
+
 graphGermany <- ggplot() +
    geom_sf(data = germany, fill = "transparent", colour = "black") +
    geom_point(aes(x = 12.885, y = 48.839), size = 1) +
@@ -95,6 +112,7 @@ graphGermany <- ggplot() +
    )
 
 ### c Inset -----------------------------------------------------------------------
+
 graphSites + inset_element(graphGermany, 
                            left = .7, 
                            bottom = .65, 
@@ -104,6 +122,7 @@ graphSites + inset_element(graphGermany,
 
 
 ### d Save -----------------------------------------------------------------------
+
 ggsave("figure_1_map_ggmap_(300dpi_17x11cm).tiff", 
        dpi = 300, width = 17, height = 11, units = "cm",
        path = here("outputs/figures"))
@@ -112,13 +131,16 @@ ggsave("figure_1_map_ggmap_(300dpi_17x11cm).tiff",
 ## 2 Map with ggplot2 ##############################################################################
 
 ### a Map of project site -----------------------------------------------------------------------
+set.seed(2)
 (graphSites <- ggplot() +
   #geom_sf(data = ffh_area, fill = "grey50", color = "grey50") +
-  geom_sf(data = dikes) +
-  geom_sf(data = danube, colour = "grey60") +
+  geom_sf(data = dikes, colour = "grey60") +
+  geom_sf(data = danube, colour = "black", size = 1) +
+  geom_label_repel(data = locations, aes(label = locationYear, x = longitude_center, y = latitude_center),
+                  min.segment.length = 0, box.padding = .6, fill = "white") +
   geom_sf(data = sites, colour = "red", size = 2) +
   coord_sf(crs = st_crs(4326)) +
-  annotate("text", x = 13.09, y = 48.75, angle = -54, label = "Danube") +
+  annotate("text", x = 13.11, y = 48.72, angle = -54, label = "Danube") +
   annotate("text", x = 12.79, y = 48.72, angle = 32, label = "Isar") +
   ggspatial::annotation_scale(width_hint = 0.4, height = unit(0.2, "cm"), pad_y = unit(0.6, "cm"), pad_x = unit(0.7, "cm")) +
   ggspatial::annotation_north_arrow(which_north = "true", style = ggspatial::north_arrow_fancy_orienteering(), height = unit(1, "cm"), width = unit(1, "cm"), pad_y = unit(0.9, "cm"), pad_x = unit(0.6, "cm")) +
@@ -127,21 +149,18 @@ ggsave("figure_1_map_ggmap_(300dpi_17x11cm).tiff",
         legend.background = element_rect(linetype = "solid", colour = "black")))
 
 ### b Inset -----------------------------------------------------------------------
+
+set.seed(2)
 graphSites + inset_element(graphGermany, 
-                           left = .7, 
+                           left = .72, 
                            bottom = .65, 
                            right = .99, 
                            top = .99, 
                            on_top = T)
 
 ### c Save -----------------------------------------------------------------------
+
 ggsave("figure_1_map_ggplot_(300dpi_17x11cm).tiff", 
-       dpi = 300, width = 17, height = 11, units = "cm",
-       path = here("outputs/figures"))
-ggsave("figure_1_map_ggplot2_(300dpi_12x8cm).tiff", 
-       dpi = 300, width = 12, height = 8, units = "cm",
-       path = here("outputs/figures"))
-ggsave("figure_1_map_ggplot3_(300dpi_17x11cm).tiff", 
        dpi = 300, width = 17, height = 11, units = "cm",
        path = here("outputs/figures"))
 
@@ -149,6 +168,7 @@ ggsave("figure_1_map_ggplot3_(300dpi_17x11cm).tiff",
 ## 3 Map with tmap ##############################################################################
 
 ### a Map of project site -----------------------------------------------------------------------
+
 tmap_mode("plot")
 #tm_shape(ffh_area) +
 # tm_fill(col = "grey40") +
@@ -169,6 +189,7 @@ tmap_ger <- tm_shape(germany) +
   tm_layout(frame = F)
 
 ### b Save -----------------------------------------------------------------------
+
 tmap_save(tmap,
           insets_tm = tmap_ger,
           insets_vp = viewport(x = unit(3.1, "cm"),
