@@ -1,11 +1,11 @@
-# Multifunctionality of dike grasslands 
-# Figure 2A and 2B to figure 2
-# Michaela Moosner
-# 2021-11-12
+# Beta diversity on dike grasslands
+# Plot Fig 2 ####
+# Markus Bauer
+# 2022-01-11
 # Citation: 
-## Bauer M (submitted) 
-## Multifunctionality of dike grasslands: Trade-offs between flood protection, biodiversity, recreation and management. 
-## unpublished data.
+## Bauer M, Huber J, Kollmann J (submitted) 
+## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
+## Unpublished data.
 
 
 

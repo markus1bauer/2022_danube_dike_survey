@@ -1,6 +1,11 @@
-# Show map of the Danube dike experiment ####
+# Beta diversity on dike grasslands
+# Figure A2 ####
 # Markus Bauer
-# Citation: Markus Bauer, Jakob Huber, Katharina Beck, Johannes Kollmann (xxxx)
+# 2022-01-11
+# Citation: 
+## Bauer M, Huber J, Kollmann J (submitted) 
+## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
+## Unpublished data.
 
 
 
@@ -18,7 +23,7 @@ rm(list = ls())
 
 
 ### Load data ###
-selection <- read_csv(here("data/processed/data_processed_sites.csv"), col_names = T, na = "na", col_types = 
+selection <- read_csv(here("data/processed/data_processed_sites_spatial.csv"), col_names = T, na = "na", col_types = 
                     cols(
                       .default = "?"
                     )) %>%

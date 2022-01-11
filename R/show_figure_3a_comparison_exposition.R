@@ -1,6 +1,11 @@
-# Show figure 2 ####
+# Beta diversity on dike grasslands
+# Plot Fig 3A ####
 # Markus Bauer
-# Citation: Markus Bauer 
+# 2022-01-11
+# Citation: 
+## Bauer M, Huber J, Kollmann J (submitted) 
+## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
+## Unpublished data.
 
 
 
@@ -21,20 +26,16 @@ rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
 setwd(here("data/processed"))
 
 ### Load data ###
-tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"), col_types = 
+tbi <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                   cols(
                     .default = "?",
+                    plot = "f",
+                    block = "f",
+                    comparison = "f",
+                    locationYear = "f",
                     exposition = col_factor(levels = c("south", "north")),
                     side = col_factor(levels = c("land", "water"))
                   )) %>%
-  filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
-  mutate(plot = factor(plot),
-         block = factor(block),
-         comparison = factor(comparison),
-         exposition = factor(exposition),
-         side = factor(side),
-         constructionYear = factor(constructionYear),
-         locationYear = factor(locationYear)) %>%
   mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale)) %>%
   mutate(y = C - B)
 

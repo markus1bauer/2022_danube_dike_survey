@@ -27,7 +27,7 @@ rm(list = ls())
 setwd(here("data/processed"))
 
 ### Load data ###
-sites_temporal <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                   cols(
                     .default = "?",
                     plot = "f",
@@ -45,10 +45,10 @@ sites_temporal <- read_csv("data_processed_sites_temporal.csv", col_names = T, n
               values_from = "D") %>%
   rename(y = presence)
 
-data_collinearity <- sites_temporal %>%
+data_collinearity <- sites %>%
   select(where(is.numeric))
 
-sites_temporal <- sites_temporal %>%
+sites <- sites %>%
   mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale))
 
 
@@ -62,58 +62,58 @@ sites_temporal <- sites_temporal %>%
 
 #### * Graphs #####
 #main
-ggplot(sites_temporal, aes(x = abundance, y = y)) + 
+ggplot(sites, aes(x = abundance, y = y)) + 
   geom_point() +
   geom_smooth(method = "loess")
-ggplot(sites_temporal, aes(x = comparison, y = y)) + 
+ggplot(sites, aes(x = comparison, y = y)) + 
   geom_boxplot() +
   geom_quasirandom()
-ggplot(sites_temporal, aes(x = exposition, y = y)) + 
+ggplot(sites, aes(x = exposition, y = y)) + 
   geom_boxplot() +
   geom_quasirandom()
-ggplot(sites_temporal, aes(x = side, y = y)) + 
+ggplot(sites, aes(x = side, y = y)) + 
   geom_boxplot() +
   geom_quasirandom()
-ggplot(sites_temporal, aes(x = riverkm, y = (y))) + 
+ggplot(sites, aes(x = riverkm, y = (y))) + 
   geom_point() +
   geom_smooth(method = "loess")
-ggplot(sites_temporal, aes(x = (distanceRiver), y = log(y))) + 
+ggplot(sites, aes(x = (distanceRiver), y = log(y))) + 
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(sites_temporal, aes(x = constructionYear, y = y)) + 
+ggplot(sites, aes(x = constructionYear, y = y)) + 
   geom_point() + 
   geom_smooth(method = "loess")
-ggplot(sites_temporal, aes(x = PC1soil, y = (y))) + 
+ggplot(sites, aes(x = PC1soil, y = (y))) + 
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(sites_temporal, aes(x = exp(PC2soil), y = y)) + 
+ggplot(sites, aes(x = exp(PC2soil), y = y)) + 
   geom_point() +
   geom_smooth(method = "lm")
 #2way
-ggplot(sites_temporal, aes(x = exposition, y = y, color = comparison)) + 
+ggplot(sites, aes(x = exposition, y = y, color = comparison)) + 
   geom_boxplot() +
   geom_quasirandom(dodge.width = .8)
-ggplot(sites_temporal, aes(x = PC1soil, y = y, color = comparison)) + 
+ggplot(sites, aes(x = PC1soil, y = y, color = comparison)) + 
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(sites_temporal, aes(x = PC2soil, y = y, color = comparison)) + 
+ggplot(sites, aes(x = PC2soil, y = y, color = comparison)) + 
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(sites_temporal, aes(x = PC1soil, y = y, color = exposition)) + 
+ggplot(sites, aes(x = PC1soil, y = y, color = exposition)) + 
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(sites_temporal, aes(x = (PC2soil), y = y, color = exposition)) + 
+ggplot(sites, aes(x = (PC2soil), y = y, color = exposition)) + 
   geom_point() +
   geom_smooth(method = "lm")
 
 #### * Outliers, zero-inflation, transformations? ####
-dotchart(log(sites_temporal$y), groups = factor(sites_temporal$exposition), main = "Cleveland dotplot")
-sites_temporal %>% count(locationYear)
-sites_temporal %>% count(plot) %>% count(n)
-boxplot(sites_temporal$y);#identify(rep(1, length(data$rgr13)), data$rgr13, labels = c(data$n))
-plot(table((sites_temporal$y)), type = "h", xlab = "Observed values", ylab = "Frequency")
-ggplot(sites_temporal, aes(y)) + geom_density()
-ggplot(sites_temporal, aes(log(y))) + geom_density()
+dotchart(log(sites$y), groups = factor(sites$exposition), main = "Cleveland dotplot")
+sites %>% count(locationYear)
+sites %>% count(plot) %>% count(n)
+boxplot(sites$y);#identify(rep(1, length(data$rgr13)), data$rgr13, labels = c(data$n))
+plot(table((sites$y)), type = "h", xlab = "Observed values", ylab = "Frequency")
+ggplot(sites, aes(y)) + geom_density()
+ggplot(sites, aes(log(y))) + geom_density()
 
 #### * check collinearity ####
 #GGally::ggpairs(data_collinearity, lower = list(continuous = "smooth_loess"))
@@ -126,9 +126,9 @@ rm(data_collinearity)
 ### a models ----------------------------------------------------------------------------------------
 
 ### * random structure ####
-m1a <- blmer(log(y) ~ 1 + (1|locationYear), data = sites_temporal, REML = T)
-m1b <- blmer(log(y) ~ 1 + (1|locationYear/plot), data = sites_temporal, REML = T)
-m1c <- blmer(log(y) ~ 1 + (1|plot), data = sites_temporal, REML = T)
+m1a <- blmer(log(y) ~ 1 + (1|locationYear), data = sites, REML = T)
+m1b <- blmer(log(y) ~ 1 + (1|locationYear/plot), data = sites, REML = T)
+m1c <- blmer(log(y) ~ 1 + (1|plot), data = sites, REML = T)
 MuMIn::AICc(m1a, m1b, m1c) # m1c most parsimonous
 
 #### * fixed effects ####
@@ -137,35 +137,35 @@ m1 <- blmer(log(y) ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil +
            REML = F,
            control = lmerControl(optimizer = "Nelder_Mead"),
            cov.prior = wishart,
-           data = sites_temporal)
+           data = sites)
 simulateResiduals(m1, plot = T)
 m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + abundance + 
              (1|plot), 
            REML = F,
            control = lmerControl(optimizer = "Nelder_Mead"),
            cov.prior = wishart,
-           data = sites_temporal)
+           data = sites)
 simulateResiduals(m2, plot = T)
 m3 <- blmer(log(y) ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + abundance + 
              (1|plot), 
             REML = F,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,
-            data = sites_temporal)
+            data = sites)
 simulateResiduals(m3, plot = T)
 m4 <- blmer(log(y) ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side + distanceRiver + locationYear + abundance + 
              (1|plot), 
            REML = F,
            control = lmerControl(optimizer = "Nelder_Mead"),
            cov.prior = wishart,
-           data = sites_temporal)
+           data = sites)
 simulateResiduals(m4, plot = T)
 m5 <- blmer(log(y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + abundance + 
              (1|plot), 
            REML = F,
            control = lmerControl(optimizer = "Nelder_Mead"),
            cov.prior = wishart,
-           data = sites_temporal)
+           data = sites)
 simulateResiduals(m5, plot = T)
 
 ### b comparison -----------------------------------------------------------------------------------------
@@ -180,22 +180,22 @@ dotwhisker::dwplot(list(m2, m5),
                    ) +
   theme_classic()
 m <- update(m2, REML = T)
-rm(list = setdiff(ls(), c("sites_temporal", "m")))
+rm(list = setdiff(ls(), c("sites", "m")))
 
 ### c model check -----------------------------------------------------------------------------------------
 
 simulationOutput <- simulateResiduals(m, plot = T)
-plotResiduals(simulationOutput$scaledResiduals, sites_temporal$locationYear)
-plotResiduals(simulationOutput$scaledResiduals, sites_temporal$plot)
-plotResiduals(simulationOutput$scaledResiduals, sites_temporal$comparison)
-plotResiduals(simulationOutput$scaledResiduals, sites_temporal$exposition)
-plotResiduals(simulationOutput$scaledResiduals, sites_temporal$side)
-plotResiduals(simulationOutput$scaledResiduals, sites_temporal$PC1soil)
-plotResiduals(simulationOutput$scaledResiduals, sites_temporal$PC2soil)
-plotResiduals(simulationOutput$scaledResiduals, sites_temporal$PC3soil)
-plotResiduals(simulationOutput$scaledResiduals, sites_temporal$distanceRiver)
-plotResiduals(simulationOutput$scaledResiduals, sites_temporal$abundance)
-plotResiduals(simulationOutput$scaledResiduals, sites_temporal$riverkm)
+plotResiduals(simulationOutput$scaledResiduals, sites$locationYear)
+plotResiduals(simulationOutput$scaledResiduals, sites$plot)
+plotResiduals(simulationOutput$scaledResiduals, sites$comparison)
+plotResiduals(simulationOutput$scaledResiduals, sites$exposition)
+plotResiduals(simulationOutput$scaledResiduals, sites$side)
+plotResiduals(simulationOutput$scaledResiduals, sites$PC1soil)
+plotResiduals(simulationOutput$scaledResiduals, sites$PC2soil)
+plotResiduals(simulationOutput$scaledResiduals, sites$PC3soil)
+plotResiduals(simulationOutput$scaledResiduals, sites$distanceRiver)
+plotResiduals(simulationOutput$scaledResiduals, sites$abundance)
+plotResiduals(simulationOutput$scaledResiduals, sites$riverkm)
 car::vif(m) # remove riverkm since > 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol)
 
 

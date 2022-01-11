@@ -1,6 +1,11 @@
-# Show figure 2 ####
+# Beta diversity on dike grasslands
+# Plot Fig 2D ####
 # Markus Bauer
-# Citation: Markus Bauer 
+# 2022-01-11
+# Citation: 
+## Bauer M, Huber J, Kollmann J (submitted) 
+## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
+## Unpublished data.
 
 
 
@@ -20,26 +25,22 @@ setwd(here("data/processed"))
 
 
 ### Load data ###
-tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                   cols(
                     .default = "?",
                     side = col_factor(levels = c("land", "water")),
-                    exposition = col_factor(levels = c("south", "north"))
+                    exposition = col_factor(levels = c("south", "north")),
+                    plot = "f",
+                    block = "f",
+                    comparison = "f",
+                    locationYear = "f"
                   )) %>%
-  filter(comparison %in% c("1718", "1819", "1921")) %>%
   pivot_wider(id_cols = c(plot, comparison, exposition, side, block, 
                           location, locationYear, constructionYear, 
                           longitude, latitude, riverkm, distanceRiver, 
                           PC1soil, PC2soil, PC3soil, conf.low, conf.high), 
               names_from = "presabu", 
               values_from = "D") %>%
-  mutate(plot = factor(plot),
-         block = factor(block),
-         comparison = factor(comparison),
-         exposition = factor(exposition),
-         side = factor(side),
-         constructionYear = factor(constructionYear),
-         locationYear = factor(locationYear)) %>%
   rename(y = presence) %>%
   mutate(across(where(is.numeric) & !y, scale))
 
@@ -50,7 +51,7 @@ m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil +
             REML = T,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,
-            data = tbi)
+            data = sites)
 
 ### * Functions ####
 themeMB <- function(){

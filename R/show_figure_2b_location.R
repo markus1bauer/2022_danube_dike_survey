@@ -1,6 +1,11 @@
-# Show figure 2 ####
+# Beta diversity on dike grasslands
+# Plot Fig 2B ####
 # Markus Bauer
-# Citation: Markus Bauer 
+# 2022-01-11
+# Citation: 
+## Bauer M, Huber J, Kollmann J (submitted) 
+## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
+## Unpublished data.
 
 
 
@@ -22,24 +27,22 @@ setwd(here("data/processed"))
 
 
 ### Load data ###
-tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("", "na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                   cols(
-                    .default = "?"
+                    .default = "?",
+                    plot = "f",
+                    block = "f",
+                    comparison = "f",
+                    exposition = "f",
+                    side = "f",
+                    locationYear = "f"
                   )) %>%
-  filter(comparison %in% c("1718", "1819", "1921")) %>%
   pivot_wider(id_cols = c(plot, comparison, exposition, side, block, 
                           location, locationYear, constructionYear, 
                           longitude, latitude, riverkm, distanceRiver, 
                           PC1soil, PC2soil, PC3soil, conf.low, conf.high), 
               names_from = "presabu", 
               values_from = "D") %>%
-  mutate(plot = factor(plot),
-         block = factor(block),
-         comparison = factor(comparison),
-         exposition = factor(exposition),
-         side = factor(side),
-         constructionYear = factor(constructionYear),
-         locationYear = factor(locationYear)) %>%
   rename(y = presence) %>%
   mutate(across(where(is.numeric) & !y, scale))
 
@@ -50,7 +53,7 @@ m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil +
             REML = T,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,
-            data = tbi)
+            data = sites)
 
 ### * Functions ####
 themeMB <- function(){
@@ -83,14 +86,14 @@ data_model <- ggeffect(m2, type = "emm", c("locationYear"), back.transform = T) 
          conf.high = exp(conf.high),
          cross = if_else(x %in% c("PFE-2008", "IRL-2003"), "filled", "open"))
 
-data <- tbi %>%
+data <- sites %>%
   rename(predicted = y, x = locationYear) 
 
 (graph_b <- ggplot() +
     geom_quasirandom(data = data, 
                      aes(x = x, predicted),
                      dodge.width = .6, size = 1, shape = 16, color = "grey70") + 
-    geom_hline(yintercept = c(mean(tbi$y), mean(tbi$y) + 0.5 * sd(tbi$y), mean(tbi$y) - 0.5 * sd(tbi$y)), 
+    geom_hline(yintercept = c(mean(sites$y), mean(sites$y) + 0.5 * sd(sites$y), mean(sites$y) - 0.5 * sd(sites$y)), 
                linetype = c(1, 2, 2),
                color = "grey70") +
     geom_errorbar(data = data_model, 
