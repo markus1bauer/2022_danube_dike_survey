@@ -1108,6 +1108,7 @@ rm(list = ls(pattern = "[^species|traits|sites|pcaSoil|pcaSurveyYear|pcaConstruc
 
 ### * Prepare data ####
 data_sites <- sites %>%
+  ### Choose only plots which were surveyed in each year
   filter(accumulatedCov > 0) %>%
   add_count(plot) %>%
   filter(n == max(n)) %>%
@@ -1286,6 +1287,7 @@ sites <- sites %>%
 ### b Plot selection -------------------------------------------------------------------------------------------
 
 sites_spatial <- sites %>%
+  ### Choose only plots which were surveyed in each year
   filter(accumulatedCov > 0) %>%
   add_count(plot) %>%
   filter(n == max(n)) %>%
@@ -1298,7 +1300,8 @@ sites_spatial <- sites %>%
   mutate(plot = factor(plot)) # check number of plots 
 
 sites_temporal <- sites_temporal %>% 
-  filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
+  filter(comparison %in% c("1718", "1819", "1921")) %>%
+  pivot_wider(names_from = "presabu", values_from = c("B", "C", "D")) %>%
   mutate(plot = factor(plot)) # check number of plots 
 
 

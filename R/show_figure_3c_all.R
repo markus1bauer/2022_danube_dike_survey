@@ -26,7 +26,7 @@ setwd(here("data/processed"))
 
 
 ### Load data ###
-tbi <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                   cols(
                     .default = "?",
                     plot = "f",
@@ -37,7 +37,7 @@ tbi <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "
                     side = col_factor(levels = c("land", "water"))
                   )) %>%
   mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale)) %>%
-  mutate(y = C - B)
+  mutate(y = C_presence - B_presence)
 
 ### * Model ####
 m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + 
@@ -46,7 +46,7 @@ m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil +
             REML = F,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,
-            data = tbi)
+            data = sites)
 
 ### * Functions ####
 themeMB <- function(){

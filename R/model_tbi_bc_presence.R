@@ -37,7 +37,7 @@ sites <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("",
                     exposition = col_factor(levels = c("south", "north")),
                     side = col_factor(levels = c("land", "water"))
                   )) %>%
-  mutate(y = C - B)
+  mutate(y = C_presence - B_presence)
 
 data_collinearity <- sites %>%
   select(ends_with("ude"), riverkm, distanceRiver, starts_with("PC"))

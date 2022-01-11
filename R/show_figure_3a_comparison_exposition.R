@@ -26,7 +26,7 @@ rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
 setwd(here("data/processed"))
 
 ### Load data ###
-tbi <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                   cols(
                     .default = "?",
                     plot = "f",
@@ -37,7 +37,7 @@ tbi <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "
                     side = col_factor(levels = c("land", "water"))
                   )) %>%
   mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale)) %>%
-  mutate(y = C - B)
+  mutate(y = C_presence - B_presence)
 
 ### * Model ####
 m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + 
@@ -46,7 +46,7 @@ m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil +
             REML = F,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,
-            data = tbi)
+            data = sites)
 
 ### * Functions ####
 themeMB <- function(){
@@ -77,7 +77,7 @@ data_model <- ggeffect(m3, type = "emm", c("comparison", "exposition"), back.tra
          group = fct_recode(group, "North" = "north", "South" = "south"))
 
 
-data <- tbi %>%
+data <- sites %>%
   rename(predicted = y, x = comparison, group = exposition) %>%
   mutate(x = fct_recode(x, "2017 vs 2018" = "1718", "2018 vs 2019" = "1819", "2019 vs 2021" = "1921"),
          group = fct_recode(group, "North" = "north", "South" = "south"))

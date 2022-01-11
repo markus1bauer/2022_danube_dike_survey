@@ -36,13 +36,7 @@ sites <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("",
                     side = "f",
                     locationYear = "f"
                   )) %>%
-  pivot_wider(id_cols = c(plot, comparison, exposition, side, block, 
-                          location, locationYear, constructionYear, 
-                          longitude, latitude, riverkm, distanceRiver, 
-                          PC1soil, PC2soil, PC3soil, conf.low, conf.high), 
-              names_from = "presabu", 
-              values_from = "D") %>%
-  rename(y = presence) %>%
+  rename(y = D_presence) %>%
   mutate(across(where(is.numeric) & !y, scale))
 
 ### * Model ####

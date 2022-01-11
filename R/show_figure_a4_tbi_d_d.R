@@ -1,6 +1,11 @@
-# Show figure 2 ####
+# Beta diversity on dike grasslands
+# Figure A4 ####
 # Markus Bauer
-# Citation: Markus Bauer 
+# 2022-01-11
+# Citation: 
+## Bauer M, Huber J, Kollmann J (submitted) 
+## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
+## Unpublished data.
 
 
 
@@ -17,13 +22,10 @@ library(tidyverse)
 rm(list = ls())
 setwd(here("data/processed"))
 
-
 ### Load data ###
-tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("na", "NA"), col_types = 
                   cols(
                     .default = "?",
-                    id = "f",
-                    locationAbb = "f",
                     block = "f",
                     plot = "f",
                     locationYear = "f",
@@ -31,12 +33,7 @@ tbi <- read_csv("data_processed_tbi.csv", col_names = T, na = c("na", "NA"), col
                     side = "f",
                     comparison = "f"
                   )) %>%
-  filter(comparison %in% c("1718", "1819", "1921")) %>%
-  mutate(comparison = factor(comparison)) %>%
-  pivot_wider(names_from = "presabu", values_from = "D") %>%
-  group_by(plot, comparison, exposition, side, locationYear) %>%
-  summarise(across(c(presence, abundance, PC1soil, PC2soil, PC3soil, distanceRiver), ~ max(.x, na.rm = T))) %>%
-  ungroup()
+  select(plot, D_presence, D_abundance)
 
 ### * Functions ####
 themeMB <- function(){
@@ -60,7 +57,7 @@ themeMB <- function(){
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-ggplot(data = tbi, aes(x = abundance, y = presence)) +
+ggplot(data = sites, aes(x = D_abundance, y = D_presence)) +
   stat_density_2d(aes(fill = after_stat(level)),
                   geom = "polygon",
                   contour = T,
