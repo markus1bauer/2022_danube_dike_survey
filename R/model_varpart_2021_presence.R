@@ -43,6 +43,7 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"),
          expositionN = as.double(exposition),
          sideN = as.double(side),
          locationAbbN = as.double(locationAbb)) %>%
+  ### Choose only plots which are surveyed in each year ###
   filter(accumulatedCov > 0) %>%
   add_count(plot) %>%
   filter(surveyYear == 2021 & n == max(n))
@@ -156,7 +157,7 @@ sites_history_selected <- sites %>%
 
 ### * Variation partitioning ####
 m1_substitution_varpart <- varpart(beta_substitution, sites_soil_selected, sites_space_selected)
-tiff(here("outputs/figures/figure_betadiversity_2021_substitution_presence_(800dpi_12x12cm).tiff"),
+tiff(here("outputs/figures/figure_4d_2021_(800dpi_12x12cm).tiff"),
      res = 72, width = 12, height = 12, units = "cm", compression = "none")
 plot(m1_substitution_varpart, 
      Xnames = c("Site", "Space"),

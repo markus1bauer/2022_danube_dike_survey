@@ -15,27 +15,27 @@ library(soiltexture)
 
 ### Start ###
 rm(list = ls())
-setwd(here("data/raw"))
 
 
 ### Load data ###
-sites <- read_csv2("data_raw_sites_2017_2018_2019.csv", col_names = T, na = "na", col_types = 
+selection <- read_csv(here("data/processed/data_processed_sites.csv"), col_names = T, na = "na", col_types = 
+                    cols(
+                      .default = "?"
+                    )) %>%
+  filter(accumulatedCov > 0) %>%
+  add_count(plot) %>%
+  filter(surveyYear == 2017 & n == max(n)) %>%
+  select(plot)
+sites <- read_csv(here("data/raw/data_raw_sites.csv"), col_names = T, na = "na", col_types = 
                      cols(
-                       .default = col_double(),
-                       id = col_factor(),
-                       location = col_factor(),
-                       ageCategory = col_factor(),
-                       HCl = col_factor(),
-                       phosphorousClass = col_factor(),
-                       potassiumClass = col_factor(),
-                       magnesiumClass = col_character()
-                     )        
-)
-
-sites <- sites %>%
-  select(sand, silt, clay, phosphorous) %>%
-  rename(SAND = sand, SILT = silt, CLAY = clay)
-sites <- as.data.frame(sites)
+                       .default = "?",
+                       vegetationCov_2017 = "d"
+                     )) %>%
+  select(id, sandPerc, siltPerc, clayPerc, NtotalPerc) %>%
+  mutate(id = str_extract(id, "\\d\\d")) %>%
+  rename(SAND = sandPerc, SILT = siltPerc, CLAY = clayPerc, plot = id) %>%
+  right_join(selection, by = "plot") %>%
+  as.data.frame()
 
 
 
@@ -44,13 +44,11 @@ sites <- as.data.frame(sites)
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+tiff(here("outputs/figures/figure_a2_(800dpi_22x22cm).tiff"),
+     res = 72, width = 22, height = 22, units = "cm", compression = "none")
 TT.plot(
   class.sys = "DE.BK94.TT", 
   tri.data = sites, 
-  z.name = "phosphorous")
-
-TT.plot(
-  class.sys = "DE.BK94.TT", 
-  tri.data = sites
+  z.name = "NtotalPerc"
   )
-
+dev.off()

@@ -1290,6 +1290,10 @@ sites <- sites %>%
 ### b Plot selection -------------------------------------------------------------------------------------------
 
 sites <- sites %>%
+  select(-starts_with("surveyYearF"), 
+         -starts_with("constructionYearF"), 
+         -mossCov,
+         -litterCov) %>%
   filter(accumulatedCov > 0) %>%
   add_count(plot) %>%
   filter(surveyYear == 2018 & n == max(n))

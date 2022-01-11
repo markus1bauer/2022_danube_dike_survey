@@ -60,7 +60,7 @@ themeMB <- function(){
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-ggplot(data = tbi, aes(x = presence, y = abundance)) +
+ggplot(data = tbi, aes(x = abundance, y = presence)) +
   stat_density_2d(aes(fill = after_stat(level)),
                   geom = "polygon",
                   contour = T,
@@ -72,10 +72,10 @@ ggplot(data = tbi, aes(x = presence, y = abundance)) +
   scale_x_continuous(breaks = seq(-100, 100, 0.2)) +
   scale_y_continuous(breaks = seq(-100, 100, 0.2)) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
-  labs(x = expression(Dissimilarity~"["*TBI[sor]*"]"), y = expression(Dissimilarity~"["*TBI[bc]*"]")) +
+  labs(x = expression(Dissimilarity~"["*TBI[bc]*"]"), y = expression(Dissimilarity~"["*TBI[sor]*"]")) +
   themeMB()
 
 ### Save ###
-ggsave(here("outputs/figures/figure_tbi_d_d_(800dpi_8x8cm).tiff"), 
+ggsave(here("outputs/figures/figure_a4_(800dpi_8x8cm).tiff"), 
        dpi = 800, width = 8, height = 8, units = "cm")
 

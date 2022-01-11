@@ -1,0 +1,290 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"install ",
+				"Package Control: Install Package"
+			],
+			[
+				"delim",
+				"CSV: Set delimiter"
+			],
+			[
+				"advanced",
+				"Set Syntax: Advanced CSV"
+			],
+			[
+				"csv:set",
+				"CSV: Set delimiter"
+			],
+			[
+				"install package",
+				"Package Control: Install Package"
+			],
+			[
+				"package cont",
+				"Install Package Control"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 130.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Z/Documents/_university/2021_2022_danube/tasks.txt",
+		"/C/Users/Markus Bauer/AppData/Local/RStudio/rstudio-desktop.json",
+		"/Z/Documents/_university/2021_2022_danube/3_data_and_analyses/2022_danube_dike_survey/data/raw/precipitation/readme/Readme_deutsch.txt",
+		"/Z/Documents/_university/2021_2022_danube/3_data_and_analyses/2022_danube_dike_survey/data/raw/temperature/metadata/data/om_cdc_download.json",
+		"/Z/Documents/_university/2021_2022_danube/3_data_and_analyses/2022_danube_dike_survey/data/raw/precipitation/metadata/data/om_cdc_download.json",
+		"/Z/Documents/_university/2021_danube/tasks.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/Temp1_cdc_download_2021-12-07_17_28.zip/Readme_deutsch.txt",
+		"/Z/Documents/_university/2021_danube/3_data_and_analyses/2022_danube_dike_survey/data/raw/data_drought_metadata.txt",
+		"/C/Users/Markus Bauer/Downloads/SMI_L02_Oberboden_monatlich_1951_2018_inv.nc",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/Temp1_cdc_download_2021-11-16_16_57.zip/Readme_deutsch.txt",
+		"/Z/Documents/_chair/reviews/2021_Chozas_etal_Appl_Veg_Sci/Chozas_etal_review.txt",
+		"/Z/Documents/_chair/reviews/2021_Skalova_etal_J_Veg_Sci/Skalova_etal_Data.txt",
+		"/C/Users/Markus Bauer/LRZ Sync+Share/Alumni-Club Landschaft TUM/Schriftführung/E-Mails/Stellenanzeigen.ldif",
+		"/Z/Documents/_chair/reviews/2021_Skalova_etal_J_Veg_Sci/Skalova_etal_Supplement.txt",
+		"/C/Users/Markus Bauer/Downloads/SLA_und_geo_neu2.txt",
+		"/Y/roek/data/004_dikes_danube/004_001_bauer_markus_scientist/004_001_003_teixeira_bauer_etal_2021/to_dos.txt",
+		"/C/Users/Markus Bauer/Downloads/~$211110_bauer_etal_old_dikes_manuscript.docx",
+		"/Z/Documents/_university/2021_danube_dikes/tasks.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/R_code_for_figure_3-way-interaction.R.txt",
+		"/Z/Documents/_university/2021_danube_dikes/3_data_and_analyses/2022_danube_dike_experiment/data/raw/data_raw_traitbase_leda_20210223_sla.txt",
+		"/Z/Documents/_university/2021_danube_dikes/archive/Promotion_Jakob/Daten/Daten Survey/Survey 2017/Rohdaten/Nachbearbeitung Vegetation nach Aufnahmen 2018/Korrekturen in Datensatz von 2017.txt",
+		"/C/Users/Markus Bauer/LRZ Sync+Share/Bachelorarbeit Anna Lazarev/literature/Literatur.txt",
+		"/C/Users/Markus Bauer/LRZ Sync+Share/Bachelorarbeit Anna Lazarev/bachelorthesis/Format.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/ATT00001.c.txt",
+		"/C/Users/Markus Bauer/LRZ Sync+Share/Bachelorarbeit Anna Lazarev/data/raw/data_raw_traitbase_leda_20210223_canopy_height.txt",
+		"/Z/Documents/_university/2021_danube_dikes/2_maps_other_data/CLOPLA Selection 11-02 30.07.2021V.txt",
+		"/C/Users/Markus Bauer/Downloads/Chozas_Review.txt",
+		"/C/Users/Markus Bauer/Downloads/Chozas_Review",
+		"/C/Users/Markus Bauer/Downloads/email",
+		"/Z/Documents/_university/2016_project_7_riverine_inn_bachelor_thesis/3_Aufnahmen_und_Ergebnisse/Notes.txt",
+		"/Z/Documents/_university/2021_danube_dikes/Aktuelle_Aufgaben.txt",
+		"/Z/Documents/_Uni/2022_Donaudeiche/Aktuelle_Aufgaben.txt",
+		"/Z/Documents/_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/raw/precipitation/Readme_deutsch.txt",
+		"/Z/Documents/_Uni/2022_Donaudeiche/2_Karten_und_Daten/CLOPLA Selection 11-29 28.07.2021C1.txt",
+		"/Z/Documents/_Uni/Studium/Renaturierungsökologie_Experimentelle/3_Aufnahmen_Statistik/seed_weight_TC.txt",
+		"/Y/roek/data/003_garchinger_heide/003_002_bauer_markus_scientist/003_002_001_pepl_monitoring/data/raw/data_raw_traitbase_leda_20210223_seedmass.txt",
+		"/Z/Documents/_Uni/Studium/Renaturierungsökologie_Experimentelle/3_Aufnahmen_Statistik/seed_weight.txt",
+		"/Z/Documents/_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_dike_experiment/data/raw/data_raw_traitbase_leda_20210223_canopy_height.txt",
+		"/Z/Documents/_Uni/2018_Projekt_9_Garchinger_Heide_Masterthesis/3_Aufnahmen_und_Ergebnisse/2020_monitoring_Garchinger_Heide/data/raw/data_raw_canopy_height.txt",
+		"/Z/Documents/_Uni/2022_Donaudeiche/archive/data_raw_species_2020_water.csv",
+		"/Y/roek/data/003_garchinger_heide/003_002_bauer_markus_scientist/003_002_001_pepl_monitoring/data/raw/data_raw_traits_pepl_monitoring_metadata.csv",
+		"/Y/roek/data/003_garchinger_heide/003_002_bauer_markus_scientist/003_002_001_pepl_monitoring/data/raw/data_raw_traits_pepl_monitoring.csv",
+		"/Z/Documents/_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_dike_experiment/data/raw/data_raw_LEDA_20210223_sla.txt",
+		"/Z/Documents/_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_dike_experiment/data/raw/data_raw_species_2021.csv",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/metadata_Larson_Ebinger_Suding_2021.csv.txt",
+		"/Z/Documents/_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_dike_experiment/data/raw/data_raw_species_2021_onwards.csv",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/plant_summary_data.csv-1.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/plant_summary_data.csv.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/rainfall_treatment.csv.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/soil_moisture.csv.txt",
+		"/C/Users/Markus Bauer/Downloads/doi_10.5061_dryad.vr93sj5__v1/Rydgren&al_dtafig1b.txt",
+		"/C/Users/Markus Bauer/Downloads/doi_10.5061_dryad.vr93sj5__v1/Rydgren&al_dtafig1a.txt",
+		"/C/Users/Markus Bauer/Downloads/doi_10.5061_dryad.vr93sj5__v1/README_for_Rydgren&al_rawdta.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/Temp1_doi_10.5061_dryad.vr93sj5__v1.zip/README_for_Rydgren&al_rawdta.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/Temp1_doi_10.5061_dryad.vr93sj5__v1.zip/Rydgren&al_dtafig1a.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/_template_files/000_000_000_experiment_name_metadata_README.txt",
+		"/?nas.ads.mwn.de/tuwz/q6t/roek/data/_templates_and_information_about_data_management/_template_files/LICENSE_CC-BY-4.0.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/_template_project_organization/000_000_musterfrau_max_scientist/README.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/_template_project_organization/000_000_musterfrau_max_scientist/000_000_000_experiment_name/README.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/_template_project_organization/000_000_musterfrau_max_scientist/000_000_000_experiment_name/data/README.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/_template_project_organization/000_000_musterfrau_max_scientist/000_000_000_experiment_name/data/raw/README.txt",
+		"/C/Users/Markus Bauer/Downloads/appendix1.txt",
+		"/Z/Documents/_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_dike_experiment/LICENSE",
+		"/Z/Documents/_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_dike_experiment/data/raw/data_raw_species_2021_onwards.csv.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/Turboveg.txt",
+		"/Y/roek/data/003_garchinger_heide/003_002_bauer_markus_scientist/003_002_001_pepl_monitoring/Heidenotizen.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/CLOPLA Selection 11-29 28.07.2021.txt",
+		"/C/Users/Markus Bauer/Downloads/CLOPLA Selection 12-50 27.07.2021.txt",
+		"/C/Users/Markus Bauer/Downloads/CLOPLA Selection 10-33 27.07.2021.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/CLOPLA Selection 12-50 27.07.2021.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/CLOPLA Selection 11-39 27.07.2021.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/CLOPLA Selection 11-39 27.07.2021-1.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/CLOPLA Selection 10-33 27.07.2021.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/CLOPLA Selection 10-34 27.07.2021.txt",
+		"/Y/roek/Verwaltung/Anmeldung_ROEK-Server_Anleitung.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/_template_project_organization/README.txt",
+		"/C/Users/Markus Bauer/AppData/Local/Temp/CLOPLA Selection 14-34 08.06.2021.txt",
+		"/D/Readme.txt",
+		"/Z/Documents/_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/raw/data_raw_traitbase_clopla _20210608_clonal_traits.txt",
+		"/Z/Documents/_Uni/2021_ZIM_Ziegelprojekt/3_Aufnahmen_und_Ergebnisse/2020_waste_bricks_for_restoration/data/raw/data_raw_experiment_1_2_environment.txt",
+		"/Y/roek/data/003_garchinger_heide/003_002_bauer_markus_scientist/003_002_001_pepl_monitoring/data/raw/README.txt",
+		"/C/Users/Markus Bauer/Downloads/CLOPLA Selection 14-34 08.06.2021.txt",
+		"/Z/Documents/_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/raw/hf205-01.txt",
+		"/Y/roek/data/004_dikes_danube/004_001_bauer_markus_scientist/README.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/template_project_organization/README.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/template_project_organization/000_000_musterfrau_max_scientist/README.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/template_project_organization/000_000_musterfrau_max_scientist/000_000_000_experiment_name/README.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/template_project_organization/000_000_musterfrau_max_scientist/000_000_000_experiment_name/data/README.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/template_project_organization/000_000_musterfrau_max_scientist/000_000_001_musterfrau_etal_2021_basic_appl_ecol/README.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/template_files/000_000_000_experiment_name_metadata_README.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/template_files/000_000_000_experiment_name_data_collection_metadata_README.txt",
+		"/Z/Documents/_Uni/2022_Donaudeiche/3_Aufnahmen_und_Ergebnisse/2022_Danube_old_dikes/data/raw/data_raw_TRY_20210306_13996.txt",
+		"/Y/roek/data/_templates_and_information_about_data_management/template_files/000_000_000_mustermann_erika_metadata_README.txt",
+		"/C/Users/Markus Bauer/LRZ Sync+Share/Landschaftsökologie_Bauer/Suchorte_RegioDiv.txt",
+		"/Y/roek/data/003_garchinger_heide/003_001_bauer_markus_master/003_001_001_monitoring/data/raw/data_raw_canopy_height.txt",
+		"/Y/roek/data/005_garchinger_heide/005_002_bauer_markus_scientist/005_002_001_pepl_monitoring/data/README.txt"
+	],
+	"find":
+	{
+		"height": 27.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			",",
+			"\t"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			";",
+			""
+		],
+		"reverse": false,
+		"scrollbar_highlights": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"use_gitignore": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 39.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "2022_danube_dike_survey.sublime-project",
+	"replace":
+	{
+		"height": 50.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
