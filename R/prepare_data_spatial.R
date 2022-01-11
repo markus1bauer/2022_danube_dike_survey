@@ -1,5 +1,11 @@
+# Beta diversity on dike grasslands
 # Prepare spatial data ####
 # Markus Bauer
+# 2022-01-11
+# Citation: 
+## Bauer M, Huber J, Kollmann J (submitted) 
+## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
+## Unpublished data.
 
 
 
@@ -174,7 +180,7 @@ st_write(germany, layer = "germany_epsg4326.shp", driver = "ESRI Shapefile", del
          dsn = here("data/processed/spatial"))
 st_write(rivers, layer = "rivers_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          dsn = here("data/processed/spatial"))
-### Danube layer was one time digitized ###
+### River layer was one time digitized ###
 #st_write(danube_isar, layer = "danube_isar_digitized_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
          #dsn = here("data/processed/spatial"))
 st_write(grazing, layer = "grazing_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,

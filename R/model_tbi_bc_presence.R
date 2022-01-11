@@ -1,6 +1,11 @@
-# Calculate TBI ####
+# Beta diversity on dike grasslands
+# Ratio of gains and losses of TBI (presence-absence data) ####
 # Markus Bauer
-# Citation: Bauer M, Huber J, Kollmann J (202x)
+# 2022-01-11
+# Citation: 
+## Bauer M, Huber J, Kollmann J (submitted) 
+## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
+## Unpublished data.
 
 
 
@@ -43,6 +48,7 @@ data_collinearity <- tbi %>%
 
 tbi <- tbi %>%
   mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale))
+
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

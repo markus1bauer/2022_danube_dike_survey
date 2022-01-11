@@ -1,5 +1,11 @@
-# Model for Variation partitioning ####
+# Beta diversity on dike grasslands
+# Variation partitioning of 2021 (presence-absence data)
 # Markus Bauer
+# 2022-01-11
+# Citation: 
+## Bauer M, Huber J, Kollmann J (submitted) 
+## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
+## Unpublished data.
 
 
 

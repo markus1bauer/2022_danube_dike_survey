@@ -1,16 +1,12 @@
-# Prepare vegetation data ####
+# Beta diversity on dike grasslands
+# Prepare species, sites, and traits data ####
 # Markus Bauer
+# 2022-01-11
+# Citation: 
+## Bauer M, Huber J, Kollmann J (submitted) 
+## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
+## Unpublished data.
 
-## Content
-# 1 Create simple variables
-# 2 Coverages
-# 3 Species richness
-# 4 Biotope types
-# 5 CWM off Ellenberg
-# 6 Load functional plant traits
-# 7 Calculate CWM and FDis
-# 8 Beta diversity
-# 9 Environmental variables
 
 
 ### Packages ###
@@ -23,7 +19,6 @@ library(FD) #dbFD()
 library(adespatial)
 #remotes::install_github("larsito/tempo")
 library(tempo) #calc_sync()
-
 
 ### Start ###
 #installr::updateR(browse_news = F, install_R = T, copy_packages = T, copy_Rprofile.site = T, keep_old_packages = T, update_packages = T, start_new_R = F, quit_R = T, print_R_versions = T, GUI = T)
@@ -1297,6 +1292,8 @@ sites <- sites %>%
   filter(accumulatedCov > 0) %>%
   add_count(plot) %>%
   filter(surveyYear == 2018 & n == max(n))
+
+
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # C Save processed data ################################################################################
