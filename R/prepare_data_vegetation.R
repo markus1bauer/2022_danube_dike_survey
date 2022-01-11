@@ -1253,18 +1253,19 @@ plot <- data_sites %>%
   pull(plot)
 data <- add_row(data_presence, data_abundance) %>%
   mutate(plot = rep(plot, length(data_abundance$comparison) * 2 / 38))
-tbi <- sites %>%
+sites_temporal <- sites %>%
   filter(surveyYearF == "2017") %>%
   left_join(data, by = "plot") %>%
   rename(B = "B/(2A+B+C)", C = "C/(2A+B+C)", D = "D=(B+C)/(2A+B+C)", change = Change) %>%
-  mutate(change = C - B) %>%
+  mutate(change = C - B,
+         plot = as_factor(plot)) %>%
   select(plot, block, exposition, side, block, location, constructionYear, locationYear, longitude, latitude, riverkm, distanceRiver, PC1soil, PC2soil, PC3soil, conf.low, conf.high, B, C, D, comparison, presabu) %>%
   mutate(across(c(PC1soil, PC2soil, PC3soil,
                   distanceRiver,
                   B, C, D), 
                 ~ round(.x, digits = 4))) 
   
-rm(list = ls(pattern = "[^species|traits|sites|pcaSoil|pcaSurveyYear|pcaConstructionYear|tbi]"))
+rm(list = setdiff(ls(), c("sites", "species", "traits", "sites_temporal", "pcaConstuctionYear", "pcaSoil", "pcaSurveyYear")))
 
 
 ## 8 Finalization ##############################################################################################
@@ -1284,14 +1285,21 @@ sites <- sites %>%
 
 ### b Plot selection -------------------------------------------------------------------------------------------
 
-sites <- sites %>%
+sites_spatial <- sites %>%
+  filter(accumulatedCov > 0) %>%
+  add_count(plot) %>%
+  filter(n == max(n)) %>%
   select(-starts_with("surveyYearF"), 
          -starts_with("constructionYearF"), 
          -mossCov,
-         -litterCov) %>%
-  filter(accumulatedCov > 0) %>%
-  add_count(plot) %>%
-  filter(surveyYear == 2018 & n == max(n))
+         -litterCov,
+         -n,
+         -ageCategory) %>%
+  mutate(plot = factor(plot)) # check number of plots 
+
+sites_temporal <- sites_temporal %>% 
+  filter(comparison %in% c("1718", "1819", "1921") & presabu == "presence") %>%
+  mutate(plot = factor(plot)) # check number of plots 
 
 
 
@@ -1301,10 +1309,10 @@ sites <- sites %>%
 
 
 ### Data ###
-write_csv(sites, here("data/processed/data_processed_sites_spatial.csv"))
+write_csv(sites_spatial, here("data/processed/data_processed_sites_spatial.csv"))
 write_csv(species, here("data/processed/data_processed_species.csv"))
 write_csv(traits, here("data/processed/data_processed_traits.csv"))
-write_csv(tbi, here("data/processed/data_processed_sites_temporal.csv"))
+write_csv(sites_temporal, here("data/processed/data_processed_sites_temporal.csv"))
 
 ### Tables ###
 write_csv(pcaSoil, here("outputs/statistics/pca_soil.csv"))

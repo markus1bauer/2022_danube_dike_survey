@@ -9,9 +9,9 @@
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # A Preparation ################################################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 ### Packages ###
@@ -26,7 +26,7 @@ setwd(here("data/processed"))
 set.seed(1)
 
 ### Load data ###
-sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites_spatial.csv", col_names = T, na = c("na", "NA"), col_types = 
                      cols(
                        .default = "?",
                        id = "f",
@@ -45,14 +45,11 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("na", "NA"),
          MEM1_2021, MEM2_2021, 
          surveyYear, plotAge, PC1constructionYear, PC2constructionYear, PC3constructionYear,
          accumulatedCov) %>%
+  filter(surveyYear == 2021) %>%
   mutate(surveyYearF = as_factor(surveyYear),
-         expositionN = as.double(exposition),
-         sideN = as.double(side),
-         locationAbbN = as.double(locationAbb)) %>%
-  ### Choose only plots which are surveyed in each year ###
-  filter(accumulatedCov > 0) %>%
-  add_count(plot) %>%
-  filter(surveyYear == 2021 & n == max(n))
+         exposition_numeric = as.double(exposition),
+         side_numeric = as.double(side),
+         locationAbb_numeric = as.double(locationAbb))
 
 species <- read_csv("data_processed_species.csv", col_names = T, na = c("na", "NA", ""), col_types = 
                        cols(
@@ -70,11 +67,13 @@ sites <- sites %>%
   column_to_rownames("id")
 
 sites_soil <- sites %>%
-  select(PC1soil, PC2soil, PC3soil, expositionN, sideN)
+  select(PC1soil, PC2soil, PC3soil, exposition_numeric, side_numeric)
 sites_space <- sites %>%
-  select(locationAbbN, distanceRiver, riverkm, MEM2_2021)
+  select(locationAbb_numeric, distanceRiver, riverkm, MEM2_2021)
 sites_history <- sites %>%
   select(plotAge, PC1constructionYear, PC2constructionYear)
+
+
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # B Statistics ################################################################################################################
@@ -101,7 +100,7 @@ beta_subsets <- beta$rich %>% # nestedness
   as.matrix()
 
 
-## 2 db-RDA #####################################################################################
+## 2 db-RDA ############################################################################################################
 
 ### a Overall variation partitioning -----------------------------------------------------------------------------------
 
@@ -110,7 +109,7 @@ plot(m1_total_varpart,
      Xnames = c("Site", "Space", "History"),
      cutoff = 0.01, digits = 1, bg = NA, id.size = 1)
 
-### b Substitution --------------------------------------------------------------------------------------------
+### b Substitution -----------------------------------------------------------------------------------------------------
 
 ### * linear trend in data ####
 #m1 <- dbrda(beta_substitution ~ longitude + latitude, data = sites)
@@ -137,7 +136,7 @@ sel <- forward.sel(beta_substitution,
                    nperm = 9999)
 sel$p_adj <- p.adjust(sel$pvalue, method = 'holm', n = ncol(sites_soil));sel #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 sites_soil_selected <- sites %>%
-  select(expositionN, PC1soil, PC3soil)
+  select(exposition_numeric, PC1soil, PC3soil)
 ### Space ###
 m1 <- dbrda(beta_substitution ~ locationAbb + riverkm + distanceRiver + MEM2_2021, 
             data = sites)
@@ -148,7 +147,7 @@ sel <- forward.sel(beta_substitution,
                    nperm = 9999)
 sel$p_adj <- p.adjust(sel$pvalue, method = 'holm', n = ncol(sites_space));sel #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 sites_space_selected <- sites %>%
-  select(locationAbbN, MEM2_2021)
+  select(locationAbb_numeric, MEM2_2021)
 ### History ###
 m1 <- dbrda(beta_substitution ~ plotAge + PC1constructionYear + PC2constructionYear + PC3constructionYear, 
             data = sites)
@@ -219,7 +218,7 @@ m1_substitution <- dbrda(beta_substitution ~ MEM2_2021 +
 anova(m1_substitution, permutations = how(nperm = 9999)) #p = .400
 RsquareAdj(m1_substitution) # R2adj = .002
 
-### c Subsets --------------------------------------------------------------------------------------------
+### c Subsets ----------------------------------------------------------------------------------------------------------
 
 ### * full model ####
 m1 <- dbrda(beta_subsets ~ PC1soil + PC2soil + PC3soil + exposition + side + 

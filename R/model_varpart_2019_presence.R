@@ -26,7 +26,7 @@ rm(list = ls())
 setwd(here("data/processed"))
 
 ### Load data ###
-sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("", "na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites_spatial.csv", col_names = T, na = c("", "na", "NA"), col_types = 
                      cols(
                        .default = "?",
                        id = "f",
@@ -44,14 +44,11 @@ sites <- read_csv("data_processed_sites.csv", col_names = T, na = c("", "na", "N
          locationAbb, riverkm, distanceRiver,
          surveyYear, plotAge, PC1constructionYear, PC2constructionYear, PC3constructionYear,
          accumulatedCov) %>%
+  filter(surveyYear == 2019) %>%
   mutate(surveyYearF = as_factor(surveyYear),
-         expositionN = as.double(exposition),
-         sideN = as.double(side),
-         locationAbbN = as.double(locationAbb)) %>%
-  ### Choose only plots which are surveyed in each year ###
-  filter(accumulatedCov > 0) %>%
-  add_count(plot) %>%
-  filter(surveyYear == 2019 & n == max(n))
+         exposition_numeric = as.double(exposition),
+         side_numeric = as.double(side),
+         locationAbb_numeric = as.double(locationAbb))
 
 species <- read_csv("data_processed_species.csv", col_names = T, na = c("na", "NA", ""), col_types = 
                        cols(
@@ -69,9 +66,9 @@ sites <- sites %>%
   column_to_rownames("id")
 
 sites_soil <- sites %>%
-  select(PC1soil, PC2soil, PC3soil, expositionN, sideN)
+  select(PC1soil, PC2soil, PC3soil, exposition_numeric, side_numeric)
 sites_space <- sites %>%
-  select(locationAbbN, distanceRiver, riverkm)
+  select(locationAbb_numeric, distanceRiver, riverkm)
 sites_history <- sites %>%
   select(plotAge, PC1constructionYear, PC2constructionYear)
 
@@ -138,7 +135,7 @@ sel <- forward.sel(beta_substitution,
                    nperm = 9999)
 sel$p_adj <- p.adjust(sel$pvalue, method = 'holm', n = ncol(sites_soil));sel #https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 sites_soil_selected <- sites %>%
-  select(expositionN, PC3soil)
+  select(exposition_numeric, PC3soil)
 ### Space ###
 m1 <- dbrda(beta_substitution ~ locationAbb + riverkm + distanceRiver, 
             data = sites)
