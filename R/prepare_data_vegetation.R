@@ -546,9 +546,10 @@ rm(list = ls(pattern = "[^species|traits|sites]"))
 ## 5 Beta diversity #####################################################################################
 
 
-### c dbMEM (all plots) -------------------------------------------------------------------------------------------
+### a dbMEM (all plots) -------------------------------------------------------------------------------------------
 
 source('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/quickMEM.R')
+
 ### * 2017 ####
 data_sites_dbMEM <- data_sites %>%
   filter(surveyYear == 2017) %>%
@@ -649,7 +650,7 @@ dbMEMred <- dbMEMred %>%
   rename(MEM1_2021 = MEM1, MEM2_2021 = MEM2)
 sites <- left_join(sites, dbMEMred, by = "id")
 
-### d dbMEM (41 plots) -------------------------------------------------------------------------------------------
+### b dbMEM (41 plots) -------------------------------------------------------------------------------------------
 
 ### * Prepare data ####
 source('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/quickMEM.R')
@@ -663,7 +664,6 @@ data_species <- species %>%
   arrange(id) %>%
   semi_join(data_sites, by = "id") %>%
   mutate(across(where(is.numeric), ~replace(., is.na(.), 0)))
-
 
 ### * 2017 ####
 data_sites_dbMEM <- data_sites %>%
@@ -767,7 +767,7 @@ dbMEMred <- dbMEMred %>%
   rename(MEM1_2021 = MEM1, MEM2_2021 = MEM2)
 sites <- left_join(sites, dbMEMred, by = "id")
 
-### d LCBD (Local Contributions to Beta Diversity) -------------------------------------------------------------------------------------------
+### c LCBD (Local Contributions to Beta Diversity) -------------------------------------------------------------------------------------------
 
 #### * 2017 ####
 data_species_lcbd <- data_species %>%
@@ -811,7 +811,7 @@ sites <- sites %>%
 
 rm(list = ls(pattern = "[^species|traits|sites]"))
 
-### e Synchrony -------------------------------------------------------------------------------------------
+### d Synchrony -------------------------------------------------------------------------------------------
 
 data_sites <- sites %>%
   select(id, plot, vegetationCov) %>%

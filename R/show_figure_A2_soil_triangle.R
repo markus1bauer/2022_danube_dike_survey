@@ -54,6 +54,7 @@ tiff(here("outputs/figures/figure_a2_(800dpi_22x22cm).tiff"),
 TT.plot(
   class.sys = "DE.BK94.TT", 
   tri.data = sites, 
-  z.name = "NtotalPerc"
+  #z.name = "NtotalPerc",
+  col = "black"
   )
 dev.off()

@@ -69,7 +69,7 @@ ggplot(data = sites, aes(x = D_abundance, y = D_presence)) +
   scale_x_continuous(breaks = seq(-100, 100, 0.2)) +
   scale_y_continuous(breaks = seq(-100, 100, 0.2)) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
-  labs(x = expression(Dissimilarity~"["*TBI[bc]*"]"), y = expression(Dissimilarity~"["*TBI[sor]*"]")) +
+  labs(x = expression(Temporal~"beta"~diversity~"["*italic('D')[bc]*"]"), y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]")) +
   themeMB()
 
 ### Save ###
