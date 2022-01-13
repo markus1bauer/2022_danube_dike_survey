@@ -55,6 +55,11 @@ sites <- sites %>%
 ## 1 Data exploration #####################################################################################
 
 #### * Graphs #####
+mean(sites$y)
+median(sites$y)
+sd(sites$y)
+Rmisc::CI(sites$y, ci = .95)
+quantile(sites$y, probs = c(0.05, 0.95), na.rm = T)
 #main
 ggplot(sites, aes(x = comparison, y = y)) + 
   geom_boxplot() +

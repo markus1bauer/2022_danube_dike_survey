@@ -37,13 +37,13 @@ vegetationHeight_2018,average height of the vegetation (measured in the field) 2
 vegetationHeight_2019,average height of the vegetation (measured in the field) 2019,NA,NA,centimeter,integer,numeric,NA
 vegetationHeight_2021,average height of the vegetation (measured in the field) 2019,NA,NA,centimeter,integer,numeric,NA
 HCl,HCl 10percent CaCO3,NA,NA,NA,NA,factor,C0/C1/C2/C3/C4
-C550Perc,percentage of carbon after 550 degree celsius treatment (weightpercent),NA,NA,percent,real,numeric,NA
-calciumcarbonatPerc,percentage of calcium carbonate (CaCO3) in fine soil (C550Ratio * 8.33) (weight percent),NA,NA,percent,real,numeric,NA
+C550Perc,percentage of carbon after 550 degree celsius treatment (weight percent),NA,NA,percent,real,numeric,NA
+calciumcarbonatPerc,percentage of calcium carbonate (CaCO3) in fine soil (C550Perc * 8.33) (weight percent),NA,NA,percent,real,numeric,NA
 CorgPerc,percentage of organic carbon (weight percent),NA,NA,percent,real,numeric,NA
 humusPerc,percentage of humus (CorgPerc * 1.72) (weight percent),NA,NA,percent,real,numeric,NA
 humusLevel,humus level according to Bodenkundliche Kartieranleitung Tab. 15,NA,NA,NA,NA,factor,h1/h2/h3/h4/h5
 NtotalPerc,total nitrogen percentage (weight percent),NA,NA,percent,real,numeric,NA
-cnRatio,CorgPerc / NtotalRatio (9-11 is normal for agricultural land (LfL website)),NA,NA,dimensionless,real,numeric,NA
+cnRatio,CorgPerc / NtotalPerc (9-11 is normal for agricultural land (LfL website)),NA,NA,dimensionless,real,numeric,NA
 cnLevel,humus quality level,NA,NA,NA,NA,factor,hq4/hq5
 pH,pH measured in 0.01 M CaCl2 with VDLUFA method A 5.1.1 by engineering office Dr. Haeusler 2017-11-28,NA,NA,dimensionless,real,numeric,NA
 sandPerc,percentage of sand (2-0.063mm) in the fine soil sample (fine soil <2mm) DIN ISO 11277 by engineering office Dr. Haeusler 2017-11-28,NA,NA,percent,real,numeric,NA

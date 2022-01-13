@@ -1,5 +1,5 @@
 # Beta diversity on dike grasslands
-# Figure A2 ####
+# Figure A1 ####
 # Markus Bauer
 # 2022-01-11
 # Citation: 
@@ -49,7 +49,7 @@ sites <- read_csv(here("data/raw/data_raw_sites.csv"), col_names = T, na = "na",
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-tiff(here("outputs/figures/figure_a2_(800dpi_22x22cm).tiff"),
+tiff(here("outputs/figures/figure_a1_(800dpi_22x22cm).tiff"),
      res = 72, width = 22, height = 22, units = "cm", compression = "none")
 TT.plot(
   class.sys = "DE.BK94.TT", 
