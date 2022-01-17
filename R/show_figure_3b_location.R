@@ -44,7 +44,7 @@ sites <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("",
 m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + 
               side + distanceRiver + locationYear + 
               (1|plot), 
-            REML = F,
+            REML = T,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,
             data = sites)
