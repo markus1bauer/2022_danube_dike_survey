@@ -43,11 +43,9 @@ sites <- read_csv("data_raw_sites.csv", col_names = T, na = c("", "NA", "na"), c
                       location = "f",
                       side = "f",
                       exposition = "f",
-                      ageCategory = "f",
                       surveyDate_2017 = col_date(format = "%Y-%m-%d"),
                       surveyDate_2018 = col_date(format = "%Y-%m-%d"),
                       surveyDate_2019 = col_date(format = "%Y-%m-%d"),
-                      HCl = "f",
                       humusLevel = "f"
                     )) %>%
   mutate(across(starts_with("vegetationCov") | 
@@ -91,7 +89,7 @@ sites <- read_csv("data_raw_sites.csv", col_names = T, na = c("", "NA", "na"), c
 
 ### 2 Species #####################################################################################
 
-species <- data.table::fread("20211102_data_raw_species.csv", 
+species <- data.table::fread("data_raw_species.csv", 
                              sep = ",",
                              dec = ".",
                              skip = 0,
@@ -215,18 +213,14 @@ traits <- traits %>%
       sociology >= 5300 & sociology < 5400, "dry_grassland", if_else(
         sociology >= 5400 & sociology < 6000, "hay_meadow", if_else(
           sociology >= 5100 & sociology < 5200, "nardus_grassland", if_else(
-            sociology >= 5200 & sociology < 5300, "sand_grasland", "no"
+            sociology >= 5200 & sociology < 5300, "sand_grassland", "no"
             )))))
 
 sites <- sites %>%
   mutate(conf.low = c(1:length(id)),
          conf.high = c(1:length(id)),
-         fmMass = fmDepth * fmDbd * 10,
-         fmMass = round(fmMass, 3),
-         NtotalConc = fmMass * NtotalPerc / 100,
-         plotAge = surveyYear - constructionYear,
-         ageCategory = if_else(surveyYear > 2016, "young", "old")) %>%
-  select(-fmDepth, -fmMass)
+         NtotalConc = finematerialDepth * finematerialDensity * 10 * NtotalPerc / 100,
+         plotAge = surveyYear - constructionYear)
 
 
 ## 2 Coverages #####################################################################################
@@ -518,11 +512,15 @@ biotopetypes <- sites %>%
          min8 = as_factor(if_else(biotopePoints >= 8, "yes", "no")),
          min9 = as_factor(if_else(biotopePoints >= 9, "yes", "no")))
 sites <- left_join(sites, biotopetypes, by = "id") %>%  
-  select(-targetHerbCov, -arrhCov, -leanCov, -nitrogenCov, -table33Cov, -targetHerbRichness, -arrhRichness, -leanIndicatorRichness, -ffh6510Richness, -ffh6210Richness, -table33_2Richness, -table33_3Richness, -table33_4Richness, -table34_2Richness, -table34_3Richness)
+  select(-targetHerbCov, -arrhCov, -leanCov, -nitrogenCov, -table33Cov, 
+         -targetHerbRichness, -arrhRichness, -leanIndicatorRichness, -ffh6510Richness, -ffh6210Richness, 
+         -table33_2Richness, -table33_3Richness, -table33_4Richness, -table34_2Richness, -table34_3Richness
+         )
 traits <- traits %>%
-  select(-targetArrhenatherion, -table30, -table33, -table34, -nitrogenIndicator, -nitrogenIndicator2, leanIndicator)
+  select(-targetArrhenatherion, -table30, -table33, -table34, 
+         -nitrogenIndicator, -nitrogenIndicator2, -leanIndicator, -grazingIndicator, -ruderalIndicator)
 
-### b Calculate constance -------------------------------------------------------------------------------------------
+### b Calculate constancy -------------------------------------------------------------------------------------------
 
 data <- sites %>%
   select(id, plot, surveyYear, ffh) %>%
@@ -546,111 +544,7 @@ rm(list = ls(pattern = "[^species|traits|sites]"))
 ## 5 Beta diversity #####################################################################################
 
 
-### a dbMEM (all plots) -------------------------------------------------------------------------------------------
-
-source('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/quickMEM.R')
-
-### * 2017 ####
-data_sites_dbMEM <- data_sites %>%
-  filter(surveyYear == 2017) %>%
-  select(id, longitude, latitude)
-data_species_dbMEM <- data_species %>%
-  semi_join(data_sites_dbMEM, by = "id") %>%
-  column_to_rownames(var = "id") %>%
-  decostand("hellinger")
-data_sites_dbMEM <- data_sites_dbMEM %>%
-  column_to_rownames("id")
-m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
-              alpha = 0.05, 
-              detrend = F,
-              method = "fwd",
-              rangexy = T,
-              perm.max = 999) #R2adj of minimum (final) model = 0.096
-m$RDA_test # p = 0.001
-m$RDA_axes_test #1 sig axes
-m$RDA # PC1 = 0.093
-dbMEMred <- dbMEMred %>%
-  rownames_to_column(var = "id") %>%
-  select(id, MEM1) %>%
-  rename(MEM1_2017 = MEM1)
-sites <- left_join(sites, dbMEMred, by = "id")
-
-### * 2018 ####
-data_sites_dbMEM <- data_sites %>%
-  filter(surveyYear == 2018) %>%
-  select(id, longitude, latitude)
-data_species_dbMEM <- data_species %>%
-  semi_join(data_sites_dbMEM, by = "id") %>%
-  column_to_rownames(var = "id") %>%
-  decostand("hellinger")
-data_sites_dbMEM <- data_sites_dbMEM %>%
-  column_to_rownames("id")
-m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
-              alpha = 0.05, 
-              detrend = F,
-              method = "fwd",
-              rangexy = T,
-              perm.max = 999) #R2adj of minimum (final) model = 0.086
-m$RDA_test # p = 0.001
-m$RDA_axes_test # 2 sig. axes
-m$RDA # PC1 = 0.090
-dbMEMred <- dbMEMred %>%
-  rownames_to_column(var = "id") %>%
-  select(id, MEM1, MEM2) %>%
-  rename(MEM1_2018 = MEM1, MEM2_2018 = MEM2)
-sites <- left_join(sites, dbMEMred, by = "id")
-
-### * 2019 ####
-data_sites_dbMEM <- data_sites %>%
-  filter(surveyYear == 2019) %>%
-  select(id, longitude, latitude)
-data_species_dbMEM <- data_species %>%
-  semi_join(data_sites_dbMEM, by = "id") %>%
-  column_to_rownames(var = "id") %>%
-  decostand("hellinger")
-data_sites_dbMEM <- data_sites_dbMEM %>%
-  column_to_rownames("id")
-m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
-              alpha = 0.05, 
-              detrend = F,
-              method = "fwd",
-              rangexy = T,
-              perm.max = 999) #R2adj of minimum (final) model = 0.093 
-m$RDA_test # p = 0.001
-m$RDA_axes_test # 2sig axes
-m$RDA # PC1 = 0.065, PC2 = 0.060
-dbMEMred <- dbMEMred %>%
-  rownames_to_column(var = "id") %>%
-  select(id, MEM1, MEM2) %>%
-  rename(MEM1_2019 = MEM1, MEM2_2019 = MEM2)
-sites <- left_join(sites, dbMEMred, by = "id")
-
-### * 2021 ####
-data_sites_dbMEM <- data_sites %>%
-  filter(surveyYear == 2021) %>%
-  select(id, longitude, latitude)
-data_species_dbMEM <- data_species %>%
-  semi_join(data_sites_dbMEM, by = "id") %>%
-  column_to_rownames(var = "id") %>%
-  decostand("hellinger")
-data_sites_dbMEM <- data_sites_dbMEM %>%
-  column_to_rownames("id")
-m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
-              alpha = 0.05, 
-              detrend = F,
-              method = "fwd",
-              rangexy = T,
-              perm.max = 999) #R2adj of minimum (final) model = 0.064 
-m$RDA_test # p = 0.002
-m$RDA_axes_test # 2 sig axes
-m$RDA # PC1 = 0.096, PC2 = 0.085
-dbMEMred <- dbMEMred %>%
-  rownames_to_column(var = "id") %>%
-  select(id, MEM1, MEM2) %>%
-  rename(MEM1_2021 = MEM1, MEM2_2021 = MEM2)
-sites <- left_join(sites, dbMEMred, by = "id")
-
-### b dbMEM (41 plots) -------------------------------------------------------------------------------------------
+### a dbMEM (41 plots) -------------------------------------------------------------------------------------------
 
 ### * Prepare data ####
 source('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/quickMEM.R')
@@ -693,7 +587,6 @@ sites <- left_join(sites, dbMEMred, by = "id")
 ### * 2018 ####
 data_sites_dbMEM <- data_sites %>%
   filter(surveyYear == 2018) %>%
-  semi_join(data, by = "plot") %>%
   select(id, longitude, latitude)
 data_species_dbMEM <- data_species %>%
   semi_join(data_sites_dbMEM, by = "id") %>%
@@ -706,11 +599,11 @@ m <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
               detrend = F,
               method = "fwd",
               rangexy = T,
-              perm.max = 999) #R2adj of minimum (final) model = 0.
+              perm.max = 999) # error
 m$RDA_test # p = 
 m$RDA_axes_test #  sig. axes
 m$RDA # PC1 = 
-dbMEMred <- dbMEMred %>%
+dbMEMred <- dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM1) %>%
   rename(MEM1_2018 = MEM1)
@@ -719,7 +612,6 @@ dbMEMred <- dbMEMred %>%
 ### * 2019 ####
 data_sites_dbMEM <- data_sites %>%
   filter(surveyYear == 2019) %>%
-  semi_join(data, by = "plot") %>%
   select(id, longitude, latitude)
 data_species_dbMEM <- data_species %>%
   semi_join(data_sites_dbMEM, by = "id") %>%
@@ -767,7 +659,7 @@ dbMEMred <- dbMEMred %>%
   rename(MEM1_2021 = MEM1, MEM2_2021 = MEM2)
 sites <- left_join(sites, dbMEMred, by = "id")
 
-### c LCBD (Local Contributions to Beta Diversity) -------------------------------------------------------------------------------------------
+### b LCBD (Local Contributions to Beta Diversity) -------------------------------------------------------------------------------------------
 
 #### * 2017 ####
 data_species_lcbd <- data_species %>%
@@ -843,7 +735,8 @@ data <- do.call("rbind", sync_indices) %>% #map() does not work because 'plot' i
   select(plot, syn_total, syn_trend, syn_detrend) #log_varrrat_t3 does not allow missing years
 sites <- left_join(sites, data, by = "plot")
 
-rm(list = ls(pattern = "[^species|traits|sites]"))
+rm(list = setdiff(ls(), c("sites", "species", "traits")))
+
 
 
 ## 6 Environmental variables #####################################################################################
@@ -893,11 +786,10 @@ data <- sites %>%
   ungroup() %>%
   select(plot) %>%
   bind_cols(data)
-sites <- left_join(sites, data, by = "plot") %>%
-  select(-calciumcarbonatPerc, -humusPerc, -cnRatio, -pH, -sandPerc, -siltPerc, -clayPerc, -phosphorus, -potassium, -magnesium, -NtotalConc, -topsoilDepth,
-         -HCl, -C550Perc, -CorgPerc, -humusLevel, -ufcPerc, -ufc, -fmDbd)
+sites <- left_join(sites, data, by = "plot")
 
-rm(list = ls(pattern = "[^species|traits|sites|species2017|species2018|species2019|species2021|pcaSoil]"))
+rm(list = setdiff(ls(), c("sites", "species", "traits", "pcaSoil")))
+
 
 ### b Climate PCA  -------------------------------------------------------------------------------------------
 
@@ -951,7 +843,6 @@ sites <- sites %>%
   rename("tempSummer_surveyYear" = "summer", 
          "tempAutumn_surveyYear" = "autumn", 
          "tempWinter_surveyYear" = "winter")
-rm(list = ls(pattern = "[^species|traits|sites|species2017|species2018|species2019|species2021|pcaSoil|pcaSurveyYear|pcaConstructionYear]"))
 
 ### * Precipitation ####
 data <- read_csv(here("data/raw/precipitation/data/data_OBS_DEU_P1M_RR.csv"), col_names = T, na = c("", "NA", "na"), col_types = 
@@ -1008,7 +899,6 @@ sites <- sites %>%
   rename("precSummer_surveyYear" = "summer", 
          "precAutumn_surveyYear" = "autumn", 
          "precWinter_surveyYear" = "winter")
-rm(list = ls(pattern = "[^species|traits|sites|species2017|species2018|species2019|species2021|pcaSoil|pcaSurveyYear|pcaConstructionYear]"))
 
 ### * Calculation surveyYear ####
 ### Prepare data ###
@@ -1095,13 +985,9 @@ data <- sites %>%
   ungroup() %>%
   select(plot) %>%
   bind_cols(data)
-sites <- left_join(sites, data, by = "plot") %>%
-  select(-tempSpring_constructionYear, -tempSummer_constructionYear, -tempAutumn_constructionYear, -tempWinter_constructionYear,
-         -tempSpring_constructionYearPlus, -tempSummer_constructionYearPlus, -tempAutumn_constructionYearPlus, -tempWinter_constructionYearPlus,
-         -precSpring_constructionYear, -precSummer_constructionYear, -precAutumn_constructionYear, -precWinter_constructionYear,
-         -precSpring_constructionYearPlus, -precSummer_constructionYearPlus, -precAutumn_constructionYearPlus, -precWinter_constructionYearPlus)
+sites <- left_join(sites, data, by = "plot") 
 
-rm(list = ls(pattern = "[^species|traits|sites|pcaSoil|pcaSurveyYear|pcaConstructionYear]"))
+rm(list = setdiff(ls(), c("sites", "species", "traits", "pcaConstuctionYear", "pcaSoil", "pcaSurveyYear")))
 
 
 ## 7 TBI: Temporal Beta diversity Index #####################################################################################
@@ -1252,6 +1138,7 @@ data_abundance <- bind_rows(tbi1718, tbi1819, tbi1921, tbi1719, tbi1721) %>%
 plot <- data_sites %>%
   filter(str_detect(id, "2017")) %>%
   pull(plot)
+### combine abundance and presence data ###
 data <- add_row(data_presence, data_abundance) %>%
   mutate(plot = rep(plot, length(data_abundance$comparison) * 2 / 38))
 sites_temporal <- sites %>%
@@ -1260,7 +1147,13 @@ sites_temporal <- sites %>%
   rename(B = "B/(2A+B+C)", C = "C/(2A+B+C)", D = "D=(B+C)/(2A+B+C)", change = Change) %>%
   mutate(change = C - B,
          plot = as_factor(plot)) %>%
-  select(plot, block, exposition, side, block, location, constructionYear, locationYear, longitude, latitude, riverkm, distanceRiver, PC1soil, PC2soil, PC3soil, conf.low, conf.high, B, C, D, comparison, presabu) %>%
+  select(plot, block, 
+         location, locationAbb, locationYear, longitude, latitude, riverkm, distanceRiver, 
+         constructionYear, 
+         exposition, side, 
+         PC1soil, PC2soil, PC3soil, P1constructionYear, PC2constructionYear, PC3constructionYear,
+         conf.low, conf.high, 
+         B, C, D, comparison, presabu) %>%
   mutate(across(c(PC1soil, PC2soil, PC3soil,
                   distanceRiver,
                   B, C, D), 
@@ -1284,7 +1177,55 @@ sites <- sites %>%
   mutate(across(c(distanceRiver, accumulatedCov), 
                 ~ round(.x, digits = 1)))
 
-### b Plot selection -------------------------------------------------------------------------------------------
+### b Final selection of variables -------------------------------------------------------------------------------------------
+
+sites2 <- sites %>%
+  select(id, plot, block, 
+         # space
+         location, locationAbb, locationYear, latitude, longitude, riverkm, distanceRiver, MEM1_2017, MEM1_2019, MEM1_2021, MEM2_2021,
+         # time
+         surveyYear, constructionYear, plotAge,
+         # local site characteristics
+         exposition, side, PC1soil, PC2soil, PC3soil,
+         # historical factors
+         PC1constructionYear, PC2constructionYear, PC3constructionYear,
+         # response variables
+         accumulatedCov, speciesRichness, botanist, conf.low, conf.high
+         )
+
+sites_temporal2 <- sites_temporal %>%
+  select(plot, block, comparison,
+         # space
+         location, locationAbb, locationYear, latitude, longitude, riverkm, distanceRiver,
+         # time
+         constructionYear, 
+         # local site characteristics
+         exposition, side, PC1soil, PC2soil, PC3soil,
+         # historical factors
+         PC1constructionYear, PC2constructionYear, PC3constructionYear,
+         # temporal beta-diversity indices (TBI)
+         B_presence, B_abundance, C_presence, C_abundance, D_presence, D_abundance,
+         # other variables
+         conf.low, conf.high)
+
+#sites_restoration <- sites %>%
+  select(id, plot, block,
+         # space
+         location, locationAbb, locationYear, latitude, longitude, riverkm, distanceRiver, 
+         # time
+         surveyYear, constructionYear, plotAge,
+         # local site characteristics
+         exposition, side, PC1soil, PC2soil, PC3soil,
+         # response variables
+         accumulatedCov, speciesRichness, eveness, graminoidCovratio, ruderalCov,
+         # conservation
+         targetRichness, targetRichratio, rlgRichness, targetCovratio,
+         # legal evaluation
+         biotopeType, ffh, changeType, baykompv, biotopePoints, min8, min9,
+         botanist, conf.low, conf.high
+         )
+
+### c Final selection of plots -------------------------------------------------------------------------------------------
 
 sites_spatial <- sites %>%
   ### Choose only plots which were surveyed in each year

@@ -1,11 +1,12 @@
 attributeName,attributeDefinition,formatString,definition,unit,numberType,type,factor
 id,serial number and position on the dike (m = middle part/o = upper part of the dike side),NA,serial number and position on the dike,NA,NA,character,NA
 block,serial numer of a pair of plots (water and landside),NA,serial numer of a pair of plots (water and landside),NA,NA,character,NA
-location,block factor,NA,block factor,NA,NA,character,NA
-X,Coordinates X (Rechtswert) of Gauss-Krueger Zone 4,NA,NA,meter,integer,numeric,NA
-Y,Coordinates Y (Hochwert) of Gauss-Krueger Zone 4,NA,NA,meter,integer,numeric,NA
+location,nearest village of the plot,NA,block factor,NA,NA,character,NA
+latitude,Coordinates Y (Hochwert) of Gauss-Krueger Zone 4,NA,NA,meter,integer,numeric,NA
+longitude,Coordinates X (Rechtswert) of Gauss-Krueger Zone 4,NA,NA,meter,integer,numeric,NA
 riverkm,official km of river Danube taken from the BayernAtlas,NA,NA,kilometer,integer,numeric,NA
-side,On which side is the plot on the dike,NA,NA,NA,NA,factor,water/land
+distanceRiver,orthogonal distance to center of the river bed of River Danube,NA,NA,meter,real,numeric,NA
+side,is the plot on the slope oriented to the water or to the land,NA,NA,NA,NA,factor,water/land
 exposition,exposition of the plots,NA,NA,NA,NA,factor,north/south/east/west
 constructionYear,year in which the dike was constructed and seeded,YYYY,NA,NA,NA,Date,NA
 surveyDate_2017,date of the first vegetation survey 2017,YYYY-mm-dd,NA,NA,NA,Date,NA
@@ -36,32 +37,29 @@ vegetationHeight_2017,average height of the vegetation (measured in the field) 2
 vegetationHeight_2018,average height of the vegetation (measured in the field) 2018,NA,NA,centimeter,integer,numeric,NA
 vegetationHeight_2019,average height of the vegetation (measured in the field) 2019,NA,NA,centimeter,integer,numeric,NA
 vegetationHeight_2021,average height of the vegetation (measured in the field) 2019,NA,NA,centimeter,integer,numeric,NA
-HCl,HCl 10percent CaCO3,NA,NA,NA,NA,factor,C0/C1/C2/C3/C4
 C550Perc,percentage of carbon after 550 degree celsius treatment (weight percent),NA,NA,percent,real,numeric,NA
 calciumcarbonatPerc,percentage of calcium carbonate (CaCO3) in fine soil (C550Perc * 8.33) (weight percent),NA,NA,percent,real,numeric,NA
-CorgPerc,percentage of organic carbon (weight percent),NA,NA,percent,real,numeric,NA
+CorgPerc,percentage of organic carbon (weight percent) = C (total) - C550Perc,NA,NA,percent,real,numeric,NA
 humusPerc,percentage of humus (CorgPerc * 1.72) (weight percent),NA,NA,percent,real,numeric,NA
 humusLevel,humus level according to Bodenkundliche Kartieranleitung Tab. 15,NA,NA,NA,NA,factor,h1/h2/h3/h4/h5
-NtotalPerc,total nitrogen percentage (weight percent),NA,NA,percent,real,numeric,NA
+NtotalPerc,total nitrogen percentage (weight percent) from CN analyzer,NA,NA,percent,real,numeric,NA
 cnRatio,CorgPerc / NtotalPerc (9-11 is normal for agricultural land (LfL website)),NA,NA,dimensionless,real,numeric,NA
 cnLevel,humus quality level,NA,NA,NA,NA,factor,hq4/hq5
 pH,pH measured in 0.01 M CaCl2 with VDLUFA method A 5.1.1 by engineering office Dr. Haeusler 2017-11-28,NA,NA,dimensionless,real,numeric,NA
-sandPerc,percentage of sand (2-0.063mm) in the fine soil sample (fine soil <2mm) DIN ISO 11277 by engineering office Dr. Haeusler 2017-11-28,NA,NA,percent,real,numeric,NA
-siltPerc,percentage of silt (0.063-0.002mm) in the fine soil sample (fine soil <2mm) DIN ISO 11277 by engineering office Dr. Haeusler 2017-11-28,NA,NA,percent,real,numeric,NA
-clayPerc,percentage of clay (<0.002mm) in the fine soil sample (fine soil <2mm) DIN ISO 11277 by engineering office Dr. Haeusler 2017-11-28,NA,NA,percent,real,numeric,NA
+sandPerc,percentage of sand (2-0.063mm) in the fine soil sample (fine soil <2mm) (weight percent): DIN ISO 11277 by engineering office Dr. Haeusler 2017-11-28,NA,NA,percent,real,numeric,NA
+siltPerc,percentage of silt (0.063-0.002mm) in the fine soil sample (fine soil <2mm) (weight percent): DIN ISO 11277 by engineering office Dr. Haeusler 2017-11-28,NA,NA,percent,real,numeric,NA
+clayPerc,percentage of clay (<0.002mm) in the fine soil sample (fine soil <2mm) (weight percent): DIN ISO 11277 by engineering office Dr. Haeusler 2017-11-28,NA,NA,percent,real,numeric,NA
 phosporus,CAL extract (Calcium-acetat lactat) of phosphorus (P2O5) (mg P2O5 per 100g soil) with VDLUFA method A 6.3.1.1 (2002) by engineering office Dr. Haeusler 2017-11-28,NA,NA,milligramPerDezigram,NA,numeric,NA
 phosphorusClass,ferilization classification according to LfL (2007) 8. Aufl. Leitfaden Duengung (values for agricultural land not greenland),NA,NA,NA,NA,factor,A = very low/C = optimum/ E = very high
 potassium,CAL extract (Calcium-acetat lactat) of potassium (K2O) (mg K2O per 100g soil) with VDLUFA method A 6.2.1.1 (2002) by engineering office Dr. Haeusler 2017-11-28,NA,NA,milligramPerDezigram,NA,numeric,NA
 potassiumClass,ferilization classification according to LfL (2007) 8. Aufl. Leitfaden Duengung (values for agricultural land not greenland),NA,NA,NA,NA,factor,A = very low/C = optimum/ E = very high
 magnesium,CaCl2 extract of magnesium (Mg) (mg Mg per 100g soil) with VDLUFA method A 6.2.4.1 by engineering office Dr. Haeusler 2017-11-28,NA,NA,milligramPerDezigram,NA,numeric,NA
 magnesiumClass,ferilization classification according to LfL (2007) 8. Aufl. Leitfaden Duengung (values for agricultural land not greenland),NA,NA,NA,NA,factor,A = very low/C = optimum/ E = very high
-topoilDepth_plan,depth of topsoil according to plans,NA,NA,centimeter,integer,numeric,NA
-topsoilDepth_measured,measured depth of topsoil,NA,NA,centimeter,integer,numeric,NA
 topsoilDepth,measured depth of topsoil but if necessary taken from plans,NA,NA,centimeter,integer,numeric,NA
-fmDepth,measured depth of fine material ,NA,NA,centimeter,integer,numeric,NA
-fmDbd,dry bulk density of fine material,NA,NA,gramPerCentimeterCubed,real,numeric,NA
-skeletonRatiov,volume ratio of sceleton of total topsoil (volpercent),NA,NA,percent,integer,numeric,NA
-skeletonRatiom,mass ratio of sceleton incl. Rough organic material (wtpercent),NA,NA,percent,integer,numeric,NA
+finematerialDepth,measured depth of fine material ,NA,NA,centimeter,integer,numeric,NA
+finematerialDensity,dry bulk density of fine material,NA,NA,gramPerCentimeterCubed,real,numeric,NA
+skeletonRatioVol,volume ratio of sceleton of total topsoil (volume percent),NA,NA,percent,integer,numeric,NA
+skeletonRatioMass,mass ratio of sceleton incl. Rough organic material (weight percent),NA,NA,percent,integer,numeric,NA
 skeletonLevel,level of sceleton ratio according to Bodenkundliche Kartieranleitung Tab. 33,NA,NA,NA,NA,factor,1 = stones and gravel <2 volpercent/2 = 2-10 volpercent/3 = 10-25 volpercent/4 = 25-50 volpercent/5 = 50-75 volpercent/6 =  stones and gravel >75 volpercent
 ufcPerc,usable field capcity of topsoil in volpercent,NA,NA,percent,real,numeric,NA
-ufc,usable field capacity in topsoil in mm,NA,NA,millimeter,real,numeric,NA
+ufcMm,usable field capacity in topsoil in mm,NA,NA,millimeter,real,numeric,NA

@@ -1,24 +1,25 @@
 ﻿attributeName,attributeDefinition,formatString,definition,unit,numberType,type,factor
 name,botanical species name,NA,botanical species name,NA,NA,character,NA
-srl,,,,,,,
-rmf,,,,,,,
-rld,,,,,,,
-lateral,,,,,,,
 abb,,,,,,,
+nomenclature,nomenclature of species names from worldfloraonline.org,NA,nomenclature of species names from worldfloraonline.org,NA,NA,character,NA
+synonym,synonym for species name in Wisskirchen & Haeupler 1998,NA,synonym for species name in Wisskirchen & Haeupler 1998,NA,NA,character,NA
 family,family of plant species from worldfloraonline.org,NA,family of plant species from worldfloraonline.org,NA,NA,character,NA
 group,grass-herb-legume groups,NA,NA,NA,NA,factor,top_grass/sub_grass/legume/herb
 legal,legally protected in Germany from BArtSchV 2005 in floraweb.de,NA,NA,NA,NA,factor,BG = besonders geschuetzt/SG = streng geschuetzt
 rlg,Red list Germany from Metzing et al. 2018 in floraweb.de,NA,NA,NA,NA,factor,NA = not threatened/V = warning list/3/2/1
 rlb,Red list Bavaria from StMUGV 2005 Rote Liste,NA,NA,NA,NA,factor,"NA = not threatened	 V = warning list	3	2	 1"
 neophyte,is species a neophyte from floraweb.de,NA,NA,NA,NA,factor,yes/no
+sociology,sociology according to Ellenberg et al. 2001,NA,NA,dimensionless,integer,numeric,NA
+l,Ellenberg L value from Ellenberg et al. 2001 in floraweb.de,NA,NA,dimensionless,integer,numeric,NA
 t,Ellenberg T value from Ellenberg et al. 2001 in floraweb.de,NA,NA,dimensionless,integer,numeric,NA
 f,Ellenberg F value from Ellenberg et al. 2001 in floraweb.de,NA,NA,dimensionless,integer,numeric,NA
+fchange,Ellenberg value for changing moisture conditions from Ellenberg et al. 2001 in floraweb.de,NA,NA,NA,NA,factor,1 = changing moist/2 = intensive chaning moist conditions
+r,Ellenberg R value from Ellenberg et al. 2001 in floraweb.de,NA,NA,dimensionless,integer,numeric,NA
 n,Ellenberg N value from Ellenberg et al. 2001 in floraweb.de,NA,NA,dimensionless,integer,numeric,NA
-targetHerb,herbal target species from LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 GE (p. 40ff.) GT (p. 70ff.) LR6510 (p. 88f.),NA,NA,NA,NA,factor,yes/no
-targetGrass,grass target species from LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 GE (p. 40ff.) GT (p. 70ff.) LR6510 (p. 88f.),NA,NA,NA,NA,factor,yes/no
-nitrogenIndicator,species which are nitrogen indicators LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 (p. 40),NA,NA,NA,NA,factor,yes/no
-leanIndicator,,,,,,,
-target,,,,,,,
-sla,specific leaf area from LEDA traitbase,NA,NA,millimeterSquaredPerMilligram,real,numeric,NA
-seedmass,seed mass  from LEDA traitbase,NA,NA,milligram,real,numeric,NA
-height,canopy height  from LEDA traitbase,NA,NA,meter,real,numeric,NA
+targetHerb,herbal target species from LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 Typ GE (p. 40ff.) Typ  GT (p. 70ff.) Typ LR6510 (p. 88f.),NA,NA,NA,NA,factor,yes/no
+targetGrass,grass target species from LfU (2018) Kartieranleitung Biotopkartierung Bayern Teil 2 Typ GE (p. 40ff.) Typ GT (p. 70ff.) Typ LR6510 (p. 88f.),NA,NA,NA,NA,factor,yes/no
+ffh6510,species of the FFH type 6510 from LfU & LWF (2018) Handbuch der Lebensraumtypen nach Anhang I der FFH-Richtlinie in Bayern (p. 90),NA,NA,NA,NA,factor,yes/no
+ffh6210,species of the FFH type 6210 from LfU & LWF (2018) Handbuch der Lebensraumtypen nach Anhang I der FFH-Richtlinie in Bayern (p. 76),NA,NA,NA,NA,factor,yes/no
+target,all targetHerb and targetGrass with yes,NA,NA,NA,NA,factor,yes/no
+ruderal,all species with a sociology >= 3300 and < 3700,NA,NA,NA,NA,factor,yes/no
+targetEllenberg,"all species with a sociology for dry grasslands, hay meadows, nardus grassland or sand grassland",NA,NA,NA,NA,factor,dry_grassland/hay_meadow/nardus_grassland/sand_grassland

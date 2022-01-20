@@ -1,7 +1,4 @@
-﻿attributeName,attributeDefinition,formatString,definition,unit,numberType
-plot_ID,serial number of the plots,NA,serial number of the plots,NA,NA
-constructionYear,year in which the vegetation was surveyed,YYYY,NA,NA,NA
-position,position of the plot on the dike,NA,NA,NA,NA
-plot_specification,whole ID of a plot,NA,whole ID of a plot,NA,NA
-Achillea millefolium,the abundance of the species Achillea millefolium,NA,NA,percent,real
-Acinos arvensis,the abundance of the species Acinos arvensis,NA,NA,percent,real
+﻿attributeName,attributeDefinition,formatString,definition,unit,numberType,type,factor
+name,botanical species name related to the name ID in the file data_raw_traits,NA,botanical species name related to the name ID in the file data_raw_traits,NA,NA,character,NA
+X01_m_2017,abundance of species in the plot X01_m_2017,NA,NA,percent,real,numeric,NA
+etc. ,abundance of species in the plot XY,NA,NA,percent,real,numeric,NA
