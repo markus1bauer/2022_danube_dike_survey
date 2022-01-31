@@ -18,7 +18,8 @@
 library(here)
 library(tidyverse)
 library(ggbeeswarm)
-library(lmerTest)
+library(blme)
+#library(lmerTest)
 library(DHARMa)
 library(emmeans)
 
@@ -61,7 +62,7 @@ sd(sites$y)
 Rmisc::CI(sites$y, ci = .95)
 quantile(sites$y, probs = c(0.05, 0.95), na.rm = T)
 #main
-ggplot(sites, aes(x = abundance, y = y)) + 
+ggplot(sites, aes(x = D_abundance, y = y)) + 
   geom_point() +
   geom_smooth(method = "loess")
 ggplot(sites, aes(x = comparison, y = y)) + 
@@ -131,35 +132,35 @@ m1c <- blmer(log(y) ~ 1 + (1|plot), data = sites, REML = T)
 MuMIn::AICc(m1a, m1b, m1c) # m1c most parsimonous
 
 #### * fixed effects ####
-m1 <- blmer(log(y) ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side + distanceRiver + locationYear + abundance + 
+m1 <- blmer(log(y) ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side + distanceRiver + locationYear + D_abundance + 
              (1|plot), 
            REML = F,
            control = lmerControl(optimizer = "Nelder_Mead"),
            cov.prior = wishart,
            data = sites)
 simulateResiduals(m1, plot = T)
-m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + abundance + 
+m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + D_abundance + 
              (1|plot), 
            REML = F,
            control = lmerControl(optimizer = "Nelder_Mead"),
            cov.prior = wishart,
            data = sites)
 simulateResiduals(m2, plot = T)
-m3 <- blmer(log(y) ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + abundance + 
+m3 <- blmer(log(y) ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + D_abundance + 
              (1|plot), 
             REML = F,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,
             data = sites)
 simulateResiduals(m3, plot = T)
-m4 <- blmer(log(y) ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side + distanceRiver + locationYear + abundance + 
+m4 <- blmer(log(y) ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side + distanceRiver + locationYear + D_abundance + 
              (1|plot), 
            REML = F,
            control = lmerControl(optimizer = "Nelder_Mead"),
            cov.prior = wishart,
            data = sites)
 simulateResiduals(m4, plot = T)
-m5 <- blmer(log(y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + abundance + 
+m5 <- blmer(log(y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + D_abundance + 
              (1|plot), 
            REML = F,
            control = lmerControl(optimizer = "Nelder_Mead"),
@@ -193,7 +194,7 @@ plotResiduals(simulationOutput$scaledResiduals, sites$PC1soil)
 plotResiduals(simulationOutput$scaledResiduals, sites$PC2soil)
 plotResiduals(simulationOutput$scaledResiduals, sites$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, sites$distanceRiver)
-plotResiduals(simulationOutput$scaledResiduals, sites$abundance)
+plotResiduals(simulationOutput$scaledResiduals, sites$D_abundance)
 plotResiduals(simulationOutput$scaledResiduals, sites$riverkm)
 car::vif(m) # remove riverkm since > 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol)
 
