@@ -15,23 +15,29 @@ library(FD) #dbFD()
 library(adespatial)
 #remotes::install_github("larsito/tempo")
 library(tempo) #calc_sync()
+#remotes::install_github("inbo/checklist")
+
+checklist::setup_source()
+x <- checklist::check_source()
+#checklist::write_checklist(x)
+#x <- checklist::check_source()
 
 ### Start ###
-#installr::updateR(browse_news = F, install_R = T, copy_packages = T, copy_Rprofile.site = T, keep_old_packages = T, update_packages = T, start_new_R = F, quit_R = T, print_R_versions = T, GUI = T)
+#installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
 #sessionInfo()
 rm(list = ls())
 setwd(here("data/raw"))
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Load data ##############################################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+# A Load data ########################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-### 1 Sites #####################################################################################
+### 1 Sites ############################################################
 
-sites <- read_csv("data_raw_sites.csv", col_names = T, na = c("", "NA", "na"), col_types = 
+sites <- read_csv("data_raw_sites.csv", col_names = TRUE, na = c("", "NA", "na"), col_types = 
                     cols(
                       .default = "?",
                       id = "f",
@@ -83,13 +89,13 @@ sites <- read_csv("data_raw_sites.csv", col_names = T, na = c("", "NA", "na"), c
   relocate(c("constructionYearF", "constructionYearFplus"), .after = constructionYear)
 
 
-### 2 Species #####################################################################################
+### 2 Species #########################################################
 
 species <- data.table::fread("data_raw_species.csv", 
                              sep = ",",
                              dec = ".",
                              skip = 0,
-                             header = T,
+                             header = TRUE,
                              na.strings = c("", "NA", "na"),
                              colClasses = list(
                                character = "name"
@@ -98,7 +104,7 @@ species <- data.table::fread("data_raw_species.csv",
   group_by(name) %>%
   arrange(name) %>%
   select(name, all_of(sites$id)) %>%
-  mutate(total = sum(c_across(starts_with("X")), na.rm = T),
+  mutate(total = sum(c_across(starts_with("X")), na.rm = TRUE),
          presence = if_else(total > 0, 1, 0),
          name = factor(name)) %>%
   filter(presence == 1) %>%
@@ -109,15 +115,15 @@ species <- data.table::fread("data_raw_species.csv",
 ### Create list with species names and their frequency ###
 specieslist <- species %>%
   mutate_if(is.numeric, ~1 * (. != 0)) %>%
-  mutate(sum = rowSums(across(where(is.numeric)), na.rm = T), .keep = "unused") %>%
+  mutate(sum = rowSums(across(where(is.numeric)), na.rm = TRUE), .keep = "unused") %>%
   group_by(name) %>%
   summarise(sum = sum(sum))
 #write_csv(specieslist, "specieslist_2022xxxx.csv")
 
 
-### 3 Traits #####################################################################################
+### 3 Traits ##########################################################
 
-traits <- read_csv("data_raw_traits.csv", col_names = T, na = c("", "NA", "na"), col_types = 
+traits <- read_csv("data_raw_traits.csv", col_names = TRUE, na = c("", "NA", "na"), col_types = 
                       cols(
                         .default = "f",
                         name = "c",
@@ -129,7 +135,7 @@ traits <- read_csv("data_raw_traits.csv", col_names = T, na = c("", "NA", "na"),
                         r = "d",
                         n = "d"
                       )) %>%
-  separate(name, c("genus", "species", "ssp", "subspecies"), "_", remove = F, extra = "drop", fill = "right") %>%
+  separate(name, c("genus", "species", "ssp", "subspecies"), "_", remove = FALSE, extra = "drop", fill = "right") %>%
   mutate(genus = str_sub(genus, 1, 4),
          species = str_sub(species, 1, 4),
          subspecies = str_sub(subspecies, 1, 4),
@@ -146,7 +152,7 @@ species$name[which(!(species$name %in% traits$name))]
 traits <- semi_join(traits, species, by = "name")
 
 
-### 4 Check data frames #####################################################################################
+### 4 Check data frames ################################################
 
 ### Check typos ###
 sites %>%
@@ -163,7 +169,7 @@ species %>% # Check special typos
 
 ### Compare vegetationCov and accumulatedCov ###
 species %>%
-  summarise(across(where(is.double), ~ sum(.x, na.rm = T))) %>%
+  summarise(across(where(is.double), ~ sum(.x, na.rm = TRUE))) %>%
   pivot_longer(cols = everything(), names_to = "id", values_to = "value") %>%
   mutate(id = factor(id)) %>%
   full_join(sites, by = "id") %>% 
@@ -180,20 +186,20 @@ species %>%
   print(n = 70)
 
 ### Check missing data ###
-miss_var_summary(sites, order = T)
-vis_miss(sites, cluster = F, sort_miss = T)
-vis_miss(traits, cluster = F, sort_miss = T)
+miss_var_summary(sites, order = TRUE)
+vis_miss(sites, cluster = FALSE, sort_miss = TRUE)
+vis_miss(traits, cluster = FALSE, sort_miss = TRUE)
 
 rm(list = ls(pattern = "[^species|traits|sites]"))
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Create variables ##############################################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Create variables ############################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-## 1 Create simple variables #####################################################################################
+## 1 Create simple variables ####################################################
 
 traits <- traits %>%
   mutate(leanIndicator = if_else(
@@ -219,7 +225,7 @@ sites <- sites %>%
          plotAge = surveyYear - constructionYear)
 
 
-## 2 Coverages #####################################################################################
+## 2 Coverages ######################################################################
 
 cover <- left_join(species, traits, by = "name") %>%
   select(name, family, target, targetHerb, targetArrhenatherion, leanIndicator, nitrogenIndicator, ruderalIndicator, table33, starts_with("X")) %>%
@@ -229,10 +235,10 @@ cover <- left_join(species, traits, by = "name") %>%
 ### * graminoid, herb, and total coverage) ####
 cover_total_and_graminoid <- cover %>%
   group_by(id, family) %>%
-  summarise(total = sum(n, na.rm = T), .groups = "keep") %>%
+  summarise(total = sum(n, na.rm = TRUE), .groups = "keep") %>%
   mutate(type = if_else(family == "Poaceae" | family == "Cyperaceae" | family == "Juncaceae", "graminoidCov", "herbCov")) %>%
   group_by(id, type) %>%
-  summarise(total = sum(total, na.rm = T), .groups = "keep") %>%
+  summarise(total = sum(total, na.rm = TRUE), .groups = "keep") %>%
   spread(type, total) %>%
   mutate(accumulatedCov = graminoidCov + herbCov) %>%
   ungroup()
@@ -240,42 +246,42 @@ cover_total_and_graminoid <- cover %>%
 ### * Target species' coverage ####
 cover_target <- cover %>%
   filter(target == "yes") %>%
-  summarise(targetCov = sum(n, na.rm = T)) %>%
+  summarise(targetCov = sum(n, na.rm = TRUE)) %>%
   mutate(targetCov = round(targetCov, 1)) %>%
   ungroup()
 
 ### * Target herb species' coverage ####
 cover_targetHerb <- cover %>%
   filter(targetHerb == "yes") %>%
-  summarise(targetHerbCov = sum(n, na.rm = T)) %>%
+  summarise(targetHerbCov = sum(n, na.rm = TRUE)) %>%
   mutate(targetHerbCov = round(targetHerbCov, 1)) %>%
   ungroup()
 
 ### * Arrhenatherum species' cover ratio ####
 cover_targetArrhenatherion <- cover %>%
   filter(targetArrhenatherion == "yes") %>%
-  summarise(arrhCov = sum(n, na.rm = T)) %>%
+  summarise(arrhCov = sum(n, na.rm = TRUE)) %>%
   mutate(arrhCov = round(arrhCov, 1)) %>%
   ungroup()
 
 ### * Lean indicator's coverage ####
 cover_leanIndicator <- cover %>%
   filter(leanIndicator == "yes") %>%
-  summarise(leanCov = sum(n, na.rm = T)) %>%
+  summarise(leanCov = sum(n, na.rm = TRUE)) %>%
   mutate(leanCov = round(leanCov, 1)) %>%
   ungroup()
 
 ### * Nitrogen indicator's coverage ####
 cover_nitrogenIndicator <- cover %>%
   filter(nitrogenIndicator == "yes") %>%
-  summarise(nitrogenCov = sum(n, na.rm = T)) %>%
+  summarise(nitrogenCov = sum(n, na.rm = TRUE)) %>%
   mutate(nitrogenCov = round(nitrogenCov, 1)) %>%
   ungroup()
 
 ### * Ruderal indicator's coverage ####
 cover_ruderalIndicator <- cover %>%
   filter(ruderalIndicator == "yes") %>%
-  summarise(ruderalCov = sum(n, na.rm = T)) %>%
+  summarise(ruderalCov = sum(n, na.rm = TRUE)) %>%
   mutate(ruderalCov = round(ruderalCov, 1)) %>%
   ungroup()
   
@@ -283,7 +289,7 @@ cover_ruderalIndicator <- cover %>%
 cover_table33 <- cover %>%
   mutate(table33 = if_else(table33 == "4" | table33 == "3" | table33 == "2", "table33Cov", "other")) %>%
   filter(table33 == "table33Cov") %>%
-  summarise(table33Cov = sum(n, na.rm = T)) %>%
+  summarise(table33Cov = sum(n, na.rm = TRUE)) %>%
   mutate(table33Cov = round(table33Cov, 1)) %>%
   ungroup()
 
@@ -304,9 +310,9 @@ sites <- sites %>%
 rm(list = ls(pattern = "[^species|traits|sites]"))
 
 
-## 3 Alpha diversity #####################################################################################
+## 3 Alpha diversity ###################################################
 
-### a Species richness ----------------------------------------------------------------------------------------------------
+### a Species richness -------------------------------------------------
 
 speciesRichness <- left_join(species, traits, by = "name") %>%
   select(name, rlg, rlb, target, targetHerb, targetArrhenatherion, ffh6510, ffh6210, nitrogenIndicator, leanIndicator, table33, table34, starts_with("X")) %>%
@@ -316,79 +322,79 @@ speciesRichness <- left_join(species, traits, by = "name") %>%
 
 ### * total species richness ####
 speciesRichness_all <- speciesRichness %>%
-  summarise(speciesRichness = sum(n, na.rm = T)) %>%
+  summarise(speciesRichness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * red list Germany (species richness) ####
 speciesRichness_rlg <- speciesRichness %>%
   filter(rlg == "1" | rlg == "2" | rlg == "3" | rlg == "V") %>%
-  summarise(rlgRichness = sum(n, na.rm = T)) %>%
+  summarise(rlgRichness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * red list Bavaria (species richness) ####
 speciesRichness_rlb <- speciesRichness %>%
   filter(rlb == "1" | rlb == "2" | rlb == "3" | rlb == "V") %>%
-  summarise(rlbRichness = sum(n, na.rm = T)) %>%
+  summarise(rlbRichness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * target species (species richness) ####
 speciesRichness_target <- speciesRichness %>%
   filter(target == "yes") %>%
-  summarise(targetRichness = sum(n, na.rm = T)) %>%
+  summarise(targetRichness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * target herb species (species richness) ####
 speciesRichness_targetHerb <- speciesRichness %>%
   filter(targetHerb == "yes") %>%
-  summarise(targetHerbRichness = sum(n, na.rm = T)) %>%
+  summarise(targetHerbRichness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * Arrhenatherion species (species richness) ####
 speciesRichness_arrh <- speciesRichness %>%
   filter(targetArrhenatherion == "yes") %>%
-  summarise(arrhRichness = sum(n, na.rm = T)) %>%
+  summarise(arrhRichness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * ffh6510 species (species richness) ####
 speciesRichness_ffh6510 <- speciesRichness %>%
   filter(ffh6510 == "yes") %>%
-  summarise(ffh6510Richness = sum(n, na.rm = T)) %>%
+  summarise(ffh6510Richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * ffh6210 species (species richness) ####
 speciesRichness_ffh6210 <- speciesRichness %>%
   filter(ffh6210 == "yes") %>%
-  summarise(ffh6210Richness = sum(n, na.rm = T)) %>%
+  summarise(ffh6210Richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * leanIndicator species (species richness) ####
 speciesRichness_leanIndicator <- speciesRichness %>%
   filter(leanIndicator == "yes") %>%
-  summarise(leanIndicatorRichness = sum(n, na.rm = T)) %>%
+  summarise(leanIndicatorRichness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * table33 (species richness) ####
 speciesRichness_table33_2 <- speciesRichness %>%
   filter(table33 == "2") %>%
-  summarise(table33_2Richness = sum(n, na.rm = T)) %>%
+  summarise(table33_2Richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 speciesRichness_table33_3 <- speciesRichness %>%
   filter(table33 == "3") %>%
-  summarise(table33_3Richness = sum(n, na.rm = T)) %>%
+  summarise(table33_3Richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 speciesRichness_table33_4 <- speciesRichness %>%
   filter(table33 == "4") %>%
-  summarise(table33_4Richness = sum(n, na.rm = T)) %>%
+  summarise(table33_4Richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * table34 (species richness) ####
 speciesRichness_table34_2 <- speciesRichness %>%
   filter(table34 == "2") %>%
-  summarise(table34_2Richness = sum(n, na.rm = T)) %>%
+  summarise(table34_2Richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 speciesRichness_table34_3 <- speciesRichness %>%
   filter(table34 == "3") %>%
-  summarise(table34_3Richness = sum(n, na.rm = T)) %>%
+  summarise(table34_3Richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * implement in sites data set (species richness) ####
@@ -410,7 +416,7 @@ sites <- sites %>%
 ### Calcute the ratio of target species richness of total species richness
   mutate(targetRichratio = targetRichness / speciesRichness)
 
-### b Species eveness and shannon ----------------------------------------------------------------------
+### b Species eveness and shannon --------------------------------------
 
 data <- species  %>%
   mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
@@ -429,9 +435,9 @@ sites <- sites %>%
 rm(list = ls(pattern = "[^species|traits|sites]"))
 
 
-## 4 Biotope types #####################################################################################
+## 4 Biotope types #####################################################
 
-### a Calculate types -------------------------------------------------------------------------------------------
+### a Calculate types --------------------------------------------------
 
 biotopetypes <- sites %>%
   select(id, table33_2Richness, table33_3Richness, table33_4Richness, table33Cov, table34_2Richness, table34_3Richness, targetRichness, targetHerbRichness, arrhRichness, targetCov, leanCov, arrhCov, targetHerbCov, nitrogenCov) %>%
@@ -516,7 +522,7 @@ traits <- traits %>%
   select(-targetArrhenatherion, -table30, -table33, -table34, 
          -nitrogenIndicator, -nitrogenIndicator2, -leanIndicator, -grazingIndicator, -ruderalIndicator)
 
-### b Calculate constancy -------------------------------------------------------------------------------------------
+### b Calculate constancy ---------------------------------------------
 
 data <- sites %>%
   select(id, plot, surveyYear, ffh) %>%
@@ -537,10 +543,10 @@ sites <- left_join(sites, data, by = "plot")
 rm(list = ls(pattern = "[^species|traits|sites]"))
 
 
-## 5 Beta diversity #####################################################################################
+## 5 Beta diversity ###################################################
 
 
-### a dbMEM (41 plots) -------------------------------------------------------------------------------------------
+### a dbMEM (41 plots) ------------------------------------------------
 
 ### * Prepare data ####
 source('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/quickMEM.R')
@@ -567,9 +573,9 @@ data_sites_dbMEM <- data_sites_dbMEM %>%
   column_to_rownames("id")
 m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
               alpha = 0.05, 
-              detrend = F,
+              detrend = FALSE,
               method = "fwd",
-              rangexy = T,
+              rangexy = TRUE,
               perm.max = 999) #R2adj of minimum (final) model = 0.034
 m$RDA_test # p = 0.002
 m$RDA_axes_test #1 sig axes
@@ -592,9 +598,9 @@ data_sites_dbMEM <- data_sites_dbMEM %>%
   column_to_rownames("id")
 m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
               alpha = 0.05, 
-              detrend = F,
+              detrend = FALSE,
               method = "fwd",
-              rangexy = T,
+              rangexy = TRUE,
               perm.max = 999) # error
 m$RDA_test # p = 
 m$RDA_axes_test #  sig. axes
@@ -617,9 +623,9 @@ data_sites_dbMEM <- data_sites_dbMEM %>%
   column_to_rownames("id")
 m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
               alpha = 0.05, 
-              detrend = F,
+              detrend = FALSE,
               method = "fwd",
-              rangexy = T,
+              rangexy = TRUE,
               perm.max = 999) #R2adj of minimum (final) model = 0.056
 m$RDA_test # p = 0.001
 m$RDA_axes_test # 1sig axes
@@ -642,9 +648,9 @@ data_sites_dbMEM <- data_sites_dbMEM %>%
   column_to_rownames("id")
 m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
               alpha = 0.05, 
-              detrend = F,
+              detrend = FALSE,
               method = "fwd",
-              rangexy = T,
+              rangexy = TRUE,
               perm.max = 999) #R2adj of minimum (final) model = 0.064 
 m$RDA_test # p = 0.001
 m$RDA_axes_test # 2 sig axes
@@ -655,7 +661,7 @@ dbMEMred <- dbMEMred %>%
   rename(MEM1_2021 = MEM1, MEM2_2021 = MEM2)
 sites <- left_join(sites, dbMEMred, by = "id")
 
-### b LCBD (Local Contributions to Beta Diversity) -------------------------------------------------------------------------------------------
+### b LCBD (Local Contributions to Beta Diversity) --------------------
 
 #### * 2017 ####
 data_species_lcbd <- data_species %>%
@@ -699,7 +705,7 @@ sites <- sites %>%
 
 rm(list = ls(pattern = "[^species|traits|sites]"))
 
-### d Synchrony -------------------------------------------------------------------------------------------
+### d Synchrony --------------------------------------------------------
 
 data_sites <- sites %>%
   select(id, plot, vegetationCov) %>%
@@ -720,7 +726,7 @@ data_species <- species %>%
   column_to_rownames(var = "id") %>%
   select(plot, year, tidyselect::peek_vars())
 data <- data_species %>%
-  split(data_species$plot, drop = T) %>%
+  split(data_species$plot, drop = TRUE) %>%
   map(~ (.x %>% select(-plot, -year))) %>%
   map(~ (.x %>% select(where(~!all(is.na(.x))))))
 sync_indices <- map(data, calc_sync)
@@ -735,9 +741,9 @@ rm(list = setdiff(ls(), c("sites", "species", "traits")))
 
 
 
-## 6 Environmental variables #####################################################################################
+## 6 Environmental variables ###########################################
 
-### a Soil PCA  -------------------------------------------------------------------------------------------
+### a Soil PCA  --------------------------------------------------------
 
 ### Prepare data ###
 data <- sites %>%
@@ -747,7 +753,7 @@ data <- sites %>%
   select(plot, calciumcarbonatPerc, humusPerc, NtotalPerc, cnRatio, pH, sandPerc, siltPerc, clayPerc, phosphorus, potassium, magnesium, topsoilDepth, NtotalConc) %>%
   column_to_rownames(var = "plot")
 ### Calculate PCA ###
-pca <- rda(X = decostand(data, method = "standardize"), scale = T)
+pca <- rda(X = decostand(data, method = "standardize"), scale = TRUE)
 biplot(pca, display = "species")
 screeplot(pca, bstick = TRUE, type = "l", main = NULL)
 ### Make data frames ###
@@ -787,10 +793,10 @@ sites <- left_join(sites, data, by = "plot")
 rm(list = setdiff(ls(), c("sites", "species", "traits", "pcaSoil")))
 
 
-### b Climate PCA  -------------------------------------------------------------------------------------------
+### b Climate PCA  -----------------------------------------------------
 
 ### * Temperature ####
-data <- read_csv(here("data/raw/temperature/data/data_OBS_DEU_P1M_T2M.csv"), col_names = T, na = c("", "NA", "na"), col_types = 
+data <- read_csv(here("data/raw/temperature/data/data_OBS_DEU_P1M_T2M.csv"), col_names = TRUE, na = c("", "NA", "na"), col_types = 
                    cols(
                      .default = "?"
                    )) %>%
@@ -816,7 +822,7 @@ data <- read_csv(here("data/raw/temperature/data/data_OBS_DEU_P1M_T2M.csv"), col
   summarise(seasonMean = round(mean(value), digits = 1), .groups = "keep") %>%
   pivot_wider(id_cols = c(year, yearMean, currentMean), names_from = season, values_from = seasonMean) %>%
   group_by(year) %>%
-  summarise(across(where(is.numeric), ~ max(., na.rm = T)), .groups = "keep") %>% #warnings because of lates year (summer, autumn, winter), can be ignored
+  summarise(across(where(is.numeric), ~ max(., na.rm = TRUE)), .groups = "keep") %>% #warnings because of lates year (summer, autumn, winter), can be ignored
   mutate(year = factor(year))
 
 sites <- sites %>%
@@ -841,7 +847,7 @@ sites <- sites %>%
          "tempWinter_surveyYear" = "winter")
 
 ### * Precipitation ####
-data <- read_csv(here("data/raw/precipitation/data/data_OBS_DEU_P1M_RR.csv"), col_names = T, na = c("", "NA", "na"), col_types = 
+data <- read_csv(here("data/raw/precipitation/data/data_OBS_DEU_P1M_RR.csv"), col_names = TRUE, na = c("", "NA", "na"), col_types = 
                    cols(
                      .default = "?"
                    )) %>%
@@ -872,7 +878,7 @@ data <- read_csv(here("data/raw/precipitation/data/data_OBS_DEU_P1M_RR.csv"), co
   mutate(currentMean = if_else(season == "spring", currentMean, NA_real_)) %>%
   pivot_wider(id_cols = c(year, yearMean, currentMean), names_from = season, values_from = seasonMean) %>%
   group_by(year) %>%
-  summarise(across(where(is.numeric), ~ max(., na.rm = T)),
+  summarise(across(where(is.numeric), ~ max(., na.rm = TRUE)),
             .groups = "keep") %>% #warnings because of lates year (summer, autumn, winter), can be ignored
   mutate(year = factor(year))
 sites <- sites %>%
@@ -903,7 +909,7 @@ data <- sites %>%
   select(tempMean_surveyYear, tempSpring_surveyYear, tempSummer_surveyYear, tempAutumn_surveyYear, tempWinter_surveyYear,
          precMean_surveyYear, precSpring_surveyYear, precSummer_surveyYear, precAutumn_surveyYear, precWinter_surveyYear)
 ### Calculate PCA ###
-pca <- rda(X = decostand(data, method = "standardize"), scale = T)
+pca <- rda(X = decostand(data, method = "standardize"), scale = TRUE)
 biplot(pca, display = "species")
 screeplot(pca, bstick = TRUE, type = "l", main = NULL)
 ### Make data frames ###
@@ -944,10 +950,10 @@ data <- sites %>%
          precMean_constructionYear, precSpring_constructionYear, precSummer_constructionYear, precAutumn_constructionYear, precWinter_constructionYear,
          precMean_constructionYearPlus, precSpring_constructionYearPlus, precSummer_constructionYearPlus, precAutumn_constructionYearPlus, precWinter_constructionYearPlus) %>%
   group_by(plot) %>%
-  summarise(across(where(is.numeric), ~ median(.x, na.rm = T))) %>%
+  summarise(across(where(is.numeric), ~ median(.x, na.rm = TRUE))) %>%
   select(-plot)
 ### Calculate PCA ###
-pca <- rda(X = decostand(data, method = "standardize"), scale = T)
+pca <- rda(X = decostand(data, method = "standardize"), scale = TRUE)
 biplot(pca, display = "species")
 screeplot(pca, bstick = TRUE, type = "l", main = NULL)
 ### Make data frames ###
@@ -962,7 +968,7 @@ eigenvals <- pca %>%
 values <- pca %>%
   summary()
 ### create summary table ###
-pcaConstuctionYear <- values$species[ ,1:3] %>%
+pcaConstuctionYear <- values$species[, 1:3] %>%
   as_tibble() %>%
   bind_cols(c("tempMean_constructionYear", "tempSpring_constructionYear", "tempSummer_constructionYear", "tempAutumn_constructionYear", "tempWinter_constructionYear",
               "tempMean_constructionYearPlus", "tempSpring_constructionYearPlus", "tempSummer_constructionYearPlus", "tempAutumn_constructionYearPlus", "tempWinter_constructionYearPlus",
@@ -986,7 +992,7 @@ sites <- left_join(sites, data, by = "plot")
 rm(list = setdiff(ls(), c("sites", "species", "traits", "pcaConstuctionYear", "pcaSoil", "pcaSurveyYear")))
 
 
-## 7 TBI: Temporal Beta diversity Index #####################################################################################
+## 7 TBI: Temporal Beta diversity Index ################################
 
 ### * Prepare data ####
 data_sites <- sites %>%
@@ -1020,11 +1026,11 @@ for(i in unique(data_species$year)) {
   )
 }
 
-### a Calculate TBI Presence -------------------------------------------------------------------------------------------
+### a Calculate TBI Presence -------------------------------------------
 
 #### * 2017 vs. 2018 ####
 res1718 <- TBI(species2017, species2018, method = "sorensen", 
-               nperm = 9999, test.t.perm = T, clock = T)
+               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
 res1718$BCD.summary #B = 0.223, C = 0.155, D = 0.378 (58.9% vs. 41.0%)
 res1718$t.test_B.C # p.perm = 0.0058
 tbi1718 <- as_tibble(res1718$BCD.mat) %>%
@@ -1034,7 +1040,7 @@ plot(res1718, type = "BC")
 
 #### * 2018 vs. 2019 ####
 res1819 <- TBI(species2018, species2019, method = "sorensen", 
-               nperm = 9999, test.t.perm = T, clock = T)
+               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
 res1819$BCD.summary #B = 0.118, C = 0.214, D = 0.332 (35.6% vs. 64.3%)
 res1819$t.test_B.C # p.perm = 1e-04
 tbi1819 <- as_tibble(res1819$BCD.mat)  %>%
@@ -1044,7 +1050,7 @@ plot(res1819, type = "BC")
 
 #### * 2019 vs. 2021 ####
 res1921 <- TBI(species2019, species2021, method = "sorensen", 
-               nperm = 9999, test.t.perm = T, clock = T)
+               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
 res1921$BCD.summary #B = 0.249, C = 0.140, D = 0.390 (63.8% vs. 36.1%)
 res1921$t.test_B.C # p.perm = 1e-04
 tbi1921 <- as_tibble(res1921$BCD.mat) %>%
@@ -1054,7 +1060,7 @@ plot(res1921, type = "BC")
 
 #### * 2017 vs. 2019 ####
 res1719 <- TBI(species2017, species2019, method = "sorensen", 
-               nperm = 9999, test.t.perm = T, clock = T)
+               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
 res1719$BCD.summary #B = 0.186, C = 0.212, D = 0.399 (46.7% vs. 53.2%)
 res1719$t.test_B.C # p.perm = 0.273
 tbi1719 <- as_tibble(res1719$BCD.mat) %>%
@@ -1064,7 +1070,7 @@ plot(res1719, type = "BC")
 
 #### * 2017 vs. 2021 ####
 res1721 <- TBI(species2017, species2021, method = "sorensen", 
-               nperm = 9999, test.t.perm = T, clock = T)
+               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
 res1721$BCD.summary #B = 0.184, C = 0.450, D = 0.590 (59.0% vs. 40.9%)
 res1721$t.test_B.C # p.perm = 0.0021
 tbi1721 <- as_tibble(res1721$BCD.mat) %>%
@@ -1076,11 +1082,11 @@ plot(res1721, type = "BC")
 data_presence <- bind_rows(tbi1718, tbi1819, tbi1921, tbi1719, tbi1721) %>%
   mutate(presabu = "presence")
 
-### b Calculate TBI Abundance -------------------------------------------------------------------------------------------
+### b Calculate TBI Abundance ------------------------------------------
 
 #### * 2017 vs. 2018 ####
 res1718 <- TBI(species2017, species2018, method = "%diff", 
-               nperm = 9999, test.t.perm = T, clock = T)
+               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
 res1718$BCD.summary #B = 0.213, C = 0.260, D = 0.473 (45.0% vs. 54.9%)
 res1718$t.test_B.C # p.perm = 0.1756
 tbi1718 <- as_tibble(res1718$BCD.mat) %>%
@@ -1090,7 +1096,7 @@ plot(res1718, type = "BC")
 
 #### * 2018 vs. 2019 ####
 res1819 <- TBI(species2018, species2019, method = "%diff", 
-               nperm = 9999, test.t.perm = T, clock = T)
+               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
 res1819$BCD.summary #B = 0.167, C = 0.302, D = 0.470 (35.7% vs. 64.2%)
 res1819$t.test_B.C # p.perm = 1e-04
 tbi1819 <- as_tibble(res1819$BCD.mat) %>%
@@ -1100,7 +1106,7 @@ plot(res1819, type = "BC")
 
 #### * 2019 vs. 2021 ####
 res1921 <- TBI(species2019, species2021, method = "%diff", 
-               nperm = 9999, test.t.perm = T, clock = T)
+               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
 res1921$BCD.summary #B = 0.331, C = 0.168, D = 0.499 (66.3% vs. 33.6%)
 res1921$t.test_B.C # p.perm = 1e-04
 tbi1921 <- as_tibble(res1921$BCD.mat) %>%
@@ -1110,7 +1116,7 @@ plot(res1921, type = "BC")
 
 #### * 2017 vs. 2019 ####
 res1719 <- TBI(species2017, species2019, method = "%diff", 
-               nperm = 9999, test.t.perm = T, clock = T)
+               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
 res1719$BCD.summary #B = 0.210, C = 0.390, D = 0.601 (35.0% vs. 64.9%)
 res1719$t.test_B.C # p.perm = 1e-04
 tbi1719 <- as_tibble(res1719$BCD.mat) %>%
@@ -1120,7 +1126,7 @@ plot(res1719, type = "BC")
 
 #### * 2017 vs. 2021 ####
 res1721 <- TBI(species2017, species2021, method = "%diff", 
-               nperm = 9999, test.t.perm = T, clock = T)
+               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
 res1721$BCD.summary #B = 0.301, C = 0.319, D = 0.620 (48.5% vs. 51.4%)
 res1721$t.test_B.C # p.perm = 0.598
 tbi1721 <- as_tibble(res1721$BCD.mat) %>%
@@ -1158,9 +1164,9 @@ sites_temporal <- sites %>%
 rm(list = setdiff(ls(), c("sites", "species", "traits", "sites_temporal", "pcaConstuctionYear", "pcaSoil", "pcaSurveyYear")))
 
 
-## 8 Finalization ##############################################################################################
+## 8 Finalization ######################################################
 
-### a Rounding -------------------------------------------------------------------------------------------
+### a Rounding ---------------------------------------------------------
 
 sites <- sites %>%
   mutate(across(c(lcbd, 
@@ -1173,7 +1179,7 @@ sites <- sites %>%
   mutate(across(c(distanceRiver, accumulatedCov), 
                 ~ round(.x, digits = 1)))
 
-### b Final selection of variables -------------------------------------------------------------------------------------------
+### b Final selection of variables -------------------------------------
 
 sites2 <- sites %>%
   select(id, plot, block, 
@@ -1221,7 +1227,7 @@ sites_temporal2 <- sites_temporal %>%
          botanist, conf.low, conf.high
          )
 
-### c Final selection of plots -------------------------------------------------------------------------------------------
+### c Final selection of plots -----------------------------------------
 
 sites_spatial <- sites %>%
   ### Choose only plots which were surveyed in each year
@@ -1243,9 +1249,9 @@ sites_temporal <- sites_temporal %>%
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# C Save processed data ################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# C Save processed data ###############################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 ### Data ###

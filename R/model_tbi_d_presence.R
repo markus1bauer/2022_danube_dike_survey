@@ -2,16 +2,12 @@
 # Total temporal beta diversity (TBI) (presence-absence data) ####
 # Markus Bauer
 # 2022-01-11
-# Citation: 
-## Bauer M, Huber J, Kollmann J (submitted) 
-## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
-## Unpublished data.
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Preparation ######################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation #########################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 ### Packages ###
@@ -28,7 +24,7 @@ rm(list = ls())
 setwd(here("data/processed"))
 
 ### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites_temporal.csv", col_names = TRUE, na = c("", "na", "NA"), col_types = 
                   cols(
                     .default = "?",
                     plot = "f",
@@ -48,19 +44,19 @@ sites <- sites %>%
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Statistics #############################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Statistics ##########################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-## 1 Data exploration #####################################################################################
+## 1 Data exploration ###################################################
 
 #### * Graphs #####
 mean(sites$y)
 median(sites$y)
 sd(sites$y)
 Rmisc::CI(sites$y, ci = .95)
-quantile(sites$y, probs = c(0.05, 0.95), na.rm = T)
+quantile(sites$y, probs = c(0.05, 0.95), na.rm = TRUE)
 #main
 ggplot(sites, aes(x = D_abundance, y = y)) + 
   geom_point() +
@@ -121,70 +117,75 @@ ggplot(sites, aes(log(y))) + geom_density()
 rm(data_collinearity)
 
 
-## 2 Model building ################################################################################
+## 2 Model building #####################################################
 
-### a models ----------------------------------------------------------------------------------------
+### a models ------------------------------------------------------------
 
 ### * random structure ####
-m1a <- blmer(log(y) ~ 1 + (1|locationYear), data = sites, REML = T)
-m1b <- blmer(log(y) ~ 1 + (1|locationYear/plot), data = sites, REML = T)
-m1c <- blmer(log(y) ~ 1 + (1|plot), data = sites, REML = T)
+m1a <- blmer(log(y) ~ 1 + (1|locationYear), data = sites, REML = TRUE)
+m1b <- blmer(log(y) ~ 1 + (1|locationYear/plot), data = sites, REML = TRUE)
+m1c <- blmer(log(y) ~ 1 + (1|plot), data = sites, REML = TRUE)
 MuMIn::AICc(m1a, m1b, m1c) # m1c most parsimonous
 
 #### * fixed effects ####
-m1 <- blmer(log(y) ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side + distanceRiver + locationYear + D_abundance + 
+m1 <- blmer(log(y) ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side + 
+              distanceRiver + locationYear + D_abundance + 
              (1|plot), 
-           REML = F,
+           REML = FALSE,
            control = lmerControl(optimizer = "Nelder_Mead"),
            cov.prior = wishart,
            data = sites)
-simulateResiduals(m1, plot = T)
-m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + D_abundance + 
+simulateResiduals(m1, plot = TRUE)
+m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + 
+              distanceRiver + locationYear + D_abundance + 
              (1|plot), 
-           REML = F,
+           REML = FALSE,
            control = lmerControl(optimizer = "Nelder_Mead"),
            cov.prior = wishart,
            data = sites)
-simulateResiduals(m2, plot = T)
-m3 <- blmer(log(y) ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + D_abundance + 
+simulateResiduals(m2, plot = TRUE)
+m3 <- blmer(log(y) ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + 
+              distanceRiver + locationYear + D_abundance + 
              (1|plot), 
-            REML = F,
+            REML = FALSE,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,
             data = sites)
-simulateResiduals(m3, plot = T)
-m4 <- blmer(log(y) ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side + distanceRiver + locationYear + D_abundance + 
+simulateResiduals(m3, plot = TRUE)
+m4 <- blmer(log(y) ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side + 
+              distanceRiver + locationYear + D_abundance + 
              (1|plot), 
-           REML = F,
+           REML = FALSE,
            control = lmerControl(optimizer = "Nelder_Mead"),
            cov.prior = wishart,
            data = sites)
-simulateResiduals(m4, plot = T)
-m5 <- blmer(log(y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear + D_abundance + 
+simulateResiduals(m4, plot = TRUE)
+m5 <- blmer(log(y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + 
+              distanceRiver + locationYear + D_abundance + 
              (1|plot), 
-           REML = F,
+           REML = FALSE,
            control = lmerControl(optimizer = "Nelder_Mead"),
            cov.prior = wishart,
            data = sites)
-simulateResiduals(m5, plot = T)
+simulateResiduals(m5, plot = TRUE)
 
-### b comparison -----------------------------------------------------------------------------------------
+### b comparison --------------------------------------------------------
 
 MuMIn::AICc(m1, m2, m3, m4, m5) # m2 most parsimonious; Use AICc and not AIC since ratio n/K < 40 (Burnahm & Anderson 2002 p. 66)
 dotwhisker::dwplot(list(m2, m5), 
-                   show_intercept = F,
+                   show_intercept = FALSE,
                    vline = geom_vline(
                      xintercept = 0,
                      colour = "grey60",
                      linetype = 2)
                    ) +
   theme_classic()
-m <- update(m2, REML = T)
+m <- update(m2, REML = TRUE)
 rm(list = setdiff(ls(), c("sites", "m")))
 
-### c model check -----------------------------------------------------------------------------------------
+### c model check -------------------------------------------------------
 
-simulationOutput <- simulateResiduals(m, plot = T)
+simulationOutput <- simulateResiduals(m, plot = TRUE)
 plotResiduals(simulationOutput$scaledResiduals, sites$locationYear)
 plotResiduals(simulationOutput$scaledResiduals, sites$plot)
 plotResiduals(simulationOutput$scaledResiduals, sites$comparison)
@@ -199,14 +200,14 @@ plotResiduals(simulationOutput$scaledResiduals, sites$riverkm)
 car::vif(m) # remove riverkm since > 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol)
 
 
-## 3 Chosen model output ################################################################################
+## 3 Chosen model output ################################################
 
 ### * Model output ####
 MuMIn::r.squaredGLMM(m) #R2m = 0.375, R2c = 0.534
 VarCorr(m)
-sjPlot::plot_model(m, type = "re", show.values = T)
+sjPlot::plot_model(m, type = "re", show.values = TRUE)
 dotwhisker::dwplot(m, 
-                   show_intercept = F,
+                   show_intercept = FALSE,
                    vline = geom_vline(
                      xintercept = 0,
                      colour = "grey60",
@@ -216,6 +217,6 @@ dotwhisker::dwplot(m,
 
 ### * Effect sizes ####
 (emm <- emmeans(m, revpairwise ~ side, type = "response"))
-plot(emm, comparison = T)
+plot(emm, comparison = TRUE)
 (emm <- emmeans(m, revpairwise ~ comparison, type = "response"))
-sjPlot::plot_model(m, type = "emm", terms = c("PC1soil", "exposition"), show.data = T)
+sjPlot::plot_model(m, type = "emm", terms = c("PC1soil", "exposition"), show.data = TRUE)
