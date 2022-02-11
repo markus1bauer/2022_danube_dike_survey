@@ -17,8 +17,8 @@ library(adespatial)
 library(tempo) #calc_sync()
 #remotes::install_github("inbo/checklist")
 
-checklist::setup_source()
-x <- checklist::check_source()
+#checklist::setup_source()
+#x <- checklist::check_source()
 #checklist::write_checklist(x)
 #x <- checklist::check_source()
 
@@ -31,7 +31,7 @@ setwd(here("data/raw"))
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#+# A Load data ########################################################
+# A Load data ##########################################################
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -569,16 +569,18 @@ data_species_dbMEM <- data_species %>%
   semi_join(data_sites_dbMEM, by = "id") %>%
   column_to_rownames(var = "id") %>%
   decostand("hellinger")
+i <- (colSums(data_species_dbMEM, na.rm=T) != 0)
+data_species_dbMEM <- data_species_dbMEM[, i]
 data_sites_dbMEM <- data_sites_dbMEM %>%
   column_to_rownames("id")
 m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
-              alpha = 0.05, 
-              detrend = FALSE,
+              alpha = 0.05,
               method = "fwd",
               rangexy = TRUE,
-              perm.max = 999) #R2adj of minimum (final) model = 0.034
+              perm.max = 999)
+# --> undetrended data, R2adj of minimum (final) model = 0.034
 m$RDA_test # p = 0.002
-m$RDA_axes_test #1 sig axes
+m$RDA_axes_test # RDA1 sig axes
 m$RDA # PC1 = 0.114
 dbMEMred <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
@@ -594,22 +596,24 @@ data_species_dbMEM <- data_species %>%
   semi_join(data_sites_dbMEM, by = "id") %>%
   column_to_rownames(var = "id") %>%
   decostand("hellinger")
+i <- (colSums(data_species_dbMEM, na.rm=T) != 0)
+data_species_dbMEM <- data_species_dbMEM[, i]
 data_sites_dbMEM <- data_sites_dbMEM %>%
   column_to_rownames("id")
-m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
+m5 <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
               alpha = 0.05, 
-              detrend = FALSE,
               method = "fwd",
               rangexy = TRUE,
-              perm.max = 999) # error
-m$RDA_test # p = 
-m$RDA_axes_test #  sig. axes
-m$RDA # PC1 = 
+              perm.max = 999)
+# --> undetrended data, R2adj of minimum (final) model = 0.036
+m1$RDA_test # p = 0.006
+m1$RDA_axes_test #  RDA2 sig. axes
+m5$RDA # PC1 = 0.109, PC2 = 0.082
 dbMEMred <- dbMEM %>%
   rownames_to_column(var = "id") %>%
-  select(id, MEM1) %>%
-  rename(MEM1_2018 = MEM1)
-#sites <- left_join(sites, dbMEMred, by = "id")
+  select(id, MEM2) %>%
+  rename(MEM2_2018 = MEM2)
+sites <- left_join(sites, dbMEMred, by = "id")
 
 ### * 2019 ####
 data_sites_dbMEM <- data_sites %>%
@@ -619,16 +623,19 @@ data_species_dbMEM <- data_species %>%
   semi_join(data_sites_dbMEM, by = "id") %>%
   column_to_rownames(var = "id") %>%
   decostand("hellinger")
+i <- (colSums(data_species_dbMEM, na.rm=T) != 0)
+data_species_dbMEM <- data_species_dbMEM[, i]
 data_sites_dbMEM <- data_sites_dbMEM %>%
   column_to_rownames("id")
 m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
               alpha = 0.05, 
-              detrend = FALSE,
               method = "fwd",
+              detrend = FALSE,
               rangexy = TRUE,
-              perm.max = 999) #R2adj of minimum (final) model = 0.056
+              perm.max = 999)
+# --> not detrended, R2adj of minimum (final) model = 0.056
 m$RDA_test # p = 0.001
-m$RDA_axes_test # 1sig axes
+m$RDA_axes_test # RDA1 sig axes
 m$RDA # PC1 = 0.080
 dbMEMred <- dbMEMred %>%
   rownames_to_column(var = "id") %>%
@@ -644,16 +651,19 @@ data_species_dbMEM <- data_species %>%
   semi_join(data_sites_dbMEM, by = "id") %>%
   column_to_rownames(var = "id") %>%
   decostand("hellinger")
+i <- (colSums(data_species_dbMEM, na.rm=T) != 0)
+data_species_dbMEM <- data_species_dbMEM[, i]
 data_sites_dbMEM <- data_sites_dbMEM %>%
   column_to_rownames("id")
 m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
               alpha = 0.05, 
-              detrend = FALSE,
               method = "fwd",
+              detrend = FALSE,
               rangexy = TRUE,
-              perm.max = 999) #R2adj of minimum (final) model = 0.064 
+              perm.max = 999)
+# --> R2adj of minimum (final) model = 0.064 
 m$RDA_test # p = 0.001
-m$RDA_axes_test # 2 sig axes
+m$RDA_axes_test # RDA1, RDA2 sig axes
 m$RDA # PC1 = 0.096, PC2 = 0.085
 dbMEMred <- dbMEMred %>%
   rownames_to_column(var = "id") %>%
