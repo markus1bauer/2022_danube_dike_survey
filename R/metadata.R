@@ -1,11 +1,7 @@
 # Beta diversity on dike grasslands
 # Prepare meta data ####
 # Markus Bauer
-# 2022-01-11
-# Citation: 
-## Bauer M, Huber J, Kollmann J (submitted) 
-## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
-## Unpublished data.
+# 2022-02-11
 
 
 ### Packages ###
@@ -23,11 +19,11 @@ setwd(here("data/raw"))
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Collect metadata ##############################################################################
+# A Collect metadata #############################################################################
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-### 1 Methods and units #####################################################################################
+### 1 Methods and units ##########################################################################
 
 methods_file <- here("data/text/methods.odt")
 methods <- set_methods(methods_file)
@@ -259,5 +255,5 @@ eml <- list(
 write_eml(eml, here("METADATA.xml"))
 eml_validate(here("METADATA.xml"))
 
-emldown::render_eml(here("METADATA.xml"), open = T, outfile = here("METADATA.html"), publish_mode = F)
+#emldown::render_eml(here("METADATA.xml"), open = T, outfile = here("METADATA.html"), publish_mode = F)
 
