@@ -16,11 +16,11 @@ library(adespatial)
 remotes::install_github(file.path("larsito", "tempo"))
 library(tempo) #calc_sync
 remotes::install_github(file.path("inbo", "checklist"))
-library(checklist)
 
 ### Start ###
 #installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
 #sessionInfo()
+checklist::setup_source()
 checklist::check_source()
 
 rm(list = ls())
