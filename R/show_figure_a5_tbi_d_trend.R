@@ -39,12 +39,13 @@ sites <- read_csv("data_processed_sites_temporal.csv", col_names = TRUE,
 
 ### * Model ####
 m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + 
-              side + distanceRiver + locationYear + abundance +
+              side + distanceRiver + locationYear +
               (1|plot), 
             REML = T,
             control = lmerControl(optimizer = "Nelder_Mead"),
             cov.prior = wishart,
             data = sites)
+DHARMa::simulateResiduals(m2, plot = TRUE)
 
 ### * Functions ####
 themeMB <- function() {
@@ -61,6 +62,7 @@ themeMB <- function() {
     plot.margin = margin(0, 0, 0, 0, "cm")
   )
 }
+
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
