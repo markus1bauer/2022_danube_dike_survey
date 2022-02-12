@@ -2,16 +2,12 @@
 # Figure A4 ####
 # Markus Bauer
 # 2022-01-11
-# Citation: 
-## Bauer M, Huber J, Kollmann J (submitted) 
-## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
-## Unpublished data.
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Preparation ################################################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation ##########################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 ### Packages ###
@@ -20,10 +16,11 @@ library(tidyverse)
 
 ### Start ###
 rm(list = ls())
-setwd(here("data/processed"))
+setwd(here("data", "processed"))
 
 ### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites_temporal.csv", col_names = TRUE,
+                  na = c("na", "NA"), col_types =
                   cols(
                     .default = "?",
                     block = "f",
@@ -52,9 +49,9 @@ themeMB <- function(){
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Plot ##############################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Plot #################################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 ggplot(data = sites, aes(x = D_abundance, y = D_presence)) +
@@ -69,10 +66,11 @@ ggplot(data = sites, aes(x = D_abundance, y = D_presence)) +
   scale_x_continuous(breaks = seq(-100, 100, 0.2)) +
   scale_y_continuous(breaks = seq(-100, 100, 0.2)) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
-  labs(x = expression(Temporal~"beta"~diversity~"["*italic('D')[bc]*"]"), y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]")) +
+  labs(x = expression(Temporal~"beta"~diversity~"["*italic('D')[bc]*"]"),
+       y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]")) +
   themeMB()
 
 ### Save ###
-ggsave(here("outputs/figures/figure_a4_(800dpi_8x8cm).tiff"), 
+ggsave(here("outputs", "figures", "figure_a4_800dpi_8x8cm.tiff"), 
        dpi = 800, width = 8, height = 8, units = "cm")
 

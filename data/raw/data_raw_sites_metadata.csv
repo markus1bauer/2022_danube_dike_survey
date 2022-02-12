@@ -56,7 +56,7 @@ potassiumClass,ferilization classification according to LfL (2007) 8. Aufl. Leit
 magnesium,CaCl2 extract of magnesium (Mg) (mg Mg per 100g soil) with VDLUFA method A 6.2.4.1 by engineering office Dr. Haeusler 2017-11-28,NA,NA,milligramPerDezigram,NA,numeric,NA
 magnesiumClass,ferilization classification according to LfL (2007) 8. Aufl. Leitfaden Duengung (values for agricultural land not greenland),NA,NA,NA,NA,factor,A = very low/C = optimum/ E = very high
 topsoilDepth,measured depth of topsoil but if necessary taken from plans,NA,NA,centimeter,integer,numeric,NA
-finematerialDepth,measured depth of fine material ,NA,NA,centimeter,integer,numeric,NA
+finematerialDepth,measured depth of fine material,NA,NA,centimeter,integer,numeric,NA
 finematerialDensity,dry bulk density of fine material,NA,NA,gramPerCentimeterCubed,real,numeric,NA
 skeletonRatioVol,volume ratio of sceleton of total topsoil (volume percent),NA,NA,percent,integer,numeric,NA
 skeletonRatioMass,mass ratio of sceleton incl. Rough organic material (weight percent),NA,NA,percent,integer,numeric,NA

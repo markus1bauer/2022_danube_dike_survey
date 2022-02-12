@@ -2,16 +2,12 @@
 # Plot Fig 2C ####
 # Markus Bauer
 # 2022-01-11
-# Citation: 
-## Bauer M, Huber J, Kollmann J (submitted) 
-## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
-## Unpublished data.
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Preparation ################################################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation #########################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 ### Packages ###
@@ -22,11 +18,12 @@ library(ggeffects)
 
 ### Start ###
 rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
-setwd(here("data/processed"))
+setwd(here("data", "processed"))
 
 
 ### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites_temporal.csv", col_names = TRUE,
+                  na = c("", "na", "NA"), col_types =
                   cols(
                     .default = "?",
                     plot = "f",
@@ -68,11 +65,11 @@ themeMB <- function(){
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Plot ##############################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Plot ################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_model <- ggeffect(m2, type = "emm", c("PC1soil", "exposition"), back.transform = T) %>%
+data_model <- ggeffect(m2, type = "emm", c("PC1soil", "exposition"), back.transform = TRUE) %>%
   mutate(predicted = exp(predicted),
          conf.low = exp(conf.low),
          conf.high = exp(conf.high),
@@ -105,5 +102,5 @@ data <- sites %>%
     theme(legend.position = c(.8, .9)))
 
 ### Save ###
-ggsave(here("outputs/figures/figure_2c_(800dpi_8x8cm).tiff"),
+ggsave(here("outputs", "figures", "figure_2c_800dpi_8x8cm.tiff"),
        dpi = 800, width = 8, height = 8, units = "cm")

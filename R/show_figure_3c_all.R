@@ -2,16 +2,12 @@
 # Plot Fig 3C ####
 # Markus Bauer
 # 2022-01-11
-# Citation: 
-## Bauer M, Huber J, Kollmann J (submitted) 
-## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
-## Unpublished data.
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Preparation ################################################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation ##########################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 ### Packages ###
@@ -26,7 +22,8 @@ setwd(here("data/processed"))
 
 
 ### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv", col_names = T, na = c("", "na", "NA"), col_types = 
+sites <- read_csv("data_processed_sites_temporal.csv", col_names = TRUE,
+                  na = c("", "na", "NA"), col_types =
                   cols(
                     .default = "?",
                     plot = "f",
@@ -49,7 +46,7 @@ m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil +
             data = sites)
 
 ### * Functions ####
-themeMB <- function(){
+themeMB <- function() {
   theme(
     panel.background = element_rect(fill = "white"),
     text  = element_text(size = 9, color = "black"),
@@ -68,13 +65,13 @@ themeMB <- function(){
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Plot ##############################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Plot #################################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 (graph_c <- m3 %>% 
-   broom.mixed::tidy(conf.int = T, conf.level = .95) %>%
+   broom.mixed::tidy(conf.int = TRUE, conf.level = .95) %>%
    filter(
      !str_detect(term, "location*") & 
        !str_detect(term, "comparison") & 
@@ -94,5 +91,5 @@ themeMB <- function(){
    themeMB())
 
 ### Save ###
-ggsave(here("outputs/figures/figure_3c_(800dpi_8x8cm).tiff"),
+ggsave(here("outputs", "figures", "figure_3c_800dpi_8x8cm.tiff"),
        dpi = 800, width = 8, height = 8, units = "cm")

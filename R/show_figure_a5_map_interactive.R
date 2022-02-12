@@ -2,16 +2,12 @@
 # Figure A5 ####
 # Markus Bauer
 # 2022-01-11
-# Citation: 
-## Bauer M, Huber J, Kollmann J (submitted) 
-## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
-## Unpublished data.
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Preparation ################################################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation ##########################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 ### Packages ###
@@ -27,7 +23,7 @@ library(mapview)
 
 ### Start ###
 rm(list = ls())
-setwd(here("data/processed/spatial"))
+setwd(here("data", "processed", "spatial"))
 
 ### Load data ###
 wms_flood <- "https://www.lfu.bayern.de/gdi/wms/wasser/ueberschwemmungsgebiete?"
@@ -40,18 +36,21 @@ dikes <- st_read("dikes_epsg4326.shp")
     addTiles(group = "OSM") %>%
     addProviderTiles("Esri.WorldTopoMap", group = "Esri") %>%
     setView(lng = 12.885, lat = 48.839, zoom = 10) %>%
-    addPolygons(data = ffh_area, 
-              color = "grey60", opacity = 0, weight = 0, fillColor = "grey60", fillOpacity = .6, 
-              highlight = highlightOptions(weight = 2, color = "blue", opacity = .8, bringToFront = F),
+    addPolygons(data = ffh_area,
+                color = "grey60", opacity = 0, weight = 0,
+                fillColor = "grey60", fillOpacity = .6,
+                highlight = highlightOptions(weight = 2, color = "blue",
+                                             opacity = .8, bringToFront = FALSE),
               popup = ~paste0("<b>", htmlEscape(NAME), "</b>", "<br/>",
                               "ID: ", htmlEscape(ID)),
               group = "FFH Areas") %>%
     addWMSTiles(baseUrl = wms_flood,
            layers = "hwgf_hq100",
            group = "HQ100",
-           options = WMSTileOptions(format = "image/png", transparent = T)) %>%
+           options = WMSTileOptions(format = "image/png", transparent = TRUE)) %>%
     addPolylines(data = dikes, color = "black", opacity = 1, weight = 2,
-                 label = ~paste0("Baujahr: ", htmlEscape(BAUJAHR), ", Sanierung:", htmlEscape(SANIERUNG)),
+                 label = ~paste0("Baujahr: ", htmlEscape(BAUJAHR), ", Sanierung:",
+                                 htmlEscape(SANIERUNG)),
                  popup = ~paste0("Baujahr: ", htmlEscape(BAUJAHR), "<br/>",
                                  "Sanierung: ", htmlEscape(SANIERUNG)),
                  highlight = highlightOptions(weight = 2, color = "blue", opacity = .8),
@@ -63,7 +62,7 @@ dikes <- st_read("dikes_epsg4326.shp")
                    group = "Plots") %>%
     addLayersControl(baseGroups = c("OSM", "Esri"),
                    overlayGroups = c("FFH Areas", "Dikes", "Plots", "HQ100"),
-                   options = layersControlOptions(collapsed = F)) %>%
+                   options = layersControlOptions(collapsed = FALSE)) %>%
     addScaleBar() %>%
     addMeasure(primaryLengthUnit = "kilometers",
                secondaryLengthUnit = F,
@@ -71,12 +70,12 @@ dikes <- st_read("dikes_epsg4326.shp")
                completedColor = "darkred",
                primaryAreaUnit = "sqkilometers",
                localization = "en") %>%
-    addMiniMap(toggleDisplay = T,
+    addMiniMap(toggleDisplay = TRUE,
                tiles = providers$OSM,
                zoomLevelOffset = -6,
-               minimized = T))
+               minimized = TRUE))
 
-mapshot(map, url = here("outputs/figures/figure_a5_map_interactive.html"))
+mapshot(map, url = here("outputs", "figures", "figure_a5_map_interactive.html"))
 
 
 leaflet() %>%
@@ -85,5 +84,5 @@ leaflet() %>%
   addWMSTiles(baseUrl = wms_flood,
               layers = "hwgf_hq100",
               group = "HQ100",
-              options = WMSTileOptions(format = "image/png", transparent = F))
+              options = WMSTileOptions(format = "image/png", transparent = FALSE))
   

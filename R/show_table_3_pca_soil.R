@@ -1,16 +1,14 @@
 # Beta diversity on dike grasslands
 # Table 3 ####
 # Markus Bauer
-# 2022-01-11
-# Citation: 
-## Bauer M, Huber J, Kollmann J (submitted) 
-## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
-## Unpublished data.
+# 2022-02-12
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Preparation ################################################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation #########################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 ### Packages ###
 library(here)
@@ -19,21 +17,24 @@ library(gt)
 
 ### Start ###
 rm(list = ls())
-setwd(here("outputs/statistics"))
+setwd(here("outputs", "statistics"))
 
 ### Load data ###
-data <- read_csv("pca_soil.csv", col_names = T, na = c("na", "NA", " "), col_types = 
+data <- read_csv("pca_soil.csv", col_names = TRUE,
+                 na = c("na", "NA", " "), col_types =
                      cols(
                        .default = "?")) %>%
   relocate(variables) %>%
   select(-PC4) %>%
-  filter(variables != "Eigenvalues" & variables != "Proportion Explained" & variables != "Cumulative Proportion") %>%
+  filter(variables != "Eigenvalues" &
+           variables != "Proportion Explained" &
+           variables != "Cumulative Proportion") %>%
   mutate(across(where(is.numeric), ~round(., digits = 2))) %>%
-  mutate(variables = fct_relevel(variables, c("topsoilDepth",
-                                              "sandPerc",
-                                              "siltPerc",
+  mutate(variables = fct_relevel(variables, c("pH",
+                                              "topsoilDepth",
                                               "clayPerc",
-                                              "pH",
+                                              "siltPerc",
+                                              "sandPerc",
                                               "calciumcarbonatPerc",
                                               "humusPerc",
                                               "cnRatio",
@@ -44,9 +45,9 @@ data <- read_csv("pca_soil.csv", col_names = T, na = c("na", "NA", " "), col_typ
                                               "magnesium")),
          variables = fct_recode(variables, 
                                 "Topsoil depth" = "topsoilDepth",
-                                "Sand" = "sandPerc",
-                                "Silt" = "siltPerc",
                                 "Clay" = "clayPerc",
+                                "Silt" = "siltPerc",
+                                "Sand" = "sandPerc",
                                 "Humus" = "humusPerc",
                                 "CaCO3" = "calciumcarbonatPerc",
                                 "C:N ratio" = "cnRatio",
@@ -55,13 +56,26 @@ data <- read_csv("pca_soil.csv", col_names = T, na = c("na", "NA", " "), col_typ
                                 "P" = "phosphorous",
                                 "K" = "potassium",
                                 "Mg2+" = "magnesium")) %>%
-  arrange(variables)
+  arrange(variables) %>%
+  mutate(unit = c("",
+                  "cm",
+                  "wt%",
+                  "wt%",
+                  "wt%",
+                  "wt%",
+                  "wt%",
+                  "",
+                  "wt%",
+                  "kg/m²",
+                  "mg/100g",
+                  "mg/100g",
+                  "mg/100g"))
 
 
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Plot with gt ################################################################################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Plot with gt ########################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 (table <- data %>%
@@ -87,60 +101,31 @@ data <- read_csv("pca_soil.csv", col_names = T, na = c("na", "NA", " "), col_typ
        table_body.border.bottom.width = px(2),
        table_body.border.top.width = px(1)
     ) %>%
-
-### Alignment of first column ####
-    tab_style(
-       style = cell_text(
-          align = "left"
-       ),
-       locations = cells_column_labels(
-          columns = "variables"
-       )
-    ) %>%
-    tab_style(
-       style = cell_text(
-          align = "left"
-       ),
-       locations = cells_body(
-          columns = "variables"
-       )
-    ) %>%
-   
-### Heading ####
-    tab_header( 
-       title = ""
-    ) %>%
-    tab_style(
-       style = cell_text(
-          align = "left"
-       ),
-       locations = cells_title()
-    ) %>%
-   
-### Spanners ####
-    #tab_spanner( 
-    # label = "Treatments",
-    #columns = vars(
-    # brickRatio, acid, soilFertility
-    #)) %>%
-    #styles of spanners
-    #tab_style( 
-    # style = cell_text(
-    #  weight = "bold"
-    #),
- #locations = cells_column_spanners(
- # spanners = T
- #  )) %>%
- #tab_style(
- # style = cell_borders(
- #  sides = c("bottom"),
- # color = "black",
- # style = "solid",
- # weight = px(1)
- #),
- #locations = cells_column_spanners(
- #    spanners = T
- #)) %>%
+### Alignment of specific columns ####
+  tab_style(
+    style = cell_text(
+      align = "left"
+    ),
+    locations = cells_body(
+      columns = "variables"
+    )
+  ) %>%
+  tab_style(
+    style = cell_text(
+      align = "center"
+    ),
+    locations = cells_column_labels(
+      columns = "unit"
+    )
+  ) %>%
+  tab_style(
+    style = cell_text(
+      align = "center"
+    ),
+    locations = cells_body(
+      columns = "unit"
+    )
+  ) %>% 
 
 ### Column labels ####
  cols_label( 
@@ -148,12 +133,9 @@ data <- read_csv("pca_soil.csv", col_names = T, na = c("na", "NA", " "), col_typ
     PC1 = md("**PC1 (43%)**"),
     PC2 = md("**PC2 (21%)**"),
     PC3 = md("**PC3 (10%)**"),
+    unit = md("**Unit**")
  ) %>%
   
-### Footnote ####
-    #tab_source_note( 
-    #   source_note = "PCA for old dikes"
-    #) %>%
 
 ### Highlight certain cells ####
     tab_style(
@@ -172,7 +154,7 @@ data <- read_csv("pca_soil.csv", col_names = T, na = c("na", "NA", " "), col_typ
        ),
        locations = cells_body(
           columns = PC2,
-          rows = PC2 >= .9 & PC2 < 2 | PC2 <= -1
+          rows = PC2 >= .91 & PC2 < 2 | PC2 <= -1
        )) %>%
     tab_style(
        style = list(
@@ -181,7 +163,7 @@ data <- read_csv("pca_soil.csv", col_names = T, na = c("na", "NA", " "), col_typ
        ),
        locations = cells_body(
           columns = PC3,
-          rows = PC3 >= .9 & PC3 < 1.15 | PC3 <= -1
+          rows = PC3 >= .9 & PC3 < 1.15 | PC3 <= -.88
        )) %>%
   
   ### Make subscripts ####
@@ -190,7 +172,7 @@ data <- read_csv("pca_soil.csv", col_names = T, na = c("na", "NA", " "), col_typ
       columns = c(variables),
       rows = c(6, 9, 10)
     ),
-    fn = function(x){
+    fn = function(x) {
       x <- c("3", "total", "concentration")
       text <- c("CaCO", "N", "N")
       glue::glue("{text}<sub>{x}</sub>")
@@ -201,7 +183,7 @@ data <- read_csv("pca_soil.csv", col_names = T, na = c("na", "NA", " "), col_typ
       columns = c(variables),
       rows = c(13)
     ),
-    fn = function(x){
+    fn = function(x) {
       x <- c("2+")
       text <- c("Mg")
       glue::glue("{text}<sup>{x}</sup>")
@@ -212,9 +194,9 @@ data <- read_csv("pca_soil.csv", col_names = T, na = c("na", "NA", " "), col_typ
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# C Save ################################################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# C Save ################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-gtsave(table, here("outputs/tables/table_3_pca_soil.png"))
+gtsave(table, here("outputs", "tables", "table_3_pca_soil.png"))

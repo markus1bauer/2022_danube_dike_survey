@@ -2,16 +2,13 @@
 # Figure A1 ####
 # Markus Bauer
 # 2022-01-11
-# Citation: 
-## Bauer M, Huber J, Kollmann J (submitted) 
-## Balanced turnover is a main aspect of biodiversity on restored dike grasslands: not only deterministic environmental effects, but also non-directional year and site effects drive spatial and temporal beta diversity.
-## Unpublished data.
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Preparation ################################################################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation ##########################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 ### Packages ###
 library(here)
@@ -23,7 +20,8 @@ rm(list = ls())
 
 
 ### Load data ###
-selection <- read_csv(here("data/processed/data_processed_sites_spatial.csv"), col_names = T, na = "na", col_types = 
+selection <- read_csv(here("data", "processed", "data_processed_sites_spatial.csv"),
+                      col_names = TRUE, na = "na", col_types =
                     cols(
                       .default = "?"
                     )) %>%
@@ -31,7 +29,8 @@ selection <- read_csv(here("data/processed/data_processed_sites_spatial.csv"), c
   add_count(plot) %>%
   filter(surveyYear == 2017 & n == max(n)) %>%
   select(plot)
-sites <- read_csv(here("data/raw/data_raw_sites.csv"), col_names = T, na = "na", col_types = 
+sites <- read_csv(here("data", "raw", "data_raw_sites.csv"), col_names = TRUE,
+                  na = "na", col_types =
                      cols(
                        .default = "?",
                        vegetationCov_2017 = "d"
@@ -44,12 +43,12 @@ sites <- read_csv(here("data/raw/data_raw_sites.csv"), col_names = T, na = "na",
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Plot ##############################################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Plot #################################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-tiff(here("outputs/figures/figure_a1_(800dpi_22x22cm).tiff"),
+tiff(here("outputs", "figures", "figure_a1_800dpi_22x22cm.tiff"),
      res = 72, width = 22, height = 22, units = "cm", compression = "none")
 TT.plot(
   class.sys = "DE.BK94.TT", 

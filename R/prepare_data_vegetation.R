@@ -8,25 +8,29 @@
 ### Packages ###
 library(here)
 library(tidyverse)
-library(naniar) #are_na()
+library(naniar) #are_na
 library(lubridate) #modify dates
-library(vegan) #metaMDS()
-library(FD) #dbFD()
+library(vegan) #metaMDS
+library(FD) #dbFD
 library(adespatial)
-#remotes::install_github("larsito/tempo")
-library(tempo) #calc_sync()
-#remotes::install_github("inbo/checklist")
-
-#checklist::setup_source()
-#x <- checklist::check_source()
-#checklist::write_checklist(x)
-#x <- checklist::check_source()
+remotes::install_github(file.path("larsito", "tempo"))
+library(tempo) #calc_sync
+remotes::install_github(file.path("inbo", "checklist"))
+library(checklist)
 
 ### Start ###
-#installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
-#sessionInfo()
+installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE,
+                  copy_Rprofile.site = TRUE, keep_old_packages = TRUE,
+                  update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE,
+                  print_R_versions = TRUE, GUI = TRUE)
+sessionInfo()
+checklist::setup_source()
+x <- checklist::check_source()
+checklist::write_checklist(x)
+x <- checklist::check_source()
+
 rm(list = ls())
-setwd(here("data/raw"))
+setwd(here("data", "raw"))
 
 
 
@@ -37,7 +41,8 @@ setwd(here("data/raw"))
 
 ### 1 Sites ############################################################
 
-sites <- read_csv("data_raw_sites.csv", col_names = TRUE, na = c("", "NA", "na"), col_types = 
+sites <- read_csv("data_raw_sites.csv", col_names = TRUE, na = c("", "NA", "na"),
+                  col_types =
                     cols(
                       .default = "?",
                       id = "f",
@@ -227,9 +232,10 @@ traits <- traits %>%
             )))))
 
 sites <- sites %>%
-  mutate(conf.low = c(1:length(id)),
-         conf.high = c(1:length(id)),
-         NtotalConc = finematerialDepth * finematerialDensity * 10 * NtotalPerc / 100,
+  mutate(conf_low = seq_along(id),
+         conf_high = seq_along(id),
+         NtotalConc = finematerialDepth * finematerialDensity * 10 *
+           NtotalPerc / 100,
          plotAge = surveyYear - constructionYear)
 
 
@@ -797,7 +803,7 @@ data <- sites %>%
   filter(n == max(n) & surveyYear == 2017) %>%
   select(plot, pH,
          calciumcarbonatPerc, humusPerc, NtotalPerc, NtotalConc, cnRatio,
-         sandPerc, siltPerc, clayPerc, sceletonRatioVol,
+         sandPerc, siltPerc, clayPerc,
          phosphorus, potassium, magnesium,
          topsoilDepth) %>%
   column_to_rownames(var = "plot")
@@ -822,7 +828,7 @@ pcaSoil <- values$species[, 1:4] %>%
   bind_cols(c("pH",
               "calciumcarbonatPerc", "humusPerc", "NtotalPerc", "cnRatio", "NtotalConc",
               "sandPerc", "siltPerc", "clayPerc",
-              "phosphorous", "potassium", "magnesium", "sceletonRatioVol",
+              "phosphorous", "potassium", "magnesium",
               "topsoilDepth")) %>%
   rename(variables = "...5") %>%
   bind_rows(eigenvals)
@@ -1251,9 +1257,9 @@ sites_temporal <- sites %>%
          riverkm, distanceRiver, 
          constructionYear, 
          exposition, side, 
-         PC1soil, PC2soil, PC3soil, P1constructionYear, PC2constructionYear,
+         PC1soil, PC2soil, PC3soil, PC1constructionYear, PC2constructionYear,
          PC3constructionYear,
-         conf.low, conf.high, 
+         conf_low, conf_high, 
          B, C, D, comparison, presabu) %>%
   mutate(across(c(PC1soil, PC2soil, PC3soil,
                   distanceRiver,
@@ -1271,7 +1277,8 @@ rm(list = setdiff(ls(), c("sites", "species", "traits", "sites_temporal",
 sites <- sites %>%
   mutate(across(c(lcbd, 
                   syn_total, syn_trend, syn_detrend, 
-                  PC1soil, PC2soil, PC3soil, PC1surveyYear, PC2surveyYear, PC3surveyYear, 
+                  PC1soil, PC2soil, PC3soil, PC1surveyYear, PC2surveyYear,
+                  PC3surveyYear, 
                   PC1constructionYear, PC2constructionYear, PC3constructionYear), 
                 ~ round(.x, digits = 4))) %>%
   mutate(across(c(NtotalPerc, targetCovratio, graminoidCovratio, targetRichratio,
@@ -1283,7 +1290,7 @@ sites <- sites %>%
 ### b Final selection of variables -------------------------------------
 
 sites <- sites %>%
-  select(id, plot, block, 
+  select(id, plot, block,
          # space
          location, locationAbb, locationYear, latitude, longitude, riverkm,
          distanceRiver, MEM1_2017, MEM2_2018, MEM1_2019, MEM1_2021, MEM2_2021,
@@ -1294,10 +1301,11 @@ sites <- sites %>%
          # historical factors
          PC1constructionYear, PC2constructionYear, PC3constructionYear,
          # response variables
-         accumulatedCov, speciesRichness, botanist, conf.low, conf.high
+         accumulatedCov, speciesRichness, botanist, conf_low, conf_high
          )
 
 sites_temporal <- sites_temporal %>%
+  pivot_wider(names_from = "presabu", values_from = c("B", "C", "D")) %>%
   select(plot, block, comparison,
          # space
          location, locationAbb, locationYear, latitude, longitude, riverkm,
@@ -1312,9 +1320,9 @@ sites_temporal <- sites_temporal %>%
          B_presence, B_abundance, C_presence, C_abundance,
          D_presence,D_abundance,
          # other variables
-         conf.low, conf.high)
+         conf_low, conf_high)
 
-#sites_restoration <- sites %>%
+sites_restoration <- sites %>%
   select(id, plot, block,
          # space
          location, locationAbb, locationYear, latitude, longitude, riverkm,
@@ -1329,7 +1337,7 @@ sites_temporal <- sites_temporal %>%
          targetRichness, targetRichratio, rlgRichness, targetCovratio,
          # legal evaluation
          biotopeType, ffh, changeType, baykompv, biotopePoints, min8, min9,
-         botanist, conf.low, conf.high
+         botanist, conf_low, conf_high
          )
 
 ### c Final selection of plots -----------------------------------------
@@ -1339,17 +1347,10 @@ sites_spatial <- sites %>%
   filter(accumulatedCov > 0) %>%
   add_count(plot) %>%
   filter(n == max(n)) %>%
-  select(-starts_with("surveyYearF"),
-         -starts_with("constructionYearF"),
-         -mossCov,
-         -litterCov,
-         -n,
-         -ageCategory) %>%
   mutate(plot = factor(plot)) # check number of plots
 
 sites_temporal <- sites_temporal %>%
-  filter(comparison %in% c("1718", "1819", "1921")) %>%
-  pivot_wider(names_from = "presabu", values_from = c("B", "C", "D")) %>%
+  semi_join(sites_spatial, by = "plot") %>%
   mutate(plot = factor(plot)) # check number of plots
 
 
@@ -1360,12 +1361,19 @@ sites_temporal <- sites_temporal %>%
 
 
 ### Data ###
-write_csv(sites_spatial, here("data/processed/data_processed_sites_spatial.csv"))
-write_csv(species, here("data/processed/data_processed_species.csv"))
-write_csv(traits, here("data/processed/data_processed_traits.csv"))
-write_csv(sites_temporal, here("data/processed/data_processed_sites_temporal.csv"))
+write_csv(sites_spatial,
+          here("data", "processed", "data_processed_sites_spatial.csv"))
+write_csv(species,
+          here("data", "processed", "data_processed_species.csv"))
+write_csv(traits,
+          here("data", "processed", "data_processed_traits.csv"))
+write_csv(sites_temporal,
+          here("data", "processed", "data_processed_sites_temporal.csv"))
 
 ### Tables ###
-write_csv(pcaSoil, here("outputs/statistics/pca_soil.csv"))
-write_csv(pcaSurveyYear, here("outputs/statistics/pca_survey_year.csv"))
-write_csv(pcaConstuctionYear, here("outputs/statistics/pca_construction_year.csv"))
+write_csv(pcaSoil,
+          here("outputs", "statistics", "pca_soil.csv"))
+write_csv(pcaSurveyYear,
+          here("outputs", "statistics", "pca_survey_year.csv"))
+write_csv(pcaConstuctionYear,
+          here("outputs", "statistics", "pca_construction_year.csv"))
