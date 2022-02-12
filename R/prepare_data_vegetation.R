@@ -21,7 +21,7 @@ remotes::install_github(file.path("inbo", "checklist"))
 #installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
 #sessionInfo()
 checklist::setup_source()
-checklist::check_source()
+x <- checklist::check_source()
 
 rm(list = ls())
 setwd(here("data", "raw"))
