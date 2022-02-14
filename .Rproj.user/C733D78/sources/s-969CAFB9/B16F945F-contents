@@ -22,6 +22,7 @@ remotes::install_github(file.path("inbo", "checklist"))
 #sessionInfo()
 checklist::setup_source()
 checklist::check_source()
+devtools::check()
 
 rm(list = ls())
 setwd(here("data", "raw"))
