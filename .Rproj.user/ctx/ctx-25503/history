@@ -1,0 +1,512 @@
+### Start ###
+rm(list = ls())
+setwd(here("data/processed"))
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types =
+cols(
+.default = "?",
+id = "f",
+locationAbb = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+side = "f",
+ffh = "f",
+changeType = col_factor(c("FFH6510", "any-FFH", "better", "change", "worse", "non-FFH"))
+)) %>%
+select(biotopeType, cwmAbuSeedmass, id, surveyYear, constructionYear, plotAge, locationAbb, block, plot, side, exposition, PC1, PC2, PC3, changeType, ffh) %>%
+mutate(n = cwmAbuSeedmass) %>%
+mutate(location = factor(locationAbb, levels = unique(locationAbb[order(constructionYear)]))) %>%
+mutate(plotAge = scale(plotAge, scale = T, center = F)) %>%
+mutate(surveyYear = scale(surveyYear, scale = T, center = F)) %>%
+mutate(surveyYearF = as_factor(surveyYear)) %>%
+mutate(constructionYear = scale(constructionYear, scale = T, center = F)) %>%
+mutate(constructionYearF = as_factor(constructionYear)) %>%
+filter(exposition != "east",
+exposition != "west") %>%
+group_by(plot) %>%
+mutate(count = n()) %>%
+ungroup() %>%
+slice_max(count, n = 1) %>%
+select(-count) %>%
+mutate(locationAbb = factor(locationAbb)) %>%
+mutate(locationAbb = factor(locationAbb, levels = unique(locationAbb[order(constructionYear)]))) %>%
+mutate(exposition = factor(exposition)) %>%
+mutate(block = factor(block)) %>%
+mutate(plot = factor(plot)) %>%
+mutate(n = log(n))
+#### a Graphs ---------------------------------------------------------------------------------------------
+#simple effects:
+ggplot(sites, aes(y = n, x = locationAbb)) + geom_boxplot() + geom_quasirandom()
+ggplot(sites, aes(y = n, x = constructionYear)) + geom_point() + geom_smooth(method = "lm")
+ggplot(sites, aes(y = n, x = constructionYearF)) + geom_boxplot() + geom_quasirandom()
+ggplot(sites, aes(y = n, x = plotAge)) + geom_point() + geom_smooth(method = "lm")
+ggplot(sites, aes(y = n, x = surveyYearF)) + geom_boxplot() + geom_quasirandom()
+ggplot(sites, aes(y = n, x = exposition)) + geom_boxplot() + geom_quasirandom()
+ggplot(sites, aes(y = n, x = PC1)) + geom_point() + geom_smooth(method = "lm")
+ggplot(sites, aes(y = n, x = PC2)) + geom_point() + geom_smooth(method = "lm")
+ggplot(sites, aes(y = n, x = PC3)) + geom_point() + geom_smooth(method = "lm")
+ggplot(sites, aes(y = n, x = changeType)) + geom_boxplot() + geom_quasirandom()
+ggplot(sites, aes(y = n, x = ffh)) + geom_boxplot() + geom_quasirandom()
+ggplot(sites, aes(y = n, x = biotopeType)) + geom_boxplot() + geom_quasirandom()
+# abbreviation 'sites849318' = frequency data set
+# abbreviation 'sites0318' = coverage data set
+library(benchmarkme)
+# abbreviation 'sites849318' = frequency data set
+# abbreviation 'sites0318' = coverage data set
+library(benchmarkme)
+get_ram()
+get_ram()
+# abbreviation 'sites849318' = frequency data set
+# abbreviation 'sites0318' = coverage data set
+library(benchmarkme)
+get_ram()
+get_cpu()
+## Arbeits-PC ##
+## 7.72GB, AuthenticAMD, AMD A4-4000 APU with Radeon HD Graphics, cors 2
+## Mein Laptop ##
+## Intel (R) i7-3610QM CPU @2.30GHz cores 8
+## Neuer Laptop ##
+## "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz" cores 8
+plot(benchmark_io(runs = 1, size = 50))
+## 7.72GB, AuthenticAMD, AMD A4-4000 APU with Radeon HD Graphics, cors 2
+## Mein Laptop ##
+## Intel (R) i7-3610QM CPU @2.30GHz cores 8
+## Neuer Laptop ##
+## "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz" cores 8
+plot(benchmark_io(runs = 1, size = 50))
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation ################################################################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+### Packages ###
+library(here)
+library(tidyverse)
+library(vegan)
+### Start ###
+rm(list = ls())
+setwd(here("data/processed"))
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = "na", col_types =
+cols(
+.default = "?",
+id = "f",
+location = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "d"
+)) %>%
+select(id, plot, block, location, surveyYear, constructionYear, plotAge, exposition, PC1, PC2, PC3, ffh, changeType, vegetationCov, targetRichness, targetCov, ffh6510Richness, ffh6210Richness) %>%
+mutate(surveyYearF = as_factor(surveyYear))
+species <- read_csv2("data_processed_species.csv", col_names = T, na = "na", col_types =
+cols(
+.default = "d",
+name = "f"
+)) %>%
+pivot_longer(-name, "id", "value") %>%
+pivot_wider(id, name) %>%
+arrange(id) %>%
+column_to_rownames("id")
+sitesFFH <- sites %>%
+filter(ffh != "6210")
+speciesFFH <- species %>%
+rownames_to_column("id") %>%
+semi_join(sitesFFH, by = "id") %>%
+column_to_rownames("id")
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Statistics ################################################################################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+### 1 NMDY #####################################################################################
+set.seed(1)
+(ordi <- metaMDS(species, try = 99, previous.best = T, na.rm = T))
+stressplot(ordi)
+### Packages ###
+library(here)
+library(tidyverse)
+library(vegan)
+### Start ###
+rm(list = ls())
+setwd(here("data/processed"))
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = "na", col_types =
+cols(
+.default = "?",
+id = "f",
+location = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "d"
+)) %>%
+select(id, plot, block, location, surveyYear, constructionYear, plotAge, exposition, PC1, PC2, PC3, ffh, changeType, vegetationCov, targetRichness, targetCov, ffh6510Richness, ffh6210Richness) %>%
+mutate(surveyYearF = as_factor(surveyYear))
+species <- read_csv2("data_processed_species.csv", col_names = T, na = "na", col_types =
+cols(
+.default = "d",
+name = "f"
+)) %>%
+pivot_longer(-name, "id", "value") %>%
+pivot_wider(id, name) %>%
+arrange(id) %>%
+column_to_rownames("id")
+sitesFFH <- sites %>%
+filter(ffh != "6210")
+speciesFFH <- species %>%
+rownames_to_column("id") %>%
+semi_join(sitesFFH, by = "id") %>%
+column_to_rownames("id")
+set.seed(1)
+(ordi <- metaMDS(species, try = 99, previous.best = T, na.rm = T))
+stressplot(ordi)
+# stress: 0.286 (wisconsin(sqrt()))
+#R²linear = .593
+#R²non-metric = .918
+goodness(ordi)
+# stress: 0.286 (wisconsin(sqrt()))
+#R²linear = .593
+#R²non-metric = .918
+gof <- goodness(ordi)
+plot(ordi, type = "t", main = "Goodness of fit")
+points(ordi = "sites", cex = gof * 300)
+points(ordi, display = "sites", cex = gof * 300)
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation ################################################################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+### Packages ###
+library(here)
+library(tidyverse)
+library(vegan)
+### Start ###
+rm(list = ls())
+setwd(here("data/processed"))
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = "na", col_types =
+cols(
+.default = "?",
+id = "f",
+location = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "d"
+)) %>%
+select(id, plot, block, location, surveyYear, constructionYear, plotAge, exposition, PC1, PC2, PC3, ffh, changeType, vegetationCov, targetRichness, targetCov, ffh6510Richness, ffh6210Richness) %>%
+mutate(surveyYearF = as_factor(surveyYear))
+species <- read_csv2("data_processed_species.csv", col_names = T, na = "na", col_types =
+cols(
+.default = "d",
+name = "f"
+)) %>%
+pivot_longer(-name, "id", "value") %>%
+pivot_wider(id, name) %>%
+arrange(id) %>%
+column_to_rownames("id")
+sitesFFH <- sites %>%
+filter(ffh != "6210")
+speciesFFH <- species %>%
+rownames_to_column("id") %>%
+semi_join(sitesFFH, by = "id") %>%
+column_to_rownames("id")
+View(sites)
+View(sitesFFH)
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = "na", col_types =
+cols(
+.default = "?",
+id = "f",
+locationAbb = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "d"
+)) %>%
+select(id, plot, block, locationAbb, surveyYear, constructionYear, plotAge, exposition, PC1, PC2, PC3, ffh, changeType, vegetationCov, targetRichness, targetCov, ffh6510Richness, ffh6210Richness) %>%
+mutate(surveyYearF = as_factor(surveyYear))
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = "na", col_types =
+cols(
+.default = "?",
+id = "f",
+locationAbb = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "n"
+)) %>%
+select(id, plot, block, locationAbb, surveyYear, constructionYear, plotAge, exposition, PC1, PC2, PC3, ffh, changeType, vegetationCov, targetRichness, targetCov, ffh6510Richness, ffh6210Richness) %>%
+mutate(surveyYearF = as_factor(surveyYear))
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = "na", col_types =
+cols(
+.default = "?",
+id = "f",
+locationAbb = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "d"
+)) %>%
+select(id, plot, block, locationAbb, surveyYear, constructionYear, plotAge, exposition, PC1, PC2, PC3, ffh, changeType, vegetationCov, targetRichness, targetCov, ffh6510Richness, ffh6210Richness) %>%
+mutate(surveyYearF = as_factor(surveyYear))
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types =
+cols(
+.default = "?",
+id = "f",
+locationAbb = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "d"
+)) %>%
+select(id, plot, block, locationAbb, surveyYear, constructionYear, plotAge, exposition, PC1, PC2, PC3, ffh, changeType, vegetationCov, targetRichness, targetCov, ffh6510Richness, ffh6210Richness) %>%
+mutate(surveyYearF = as_factor(surveyYear))
+sitessoil <- sites %>%
+select(id, PC1, PC2, PC3)
+sitesspacetime <- sites %>%
+select(id, locationAbb, surveyYearF, plotAge)
+(part <- varpart(species, sitessoil, sitesspacetime))
+(m1 <- varpart(species, sitessoil, sitesspacetime))
+sitesspacetime <- sites %>%
+select(id, locationAbb, surveyYearF)
+set.seed(1)
+(m1 <- varpart(species, sitessoil, sitesspacetime))
+plot(m1, digits = 2, bg = c("red", "blue"))
+plot(m1, digits = 2, bg = c("red", "blue"))
+plot(m1, cutoff = 1, digits = 2, bg = c("red", "blue"))
+plot(m1, cutoff = 0, digits = 2, bg = c("red", "blue"))
+library(ade4)
+library(adegraphics)
+library(adespatial)
+library(vegan)
+library(vegan3d)
+library(MASS)
+library(ellipse)
+library(FactoMineR)
+library(rrcov)
+# Source additional functions that will be used later in this
+# Chapter. Our scripts assume that files to be read are in
+# the working directory.
+source("hcoplot.R")
+source("triplot.rda.R")
+source("plot.lda.R")
+source("polyvars.R")
+source("screestick.R")
+# Load the Doubs data. The file Doubs.Rdata is assumed to be in
+# the working directory
+load("Doubs.RData")
+# Set aside the variable 'dfs' (distance from the source) for
+# later use
+dfs <- env[, 1]
+# Remove the 'dfs' variable from the env data frame
+env2 <- env[, -1]
+# Recode the slope variable (slo) into a factor (qualitative)
+# variable to show how these are handled in the ordinations
+slo2 <- rep(".very_steep", nrow(env))
+slo2[env$slo <= quantile(env$slo)[4]] <- ".steep"
+slo2[env$slo <= quantile(env$slo)[3]] <- ".moderate"
+slo2[env$slo <= quantile(env$slo)[2]] <- ".low"
+slo2 <- factor(slo2,
+levels = c(".low", ".moderate", ".steep", ".very_steep"))
+table(slo2)
+# Create an env3 data frame with slope as a qualitative variable
+env3 <- env2
+env3$slo <- slo2
+# Subset 1: Physiography (upstream-downstream gradient)
+envtopo <- env2[, c(1 : 3)]
+names(envtopo)
+# Subset 2: Water quality
+envchem <- env2[, c(4 : 10)]
+names(envchem)
+# Hellinger-transform the species data set
+spe.hel <- decostand(spe, "hellinger")
+### Start ###
+rm(list = ls())
+library(ade4)
+library(adegraphics)
+library(adespatial)
+library(vegan)
+library(vegan3d)
+library(MASS)
+library(ellipse)
+library(FactoMineR)
+library(rrcov)
+# Source additional functions that will be used later in this
+# Chapter. Our scripts assume that files to be read are in
+# the working directory.
+source("hcoplot.R")
+source("triplot.rda.R")
+source("plot.lda.R")
+source("polyvars.R")
+source("screestick.R")
+# Load the Doubs data. The file Doubs.Rdata is assumed to be in
+# the working directory
+load("Doubs.RData")
+# Load the Doubs data. The file Doubs.Rdata is assumed to be in
+# the working directory
+load("Doubs.RData")
+library(vegan)
+# Load the Doubs data. The file Doubs.Rdata is assumed to be in
+# the working directory
+load("Doubs.RData")
+load("C:/Users/marku/Downloads/NEwR-2ed_code_data/NEwR-2ed_code_data/NEwR2-Data/Doubs.RData")
+# Remove empty site 8
+spe <- spe[-8, ]
+env <- env[-8, ]
+spa <- spa[-8, ]
+# Set aside the variable 'dfs' (distance from the source) for
+# later use
+dfs <- env[, 1]
+# Remove the 'dfs' variable from the env data frame
+env2 <- env[, -1]
+# Recode the slope variable (slo) into a factor (qualitative)
+# variable to show how these are handled in the ordinations
+slo2 <- rep(".very_steep", nrow(env))
+slo2[env$slo <= quantile(env$slo)[4]] <- ".steep"
+slo2[env$slo <= quantile(env$slo)[3]] <- ".moderate"
+slo2[env$slo <= quantile(env$slo)[2]] <- ".low"
+slo2 <- factor(slo2,
+levels = c(".low", ".moderate", ".steep", ".very_steep"))
+table(slo2)
+# Create an env3 data frame with slope as a qualitative variable
+env3 <- env2
+env3$slo <- slo2
+# Subset 1: Physiography (upstream-downstream gradient)
+envtopo <- env2[, c(1 : 3)]
+names(envtopo)
+# Subset 2: Water quality
+envchem <- env2[, c(4 : 10)]
+names(envchem)
+# Hellinger-transform the species data set
+spe.hel <- decostand(spe, "hellinger")
+View(envchem)
+View(envtopo)
+View(spe)
+View(spe.hel)
+(spe.rda <- rda(spe.hel ~ ., env3))
+summary(spe.rda) # Scaling 2 (default)
+(spe.rda <- dbrda(spe.hel ~ ., env3))
+summary(spe.rda) # Scaling 2 (default)
+anova(spe.rda)
+(spe.part.all <- varpart(spe.hel, envchem, envtopo))
+plot(spe.part.all, digits = 2, bg = c("red", "blue"))
+### Packages ###
+library(here)
+library(tidyverse)
+library(vegan)
+### Start ###
+rm(list = ls())
+setwd(here("data/processed"))
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types =
+cols(
+.default = "?",
+id = "f",
+locationAbb = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "d"
+)) %>%
+select(id, plot, block, locationAbb, surveyYear, constructionYear, plotAge, exposition, PC1, PC2, PC3, ffh, changeType, vegetationCov, targetRichness, targetCov, ffh6510Richness, ffh6210Richness) %>%
+mutate(surveyYearF = as_factor(surveyYear))
+species <- read_csv2("data_processed_species.csv", col_names = T, na = "na", col_types =
+cols(
+.default = "d",
+name = "f"
+)) %>%
+pivot_longer(-name, "id", "value") %>%
+pivot_wider(id, name) %>%
+arrange(id) %>%
+column_to_rownames("id")
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types =
+cols(
+.default = "?",
+id = "f",
+locationAbb = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "d"
+)) %>%
+select(id, plot, block, locationAbb, surveyYear, constructionYear, plotAge, exposition, PC1, PC2, PC3, ffh, changeType, vegetationCov, targetRichness, targetCov, ffh6510Richness, ffh6210Richness) %>%
+mutate(surveyYearF = as_factor(surveyYear))
+setwd(here("data/processed"))
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types =
+cols(
+.default = "?",
+id = "f",
+locationAbb = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "d"
+)) #%>%
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types =
+cols(
+.default = "?",
+id = "f",
+locationAbb = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "d"
+)) %>%
+select(id, plot, block, locationAbb, surveyYear, constructionYear, plotAge, exposition, PC1, PC2, PC3, ffh, changeType, vegetationCov, targetRichness, targetCov, ffh6510Richness, ffh6210Richness) %>%
+mutate(surveyYearF = as_factor(surveyYear))
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types =
+cols(
+.default = "?",
+id = "f",
+locationAbb = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "d"
+)) %>%
+select(id)
+library(tidyverse)
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types =
+cols(
+.default = "?",
+id = "f",
+locationAbb = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "d"
+)) %>%
+select(id)
+select(species, name)
+select(species, Achillea_millefolium)
+### Load data ###
+sites <- read_csv2("data_processed_sites.csv", col_names = T, na = c("na", "NA"), col_types =
+cols(
+.default = "?",
+id = "f",
+locationAbb = "f",
+block = "f",
+plot = "f",
+exposition = "f",
+ffh = "f",
+vegetationCov = "d"
+)) %>%
+dplyr::select(id)

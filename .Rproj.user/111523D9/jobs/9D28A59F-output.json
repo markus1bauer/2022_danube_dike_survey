@@ -1,0 +1,6 @@
+[1,"Installing 'geosphere' ...\r\n"]
+[1,"\r\n"]
+[2,"Installiere Paket nach 'C:/Users/Markus Bauer/Documents/R/win-library/4.1'\r\n(da 'lib' nicht spezifiziert)\r\n"]
+[2,"versuche URL 'https://cran.rstudio.com/bin/windows/contrib/4.1/geosphere_1.5-14.zip'\r\nContent type 'application/zip' length 1001613 bytes (978 KB)\r\n=="]
+[1,"package 'geosphere' successfully unpacked and MD5 sums checked\r\n"]
+[2,"================================================\r\ndownloaded 978 KB\r\n\r\n\r\n\r\n<U+2714> Package 'geosphere' successfully installed.\r\n"]

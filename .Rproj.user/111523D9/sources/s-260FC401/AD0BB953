@@ -1,0 +1,26 @@
+{
+    "id": "AD0BB953",
+    "path": "Z:/Documents/_university/2021_2022_danube/3_data_and_analyses/2022_danube_dike_survey/R/model_tbi_d_presence.R",
+    "project_path": "R/model_tbi_d_presence.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1639402656839.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "157,0",
+        "scrollLine": "147"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1639408882,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1639408881883,
+    "read_only": false,
+    "read_only_alternatives": []
+}
