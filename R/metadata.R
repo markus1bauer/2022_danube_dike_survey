@@ -9,7 +9,7 @@ library(here)
 library(tidyverse)
 library(EML)
 library(emld)
-#remotes::install_github("EDIorg/EMLassemblyline")
+# remotes::install_github("EDIorg/EMLassemblyline")
 library(EMLassemblyline)
 
 ### Start ###
@@ -31,17 +31,21 @@ methods <- set_methods(methods_file)
 EMLassemblyline::view_unit_dictionary() # List of standard units, which should be used in metadata file
 
 custom_units <- bind_rows(
-  data.frame(id = "milligramPerDezigram", 
-             unitType = "massPerMass", 
-             parentSI = "gramPerGram", 
-             multiplierToSI = 0.00001, 
-             description = "milligram of element per 100 gram soil"),
-  data.frame(id = "millimeterSquaredPerMilligram", 
-             unitType = "specificArea", 
-             parentSI = "meterPerGram", 
-             multiplierToSI = 1, 
-             description = "square millimeters per milligram")
+  data.frame(
+    id = "milligramPerDezigram",
+    unitType = "massPerMass",
+    parentSI = "gramPerGram",
+    multiplierToSI = 0.00001,
+    description = "milligram of element per 100 gram soil"
+  ),
+  data.frame(
+    id = "millimeterSquaredPerMilligram",
+    unitType = "specificArea",
+    parentSI = "meterPerGram",
+    multiplierToSI = 1,
+    description = "square millimeters per milligram"
   )
+)
 
 unitList <- set_unitList(custom_units)
 
@@ -88,39 +92,39 @@ physical_processed_sites <- set_physical("data_raw_sites.csv")
 dataTable <- list(
   list(
     entityName = "data_raw_species.csv",
-    #entityDescription = "raw species abundances",
+    # entityDescription = "raw species abundances",
     physical = physical_raw_species,
-    #attributeList = attributeList_raw_species
+    # attributeList = attributeList_raw_species
   ),
   list(
     entityName = "data_raw_traits.csv",
-    #entityDescription = "raw plant trait list",
+    # entityDescription = "raw plant trait list",
     physical = physical_raw_traits,
-    #attributeList = attributeList_raw_traits
+    # attributeList = attributeList_raw_traits
   ),
   list(
     entityName = "data_raw_sites.csv",
-    #entityDescription = "environmental raw data of the sites",
-    #physical = physical_raw_sites,
-    #attributeList = attributeList_raw_sites
+    # entityDescription = "environmental raw data of the sites",
+    # physical = physical_raw_sites,
+    # attributeList = attributeList_raw_sites
   ),
   list(
     entityName = "data_processed_species.csv",
-    #entityDescription = "processed species abundances",
+    # entityDescription = "processed species abundances",
     physical = physical_processed_species,
-    #attributeList = attributeList_processed_species
+    # attributeList = attributeList_processed_species
   ),
   list(
     entityName = "data_processed_traits.csv",
-    #entityDescription = "processed plant trait list",
+    # entityDescription = "processed plant trait list",
     physical = physical_processed_traits,
-    #attributeList = attributeList_processed_traits
+    # attributeList = attributeList_processed_traits
   ),
   list(
     entityName = "data_processed_sites.csv",
-    #entityDescription = "environmental processed data of the sites",
+    # entityDescription = "environmental processed data of the sites",
     physical = physical_processed_sites,
-    #attributeList = attributeList_processed_sites
+    # attributeList = attributeList_processed_sites
   )
 )
 
@@ -132,11 +136,12 @@ address <- list(
   city = "Freising",
   administrativeArea = "Bayern",
   postalCode = "85354",
-  country = "Germany")
+  country = "Germany"
+)
 
 creator <- eml$creator(
   individualName = eml$individualName(
-    givenName = "Markus", 
+    givenName = "Markus",
     surName = "Bauer"
   ),
   positionName = "PhD student",
@@ -150,7 +155,7 @@ creator <- eml$creator(
 associatedParty <- list(
   eml$associatedParty(
     individualName = eml$individualName(
-      givenName = "Jakob", 
+      givenName = "Jakob",
       surName = "Huber"
     ),
     role = "Researcher",
@@ -159,7 +164,7 @@ associatedParty <- list(
   ),
   eml$associatedParty(
     individualName = eml$individualName(
-      givenName = "Johannes", 
+      givenName = "Johannes",
       surName = "Kollmann"
     ),
     role = "Professor",
@@ -171,7 +176,7 @@ associatedParty <- list(
   )
 )
 
-contact <- 
+contact <-
   list(
     individualName = creator$individualName,
     electronicMailAddress = creator$electronicMailAddress,
@@ -200,24 +205,28 @@ coverage <- set_coverage(
 
 ### 7 Description #######################################################
 
-pubDate = "2022"
+pubDate <- "2022"
 
-title = "Danube old dikes"
+title <- "Danube old dikes"
 
 abstract <- "Not written yet"
 
 keywordSet <- list(
   list(
     keywordThesaurus = "LTER controlled vocabulary",
-    keyword = list("rivers",
-                   "vegetation dynamics",
-                   "restoration")
+    keyword = list(
+      "rivers",
+      "vegetation dynamics",
+      "restoration"
+    )
   ),
   list(
     keywordThesaurus = "own vocabulary",
-    keyword = list("beta diversity",
-                   "temperate grassland",
-                   "dike")
+    keyword = list(
+      "beta diversity",
+      "temperate grassland",
+      "dike"
+    )
   )
 )
 
@@ -241,20 +250,19 @@ dataset <- list(
   coverage = coverage,
   contact = contact,
   methods = methods,
-  #dataTable = dataTable,
+  # dataTable = dataTable,
   additonalMetadata = list(metadata = list(
     unitList = unitList
   ))
-  )
+)
 
 eml <- list(
   packageId = uuid::UUIDgenerate(),
   system = "uuid", # type of identifier
   dataset = dataset
-  )
+)
 
 write_eml(eml, here("METADATA.xml"))
 eml_validate(here("METADATA.xml"))
 
-#emldown::render_eml(here("METADATA.xml"), open = TRUE, outfile = here("METADATA.html"), publish_mode = FALSE)
-
+# emldown::render_eml(here("METADATA.xml"), open = TRUE, outfile = here("METADATA.html"), publish_mode = FALSE)

@@ -8,18 +8,18 @@
 ### Packages ###
 library(here)
 library(tidyverse)
-library(naniar) #are_na
-library(lubridate) #modify dates
-library(vegan) #metaMDS
-library(FD) #dbFD
+library(naniar) # are_na
+library(lubridate) # modify dates
+library(vegan) # metaMDS
+library(FD) # dbFD
 library(adespatial)
 remotes::install_github(file.path("larsito", "tempo"))
-library(tempo) #calc_sync
+library(tempo) # calc_sync
 remotes::install_github(file.path("inbo", "checklist"))
 
 ### Start ###
-#installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
-#sessionInfo()
+# installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
+# sessionInfo()
 checklist::setup_source()
 checklist::check_source()
 devtools::check()
@@ -36,126 +36,156 @@ setwd(here("data", "raw"))
 
 ### 1 Sites ############################################################
 
-sites <- read_csv("data_raw_sites.csv", col_names = TRUE,
-                  na = c("", "NA", "na"), col_types =
-                    cols(
-                      .default = "?",
-                      id = "f",
-                      block = "f",
-                      location = "f",
-                      side = "f",
-                      exposition = "f",
-                      surveyDate_2017 = col_date(format = "%Y-%m-%d"),
-                      surveyDate_2018 = col_date(format = "%Y-%m-%d"),
-                      surveyDate_2019 = col_date(format = "%Y-%m-%d"),
-                      humusLevel = "f"
-                    )) %>%
-  mutate(across(starts_with("vegetationCov") | 
-                  starts_with("vegetationHeight_") | 
-                  starts_with("opensoilCov_") | 
-                  starts_with("mossCov_") | 
-                  starts_with("litterCov_") | 
-                  starts_with("botanist_"),
-                ~ as.character(.x))) %>%
-  pivot_longer(starts_with("vegetationCov") | 
-                 starts_with("vegetationHeight_") | 
-                 starts_with("opensoilCov_") | 
-                 starts_with("mossCov_") | 
-                 starts_with("litterCov_") | 
-                 starts_with("botanist_"), 
-               names_to = c("x", "surveyYear"),
-               names_sep = "_",
-               values_to ="n") %>%
+sites <- read_csv("data_raw_sites.csv",
+  col_names = TRUE,
+  na = c("", "NA", "na"), col_types =
+    cols(
+      .default = "?",
+      id = "f",
+      block = "f",
+      location = "f",
+      side = "f",
+      exposition = "f",
+      surveyDate_2017 = col_date(format = "%Y-%m-%d"),
+      surveyDate_2018 = col_date(format = "%Y-%m-%d"),
+      surveyDate_2019 = col_date(format = "%Y-%m-%d"),
+      humusLevel = "f"
+    )
+) %>%
+  mutate(across(
+    starts_with("vegetationCov") |
+      starts_with("vegetationHeight_") |
+      starts_with("opensoilCov_") |
+      starts_with("mossCov_") |
+      starts_with("litterCov_") |
+      starts_with("botanist_"),
+    ~ as.character(.x)
+  )) %>%
+  pivot_longer(starts_with("vegetationCov") |
+    starts_with("vegetationHeight_") |
+    starts_with("opensoilCov_") |
+    starts_with("mossCov_") |
+    starts_with("litterCov_") |
+    starts_with("botanist_"),
+  names_to = c("x", "surveyYear"),
+  names_sep = "_",
+  values_to = "n"
+  ) %>%
   pivot_wider(names_from = x, values_from = n) %>%
-  mutate(across(c(surveyYear, vegetationCov, vegetationHeight, 
-                  opensoilCov, mossCov, litterCov),
-                ~ as.numeric(.x))) %>%
-  mutate(surveyYearF = factor(surveyYear),
-         surveyYearFminus = factor(surveyYear - 1),
-         constructionYearF = factor(constructionYear),
-         constructionYearFplus = factor(constructionYear + 1)) %>%
-  mutate(id = str_c(id, surveyYear, sep = "_"),
-         .keep = "all",
-         id = paste0("X", id),
-         plot = str_sub(id, start = 2, end = 3),
-         position = str_sub(id, start = 5, end = 5),
-         locationAbb = str_sub(location, 1, 3),
-         locationAbb = str_to_upper(locationAbb),
-         locationAbb = factor(locationAbb,
-                              levels = unique(locationAbb[order(constructionYear)])),
-         locationYear = str_c(locationAbb, constructionYear, sep = "-")) %>%
-  select(-position, -starts_with("surveyDate_"), -starts_with("topsoilDepth_"),
-         -cnLevel, -ends_with("Class")) %>%
+  mutate(across(
+    c(
+      surveyYear, vegetationCov, vegetationHeight,
+      opensoilCov, mossCov, litterCov
+    ),
+    ~ as.numeric(.x)
+  )) %>%
+  mutate(
+    surveyYearF = factor(surveyYear),
+    surveyYearFminus = factor(surveyYear - 1),
+    constructionYearF = factor(constructionYear),
+    constructionYearFplus = factor(constructionYear + 1)
+  ) %>%
+  mutate(
+    id = str_c(id, surveyYear, sep = "_"),
+    .keep = "all",
+    id = paste0("X", id),
+    plot = str_sub(id, start = 2, end = 3),
+    position = str_sub(id, start = 5, end = 5),
+    locationAbb = str_sub(location, 1, 3),
+    locationAbb = str_to_upper(locationAbb),
+    locationAbb = factor(locationAbb,
+      levels = unique(locationAbb[order(constructionYear)])
+    ),
+    locationYear = str_c(locationAbb, constructionYear, sep = "-")
+  ) %>%
+  select(
+    -position, -starts_with("surveyDate_"), -starts_with("topsoilDepth_"),
+    -cnLevel, -ends_with("Class")
+  ) %>%
   relocate(plot, .after = id) %>%
   relocate(c("locationAbb", "locationYear"), .after = location) %>%
   relocate(c("surveyYear", "surveyYearF", "surveyYearFminus"),
-           .after = riverkm) %>%
+    .after = riverkm
+  ) %>%
   relocate(c("constructionYearF", "constructionYearFplus"),
-           .after = constructionYear)
+    .after = constructionYear
+  )
 
 
 ### 2 Species #########################################################
 
-species <- data.table::fread("data_raw_species.csv", 
-                             sep = ",",
-                             dec = ".",
-                             skip = 0,
-                             header = TRUE,
-                             na.strings = c("", "NA", "na"),
-                             colClasses = list(
-                               character = "name"
-                             )) %>%
+species <- data.table::fread("data_raw_species.csv",
+  sep = ",",
+  dec = ".",
+  skip = 0,
+  header = TRUE,
+  na.strings = c("", "NA", "na"),
+  colClasses = list(
+    character = "name"
+  )
+) %>%
   ### Check that each species occurs at least one time ###
   group_by(name) %>%
   arrange(name) %>%
   select(name, all_of(sites$id)) %>%
-  mutate(total = sum(c_across(starts_with("X")), na.rm = TRUE),
-         presence = if_else(total > 0, 1, 0),
-         name = factor(name)) %>%
+  mutate(
+    total = sum(c_across(starts_with("X")), na.rm = TRUE),
+    presence = if_else(total > 0, 1, 0),
+    name = factor(name)
+  ) %>%
   filter(presence == 1) %>%
   ungroup() %>%
   select(name, sort(tidyselect::peek_vars()), -total, -presence) %>%
-  mutate(across(where(is.numeric), ~replace(., is.na(.), 0)))
+  mutate(across(where(is.numeric), ~ replace(., is.na(.), 0)))
 
 ### Create list with species names and their frequency ###
 specieslist <- species %>%
-  mutate_if(is.numeric, ~1 * (. != 0)) %>%
-  mutate(sum = rowSums(across(where(is.numeric)), na.rm = TRUE),
-         .keep = "unused") %>%
+  mutate_if(is.numeric, ~ 1 * (. != 0)) %>%
+  mutate(
+    sum = rowSums(across(where(is.numeric)), na.rm = TRUE),
+    .keep = "unused"
+  ) %>%
   group_by(name) %>%
   summarise(sum = sum(sum))
-#write_csv(specieslist, "specieslist_2022xxxx.csv")
+# write_csv(specieslist, "specieslist_2022xxxx.csv")
 
 
 ### 3 Traits ##########################################################
 
-traits <- read_csv("data_raw_traits.csv", col_names = TRUE, na = c("", "NA", "na"),
-                   col_types =
-                      cols(
-                        .default = "f",
-                        name = "c",
-                        sociology = "d",
-                        l = "d",
-                        t = "d",
-                        k = "d",
-                        f = "d",
-                        r = "d",
-                        n = "d"
-                      )) %>%
+traits <- read_csv("data_raw_traits.csv",
+  col_names = TRUE, na = c("", "NA", "na"),
+  col_types =
+    cols(
+      .default = "f",
+      name = "c",
+      sociology = "d",
+      l = "d",
+      t = "d",
+      k = "d",
+      f = "d",
+      r = "d",
+      n = "d"
+    )
+) %>%
   separate(name, c("genus", "species", "ssp", "subspecies"), "_",
-           remove = FALSE, extra = "drop", fill = "right") %>%
-  mutate(genus = str_sub(genus, 1, 4),
-         species = str_sub(species, 1, 4),
-         subspecies = str_sub(subspecies, 1, 4),
-         name = factor(name)) %>%
+    remove = FALSE, extra = "drop", fill = "right"
+  ) %>%
+  mutate(
+    genus = str_sub(genus, 1, 4),
+    species = str_sub(species, 1, 4),
+    subspecies = str_sub(subspecies, 1, 4),
+    name = factor(name)
+  ) %>%
   unite(abb, genus, species, subspecies, sep = "") %>%
-  mutate(abb = str_replace(abb, "NA", ""),
-         abb = as_factor(abb)) %>%
+  mutate(
+    abb = str_replace(abb, "NA", ""),
+    abb = as_factor(abb)
+  ) %>%
   select(-ssp) %>%
   arrange(name)
 ### Check congruency of traits and species table ###
-traits[duplicated(traits$abb),]
-#traits$name[which(!(traits$name %in% species$name))]
+traits[duplicated(traits$abb), ]
+# traits$name[which(!(traits$name %in% species$name))]
 species$name[which(!(species$name %in% traits$name))]
 traits <- semi_join(traits, species, by = "name")
 
@@ -166,7 +196,7 @@ traits <- semi_join(traits, species, by = "name")
 sites %>%
   filter(!str_detect(id, "_seeded$")) %>%
   janitor::tabyl(vegetationCov)
-#sites %>% filter(vegetationCov == 17)
+# sites %>% filter(vegetationCov == 17)
 species %>%
   select(-name) %>%
   unlist() %>%
@@ -180,7 +210,7 @@ species %>%
   summarise(across(where(is.double), ~ sum(.x, na.rm = TRUE))) %>%
   pivot_longer(cols = everything(), names_to = "id", values_to = "value") %>%
   mutate(id = factor(id)) %>%
-  full_join(sites, by = "id") %>% 
+  full_join(sites, by = "id") %>%
   mutate(diff = (value - vegetationCov)) %>%
   select(id, surveyYear, value, vegetationCov, diff) %>%
   filter(diff > 50 | diff < -30) %>%
@@ -210,35 +240,44 @@ rm(list = ls(pattern = "[^species|traits|sites]"))
 ## 1 Create simple variables ####################################################
 
 traits <- traits %>%
-  mutate(leanIndicator = if_else(
-    !(is.na(table30)) | !(is.na(table33)) | !(is.na(table34)), "yes", "no"
+  mutate(
+    leanIndicator = if_else(
+      !(is.na(table30)) | !(is.na(table33)) | !(is.na(table34)), "yes", "no"
     ),
     target = if_else(
       targetHerb == "yes" | targetGrass == "yes", "yes", "no"
-      ),
+    ),
     ruderal = if_else(
       sociology >= 3300 & sociology < 3700, "yes", "no"
-      ),
+    ),
     targetEllenberg = if_else(
       sociology >= 5300 & sociology < 5400, "dry_grassland", if_else(
         sociology >= 5400 & sociology < 6000, "hay_meadow", if_else(
           sociology >= 5100 & sociology < 5200, "nardus_grassland", if_else(
             sociology >= 5200 & sociology < 5300, "sand_grassland", "no"
-            )))))
+          )
+        )
+      )
+    )
+  )
 
 sites <- sites %>%
-  mutate(conf_low = seq_along(id),
-         conf_high = seq_along(id),
-         NtotalConc = finematerialDepth * finematerialDensity * 10 *
-           NtotalPerc / 100,
-         plotAge = surveyYear - constructionYear)
+  mutate(
+    conf_low = seq_along(id),
+    conf_high = seq_along(id),
+    NtotalConc = finematerialDepth * finematerialDensity * 10 *
+      NtotalPerc / 100,
+    plotAge = surveyYear - constructionYear
+  )
 
 
 ## 2 Coverages ######################################################################
 
 cover <- left_join(species, traits, by = "name") %>%
-  select(name, family, target, targetHerb, targetArrhenatherion, leanIndicator,
-         nitrogenIndicator, ruderalIndicator, table33, starts_with("X")) %>%
+  select(
+    name, family, target, targetHerb, targetArrhenatherion, leanIndicator,
+    nitrogenIndicator, ruderalIndicator, table33, starts_with("X")
+  ) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id)
 
@@ -247,7 +286,8 @@ cover_total_and_graminoid <- cover %>%
   group_by(id, family) %>%
   summarise(total = sum(n, na.rm = TRUE), .groups = "keep") %>%
   mutate(type = if_else(family == "Poaceae" | family == "Cyperaceae" | family == "Juncaceae",
-                        "graminoidCov", "herbCov")) %>%
+    "graminoidCov", "herbCov"
+  )) %>%
   group_by(id, type) %>%
   summarise(total = sum(total, na.rm = TRUE), .groups = "keep") %>%
   spread(type, total) %>%
@@ -295,13 +335,14 @@ cover_ruderalIndicator <- cover %>%
   summarise(ruderalCov = sum(n, na.rm = TRUE)) %>%
   mutate(ruderalCov = round(ruderalCov, 1)) %>%
   ungroup()
-  
+
 ### * Table 33 species' coverage ####
 cover_table33 <- cover %>%
   mutate(table33 = if_else(table33 == "4" |
-                             table33 == "3" |
-                             table33 == "2",
-                           "table33Cov", "other")) %>%
+    table33 == "3" |
+    table33 == "2",
+  "table33Cov", "other"
+  )) %>%
   filter(table33 == "table33Cov") %>%
   summarise(table33Cov = sum(n, na.rm = TRUE)) %>%
   mutate(table33Cov = round(table33Cov, 1)) %>%
@@ -318,8 +359,10 @@ sites <- sites %>%
   right_join(cover_ruderalIndicator, by = "id") %>%
   right_join(cover_table33, by = "id") %>%
   ### Calcute the ratio of target species richness of total species richness
-  mutate(targetCovratio = targetCov / accumulatedCov,
-         graminoidCovratio = graminoidCov / accumulatedCov)
+  mutate(
+    targetCovratio = targetCov / accumulatedCov,
+    graminoidCovratio = graminoidCov / accumulatedCov
+  )
 
 rm(list = ls(pattern = "[^species|traits|sites]"))
 
@@ -329,9 +372,11 @@ rm(list = ls(pattern = "[^species|traits|sites]"))
 ### a Species richness -------------------------------------------------
 
 speciesRichness <- left_join(species, traits, by = "name") %>%
-  select(name, rlg, rlb, target, targetHerb, targetArrhenatherion,
-         ffh6510, ffh6210, nitrogenIndicator, leanIndicator, table33, table34,
-         starts_with("X")) %>%
+  select(
+    name, rlg, rlb, target, targetHerb, targetArrhenatherion,
+    ffh6510, ffh6210, nitrogenIndicator, leanIndicator, table33, table34,
+    starts_with("X")
+  ) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
   group_by(id)
@@ -429,13 +474,13 @@ sites <- sites %>%
   right_join(speciesRichness_table33_4, by = "id") %>%
   right_join(speciesRichness_table34_2, by = "id") %>%
   right_join(speciesRichness_table34_3, by = "id") %>%
-### Calcute the ratio of target species richness of total species richness
+  ### Calcute the ratio of target species richness of total species richness
   mutate(targetRichratio = targetRichness / speciesRichness)
 
 ### b Species eveness and shannon --------------------------------------
 
-data <- species  %>%
-  mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
+data <- species %>%
+  mutate(across(where(is.numeric), ~ replace(., is.na(.), 0))) %>%
   pivot_longer(-name, names_to = "id", values_to = "value") %>%
   pivot_wider(names_from = "name", values_from = "value") %>%
   column_to_rownames("id") %>%
@@ -456,52 +501,69 @@ rm(list = ls(pattern = "[^species|traits|sites]"))
 ### a Calculate types --------------------------------------------------
 
 biotopetypes <- sites %>%
-  select(id, table33_2Richness, table33_3Richness, table33_4Richness,
-         table33Cov, table34_2Richness, table34_3Richness, targetRichness,
-         targetHerbRichness, arrhRichness, targetCov, leanCov, arrhCov,
-         targetHerbCov, nitrogenCov) %>%
-  mutate(table33Rich_proof = if_else(
-    table33_2Richness >= 2 | table33_2Richness + table33_3Richness >= 3 | 
-      table33_2Richness + table33_3Richness + table33_4Richness >= 4,
-    "yes", "no"),
+  select(
+    id, table33_2Richness, table33_3Richness, table33_4Richness,
+    table33Cov, table34_2Richness, table34_3Richness, targetRichness,
+    targetHerbRichness, arrhRichness, targetCov, leanCov, arrhCov,
+    targetHerbCov, nitrogenCov
+  ) %>%
+  mutate(
+    table33Rich_proof = if_else(
+      table33_2Richness >= 2 | table33_2Richness + table33_3Richness >= 3 |
+        table33_2Richness + table33_3Richness + table33_4Richness >= 4,
+      "yes", "no"
+    ),
     table33Cov_proof = if_else(
       table33Cov >= 25,
-      "yes", "no"),
+      "yes", "no"
+    ),
     table33_proof = if_else(
       table33Rich_proof == "yes" & table33Cov_proof == "yes",
-      "yes", "no"),
+      "yes", "no"
+    ),
     table34Rich_proof = if_else(
       table34_2Richness >= 2 | table34_2Richness + table34_3Richness >= 3,
-      "yes", "no"),
+      "yes", "no"
+    ),
     G312_GT6210_type = if_else(
       table33_proof == "yes" & table34Rich_proof == "yes",
-      "yes", "no"),
+      "yes", "no"
+    ),
     GE_proof = if_else(
       targetHerbCov >= 12.5 & targetRichness >= 20 & nitrogenCov < 25,
-      "yes", "no"),
+      "yes", "no"
+    ),
     G214_GE6510_type = if_else(
       GE_proof == "yes" & arrhRichness >= 1 & arrhCov > 0.5 & leanCov >= 25 & targetHerbCov >= 12.5,
-      "yes", "no"),
+      "yes", "no"
+    ),
     G212_LR6510_type = if_else(
       GE_proof == "yes" & arrhRichness >= 1 & arrhCov > 0.5 & leanCov < 25,
-      "yes", "no"),
+      "yes", "no"
+    ),
     G214_GE00BK_type = if_else(
       GE_proof == "yes" & arrhRichness == 0 & leanCov >= 25 & targetHerbCov >= 12.5, "yes", if_else(
         GE_proof == "yes" & arrhCov >= 0.5 & leanCov >= 25 & targetHerbCov >= 12.5, "yes", "no"
-        )),
+      )
+    ),
     G213_GE00BK_type = if_else(
       GE_proof == "yes" & arrhRichness == 0 & leanCov >= 25 & targetHerbCov < 12.5, "yes", if_else(
         GE_proof == "yes" & arrhCov >= 0.5 & leanCov >= 25 & targetHerbCov < 12.5,
-        "yes", "no")),
+        "yes", "no"
+      )
+    ),
     G213_type = if_else(
       leanCov >= 25,
-      "yes", "no"),
+      "yes", "no"
+    ),
     G212_type = if_else(
       leanCov >= 1 & leanCov < 25 & targetHerbCov >= 12.5 & targetHerbRichness >= 10,
-      "yes", "no"),
+      "yes", "no"
+    ),
     G211_type = if_else(
       leanCov >= 1 & leanCov < 25 & targetHerbCov >= 1 & targetHerbRichness >= 5,
-      "yes", "no"),
+      "yes", "no"
+    ),
     biotopeType = if_else(
       G312_GT6210_type == "yes", "G312-GT6210", if_else(
         G214_GE6510_type == "yes", "G214-GE6510", if_else(
@@ -511,38 +573,63 @@ biotopetypes <- sites %>%
                 G213_type == "yes", "G213", if_else(
                   G212_type == "yes", "G212", if_else(
                     G211_type == "yes",
-                    "G211", "other")))))))),
-    biotopeType = as_factor(biotopeType)) %>%
+                    "G211", "other"
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    ),
+    biotopeType = as_factor(biotopeType)
+  ) %>%
   select(id, biotopeType, -ends_with("proof"), -starts_with("table")) %>%
-  mutate(ffh6510 = str_match(biotopeType, "6510"),
-         ffh6210 = str_match(biotopeType, "6210"),
-         baykompv = as_factor(str_sub(biotopeType, start = 1, end = 4))) %>%
+  mutate(
+    ffh6510 = str_match(biotopeType, "6510"),
+    ffh6210 = str_match(biotopeType, "6210"),
+    baykompv = as_factor(str_sub(biotopeType, start = 1, end = 4))
+  ) %>%
   unite(ffh, ffh6510, ffh6210, sep = "") %>%
-  mutate(ffh = str_replace(ffh, "NA", ""),
-         ffh = as_factor(str_replace(ffh, "NA", "non-FFH")),
-         biotopeType = as_factor(biotopeType),
-         biotopePoints = if_else(
-           biotopeType == "G312-GT6210", 13, if_else(
-             biotopeType == "G214-GE6510", 12, if_else(
-               biotopeType == "G212-LR6510", 9, if_else(
-                 biotopeType == "G214-GE00BK", 12, if_else(
-                   biotopeType == "G213-GE00BK", 9, if_else(
-                     biotopeType == "G213", 8, if_else(
-                       biotopeType == "G212", 8, if_else(
-                         biotopeType == "G211",
-                         6, 0)))))))),
-         min8 = as_factor(if_else(biotopePoints >= 8, "yes", "no")),
-         min9 = as_factor(if_else(biotopePoints >= 9, "yes", "no")))
+  mutate(
+    ffh = str_replace(ffh, "NA", ""),
+    ffh = as_factor(str_replace(ffh, "NA", "non-FFH")),
+    biotopeType = as_factor(biotopeType),
+    biotopePoints = if_else(
+      biotopeType == "G312-GT6210", 13, if_else(
+        biotopeType == "G214-GE6510", 12, if_else(
+          biotopeType == "G212-LR6510", 9, if_else(
+            biotopeType == "G214-GE00BK", 12, if_else(
+              biotopeType == "G213-GE00BK", 9, if_else(
+                biotopeType == "G213", 8, if_else(
+                  biotopeType == "G212", 8, if_else(
+                    biotopeType == "G211",
+                    6, 0
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    ),
+    min8 = as_factor(if_else(biotopePoints >= 8, "yes", "no")),
+    min9 = as_factor(if_else(biotopePoints >= 9, "yes", "no"))
+  )
 sites <- left_join(sites, biotopetypes, by = "id") %>%
-  select(-targetHerbCov, -arrhCov, -leanCov, -nitrogenCov, -table33Cov,
-         -targetHerbRichness, -arrhRichness, -leanIndicatorRichness,
-         -ffh6510Richness, -ffh6210Richness, -table33_2Richness,
-         -table33_3Richness, -table33_4Richness, -table34_2Richness,
-         -table34_3Richness)
+  select(
+    -targetHerbCov, -arrhCov, -leanCov, -nitrogenCov, -table33Cov,
+    -targetHerbRichness, -arrhRichness, -leanIndicatorRichness,
+    -ffh6510Richness, -ffh6210Richness, -table33_2Richness,
+    -table33_3Richness, -table33_4Richness, -table34_2Richness,
+    -table34_3Richness
+  )
 traits <- traits %>%
-  select(-targetArrhenatherion, -table30, -table33, -table34,
-         -nitrogenIndicator, -nitrogenIndicator2, -leanIndicator,
-         -grazingIndicator, -ruderalIndicator)
+  select(
+    -targetArrhenatherion, -table30, -table33, -table34,
+    -nitrogenIndicator, -nitrogenIndicator2, -leanIndicator,
+    -grazingIndicator, -ruderalIndicator
+  )
 
 ### b Calculate constancy ---------------------------------------------
 
@@ -551,7 +638,7 @@ data <- sites %>%
   group_by(plot) %>%
   mutate(count = n()) %>%
   filter(count == max(count)) %>%
-  pivot_wider(id_cols = -id, names_from = "surveyYear", values_from = "ffh") %>%  #group_by(plot) %>%
+  pivot_wider(id_cols = -id, names_from = "surveyYear", values_from = "ffh") %>% # group_by(plot) %>%
   rename(x17 = "2017", x18 = "2018", x19 = "2019") %>%
   mutate(changeType = ifelse(
     (x17 == "non-FFH" & x18 != "non-FFH" & x19 != "non-FFH"),
@@ -568,7 +655,13 @@ data <- sites %>%
             x17 == "6210" & x18 == "6210" & x19 == "6210",
             "FFH6210", ifelse(
               x17 != "non-FFH" & x18 != "non-FFH" & x19 != "non-FFH",
-              "any-FFH", "worse"))))))) %>%
+              "any-FFH", "worse"
+            )
+          )
+        )
+      )
+    )
+  )) %>%
   select(plot, changeType)
 sites <- left_join(sites, data, by = "plot")
 
@@ -581,7 +674,7 @@ rm(list = ls(pattern = "[^species|traits|sites]"))
 ### a dbMEM (41 plots) ------------------------------------------------
 
 ### * Prepare data ####
-source('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/quickMEM.R')
+source("https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/quickMEM.R")
 data_sites <- sites %>%
   filter(accumulatedCov > 0) %>%
   add_count(plot) %>%
@@ -591,7 +684,7 @@ data_species <- species %>%
   pivot_wider(id, name) %>%
   arrange(id) %>%
   semi_join(data_sites, by = "id") %>%
-  mutate(across(where(is.numeric), ~replace(., is.na(.), 0)))
+  mutate(across(where(is.numeric), ~ replace(., is.na(.), 0)))
 
 ### * 2017 ####
 data_sites_dbMEM <- data_sites %>%
@@ -601,15 +694,16 @@ data_species_dbMEM <- data_species %>%
   semi_join(data_sites_dbMEM, by = "id") %>%
   column_to_rownames(var = "id") %>%
   decostand("hellinger")
-i <- (colSums(data_species_dbMEM, na.rm=T) != 0)
+i <- (colSums(data_species_dbMEM, na.rm = T) != 0)
 data_species_dbMEM <- data_species_dbMEM[, i]
 data_sites_dbMEM <- data_sites_dbMEM %>%
   column_to_rownames("id")
-m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
-              alpha = 0.05,
-              method = "fwd",
-              rangexy = TRUE,
-              perm.max = 999)
+m <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
+  alpha = 0.05,
+  method = "fwd",
+  rangexy = TRUE,
+  perm.max = 999
+)
 # --> undetrended data, R2adj of minimum (final) model = 0.034
 m$RDA_test # p = 0.002
 m$RDA_axes_test # RDA1 sig axes
@@ -628,15 +722,16 @@ data_species_dbMEM <- data_species %>%
   semi_join(data_sites_dbMEM, by = "id") %>%
   column_to_rownames(var = "id") %>%
   decostand("hellinger")
-i <- (colSums(data_species_dbMEM, na.rm=T) != 0)
+i <- (colSums(data_species_dbMEM, na.rm = T) != 0)
 data_species_dbMEM <- data_species_dbMEM[, i]
 data_sites_dbMEM <- data_sites_dbMEM %>%
   column_to_rownames("id")
-m1 <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
-              alpha = 0.05, 
-              method = "fwd",
-              rangexy = TRUE,
-              perm.max = 999)
+m1 <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
+  alpha = 0.05,
+  method = "fwd",
+  rangexy = TRUE,
+  perm.max = 999
+)
 # --> undetrended data, R2adj of minimum (final) model = 0.036
 m1$RDA_test # p = 0.006
 m1$RDA_axes_test #  RDA2 sig. axes
@@ -655,16 +750,17 @@ data_species_dbMEM <- data_species %>%
   semi_join(data_sites_dbMEM, by = "id") %>%
   column_to_rownames(var = "id") %>%
   decostand("hellinger")
-i <- (colSums(data_species_dbMEM, na.rm=T) != 0)
+i <- (colSums(data_species_dbMEM, na.rm = T) != 0)
 data_species_dbMEM <- data_species_dbMEM[, i]
 data_sites_dbMEM <- data_sites_dbMEM %>%
   column_to_rownames("id")
-m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
-              alpha = 0.05, 
-              method = "fwd",
-              detrend = FALSE,
-              rangexy = TRUE,
-              perm.max = 999)
+m <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
+  alpha = 0.05,
+  method = "fwd",
+  detrend = FALSE,
+  rangexy = TRUE,
+  perm.max = 999
+)
 # --> not detrended, R2adj of minimum (final) model = 0.056
 m$RDA_test # p = 0.001
 m$RDA_axes_test # RDA1 sig axes
@@ -683,17 +779,18 @@ data_species_dbMEM <- data_species %>%
   semi_join(data_sites_dbMEM, by = "id") %>%
   column_to_rownames(var = "id") %>%
   decostand("hellinger")
-i <- (colSums(data_species_dbMEM, na.rm=T) != 0)
+i <- (colSums(data_species_dbMEM, na.rm = T) != 0)
 data_species_dbMEM <- data_species_dbMEM[, i]
 data_sites_dbMEM <- data_sites_dbMEM %>%
   column_to_rownames("id")
-m <- quickMEM(data_species_dbMEM, data_sites_dbMEM, 
-              alpha = 0.05, 
-              method = "fwd",
-              detrend = FALSE,
-              rangexy = TRUE,
-              perm.max = 999)
-# --> R2adj of minimum (final) model = 0.064 
+m <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
+  alpha = 0.05,
+  method = "fwd",
+  detrend = FALSE,
+  rangexy = TRUE,
+  perm.max = 999
+)
+# --> R2adj of minimum (final) model = 0.064
 m$RDA_test # p = 0.001
 m$RDA_axes_test # RDA1, RDA2 sig axes
 m$RDA # PC1 = 0.096, PC2 = 0.085
@@ -759,14 +856,16 @@ data_sites <- sites %>%
   add_count(plot) %>%
   filter(n == max(n))
 data_species <- species %>%
-  select(where(~!all(is.na(.x)))) %>%
-  mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
+  select(where(~ !all(is.na(.x)))) %>%
+  mutate(across(where(is.numeric), ~ replace(., is.na(.), 0))) %>%
   pivot_longer(-name, names_to = "id", values_to = "value") %>%
   pivot_wider(id, name) %>%
-  mutate(year = str_match(id, "\\d{4}"),
-         plot = str_match(id, "\\d{2}"),
-         year = factor(year),
-         plot = factor(plot)) %>%
+  mutate(
+    year = str_match(id, "\\d{4}"),
+    plot = str_match(id, "\\d{2}"),
+    year = factor(year),
+    plot = factor(plot)
+  ) %>%
   arrange(id) %>%
   semi_join(data_sites, by = "id") %>%
   column_to_rownames(var = "id") %>%
@@ -774,10 +873,10 @@ data_species <- species %>%
 data <- data_species %>%
   split(data_species$plot, drop = TRUE) %>%
   map(~ (.x %>% select(-plot, -year))) %>%
-  map(~ (.x %>% select(where(~!all(is.na(.x))))))
+  map(~ (.x %>% select(where(~ !all(is.na(.x))))))
 sync_indices <- map(data, calc_sync)
 data <- do.call("rbind", sync_indices) %>%
-  #map() does not work because 'plot' is missing
+  # map() does not work because 'plot' is missing
   rownames_to_column("plot") %>%
   as_tibble() %>%
   mutate(plot = str_extract(plot, "\\d\\d")) %>%
@@ -798,11 +897,13 @@ data <- sites %>%
   filter(accumulatedCov > 0) %>%
   add_count(plot) %>%
   filter(n == max(n) & surveyYear == 2017) %>%
-  select(plot, pH,
-         calciumcarbonatPerc, humusPerc, NtotalPerc, NtotalConc, cnRatio,
-         sandPerc, siltPerc, clayPerc,
-         phosphorus, potassium, magnesium,
-         topsoilDepth) %>%
+  select(
+    plot, pH,
+    calciumcarbonatPerc, humusPerc, NtotalPerc, NtotalConc, cnRatio,
+    sandPerc, siltPerc, clayPerc,
+    phosphorus, potassium, magnesium,
+    topsoilDepth
+  ) %>%
   column_to_rownames(var = "plot")
 ### Calculate PCA ###
 pca <- rda(X = decostand(data, method = "standardize"), scale = TRUE)
@@ -822,18 +923,22 @@ values <- pca %>%
 ### create summary table ###
 pcaSoil <- values$species[, 1:4] %>%
   as_tibble() %>%
-  bind_cols(c("pH",
-              "calciumcarbonatPerc", "humusPerc", "NtotalPerc", "cnRatio", "NtotalConc",
-              "sandPerc", "siltPerc", "clayPerc",
-              "phosphorous", "potassium", "magnesium",
-              "topsoilDepth")) %>%
+  bind_cols(c(
+    "pH",
+    "calciumcarbonatPerc", "humusPerc", "NtotalPerc", "cnRatio", "NtotalConc",
+    "sandPerc", "siltPerc", "clayPerc",
+    "phosphorous", "potassium", "magnesium",
+    "topsoilDepth"
+  )) %>%
   rename(variables = "...5") %>%
   bind_rows(eigenvals)
-data <- as_tibble(values$sites[,1:4]) %>%
-  rename(PC1soil = PC1,
-         PC2soil = PC2,
-         PC3soil = PC3,
-         PC4soil = PC4)
+data <- as_tibble(values$sites[, 1:4]) %>%
+  rename(
+    PC1soil = PC1,
+    PC2soil = PC2,
+    PC3soil = PC3,
+    PC4soil = PC4
+  )
 ### Add to sites ###
 data <- sites %>%
   filter(accumulatedCov > 0) %>%
@@ -853,141 +958,190 @@ rm(list = setdiff(ls(), c("sites", "species", "traits", "pcaSoil")))
 
 ### * Temperature ####
 data <- read_csv(here("data/raw/temperature/data/data_OBS_DEU_P1M_T2M.csv"),
-                 col_names = TRUE, na = c("", "NA", "na"), col_types =
-                   cols(
-                     .default = "?"
-                   )) %>%
+  col_names = TRUE, na = c("", "NA", "na"), col_types =
+    cols(
+      .default = "?"
+    )
+) %>%
   rename(date = Zeitstempel, value = Wert, site = SDO_ID) %>%
   select(site, date, value) %>%
   filter(date >= "2002-03-01") %>%
-  mutate(site = factor(site),
-         season = floor_date(date, "season"),
-         year = year(season), 
-         season = month(season),
-         season = factor(season),
-         season = fct_recode(season,
-                             "spring" = "3",
-                             "summer" = "6",
-                             "autumn" = "9",
-                             "winter" = "12")) %>%
+  mutate(
+    site = factor(site),
+    season = floor_date(date, "season"),
+    year = year(season),
+    season = month(season),
+    season = factor(season),
+    season = fct_recode(season,
+      "spring" = "3",
+      "summer" = "6",
+      "autumn" = "9",
+      "winter" = "12"
+    )
+  ) %>%
   group_by(year) %>%
-  mutate(yearMean = mean(value),
-         yearMean = round(yearMean, digits = 1),
-         currentYear = if_else(season == "spring", 0, 1),
-         currentYear = year + currentYear) %>%
+  mutate(
+    yearMean = mean(value),
+    yearMean = round(yearMean, digits = 1),
+    currentYear = if_else(season == "spring", 0, 1),
+    currentYear = year + currentYear
+  ) %>%
   #--> current year of 2021 is e.g. from summer 2020 to spring 2021 = climate for surveyYear
   group_by(currentYear) %>%
-  mutate(currentMean = mean(value),
-         currentMean = round(currentMean, digits = 1),
-         currentMean = if_else(season == "spring", currentMean, NA_real_)) %>%
+  mutate(
+    currentMean = mean(value),
+    currentMean = round(currentMean, digits = 1),
+    currentMean = if_else(season == "spring", currentMean, NA_real_)
+  ) %>%
   group_by(year, season, yearMean, currentYear, currentMean) %>%
   summarise(seasonMean = round(mean(value), digits = 1), .groups = "keep") %>%
-  pivot_wider(id_cols = c(year, yearMean, currentMean),
-              names_from = season, values_from = seasonMean) %>%
+  pivot_wider(
+    id_cols = c(year, yearMean, currentMean),
+    names_from = season, values_from = seasonMean
+  ) %>%
   group_by(year) %>%
-  summarise(across(where(is.numeric), ~ max(., na.rm = TRUE)), .groups = "keep") %>% #warnings because of lates year (summer, autumn, winter), can be ignored
+  summarise(across(where(is.numeric), ~ max(., na.rm = TRUE)), .groups = "keep") %>% # warnings because of lates year (summer, autumn, winter), can be ignored
   mutate(year = factor(year))
 
 sites <- sites %>%
   left_join(data %>% select(-currentMean),
-            by = c("constructionYearF" = "year")) %>%
-  rename("tempSpring_constructionYear" = "spring", 
-         "tempSummer_constructionYear" = "summer", 
-         "tempAutumn_constructionYear" = "autumn", 
-         "tempWinter_constructionYear" = "winter", 
-         "tempMean_constructionYear" = "yearMean") %>%
+    by = c("constructionYearF" = "year")
+  ) %>%
+  rename(
+    "tempSpring_constructionYear" = "spring",
+    "tempSummer_constructionYear" = "summer",
+    "tempAutumn_constructionYear" = "autumn",
+    "tempWinter_constructionYear" = "winter",
+    "tempMean_constructionYear" = "yearMean"
+  ) %>%
   left_join(data %>% select(-currentMean),
-            by = c("constructionYearFplus" = "year")) %>%
-  rename("tempSpring_constructionYearPlus" = "spring", 
-         "tempSummer_constructionYearPlus" = "summer", 
-         "tempAutumn_constructionYearPlus" = "autumn", 
-         "tempWinter_constructionYearPlus" = "winter", 
-         "tempMean_constructionYearPlus" = "yearMean") %>%
+    by = c("constructionYearFplus" = "year")
+  ) %>%
+  rename(
+    "tempSpring_constructionYearPlus" = "spring",
+    "tempSummer_constructionYearPlus" = "summer",
+    "tempAutumn_constructionYearPlus" = "autumn",
+    "tempWinter_constructionYearPlus" = "winter",
+    "tempMean_constructionYearPlus" = "yearMean"
+  ) %>%
   left_join(data %>% select(year, currentMean, spring),
-            by = c("surveyYearF" = "year")) %>%
-  rename("tempMean_surveyYear" = "currentMean", 
-         "tempSpring_surveyYear" = "spring") %>%
+    by = c("surveyYearF" = "year")
+  ) %>%
+  rename(
+    "tempMean_surveyYear" = "currentMean",
+    "tempSpring_surveyYear" = "spring"
+  ) %>%
   left_join(data %>% select(year, summer, autumn, winter),
-            by = c("surveyYearFminus" = "year")) %>%
-  rename("tempSummer_surveyYear" = "summer", 
-         "tempAutumn_surveyYear" = "autumn", 
-         "tempWinter_surveyYear" = "winter")
+    by = c("surveyYearFminus" = "year")
+  ) %>%
+  rename(
+    "tempSummer_surveyYear" = "summer",
+    "tempAutumn_surveyYear" = "autumn",
+    "tempWinter_surveyYear" = "winter"
+  )
 
 ### * Precipitation ####
 data <- read_csv(here("data/raw/precipitation/data/data_OBS_DEU_P1M_RR.csv"),
-                 col_names = TRUE, na = c("", "NA", "na"), col_types =
-                   cols(
-                     .default = "?"
-                   )) %>%
+  col_names = TRUE, na = c("", "NA", "na"), col_types =
+    cols(
+      .default = "?"
+    )
+) %>%
   rename(date = Zeitstempel, value = Wert, site = SDO_ID) %>%
   select(site, date, value) %>%
   filter(date >= "2002-03-01") %>%
-  mutate(site = factor(site),
-         season = floor_date(date, "season"),
-         year = year(season), 
-         season = month(season),
-         season = factor(season),
-         season = fct_recode(season,
-                             "spring" = "3",
-                             "summer" = "6",
-                             "autumn" = "9",
-                             "winter" = "12")) %>%
+  mutate(
+    site = factor(site),
+    season = floor_date(date, "season"),
+    year = year(season),
+    season = month(season),
+    season = factor(season),
+    season = fct_recode(season,
+      "spring" = "3",
+      "summer" = "6",
+      "autumn" = "9",
+      "winter" = "12"
+    )
+  ) %>%
   group_by(site, year) %>%
-  mutate(yearSum = round(sum(value), digits = 0),
-         currentYear = if_else(season == "spring", 0, 1),
-         currentYear = year + currentYear) %>%
-  #current year of 2021 is e.g. from summer 2020 to spring 2021 = climate for surveyYear
+  mutate(
+    yearSum = round(sum(value), digits = 0),
+    currentYear = if_else(season == "spring", 0, 1),
+    currentYear = year + currentYear
+  ) %>%
+  # current year of 2021 is e.g. from summer 2020 to spring 2021 = climate for surveyYear
   group_by(site, currentYear) %>%
-  mutate(currentSum = sum(value),
-         currentSum = round(currentSum, 0)) %>%
+  mutate(
+    currentSum = sum(value),
+    currentSum = round(currentSum, 0)
+  ) %>%
   group_by(site, season, year, currentYear, yearSum, currentSum) %>%
-  summarise(seasonSum = round(sum(value), digits = 0),
-            .groups = "keep") %>%
+  summarise(
+    seasonSum = round(sum(value), digits = 0),
+    .groups = "keep"
+  ) %>%
   group_by(year, season, currentYear) %>%
-  summarise(seasonMean = round(mean(seasonSum), digits = 0),
-            yearMean = round(mean(yearSum), digits = 0),
-            currentMean = round(mean(currentSum), digits = 0),
-            .groups = "keep") %>%
+  summarise(
+    seasonMean = round(mean(seasonSum), digits = 0),
+    yearMean = round(mean(yearSum), digits = 0),
+    currentMean = round(mean(currentSum), digits = 0),
+    .groups = "keep"
+  ) %>%
   mutate(currentMean = if_else(season == "spring", currentMean, NA_real_)) %>%
   pivot_wider(id_cols = c(year, yearMean, currentMean), names_from = season, values_from = seasonMean) %>%
   group_by(year) %>%
   summarise(across(where(is.numeric), ~ max(., na.rm = TRUE)),
-            .groups = "keep") %>%
-  #warnings because of lates year (summer, autumn, winter), can be ignored
+    .groups = "keep"
+  ) %>%
+  # warnings because of lates year (summer, autumn, winter), can be ignored
   mutate(year = factor(year))
 sites <- sites %>%
   left_join(data %>% select(-currentMean),
-            by = c("constructionYearF" = "year")) %>%
-  rename("precSpring_constructionYear" = "spring",
-         "precSummer_constructionYear" = "summer",
-         "precAutumn_constructionYear" = "autumn",
-         "precWinter_constructionYear" = "winter",
-         "precMean_constructionYear" = "yearMean") %>%
+    by = c("constructionYearF" = "year")
+  ) %>%
+  rename(
+    "precSpring_constructionYear" = "spring",
+    "precSummer_constructionYear" = "summer",
+    "precAutumn_constructionYear" = "autumn",
+    "precWinter_constructionYear" = "winter",
+    "precMean_constructionYear" = "yearMean"
+  ) %>%
   left_join(data %>% select(-currentMean),
-            by = c("constructionYearFplus" = "year")) %>%
-  rename("precSpring_constructionYearPlus" = "spring",
-         "precSummer_constructionYearPlus" = "summer",
-         "precAutumn_constructionYearPlus" = "autumn",
-         "precWinter_constructionYearPlus" = "winter",
-         "precMean_constructionYearPlus" = "yearMean") %>%
+    by = c("constructionYearFplus" = "year")
+  ) %>%
+  rename(
+    "precSpring_constructionYearPlus" = "spring",
+    "precSummer_constructionYearPlus" = "summer",
+    "precAutumn_constructionYearPlus" = "autumn",
+    "precWinter_constructionYearPlus" = "winter",
+    "precMean_constructionYearPlus" = "yearMean"
+  ) %>%
   left_join(data %>% select(year, currentMean, spring),
-            by = c("surveyYearF" = "year")) %>%
-  rename("precMean_surveyYear" = "currentMean",
-         "precSpring_surveyYear" = "spring") %>%
+    by = c("surveyYearF" = "year")
+  ) %>%
+  rename(
+    "precMean_surveyYear" = "currentMean",
+    "precSpring_surveyYear" = "spring"
+  ) %>%
   left_join(data %>% select(year, summer, autumn, winter),
-            by = c("surveyYearFminus" = "year")) %>%
-  rename("precSummer_surveyYear" = "summer",
-         "precAutumn_surveyYear" = "autumn",
-         "precWinter_surveyYear" = "winter")
+    by = c("surveyYearFminus" = "year")
+  ) %>%
+  rename(
+    "precSummer_surveyYear" = "summer",
+    "precAutumn_surveyYear" = "autumn",
+    "precWinter_surveyYear" = "winter"
+  )
 
 ### * Calculation surveyYear ####
 ### Prepare data ###
 data <- sites %>%
   arrange(id) %>%
-  select(tempMean_surveyYear, tempSpring_surveyYear, tempSummer_surveyYear,
-         tempAutumn_surveyYear, tempWinter_surveyYear,
-         precMean_surveyYear, precSpring_surveyYear, precSummer_surveyYear,
-         precAutumn_surveyYear, precWinter_surveyYear)
+  select(
+    tempMean_surveyYear, tempSpring_surveyYear, tempSummer_surveyYear,
+    tempAutumn_surveyYear, tempWinter_surveyYear,
+    precMean_surveyYear, precSpring_surveyYear, precSummer_surveyYear,
+    precAutumn_surveyYear, precWinter_surveyYear
+  )
 ### Calculate PCA ###
 pca <- rda(X = decostand(data, method = "standardize"), scale = TRUE)
 biplot(pca, display = "species")
@@ -1004,43 +1158,51 @@ eigenvals <- pca %>%
 values <- pca %>%
   summary()
 ### create summary table ###
-pcaSurveyYear <- values$species[ ,1:3] %>%
+pcaSurveyYear <- values$species[, 1:3] %>%
   as_tibble() %>%
-  bind_cols(c("tempMean_surveyYear", "tempSpring_surveyYear", "tempSummer_surveyYear",
-              "tempAutumn_surveyYear", "tempWinter_surveyYear",
-              "precMean_surveyYear", "precSpring_surveyYear", "precSummer_surveyYear",
-              "precAutumn_surveyYear", "precWinter_surveyYear")) %>%
+  bind_cols(c(
+    "tempMean_surveyYear", "tempSpring_surveyYear", "tempSummer_surveyYear",
+    "tempAutumn_surveyYear", "tempWinter_surveyYear",
+    "precMean_surveyYear", "precSpring_surveyYear", "precSummer_surveyYear",
+    "precAutumn_surveyYear", "precWinter_surveyYear"
+  )) %>%
   rename(variables = "...4") %>%
   bind_rows(eigenvals)
-data <- as_tibble(values$sites[,1:3]) %>%
-  rename(PC1surveyYear = PC1,
-         PC2surveyYear = PC2,
-         PC3surveyYear = PC3)
+data <- as_tibble(values$sites[, 1:3]) %>%
+  rename(
+    PC1surveyYear = PC1,
+    PC2surveyYear = PC2,
+    PC3surveyYear = PC3
+  )
 ### Add to sites ###
 sites <- sites %>%
   bind_cols(data) %>%
-  select(-tempSpring_surveyYear, -tempSummer_surveyYear, -tempAutumn_surveyYear,
-         -tempWinter_surveyYear,
-         -precSpring_surveyYear, -precSummer_surveyYear, -precAutumn_surveyYear,
-         -precWinter_surveyYear)
+  select(
+    -tempSpring_surveyYear, -tempSummer_surveyYear, -tempAutumn_surveyYear,
+    -tempWinter_surveyYear,
+    -precSpring_surveyYear, -precSummer_surveyYear, -precAutumn_surveyYear,
+    -precWinter_surveyYear
+  )
 
 ### * Calculation constructionYear ####
 ### Prepare data ###
 data <- sites %>%
   arrange(id) %>%
-  select(plot,
-         tempMean_constructionYear, tempSpring_constructionYear,
-         tempSummer_constructionYear, tempAutumn_constructionYear,
-         tempWinter_constructionYear,
-         tempMean_constructionYearPlus, tempSpring_constructionYearPlus,
-         tempSummer_constructionYearPlus, tempAutumn_constructionYearPlus,
-         tempWinter_constructionYearPlus,
-         precMean_constructionYear, precSpring_constructionYear,
-         precSummer_constructionYear, precAutumn_constructionYear,
-         precWinter_constructionYear,
-         precMean_constructionYearPlus, precSpring_constructionYearPlus,
-         precSummer_constructionYearPlus, precAutumn_constructionYearPlus,
-         precWinter_constructionYearPlus) %>%
+  select(
+    plot,
+    tempMean_constructionYear, tempSpring_constructionYear,
+    tempSummer_constructionYear, tempAutumn_constructionYear,
+    tempWinter_constructionYear,
+    tempMean_constructionYearPlus, tempSpring_constructionYearPlus,
+    tempSummer_constructionYearPlus, tempAutumn_constructionYearPlus,
+    tempWinter_constructionYearPlus,
+    precMean_constructionYear, precSpring_constructionYear,
+    precSummer_constructionYear, precAutumn_constructionYear,
+    precWinter_constructionYear,
+    precMean_constructionYearPlus, precSpring_constructionYearPlus,
+    precSummer_constructionYearPlus, precAutumn_constructionYearPlus,
+    precWinter_constructionYearPlus
+  ) %>%
   group_by(plot) %>%
   summarise(across(where(is.numeric), ~ median(.x, na.rm = TRUE))) %>%
   select(-plot)
@@ -1062,22 +1224,26 @@ values <- pca %>%
 ### create summary table ###
 pcaConstuctionYear <- values$species[, 1:3] %>%
   as_tibble() %>%
-  bind_cols(c("tempMean_constructionYear", "tempSpring_constructionYear",
-              "tempSummer_constructionYear", "tempAutumn_constructionYear",
-              "tempWinter_constructionYear",
-              "tempMean_constructionYearPlus", "tempSpring_constructionYearPlus",
-              "tempSummer_constructionYearPlus", "tempAutumn_constructionYearPlus",
-              "tempWinter_constructionYearPlus",
-              "precMean_constructionYear", "precSpring_constructionYear",
-              "precSummer_constructionYear", "precAutumn_constructionYear",
-              "precWinter_constructionYear",
-              "precMean_constructionYearPlus", "precSpring_constructionYearPlus", "precSummer_constructionYearPlus", "precAutumn_constructionYearPlus", "precWinter_constructionYearPlus")) %>%
+  bind_cols(c(
+    "tempMean_constructionYear", "tempSpring_constructionYear",
+    "tempSummer_constructionYear", "tempAutumn_constructionYear",
+    "tempWinter_constructionYear",
+    "tempMean_constructionYearPlus", "tempSpring_constructionYearPlus",
+    "tempSummer_constructionYearPlus", "tempAutumn_constructionYearPlus",
+    "tempWinter_constructionYearPlus",
+    "precMean_constructionYear", "precSpring_constructionYear",
+    "precSummer_constructionYear", "precAutumn_constructionYear",
+    "precWinter_constructionYear",
+    "precMean_constructionYearPlus", "precSpring_constructionYearPlus", "precSummer_constructionYearPlus", "precAutumn_constructionYearPlus", "precWinter_constructionYearPlus"
+  )) %>%
   rename(variables = "...4") %>%
   bind_rows(eigenvals)
-data <- as_tibble(values$sites[,1:3]) %>%
-  rename(PC1constructionYear = PC1,
-         PC2constructionYear = PC2,
-         PC3constructionYear = PC3)
+data <- as_tibble(values$sites[, 1:3]) %>%
+  rename(
+    PC1constructionYear = PC1,
+    PC2constructionYear = PC2,
+    PC3constructionYear = PC3
+  )
 ### Add to sites ###
 data <- sites %>%
   group_by(plot) %>%
@@ -1085,10 +1251,12 @@ data <- sites %>%
   ungroup() %>%
   select(plot) %>%
   bind_cols(data)
-sites <- left_join(sites, data, by = "plot") 
+sites <- left_join(sites, data, by = "plot")
 
-rm(list = setdiff(ls(), c("sites", "species", "traits",
-                          "pcaConstuctionYear", "pcaSoil", "pcaSurveyYear")))
+rm(list = setdiff(ls(), c(
+  "sites", "species", "traits",
+  "pcaConstuctionYear", "pcaSoil", "pcaSurveyYear"
+)))
 
 
 ## 7 TBI: Temporal Beta diversity Index ################################
@@ -1101,36 +1269,39 @@ data_sites <- sites %>%
   filter(n == max(n)) %>%
   select(id, plot)
 data_species <- species %>%
-  select(where(~!all(is.na(.x)))) %>%
-  mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
+  select(where(~ !all(is.na(.x)))) %>%
+  mutate(across(where(is.numeric), ~ replace(., is.na(.), 0))) %>%
   pivot_longer(-name, names_to = "id", values_to = "value") %>%
   pivot_wider(id, name) %>%
-  mutate(year = str_match(id, "\\d{4}"),
-         plot = str_match(id, "\\d{2}"),
-         year = factor(year),
-         plot = factor(plot)) %>%
+  mutate(
+    year = str_match(id, "\\d{4}"),
+    plot = str_match(id, "\\d{2}"),
+    year = factor(year),
+    plot = factor(plot)
+  ) %>%
   arrange(id) %>%
   semi_join(data_sites, by = "id") %>%
   select(plot, year, tidyselect::peek_vars(), -id)
 
 ### Separate each year in several tibbles ###
 
-for(i in unique(data_species$year)) {
+for (i in unique(data_species$year)) {
   nam <- paste("species", i, sep = "")
-  
+
   assign(nam, data_species %>%
-           filter(year == i) %>%
-           select(-year) %>%
-           column_to_rownames(var = "plot")
-  )
+    filter(year == i) %>%
+    select(-year) %>%
+    column_to_rownames(var = "plot"))
 }
 
 ### a Calculate TBI Presence -------------------------------------------
 
 #### * 2017 vs. 2018 ####
-res1718 <- TBI(species2017, species2018, method = "sorensen", 
-               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
-res1718$BCD.summary #B = 0.223, C = 0.155, D = 0.378 (58.9% vs. 41.0%)
+res1718 <- TBI(species2017, species2018,
+  method = "sorensen",
+  nperm = 9999, test.t.perm = TRUE, clock = TRUE
+)
+res1718$BCD.summary # B = 0.223, C = 0.155, D = 0.378 (58.9% vs. 41.0%)
 res1718$t.test_B.C # p.perm = 0.0058
 tbi1718 <- as_tibble(res1718$BCD.mat) %>%
   mutate(comparison = "1718")
@@ -1138,19 +1309,23 @@ tbi1718 <- as_tibble(res1718$BCD.mat) %>%
 plot(res1718, type = "BC")
 
 #### * 2018 vs. 2019 ####
-res1819 <- TBI(species2018, species2019, method = "sorensen", 
-               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
-res1819$BCD.summary #B = 0.118, C = 0.214, D = 0.332 (35.6% vs. 64.3%)
+res1819 <- TBI(species2018, species2019,
+  method = "sorensen",
+  nperm = 9999, test.t.perm = TRUE, clock = TRUE
+)
+res1819$BCD.summary # B = 0.118, C = 0.214, D = 0.332 (35.6% vs. 64.3%)
 res1819$t.test_B.C # p.perm = 1e-04
-tbi1819 <- as_tibble(res1819$BCD.mat)  %>%
+tbi1819 <- as_tibble(res1819$BCD.mat) %>%
   mutate(comparison = "1819")
 #### Test plot
 plot(res1819, type = "BC")
 
 #### * 2019 vs. 2021 ####
-res1921 <- TBI(species2019, species2021, method = "sorensen", 
-               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
-res1921$BCD.summary #B = 0.249, C = 0.140, D = 0.390 (63.8% vs. 36.1%)
+res1921 <- TBI(species2019, species2021,
+  method = "sorensen",
+  nperm = 9999, test.t.perm = TRUE, clock = TRUE
+)
+res1921$BCD.summary # B = 0.249, C = 0.140, D = 0.390 (63.8% vs. 36.1%)
 res1921$t.test_B.C # p.perm = 1e-04
 tbi1921 <- as_tibble(res1921$BCD.mat) %>%
   mutate(comparison = "1921")
@@ -1158,9 +1333,11 @@ tbi1921 <- as_tibble(res1921$BCD.mat) %>%
 plot(res1921, type = "BC")
 
 #### * 2017 vs. 2019 ####
-res1719 <- TBI(species2017, species2019, method = "sorensen", 
-               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
-res1719$BCD.summary #B = 0.186, C = 0.212, D = 0.399 (46.7% vs. 53.2%)
+res1719 <- TBI(species2017, species2019,
+  method = "sorensen",
+  nperm = 9999, test.t.perm = TRUE, clock = TRUE
+)
+res1719$BCD.summary # B = 0.186, C = 0.212, D = 0.399 (46.7% vs. 53.2%)
 res1719$t.test_B.C # p.perm = 0.273
 tbi1719 <- as_tibble(res1719$BCD.mat) %>%
   mutate(comparison = "1719")
@@ -1168,9 +1345,11 @@ tbi1719 <- as_tibble(res1719$BCD.mat) %>%
 plot(res1719, type = "BC")
 
 #### * 2017 vs. 2021 ####
-res1721 <- TBI(species2017, species2021, method = "sorensen", 
-               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
-res1721$BCD.summary #B = 0.184, C = 0.450, D = 0.590 (59.0% vs. 40.9%)
+res1721 <- TBI(species2017, species2021,
+  method = "sorensen",
+  nperm = 9999, test.t.perm = TRUE, clock = TRUE
+)
+res1721$BCD.summary # B = 0.184, C = 0.450, D = 0.590 (59.0% vs. 40.9%)
 res1721$t.test_B.C # p.perm = 0.0021
 tbi1721 <- as_tibble(res1721$BCD.mat) %>%
   mutate(comparison = "1721")
@@ -1184,9 +1363,11 @@ data_presence <- bind_rows(tbi1718, tbi1819, tbi1921, tbi1719, tbi1721) %>%
 ### b Calculate TBI Abundance ------------------------------------------
 
 #### * 2017 vs. 2018 ####
-res1718 <- TBI(species2017, species2018, method = "%diff", 
-               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
-res1718$BCD.summary #B = 0.213, C = 0.260, D = 0.473 (45.0% vs. 54.9%)
+res1718 <- TBI(species2017, species2018,
+  method = "%diff",
+  nperm = 9999, test.t.perm = TRUE, clock = TRUE
+)
+res1718$BCD.summary # B = 0.213, C = 0.260, D = 0.473 (45.0% vs. 54.9%)
 res1718$t.test_B.C # p.perm = 0.1756
 tbi1718 <- as_tibble(res1718$BCD.mat) %>%
   mutate(comparison = "1718")
@@ -1194,19 +1375,23 @@ tbi1718 <- as_tibble(res1718$BCD.mat) %>%
 plot(res1718, type = "BC")
 
 #### * 2018 vs. 2019 ####
-res1819 <- TBI(species2018, species2019, method = "%diff", 
-               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
-res1819$BCD.summary #B = 0.167, C = 0.302, D = 0.470 (35.7% vs. 64.2%)
+res1819 <- TBI(species2018, species2019,
+  method = "%diff",
+  nperm = 9999, test.t.perm = TRUE, clock = TRUE
+)
+res1819$BCD.summary # B = 0.167, C = 0.302, D = 0.470 (35.7% vs. 64.2%)
 res1819$t.test_B.C # p.perm = 1e-04
 tbi1819 <- as_tibble(res1819$BCD.mat) %>%
-  mutate(comparison = "1819") 
+  mutate(comparison = "1819")
 #### Test plot
 plot(res1819, type = "BC")
 
 #### * 2019 vs. 2021 ####
-res1921 <- TBI(species2019, species2021, method = "%diff", 
-               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
-res1921$BCD.summary #B = 0.331, C = 0.168, D = 0.499 (66.3% vs. 33.6%)
+res1921 <- TBI(species2019, species2021,
+  method = "%diff",
+  nperm = 9999, test.t.perm = TRUE, clock = TRUE
+)
+res1921$BCD.summary # B = 0.331, C = 0.168, D = 0.499 (66.3% vs. 33.6%)
 res1921$t.test_B.C # p.perm = 1e-04
 tbi1921 <- as_tibble(res1921$BCD.mat) %>%
   mutate(comparison = "1921")
@@ -1214,9 +1399,11 @@ tbi1921 <- as_tibble(res1921$BCD.mat) %>%
 plot(res1921, type = "BC")
 
 #### * 2017 vs. 2019 ####
-res1719 <- TBI(species2017, species2019, method = "%diff", 
-               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
-res1719$BCD.summary #B = 0.210, C = 0.390, D = 0.601 (35.0% vs. 64.9%)
+res1719 <- TBI(species2017, species2019,
+  method = "%diff",
+  nperm = 9999, test.t.perm = TRUE, clock = TRUE
+)
+res1719$BCD.summary # B = 0.210, C = 0.390, D = 0.601 (35.0% vs. 64.9%)
 res1719$t.test_B.C # p.perm = 1e-04
 tbi1719 <- as_tibble(res1719$BCD.mat) %>%
   mutate(comparison = "1719")
@@ -1224,9 +1411,11 @@ tbi1719 <- as_tibble(res1719$BCD.mat) %>%
 plot(res1719, type = "BC")
 
 #### * 2017 vs. 2021 ####
-res1721 <- TBI(species2017, species2021, method = "%diff", 
-               nperm = 9999, test.t.perm = TRUE, clock = TRUE)
-res1721$BCD.summary #B = 0.301, C = 0.319, D = 0.620 (48.5% vs. 51.4%)
+res1721 <- TBI(species2017, species2021,
+  method = "%diff",
+  nperm = 9999, test.t.perm = TRUE, clock = TRUE
+)
+res1721$BCD.summary # B = 0.301, C = 0.319, D = 0.620 (48.5% vs. 51.4%)
 res1721$t.test_B.C # p.perm = 0.598
 tbi1721 <- as_tibble(res1721$BCD.mat) %>%
   mutate(comparison = "1721")
@@ -1245,26 +1434,38 @@ data <- add_row(data_presence, data_abundance) %>%
 sites_temporal <- sites %>%
   filter(surveyYearF == "2017") %>%
   left_join(data, by = "plot") %>%
-  rename(B = "B/(2A+B+C)", C = "C/(2A+B+C)", D = "D=(B+C)/(2A+B+C)",
-         change = Change) %>%
-  mutate(change = C - B,
-         plot = as_factor(plot)) %>%
-  select(plot, block, 
-         location, locationAbb, locationYear, longitude, latitude,
-         riverkm, distanceRiver, 
-         constructionYear, 
-         exposition, side, 
-         PC1soil, PC2soil, PC3soil, PC1constructionYear, PC2constructionYear,
-         PC3constructionYear,
-         conf_low, conf_high, 
-         B, C, D, comparison, presabu) %>%
-  mutate(across(c(PC1soil, PC2soil, PC3soil,
-                  distanceRiver,
-                  B, C, D), 
-                ~ round(.x, digits = 4))) 
-  
-rm(list = setdiff(ls(), c("sites", "species", "traits", "sites_temporal",
-                          "pcaConstuctionYear", "pcaSoil", "pcaSurveyYear")))
+  rename(
+    B = "B/(2A+B+C)", C = "C/(2A+B+C)", D = "D=(B+C)/(2A+B+C)",
+    change = Change
+  ) %>%
+  mutate(
+    change = C - B,
+    plot = as_factor(plot)
+  ) %>%
+  select(
+    plot, block,
+    location, locationAbb, locationYear, longitude, latitude,
+    riverkm, distanceRiver,
+    constructionYear,
+    exposition, side,
+    PC1soil, PC2soil, PC3soil, PC1constructionYear, PC2constructionYear,
+    PC3constructionYear,
+    conf_low, conf_high,
+    B, C, D, comparison, presabu
+  ) %>%
+  mutate(across(
+    c(
+      PC1soil, PC2soil, PC3soil,
+      distanceRiver,
+      B, C, D
+    ),
+    ~ round(.x, digits = 4)
+  ))
+
+rm(list = setdiff(ls(), c(
+  "sites", "species", "traits", "sites_temporal",
+  "pcaConstuctionYear", "pcaSoil", "pcaSurveyYear"
+)))
 
 
 ## 8 Finalization ######################################################
@@ -1272,70 +1473,84 @@ rm(list = setdiff(ls(), c("sites", "species", "traits", "sites_temporal",
 ### a Rounding ---------------------------------------------------------
 
 sites <- sites %>%
-  mutate(across(c(lcbd, 
-                  syn_total, syn_trend, syn_detrend, 
-                  PC1soil, PC2soil, PC3soil, PC1surveyYear, PC2surveyYear,
-                  PC3surveyYear, 
-                  PC1constructionYear, PC2constructionYear, PC3constructionYear), 
-                ~ round(.x, digits = 4))) %>%
-  mutate(across(c(NtotalPerc, targetCovratio, graminoidCovratio, targetRichratio,
-                  shannon, eveness), 
-                ~ round(.x, digits = 3))) %>%
-  mutate(across(c(distanceRiver, accumulatedCov), 
-                ~ round(.x, digits = 1)))
+  mutate(across(
+    c(
+      lcbd,
+      syn_total, syn_trend, syn_detrend,
+      PC1soil, PC2soil, PC3soil, PC1surveyYear, PC2surveyYear,
+      PC3surveyYear,
+      PC1constructionYear, PC2constructionYear, PC3constructionYear
+    ),
+    ~ round(.x, digits = 4)
+  )) %>%
+  mutate(across(
+    c(
+      NtotalPerc, targetCovratio, graminoidCovratio, targetRichratio,
+      shannon, eveness
+    ),
+    ~ round(.x, digits = 3)
+  )) %>%
+  mutate(across(
+    c(distanceRiver, accumulatedCov),
+    ~ round(.x, digits = 1)
+  ))
 
 ### b Final selection of variables -------------------------------------
 
 sites <- sites %>%
-  select(id, plot, block,
-         # space
-         location, locationAbb, locationYear, latitude, longitude, riverkm,
-         distanceRiver, MEM1_2017, MEM2_2018, MEM1_2019, MEM1_2021, MEM2_2021,
-         # time
-         surveyYear, constructionYear, plotAge,
-         # local site characteristics
-         exposition, side, PC1soil, PC2soil, PC3soil,
-         # historical factors
-         PC1constructionYear, PC2constructionYear, PC3constructionYear,
-         # response variables
-         accumulatedCov, speciesRichness, botanist, conf_low, conf_high
-         )
+  select(
+    id, plot, block,
+    # space
+    location, locationAbb, locationYear, latitude, longitude, riverkm,
+    distanceRiver, MEM1_2017, MEM2_2018, MEM1_2019, MEM1_2021, MEM2_2021,
+    # time
+    surveyYear, constructionYear, plotAge,
+    # local site characteristics
+    exposition, side, PC1soil, PC2soil, PC3soil,
+    # historical factors
+    PC1constructionYear, PC2constructionYear, PC3constructionYear,
+    # response variables
+    accumulatedCov, speciesRichness, botanist, conf_low, conf_high
+  )
 
 sites_temporal <- sites_temporal %>%
   pivot_wider(names_from = "presabu", values_from = c("B", "C", "D")) %>%
-  select(plot, block, comparison,
-         # space
-         location, locationAbb, locationYear, latitude, longitude, riverkm,
-         distanceRiver,
-         # time
-         constructionYear,
-         # local site characteristics
-         exposition, side, PC1soil, PC2soil, PC3soil,
-         # historical factors
-         PC1constructionYear, PC2constructionYear, PC3constructionYear,
-         # temporal beta-diversity indices (TBI)
-         B_presence, B_abundance, C_presence, C_abundance,
-         D_presence,D_abundance,
-         # other variables
-         conf_low, conf_high)
+  select(
+    plot, block, comparison,
+    # space
+    location, locationAbb, locationYear, latitude, longitude, riverkm,
+    distanceRiver,
+    # time
+    constructionYear,
+    # local site characteristics
+    exposition, side, PC1soil, PC2soil, PC3soil,
+    # historical factors
+    PC1constructionYear, PC2constructionYear, PC3constructionYear,
+    # temporal beta-diversity indices (TBI)
+    B_presence, B_abundance, C_presence, C_abundance,
+    D_presence, D_abundance,
+    # other variables
+    conf_low, conf_high
+  )
 
 sites_restoration <- sites %>%
-  select(id, plot, block,
-         # space
-         location, locationAbb, locationYear, latitude, longitude, riverkm,
-         distanceRiver,
-         # time
-         surveyYear, constructionYear, plotAge,
-         # local site characteristics
-         exposition, side, PC1soil, PC2soil, PC3soil,
-         # response variables
-         accumulatedCov, speciesRichness, eveness, graminoidCovratio, ruderalCov,
-         # conservation
-         targetRichness, targetRichratio, rlgRichness, targetCovratio,
-         # legal evaluation
-         biotopeType, ffh, changeType, baykompv, biotopePoints, min8, min9,
-         botanist, conf_low, conf_high
-         )
+  select(
+    id, plot, block,
+    # space
+    location, locationAbb, locationYear, latitude, longitude, riverkm,
+    distanceRiver,
+    # time
+    surveyYear, constructionYear, plotAge,
+    # local site characteristics
+    exposition, side, PC1soil, PC2soil, PC3soil,
+    # response variables
+    accumulatedCov, speciesRichness, eveness, graminoidCovratio, ruderalCov,
+    # conservation
+    targetRichness, targetRichratio, rlgRichness, targetCovratio,
+    # legal evaluation
+    biotopeType, ffh, changeType, baykompv, biotopePoints, min8, min9,
+    botanist, conf_low, conf_high
+  )
 
 ### c Final selection of plots -----------------------------------------
 
@@ -1358,19 +1573,33 @@ sites_temporal <- sites_temporal %>%
 
 
 ### Data ###
-write_csv(sites_spatial,
-          here("data", "processed", "data_processed_sites_spatial.csv"))
-write_csv(species,
-          here("data", "processed", "data_processed_species.csv"))
-write_csv(traits,
-          here("data", "processed", "data_processed_traits.csv"))
-write_csv(sites_temporal,
-          here("data", "processed", "data_processed_sites_temporal.csv"))
+write_csv(
+  sites_spatial,
+  here("data", "processed", "data_processed_sites_spatial.csv")
+)
+write_csv(
+  species,
+  here("data", "processed", "data_processed_species.csv")
+)
+write_csv(
+  traits,
+  here("data", "processed", "data_processed_traits.csv")
+)
+write_csv(
+  sites_temporal,
+  here("data", "processed", "data_processed_sites_temporal.csv")
+)
 
 ### Tables ###
-write_csv(pcaSoil,
-          here("outputs", "statistics", "pca_soil.csv"))
-write_csv(pcaSurveyYear,
-          here("outputs", "statistics", "pca_survey_year.csv"))
-write_csv(pcaConstuctionYear,
-          here("outputs", "statistics", "pca_construction_year.csv"))
+write_csv(
+  pcaSoil,
+  here("outputs", "statistics", "pca_soil.csv")
+)
+write_csv(
+  pcaSurveyYear,
+  here("outputs", "statistics", "pca_survey_year.csv")
+)
+write_csv(
+  pcaConstuctionYear,
+  here("outputs", "statistics", "pca_construction_year.csv")
+)
