@@ -22,6 +22,7 @@ remotes::install_github(file.path("inbo", "checklist"))
 #sessionInfo()
 checklist::setup_source()
 checklist::check_source()
+devtools::check()
 
 rm(list = ls())
 setwd(here("data", "raw"))
@@ -35,8 +36,8 @@ setwd(here("data", "raw"))
 
 ### 1 Sites ############################################################
 
-sites <- read_csv("data_raw_sites.csv", col_names = TRUE, na = c("", "NA", "na"),
-                  col_types =
+sites <- read_csv("data_raw_sites.csv", col_names = TRUE,
+                  na = c("", "NA", "na"), col_types =
                     cols(
                       .default = "?",
                       id = "f",
@@ -297,7 +298,9 @@ cover_ruderalIndicator <- cover %>%
   
 ### * Table 33 species' coverage ####
 cover_table33 <- cover %>%
-  mutate(table33 = if_else(table33 == "4" | table33 == "3" | table33 == "2",
+  mutate(table33 = if_else(table33 == "4" |
+                             table33 == "3" |
+                             table33 == "2",
                            "table33Cov", "other")) %>%
   filter(table33 == "table33Cov") %>%
   summarise(table33Cov = sum(n, na.rm = TRUE)) %>%
