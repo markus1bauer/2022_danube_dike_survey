@@ -36,6 +36,7 @@ sites <- read_csv("data_processed_sites_temporal.csv",
     )
 ) %>%
   mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale)) %>%
+  filter(comparison == "1718" | comparison == "1819" | comparison == "1921") %>%
   mutate(y = C_presence - B_presence)
 
 ### * Model ####
@@ -49,7 +50,7 @@ data = sites
 )
 
 ### * Functions ####
-themeMB <- function() {
+theme_mb <- function() {
   theme(
     panel.background = element_rect(fill = "white"),
     text = element_text(size = 9, color = "black"),
@@ -97,7 +98,7 @@ themeMB <- function() {
   geom_point(size = 2, shape = "circle open") +
   geom_linerange() +
   labs(x = expression(Estimate ~ "[" * italic("C")[sor] - italic("B")[sor] * "]")) +
-  themeMB())
+  theme_mb())
 
 ### Save ###
 ggsave(here("outputs", "figures", "figure_3c_800dpi_8x8cm.tiff"),

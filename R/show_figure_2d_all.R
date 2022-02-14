@@ -34,21 +34,25 @@ sites <- read_csv("data_processed_sites_temporal.csv",
       locationYear = "f"
     )
 ) %>%
-  rename(y = D_presence) %>%
+  filter(comparison == "1718" | comparison == "1819" | comparison == "1921") %>%
+  mutate(
+    y = D_presence,
+    comparison = factor(comparison)
+  ) %>%
   mutate(across(where(is.numeric) & !y, scale))
 
 ### * Model ####
 m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil +
-  side + distanceRiver + locationYear + abundance +
+  side + distanceRiver + locationYear + D_abundance +
   (1 | plot),
-REML = T,
+REML = TRUE,
 control = lmerControl(optimizer = "Nelder_Mead"),
 cov.prior = wishart,
 data = sites
 )
 
 ### * Functions ####
-themeMB <- function() {
+theme_mb <- function() {
   theme(
     panel.background = element_rect(fill = "white"),
     text = element_text(size = 9, color = "black"),
@@ -81,16 +85,16 @@ themeMB <- function() {
       !str_detect(term, "(Intercept)")
   ) %>%
   mutate(
-    cross = if_else(term %in% c("sidewater", "abundance"), "filled", "open"),
+    cross = if_else(term %in% c("sidewater", "D_abundance", "PC3soil"), "filled", "open"),
     term = fct_relevel(term, c(
       "expositionnorth:PC1soil", "PC3soil", "PC2soil", "PC1soil",
-      "distanceRiver", "sidewater", "expositionnorth", "abundance"
+      "distanceRiver", "sidewater", "expositionnorth", "D_abundance"
     )),
     term = fct_recode(term,
       "South | North exposition" = "expositionnorth",
       "Land | Water side" = "sidewater",
       "Distance to river" = "distanceRiver",
-      "D [bc]" = "abundance",
+      "D [bc]" = "D_abundance",
       "Exposition:PC1soil" = "expositionnorth:PC1soil"
     )
   ) %>%
@@ -100,7 +104,7 @@ themeMB <- function() {
   geom_linerange() +
   scale_shape_manual(values = c("circle", "circle open")) +
   labs(x = expression("Estimate [log(" * italic("D")[sor] * ")]")) +
-  themeMB())
+  theme_mb())
 
 ### Save ###
 ggsave(here("outputs", "figures", "figure_2d_800dpi_8x8cm.tiff"),

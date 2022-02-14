@@ -109,7 +109,8 @@ ggplot(sites, aes(x = (PC2soil), y = y, color = exposition)) +
   geom_smooth(method = "lm")
 
 #### * Outliers, zero-inflation, transformations? ####
-dotchart(log(sites$y), groups = factor(sites$exposition), main = "Cleveland dotplot")
+dotchart(log(sites$y), groups = factor(sites$exposition),
+         main = "Cleveland dotplot")
 sites %>% count(locationYear)
 sites %>%
   count(plot) %>%
@@ -123,7 +124,7 @@ ggplot(sites, aes(log(y))) +
   geom_density()
 
 #### * check collinearity ####
-# GGally::ggpairs(data_collinearity, lower = list(continuous = "smooth_loess"))
+GGally::ggpairs(data_collinearity, lower = list(continuous = "smooth_loess"))
 #--> riverkm ~ longitude/latitude has r > 0.7 (Dormann et al. 2013 Ecography)
 rm(data_collinearity)
 
@@ -151,37 +152,37 @@ simulateResiduals(m1, plot = TRUE)
 m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side +
   distanceRiver + locationYear + D_abundance +
   (1 | plot),
-REML = FALSE,
-control = lmerControl(optimizer = "Nelder_Mead"),
-cov.prior = wishart,
-data = sites
+  REML = FALSE,
+  control = lmerControl(optimizer = "Nelder_Mead"),
+  cov.prior = wishart,
+  data = sites
 )
 simulateResiduals(m2, plot = TRUE)
 m3 <- blmer(log(y) ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side +
   distanceRiver + locationYear + D_abundance +
   (1 | plot),
-REML = FALSE,
-control = lmerControl(optimizer = "Nelder_Mead"),
-cov.prior = wishart,
-data = sites
+  REML = FALSE,
+  control = lmerControl(optimizer = "Nelder_Mead"),
+  cov.prior = wishart,
+  data = sites
 )
 simulateResiduals(m3, plot = TRUE)
 m4 <- blmer(log(y) ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side +
   distanceRiver + locationYear + D_abundance +
   (1 | plot),
-REML = FALSE,
-control = lmerControl(optimizer = "Nelder_Mead"),
-cov.prior = wishart,
-data = sites
+  REML = FALSE,
+  control = lmerControl(optimizer = "Nelder_Mead"),
+  cov.prior = wishart,
+  data = sites
 )
 simulateResiduals(m4, plot = TRUE)
 m5 <- blmer(log(y) ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side +
   distanceRiver + locationYear + D_abundance +
   (1 | plot),
-REML = FALSE,
-control = lmerControl(optimizer = "Nelder_Mead"),
-cov.prior = wishart,
-data = sites
+  REML = FALSE,
+  control = lmerControl(optimizer = "Nelder_Mead"),
+  cov.prior = wishart,
+  data = sites
 )
 simulateResiduals(m5, plot = TRUE)
 
@@ -237,4 +238,5 @@ dotwhisker::dwplot(m,
 (emm <- emmeans(m, revpairwise ~ side, type = "response"))
 plot(emm, comparison = TRUE)
 (emm <- emmeans(m, revpairwise ~ comparison, type = "response"))
-sjPlot::plot_model(m, type = "emm", terms = c("PC1soil", "exposition"), show.data = TRUE)
+sjPlot::plot_model(m, type = "emm", terms = c("PC1soil", "exposition"),
+                   show.data = TRUE)

@@ -37,6 +37,7 @@ sites <- read_csv("data_processed_sites_temporal.csv",
     )
 ) %>%
   mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale)) %>%
+  filter(comparison == "1718" | comparison == "1819" | comparison == "1921") %>%
   mutate(y = C_presence - B_presence)
 
 ### * Model ####
@@ -50,7 +51,7 @@ data = sites
 )
 
 ### * Functions ####
-themeMB <- function() {
+theme_mb <- function() {
   theme(
     panel.background = element_rect(fill = "white"),
     text = element_text(size = 9, color = "black"),
@@ -104,7 +105,7 @@ data <- sites %>%
   geom_hline(yintercept = 0, linetype = 2) +
   scale_y_continuous(limits = c(-.6, .5), breaks = seq(-1, 400, .1)) +
   labs(x = "", y = expression(Gains ~ -~Losses ~ "[" * TBI[sor] * "]")) +
-  themeMB())
+  theme_mb())
 
 ### Save ###
 ggsave(here("outputs", "figures", "figure_3b_location_800dpi_8x8cm.tiff"),

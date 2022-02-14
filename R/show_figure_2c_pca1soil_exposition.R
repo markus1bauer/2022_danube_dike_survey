@@ -30,17 +30,21 @@ sites <- read_csv("data_processed_sites_temporal.csv",
       plot = "f",
       block = "f",
       comparison = "f",
-      exposition = "f",
+      exposition = col_factor(levels = c("north", "south")),
       side = "f",
       locationYear = "f"
     )
 ) %>%
-  rename(y = D_presence) %>%
+  filter(comparison == "1718" | comparison == "1819" | comparison == "1921") %>%
+  mutate(
+    y = D_presence,
+    comparison = factor(comparison)
+  ) %>%
   mutate(across(where(is.numeric) & !y, scale))
 
 ### * Model ####
 m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil +
-  side + distanceRiver + locationYear + abundance +
+  side + distanceRiver + locationYear + D_abundance +
   (1 | plot),
 REML = T,
 control = lmerControl(optimizer = "Nelder_Mead"),
@@ -49,7 +53,7 @@ data = sites
 )
 
 ### * Functions ####
-themeMB <- function() {
+theme_mb <- function() {
   theme(
     panel.background = element_rect(fill = "white"),
     text = element_text(size = 9, color = "black"),
@@ -109,8 +113,8 @@ data <- sites %>%
     y = c(0, 0),
     size = 2.5
   ) +
-  labs(x = expression(PC1[soil]), y = expression(Temporal ~ "beta" ~ diversity ~ "[" * italic("D")[sor] * "]"), color = "Exposition", fill = "Exposition", shape = "Exposition") +
-  themeMB() +
+  labs(x = expression(PC1[soil]), y = expression(Temporal ~"beta"~ diversity ~ "[" * italic("D")[sor] * "]"), color = "Exposition", fill = "Exposition", shape = "Exposition") +
+  theme_mb() +
   theme(legend.position = c(.8, .9)))
 
 ### Save ###

@@ -53,7 +53,7 @@ data = sites
 )
 
 ### * Functions ####
-themeMB <- function() {
+theme_mb <- function() {
   theme(
     panel.background = element_rect(fill = "white"),
     text = element_text(size = 9, color = "black"),
@@ -114,7 +114,7 @@ data <- sites %>%
   scale_y_continuous(limits = c(0, .92), breaks = seq(-100, 400, .1)) +
   scale_shape_manual(values = c("circle", "circle open")) +
   labs(x = "", y = expression(Temporal ~ "beta" ~ diversity ~ "[" * italic("D")[sor] * "]")) +
-  themeMB())
+  theme_mb())
 
 ### Save ###
 ggsave(here("outputs", "figures", "figure_2a_800dpi_8x8cm.tiff"),
