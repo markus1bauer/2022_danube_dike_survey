@@ -1,1 +1,0 @@
-x <- read.table(file = "clipboard", sep = "t", header = F)
