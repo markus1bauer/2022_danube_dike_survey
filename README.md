@@ -1,4 +1,4 @@
-# Danube dike surveys
+# Beta diversity of restored grasslands is not homogenised by temporal turnover
 
 _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height = "16"></a>, Jakob Huber, and Johannes Kollmann <a href="https://orcid.org/0000-0002-4990-3636"><img src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height = "16"></a>_  
 
@@ -50,4 +50,4 @@ Contact markus1.bauer@tum.de for any further information.
 
 **Citation:**
 
-> Bauer M, Huber J, & Kollmann J (in preparation). XXX. XX, XXX-XXX. https://doi.org/10.xxx
+> Bauer M, Huber J, & Kollmann J (in preparation). Beta diversity of restored grasslands is not homogenised by temporal turnover: local site characteristics and spatial variability affect restoration outcomes.
