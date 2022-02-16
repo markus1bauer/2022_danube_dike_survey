@@ -285,7 +285,9 @@ cover <- left_join(species, traits, by = "name") %>%
 cover_total_and_graminoid <- cover %>%
   group_by(id, family) %>%
   summarise(total = sum(n, na.rm = TRUE), .groups = "keep") %>%
-  mutate(type = if_else(family == "Poaceae" | family == "Cyperaceae" | family == "Juncaceae",
+  mutate(type = if_else(family == "Poaceae" |
+                          family == "Cyperaceae" |
+                          family == "Juncaceae",
     "graminoidCov", "herbCov"
   )) %>%
   group_by(id, type) %>%
@@ -534,21 +536,43 @@ biotopetypes <- sites %>%
       "yes", "no"
     ),
     G214_GE6510_type = if_else(
-      GE_proof == "yes" & arrhRichness >= 1 & arrhCov > 0.5 & leanCov >= 25 & targetHerbCov >= 12.5,
+      GE_proof == "yes" &
+        arrhRichness >= 1 &
+        arrhCov > 0.5 &
+        leanCov >= 25 &
+        targetHerbCov >= 12.5,
       "yes", "no"
     ),
     G212_LR6510_type = if_else(
-      GE_proof == "yes" & arrhRichness >= 1 & arrhCov > 0.5 & leanCov < 25,
+      GE_proof == "yes" &
+        arrhRichness >= 1 &
+        arrhCov > 0.5 &
+        leanCov < 25,
       "yes", "no"
     ),
     G214_GE00BK_type = if_else(
-      GE_proof == "yes" & arrhRichness == 0 & leanCov >= 25 & targetHerbCov >= 12.5, "yes", if_else(
-        GE_proof == "yes" & arrhCov >= 0.5 & leanCov >= 25 & targetHerbCov >= 12.5, "yes", "no"
+      GE_proof == "yes" &
+        arrhRichness == 0 &
+        leanCov >= 25 &
+        targetHerbCov >= 12.5,
+      "yes", if_else(
+        GE_proof == "yes" &
+          arrhCov >= 0.5 &
+          leanCov >= 25 &
+          targetHerbCov >= 12.5,
+        "yes", "no"
       )
     ),
     G213_GE00BK_type = if_else(
-      GE_proof == "yes" & arrhRichness == 0 & leanCov >= 25 & targetHerbCov < 12.5, "yes", if_else(
-        GE_proof == "yes" & arrhCov >= 0.5 & leanCov >= 25 & targetHerbCov < 12.5,
+      GE_proof == "yes" &
+        arrhRichness == 0 &
+        leanCov >= 25 &
+        targetHerbCov < 12.5,
+      "yes", if_else(
+        GE_proof == "yes" &
+          arrhCov >= 0.5 &
+          leanCov >= 25 &
+          targetHerbCov < 12.5,
         "yes", "no"
       )
     ),
@@ -557,11 +581,17 @@ biotopetypes <- sites %>%
       "yes", "no"
     ),
     G212_type = if_else(
-      leanCov >= 1 & leanCov < 25 & targetHerbCov >= 12.5 & targetHerbRichness >= 10,
+      leanCov >= 1 &
+        leanCov < 25 &
+        targetHerbCov >= 12.5 &
+        targetHerbRichness >= 10,
       "yes", "no"
     ),
     G211_type = if_else(
-      leanCov >= 1 & leanCov < 25 & targetHerbCov >= 1 & targetHerbRichness >= 5,
+      leanCov >= 1 &
+        leanCov < 25 &
+        targetHerbCov >= 1 &
+        targetHerbRichness >= 5,
       "yes", "no"
     ),
     biotopeType = if_else(
@@ -638,7 +668,9 @@ data <- sites %>%
   group_by(plot) %>%
   mutate(count = n()) %>%
   filter(count == max(count)) %>%
-  pivot_wider(id_cols = -id, names_from = "surveyYear", values_from = "ffh") %>% # group_by(plot) %>%
+  pivot_wider(id_cols = -id,
+              names_from = "surveyYear",
+              values_from = "ffh") %>% # group_by(plot) %>%
   rename(x17 = "2017", x18 = "2018", x19 = "2019") %>%
   mutate(changeType = ifelse(
     (x17 == "non-FFH" & x18 != "non-FFH" & x19 != "non-FFH"),
@@ -957,7 +989,7 @@ rm(list = setdiff(ls(), c("sites", "species", "traits", "pcaSoil")))
 ### b Climate PCA  -----------------------------------------------------
 
 ### * Temperature ####
-data <- read_csv(here("data/raw/temperature/data/data_OBS_DEU_P1M_T2M.csv"),
+data <- read_csv(here("data", "raw", "temperature", "data", "data_OBS_DEU_P1M_T2M.csv"),
   col_names = TRUE, na = c("", "NA", "na"), col_types =
     cols(
       .default = "?"
@@ -1041,7 +1073,7 @@ sites <- sites %>%
   )
 
 ### * Precipitation ####
-data <- read_csv(here("data/raw/precipitation/data/data_OBS_DEU_P1M_RR.csv"),
+data <- read_csv(here("data", "raw", "precipitation", "data", "data_OBS_DEU_P1M_RR.csv"),
   col_names = TRUE, na = c("", "NA", "na"), col_types =
     cols(
       .default = "?"
