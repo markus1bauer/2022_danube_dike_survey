@@ -14,8 +14,8 @@ MEM2_2018,Moran's  eigenvector map 2 of the year 2018,NA,NA,dimensionless,real,n
 MEM1_2019,Moran's  eigenvector map 1 of the year 2019,NA,NA,dimensionless,real,numeric,NA
 MEM1_2021,Moran's  eigenvector map 1 of the year 2021,NA,NA,dimensionless,real,numeric,NA
 MEM2_2021,Moran's  eigenvector map 2 of the year 2021,NA,NA,dimensionless,real,numeric,NA
-surveyYear,Year of the vegetation survey,YYYY,NA,NA,Date,numeric,NA
-constructionYear,Year in which the dike was constructed and seeded,YYYY,NA,NA,Date,numeric,NA
+surveyYear,Year of the vegetation survey,YYYY,NA,NA,date,numeric,NA
+constructionYear,Year in which the dike was constructed and seeded,YYYY,NA,NA,date,numeric,NA
 plotAge,Amount of years from the constructionYear to the surveyYear,NA,NA,dimensionless,integer,numeric,NA
 exposition,Exposition of the plots,NA,NA,NA,NA,factor,north / south
 side,Is the plot on the slope oriented to the water or to the land?,NA,NA,NA,NA,factor,water / land

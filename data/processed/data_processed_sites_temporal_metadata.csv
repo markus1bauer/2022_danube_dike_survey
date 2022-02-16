@@ -1,12 +1,12 @@
 attributeName,attributeDefinition,formatString,definition,unit,numberType,type,factor
 plot,Serial number of the plot,NA,serial number of the plot,NA,NA,character,NA
 block,Serial numer of a pair of plots (water and landside),NA,serial numer of a pair of plots (water and landside),NA,NA,character,NA
-comparison,Which years are compared with each other for calculating the temporal beta-diversity index (TBI)?,NA,NA,NA,NA,,
+comparison,Which years are compared with each other for calculating the temporal beta-diversity index (TBI)?,NA,NA,NA,NA,factor,1718 / 1819 / 1921 / 1719 / 1721
 location,Nearest village of the plot,NA,nearest village of the plot,NA,NA,character,NA
 locationAbb,Abbreviation of the location,NA,abbreviation of the location,NA,NA,character,NA
 locationYear,Combination of locationAbb and constructionYear,NA,combination of locationAbb and constructionYear,NA,NA,character,NA
-latitude,Coordinates Y / Hochwert (EPSG: 31468 / GK4),NA,NA,meter,real,numeric,NA
-longitude,Coordinates X / Rechtswert (EPSG: 31468 / GK4),NA,NA,meter,real,numeric,NA
+latitude,Coordinates Y / Hochwert (EPSG 31468 / GK4),NA,NA,meter,real,numeric,NA
+longitude,Coordinates X / Rechtswert (EPSG 31468 / GK4),NA,NA,meter,real,numeric,NA
 riverkm,Official km of river Danube taken from the BayernAtlas,NA,NA,kilometer,real,numeric,NA
 distanceRiver,Orthogonal distance to center of the river bed of River Danube,NA,NA,meter,real,numeric,NA
 constructionYear,Year in which the dike was constructed and seeded,YYYY,NA,NA,Date,numeric,NA
