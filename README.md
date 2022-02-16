@@ -16,7 +16,7 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
     * `Raw` and `processed` data of the sites variables (.csv) 
     * `Raw` and `processed` data of the species' abundances (.csv) 
     * `Raw` and `processed` data of the species' traits (.csv)
-    * Monthly `temperature` and `precipiation` data (.csv)
+    * Raw data of monthly `temperature` and `precipiation` data (.csv)
     * Raw and processed `spatial` data (.shp)
     * `photos` of the plots (.jeg)
     
