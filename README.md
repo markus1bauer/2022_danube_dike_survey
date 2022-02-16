@@ -51,3 +51,9 @@ Contact markus1.bauer@tum.de for any further information.
 **Citation:**
 
 > Bauer M, Huber J, & Kollmann J (submitted). Beta diversity of restored grasslands.
+
+***
+
+**Dataset**
+
+[![DOI](https://zenodo.org/badge/340059790.svg)](https://zenodo.org/badge/latestdoi/340059790)
