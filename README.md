@@ -13,17 +13,21 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
 ## Content of the repository
 
 1. __Data__: the folder `data` contains  
-    * The raw and processed data files of the first and second sub-experiment with the dependent metadata files (.csv) 
-
-2. __Images__: the folder `images` contains 
-    * The images of the grain size distribution (.tiff)
+    * `Raw` and `processed` data of the sites variables (.csv) 
+    * `Raw` and `processed` data of the species' abundances (.csv) 
+    * `Raw` and `processed` data of the species' traits (.csv)
+    * Monthly `temperature` and `precipiation` data (.csv)
+    * Raw and processed `spatial` data (.shp)
+    * `photos` of the plots (.jeg)
     
-3. __Outputs__: the folder `outputs` contains  
-    * The figures (.tiff) generated.
-    * The tables (.html/.png) generated.
+2. __Outputs__: the folder `outputs` contains  
+    * The `figures` (.tiff) generated
+    * The `tables` (.png) generated
+    * The `statistics` tables from the principal component analyses (.csv)
     
-4. __R__: the folder `R` contains  
-    * Scripts (.R) to generate all figures used in the manuscript and in the supporting information.
+3. __R__: the folder `R` contains  
+    * Scripts to calculate all models (.R)
+    * Scripts to generate all figures and tables (.R)
     
 ***
 
@@ -46,4 +50,4 @@ Contact markus1.bauer@tum.de for any further information.
 
 **Citation:**
 
-> Bauer M, Huber J, & Kollmann J (2022). XXX. XX, XXX-XXX. https://doi.org/10.xxx
+> Bauer M, Huber J, & Kollmann J (in preparation). XXX. XX, XXX-XXX. https://doi.org/10.xxx
