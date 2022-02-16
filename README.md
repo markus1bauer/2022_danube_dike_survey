@@ -50,4 +50,4 @@ Contact markus1.bauer@tum.de for any further information.
 
 **Citation:**
 
-> Bauer M, Huber J, & Kollmann J (in preparation). Beta diversity of restored grasslands is not homogenised by temporal turnover: local site characteristics and spatial variability affect restoration outcomes.
+> Bauer M, Huber J, & Kollmann J (submitted). Beta diversity of restored grasslands.
