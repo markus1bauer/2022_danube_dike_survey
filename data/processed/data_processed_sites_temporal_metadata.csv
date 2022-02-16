@@ -1,18 +1,18 @@
 attributeName,attributeDefinition,formatString,definition,unit,numberType,type,factor
-plot,serial number of the plot,NA,serial number of the plot,NA,NA,character,NA
-block,serial numer of a pair of plots (water and landside),NA,serial numer of a pair of plots (water and landside),NA,NA,character,NA
-comparison,which years are compared with each other for calculating the temporal beta-diversity index (TBI),NA,NA,NA,NA,,
-location,nearest village of the plot,NA,nearest village of the plot,NA,NA,character,NA
-locationAbb,abbreviation of the location,NA,abbreviation of the location,NA,NA,character,NA
-locationYear,combination of locationAbb and constructionYear,NA,combination of locationAbb and constructionYear,NA,NA,character,NA
-latitude,Coordinates Y (Hochwert) of Gauss-Krueger Zone 4,NA,NA,meter,real,numeric,NA
-longitude,Coordinates X (Rechtswert) of Gauss-Krueger Zone 4,NA,NA,meter,real,numeric,NA
-riverkm,official km of river Danube taken from the BayernAtlas,NA,NA,kilometer,real,numeric,NA
-distanceRiver,orthogonal distance to center of the river bed of River Danube,NA,NA,meter,real,numeric,NA
-constructionYear,year in which the dike was constructed and seeded,YYYY,NA,NA,Date,numeric,NA
-plotAge,amount of years from the constructionYear to the surveyYear,NA,NA,dimensionless,integer,numeric,NA
-exposition,exposition of the plots,NA,NA,NA,NA,factor,north/south
-side,is the plot on the slope oriented to the water or to the land,NA,NA,NA,NA,factor,water/land
+plot,Serial number of the plot,NA,serial number of the plot,NA,NA,character,NA
+block,Serial numer of a pair of plots (water and landside),NA,serial numer of a pair of plots (water and landside),NA,NA,character,NA
+comparison,Which years are compared with each other for calculating the temporal beta-diversity index (TBI)?,NA,NA,NA,NA,,
+location,Nearest village of the plot,NA,nearest village of the plot,NA,NA,character,NA
+locationAbb,Abbreviation of the location,NA,abbreviation of the location,NA,NA,character,NA
+locationYear,Combination of locationAbb and constructionYear,NA,combination of locationAbb and constructionYear,NA,NA,character,NA
+latitude,Coordinates Y / Hochwert (EPSG: 31468 / GK4),NA,NA,meter,real,numeric,NA
+longitude,Coordinates X / Rechtswert (EPSG: 31468 / GK4),NA,NA,meter,real,numeric,NA
+riverkm,Official km of river Danube taken from the BayernAtlas,NA,NA,kilometer,real,numeric,NA
+distanceRiver,Orthogonal distance to center of the river bed of River Danube,NA,NA,meter,real,numeric,NA
+constructionYear,Year in which the dike was constructed and seeded,YYYY,NA,NA,Date,numeric,NA
+plotAge,Amount of years from the constructionYear to the surveyYear,NA,NA,dimensionless,integer,numeric,NA
+exposition,Exposition of the plots,NA,NA,NA,NA,factor,north / south
+side,Is the plot on the slope oriented to the water or to the land?,NA,NA,NA,NA,factor,water / land
 PC1soil,Principal component 1 of 13 soil parameter see outputs/statistics/pca_soil.csv,NA,NA,dimensionless,real,numeric,NA
 PC2soil,Principal component 2 of 13 soil parameter see outputs/statistics/pca_soil.csv,NA,NA,dimensionless,real,numeric,NA
 PC3soil,Principal component 3 of 13 soil parameter see outputs/statistics/pca_soil.csv,NA,NA,dimensionless,real,numeric,NA
@@ -25,5 +25,5 @@ C_presence,Additive component of D: gains based on presence-absence data,NA,NA,d
 C_abundance,Additive component of D: gains based on abundance data,NA,NA,dimensionless,real,numeric,NA
 D_presence,Temporal beta-diversity index (TBI) based on presence-absence data,NA,NA,dimensionless,real,numeric,NA
 D_abundance,Temporal beta-diversity index (TBI) based on abundance data,NA,NA,dimensionless,real,numeric,NA
-conf.low,dummy variable for confidence interval,NA,NA,dimensionless,integer,numeric,NA
-conf.high,dummy variable for confidence interval,NA,NA,dimensionless,integer,numeric,NA
+conf.low,Dummy variable for confidence interval,NA,NA,dimensionless,integer,numeric,NA
+conf.high,Dummy variable for confidence interval,NA,NA,dimensionless,integer,numeric,NA

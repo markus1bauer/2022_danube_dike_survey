@@ -263,8 +263,8 @@ traits <- traits %>%
 
 sites <- sites %>%
   mutate(
-    conf_low = seq_along(id),
-    conf_high = seq_along(id),
+    conf.low = seq_along(id),
+    conf.high = seq_along(id),
     NtotalConc = finematerialDepth * finematerialDensity * 10 *
       NtotalPerc / 100,
     plotAge = surveyYear - constructionYear
@@ -1450,7 +1450,7 @@ sites_temporal <- sites %>%
     exposition, side,
     PC1soil, PC2soil, PC3soil, PC1constructionYear, PC2constructionYear,
     PC3constructionYear,
-    conf_low, conf_high,
+    conf.low, conf.high,
     B, C, D, comparison, presabu
   ) %>%
   mutate(across(
@@ -1510,7 +1510,7 @@ sites <- sites %>%
     # historical factors
     PC1constructionYear, PC2constructionYear, PC3constructionYear,
     # response variables
-    accumulatedCov, speciesRichness, botanist, conf_low, conf_high
+    accumulatedCov, speciesRichness, botanist, conf.low, conf.high
   )
 
 sites_temporal <- sites_temporal %>%
@@ -1530,7 +1530,7 @@ sites_temporal <- sites_temporal %>%
     B_presence, B_abundance, C_presence, C_abundance,
     D_presence, D_abundance,
     # other variables
-    conf_low, conf_high
+    conf.low, conf.high
   )
 
 sites_restoration <- sites %>%
@@ -1549,7 +1549,7 @@ sites_restoration <- sites %>%
     targetRichness, targetRichratio, rlgRichness, targetCovratio,
     # legal evaluation
     biotopeType, ffh, changeType, baykompv, biotopePoints, min8, min9,
-    botanist, conf_low, conf_high
+    botanist, conf.low, conf.high
   )
 
 ### c Final selection of plots -----------------------------------------
@@ -1559,6 +1559,7 @@ sites_spatial <- sites %>%
   filter(accumulatedCov > 0) %>%
   add_count(plot) %>%
   filter(n == max(n)) %>%
+  select(-n) %>%
   mutate(plot = factor(plot)) # check number of plots
 
 sites_temporal <- sites_temporal %>%
