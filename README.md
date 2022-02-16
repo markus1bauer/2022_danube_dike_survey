@@ -18,7 +18,7 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
     * `Raw` and `processed` data of the species' traits (.csv)
     * Raw data of monthly `temperature` and `precipiation` data (.csv)
     * Raw and processed `spatial` data (.shp)
-    * `photos` of the plots (.jeg)
+    * `photos` of the plots (.jpg)
     
 2. __Outputs__: the folder `outputs` contains  
     * The `figures` (.tiff) generated
