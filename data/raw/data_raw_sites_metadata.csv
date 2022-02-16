@@ -6,8 +6,8 @@ latitude,Coordinates Y / Hochwert (EPSG: 31468 / GK4),NA,NA,meter,integer,numeri
 longitude,Coordinates X / Rechtswert (EPSG: 31468 / GK4),NA,NA,meter,integer,numeric,NA
 riverkm,Ifficial km of river Danube taken from the BayernAtlas.de,NA,NA,kilometer,integer,numeric,NA
 distanceRiver,Orthogonal distance to center of the river bed of River Danube,NA,NA,meter,real,numeric,NA
-side,Is the plot on the slope oriented to the water or to the land?,NA,NA,NA,NA,factor,water/land
-exposition,Exposition of the plots,NA,NA,NA,NA,factor,north/south/east/west
+side,Is the plot on the slope oriented to the water or to the land?,NA,NA,NA,NA,factor,water / land
+exposition,Exposition of the plots,NA,NA,NA,NA,factor,north / south / east / west
 constructionYear,Year in which the dike was constructed and seeded,YYYY,NA,NA,NA,Date,NA
 surveyDate_2017,Date of the first vegetation survey 2017,YYYY-mm-dd,NA,NA,NA,Date,NA
 surveyDate_2018,Date of the second vegetation survey 2018,YYYY-mm-dd,NA,NA,NA,Date,NA
@@ -41,26 +41,26 @@ C550Perc,Percentage of carbon after 550 degree celsius treatment (weight percent
 calciumcarbonatPerc,Percentage of calcium carbonate (CaCO3) in fine soil (C550Perc * 8.33) (weight percent),NA,NA,percent,real,numeric,NA
 CorgPerc,Percentage of organic carbon (weight percent) = C (total) - C550Perc,NA,NA,percent,real,numeric,NA
 humusPerc,Percentage of humus (CorgPerc * 1.72) (weight percent),NA,NA,percent,real,numeric,NA
-humusLevel,Humus level according to Ad-hoc-AG Boden (2005) Tab. 15,NA,NA,NA,NA,factor,h1/h2/h3/h4/h5
+humusLevel,Humus level according to Ad-hoc-AG Boden (2005) Tab. 15,NA,NA,NA,NA,factor,h1 / h2 / h3 / h4 / h5
 NtotalPerc,Total nitrogen percentage (weight percent) from CN analyzer,NA,NA,percent,real,numeric,NA
 cnRatio,CorgPerc / NtotalPerc (14 is normal for agricultural land and 11 for grassland (lkonline (2022)),NA,NA,dimensionless,real,numeric,NA
-cnLevel,Humus quality level,NA,NA,NA,NA,factor,hq4/hq5
+cnLevel,Humus quality level,NA,NA,NA,NA,factor,hq4 / hq5
 pH,pH measured in 0.01 M CaCl2 with VDLUFA method A 5.1.1 by engineering office Dr. Haeusler 2017-11-28,NA,NA,dimensionless,real,numeric,NA
 sandPerc,Percentage of sand (2-0.063mm) in the fine soil sample (fine soil <2mm) (weight percent): DIN ISO 11277 by engineering office Dr. Haeusler 2017-11-28,NA,NA,percent,real,numeric,NA
 siltPerc,Percentage of silt (0.063-0.002mm) in the fine soil sample (fine soil <2mm) (weight percent): DIN ISO 11277 by engineering office Dr. Haeusler 2017-11-28,NA,NA,percent,real,numeric,NA
 clayPerc,Percentage of clay (<0.002mm) in the fine soil sample (fine soil <2mm) (weight percent): DIN ISO 11277 by engineering office Dr. Haeusler 2017-11-28,NA,NA,percent,real,numeric,NA
 phosporus,CAL extract (Calcium-acetat lactat) of phosphorus (P2O5) (mg per 100g soil) with VDLUFA method A 6.3.1.1 (2002) by engineering office Dr. Haeusler 2017-11-28,NA,NA,milligramPerDezigram,NA,numeric,NA
-phosphorusClass,Ferilization classification according to LfL (2018) (values for agricultural land not greenland),NA,NA,NA,NA,factor,A = very low/C = optimum/ E = very high
+phosphorusClass,Ferilization classification according to LfL (2018) (values for agricultural land not greenland),NA,NA,NA,NA,factor,A = very low / C = optimum / E = very high
 potassium,CAL extract (Calcium-acetat lactat) of potassium (K2O) (mg per 100g soil) with VDLUFA method A 6.2.1.1 (2002) by engineering office Dr. Haeusler 2017-11-28,NA,NA,milligramPerDezigram,NA,numeric,NA
-potassiumClass,Ferilization classification according to LfL (2018) (values for agricultural land not greenland),NA,NA,NA,NA,factor,A = very low/C = optimum/ E = very high
+potassiumClass,Ferilization classification according to LfL (2018) (values for agricultural land not greenland),NA,NA,NA,NA,factor,A = very low / C = optimum / E = very high
 magnesium,CaCl2 extract of magnesium (Mg) (mg per 100g soil) with VDLUFA method A 6.2.4.1 by engineering office Dr. Haeusler 2017-11-28,NA,NA,milligramPerDezigram,NA,numeric,NA
-magnesiumClass,Ferilization classification according to LfL (2018) (values for agricultural land not greenland),NA,NA,NA,NA,factor,A = very low/C = optimum/ E = very high
+magnesiumClass,Ferilization classification according to LfL (2018) (values for agricultural land not greenland),NA,NA,NA,NA,factor,A = very low / C = optimum / E = very high
 topsoilDepth,Measured depth of topsoil but if necessary taken from plans,NA,NA,centimeter,integer,numeric,NA
 finematerialDepth,Measured depth of fine material,NA,NA,centimeter,integer,numeric,NA
 finematerialDensity,Dry bulk density of fine material,NA,NA,gramPerCentimeterCubed,real,numeric,NA
 skeletonRatioVol,Volume ratio of sceleton of total topsoil (volume percent),NA,NA,percent,integer,numeric,NA
 skeletonRatioMass,Mass ratio of sceleton incl. Rough organic material (weight percent),NA,NA,percent,integer,numeric,NA
-skeletonLevel,Level of sceleton ratio according to Ad-hoc-AG Boden (2005) Tab. 33,NA,NA,NA,NA,factor,1 = stones and gravel <2 volpercent/2 = 2-10 volpercent/3 = 10-25 volpercent/4 = 25-50 volpercent/5 = 50-75 volpercent/6 =  stones and gravel >75 volpercent
+skeletonLevel,Level of sceleton ratio according to Ad-hoc-AG Boden (2005) Tab. 33,NA,NA,NA,NA,factor,1 = stones and gravel <2 volpercent / 2 = 2-10 volpercent / 3 = 10-25 volpercent / 4 = 25-50 volpercent / 5 = 50-75 volpercent / 6 =  stones and gravel >75 volpercent
 ufcPerc,Usable field capcity of topsoil in volume percent,NA,NA,percent,real,numeric,NA
 ufcMm,Usable field capacity in topsoil in mm,NA,NA,millimeter,real,numeric,NA
 ,,,,,,,References
