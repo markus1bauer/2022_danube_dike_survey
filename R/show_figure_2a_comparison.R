@@ -69,15 +69,17 @@ theme_mb <- function() {
 }
 
 
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # B Plot ################################################################
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 data_model <- ggeffect(m2, type = "emm", c("comparison"), back.transform = TRUE) %>%
   mutate(
     predicted = exp(predicted),
-    conf_low = exp(conf.low),
-    conf_high = exp(conf.high),
+    conf.low = exp(conf.low),
+    conf.high = exp(conf.high),
     cross = if_else(x %in% c("1819"), "filled", "open"),
     x = fct_recode(x, "2017 vs 2018" = "1718", "2018 vs 2019" = "1819", "2019 vs 2021" = "1921")
   )
@@ -103,7 +105,7 @@ data <- sites %>%
   ) +
   geom_errorbar(
     data = data_model,
-    aes(x, predicted, ymin = conf_low, ymax = conf_high),
+    aes(x, predicted, ymin = conf.low, ymax = conf.high),
     width = 0.0, size = 0.4
   ) +
   geom_point(
