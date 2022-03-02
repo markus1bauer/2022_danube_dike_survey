@@ -36,7 +36,9 @@ sites <- read_csv("data_processed_sites_temporal.csv",
       locationYear = "f"
     )
 ) %>%
-  filter(comparison == "1718" | comparison == "1819" | comparison == "1921") %>%
+  filter(comparison == "1718" |
+           comparison == "1819" |
+           comparison == "1921") %>%
   mutate(
     y = D_presence,
     comparison = factor(comparison)
@@ -59,8 +61,10 @@ theme_mb <- function() {
     panel.background = element_rect(fill = "white"),
     text = element_text(size = 9, color = "black"),
     strip.text = element_text(size = 10),
-    axis.text = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
-    axis.title = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
+    axis.text = element_text(angle = 0, hjust = 0.5, size = 9,
+                             color = "black"),
+    axis.title = element_text(angle = 0, hjust = 0.5, size = 9,
+                              color = "black"),
     axis.line = element_line(),
     legend.key = element_rect(fill = "white"),
     legend.position = "none",
@@ -116,7 +120,8 @@ data <- sites %>%
     ) +
     scale_y_continuous(limits = c(0, .92), breaks = seq(0, 400, .1)) +
     scale_shape_manual(values = c("circle", "circle open")) +
-    labs(x = "", y = expression(Temporal ~ "beta" ~ diversity ~ "[" * italic("D")[sor] * "]")) +
+    labs(x = "",
+         y = expression(Temporal ~ "beta" ~ diversity ~ "[" * italic("D")[sor] * "]")) +
     guides(shape = "none") +
     theme_mb())
 

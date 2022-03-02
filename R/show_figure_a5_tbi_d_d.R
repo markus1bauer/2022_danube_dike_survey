@@ -35,12 +35,14 @@ sites <- read_csv("data_processed_sites_temporal.csv",
   select(plot, D_presence, D_abundance)
 
 ### * Functions ####
-themeMB <- function() {
+theme_mb <- function() {
   theme(
     panel.background = element_rect(fill = "white"),
     strip.text = element_text(size = 10),
-    axis.text = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
-    axis.title = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
+    axis.text = element_text(angle = 0, hjust = 0.5, size = 9,
+                             color = "black"),
+    axis.title = element_text(angle = 0, hjust = 0.5, size = 9,
+                              color = "black"),
     axis.line = element_line(),
     legend.key = element_rect(fill = "white"),
     legend.position = "bottom",
@@ -59,10 +61,10 @@ themeMB <- function() {
 ggplot(data = sites, aes(x = D_abundance, y = D_presence)) +
   stat_density_2d(aes(fill = after_stat(level)),
     geom = "polygon",
-    contour = T,
+    contour = TRUE,
     bins = 8,
     contour_var = "ndensity",
-    show.legend = F
+    show.legend = FALSE
   ) +
   geom_point(size = 1) +
   coord_fixed(ratio = 1, xlim = c(0, 1), ylim = c(0, 1)) +
@@ -73,7 +75,7 @@ ggplot(data = sites, aes(x = D_abundance, y = D_presence)) +
     x = expression(Temporal ~ "beta" ~ diversity ~ "[" * italic("D")[bc] * "]"),
     y = expression(Temporal ~ "beta" ~ diversity ~ "[" * italic("D")[sor] * "]")
   ) +
-  themeMB()
+  theme_mb()
 
 ### Save ###
 ggsave(here("outputs", "figures", "figure_a5_800dpi_8x8cm.tiff"),

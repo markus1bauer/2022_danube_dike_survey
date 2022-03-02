@@ -86,7 +86,7 @@ dikes <- st_read("dikes_epsg4326.shp")
   addScaleBar() %>%
   addMeasure(
     primaryLengthUnit = "kilometers",
-    secondaryLengthUnit = F,
+    secondaryLengthUnit = FALSE,
     activeColor = "red",
     completedColor = "darkred",
     primaryAreaUnit = "sqkilometers",

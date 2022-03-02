@@ -18,7 +18,7 @@ library(dotwhisker)
 
 ### Start ###
 rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
-setwd(here("data/processed"))
+setwd(here("data", "processed"))
 
 
 ### Load data ###
@@ -35,7 +35,8 @@ sites <- read_csv("data_processed_sites_temporal.csv",
       side = col_factor(levels = c("land", "water"))
     )
 ) %>%
-  mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale)) %>%
+  mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"),
+                scale)) %>%
   filter(comparison == "1718" | comparison == "1819" | comparison == "1921") %>%
   mutate(y = C_presence - B_presence)
 
@@ -43,7 +44,7 @@ sites <- read_csv("data_processed_sites_temporal.csv",
 m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil +
   side + distanceRiver + locationYear +
   (1 | plot),
-REML = T,
+REML = TRUE,
 control = lmerControl(optimizer = "Nelder_Mead"),
 cov.prior = wishart,
 data = sites
@@ -55,9 +56,12 @@ theme_mb <- function() {
     panel.background = element_rect(fill = "white"),
     text = element_text(size = 9, color = "black"),
     strip.text = element_text(size = 10),
-    axis.text.y = element_text(angle = 0, hjust = 1, size = 9, color = "black"),
-    axis.text.x = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
-    axis.title.x = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
+    axis.text.y = element_text(angle = 0, hjust = 1, size = 9,
+                               color = "black"),
+    axis.text.x = element_text(angle = 0, hjust = 0.5, size = 9,
+                               color = "black"),
+    axis.title.x = element_text(angle = 0, hjust = 0.5, size = 9,
+                                color = "black"),
     axis.title.y = element_blank(),
     axis.line = element_line(),
     legend.key = element_rect(fill = "white"),

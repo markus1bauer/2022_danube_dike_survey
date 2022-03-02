@@ -43,7 +43,7 @@ sites <- read_csv("data_processed_sites_temporal.csv",
 m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil +
   side + distanceRiver + locationYear +
   (1 | plot),
-REML = T,
+REML = TRUE,
 control = lmerControl(optimizer = "Nelder_Mead"),
 cov.prior = wishart,
 data = sites
@@ -72,18 +72,25 @@ theme_mb <- function() {
 # B Plot ################################################################
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_model <- ggeffect(m2, type = "emm", c("comparison"), back.transform = TRUE) %>%
+data_model <- ggeffect(m2, type = "emm", c("comparison"),
+                       back.transform = TRUE) %>%
   mutate(
     predicted = exp(predicted),
     conf.low = exp(conf.low),
     conf.high = exp(conf.high),
     cross = if_else(x %in% c("1819"), "filled", "open"),
-    x = fct_recode(x, "2017 vs 2018" = "1718", "2017 vs 2019" = "1719", "2017 vs 2021" = "1721")
+    x = fct_recode(x,
+                   "2017 vs 2018" = "1718",
+                   "2017 vs 2019" = "1719",
+                   "2017 vs 2021" = "1721")
   )
 
 data <- sites %>%
   rename(predicted = y, x = comparison) %>%
-  mutate(x = fct_recode(x, "2017 vs 2018" = "1718", "2017 vs 2019" = "1719", "2017 vs 2021" = "1721"))
+  mutate(x = fct_recode(x,
+                        "2017 vs 2018" = "1718",
+                        "2017 vs 2019" = "1719",
+                        "2017 vs 2021" = "1721"))
 
 (graph_a <- ggplot() +
   geom_quasirandom(
@@ -112,7 +119,8 @@ data <- sites %>%
   ) +
   scale_y_continuous(limits = c(0, .92), breaks = seq(-100, 400, .1)) +
   scale_shape_manual(values = c("circle", "circle open")) +
-  labs(x = "", y = expression(Temporal ~ "beta" ~ diversity ~ "[" * italic("D")[sor] * "]")) +
+  labs(x = "",
+       y = expression(Temporal ~ "beta" ~ diversity ~ "[" * italic("D")[sor] * "]")) +
   theme_mb())
 
 ### Save ###

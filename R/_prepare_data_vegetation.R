@@ -20,9 +20,9 @@ remotes::install_github(file.path("inbo", "checklist"))
 ### Start ###
 # installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
 # sessionInfo()
-checklist::setup_source()
-checklist::check_source()
-devtools::check()
+#checklist::setup_source()
+#checklist::check_source()
+#devtools::check()
 
 rm(list = ls())
 setwd(here("data", "raw"))
@@ -232,12 +232,12 @@ rm(list = ls(pattern = "[^species|traits|sites]"))
 
 
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Create variables ############################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Create variables ###########################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-## 1 Create simple variables ####################################################
+## 1 Create simple variables ###################################################
 
 traits <- traits %>%
   mutate(
@@ -271,7 +271,7 @@ sites <- sites %>%
   )
 
 
-## 2 Coverages ######################################################################
+## 2 Coverages #################################################################
 
 cover <- left_join(species, traits, by = "name") %>%
   select(
@@ -947,7 +947,9 @@ eigenvals <- pca %>%
   summary() %>%
   as_tibble() %>%
   select(PC1:PC3) %>%
-  bind_cols(c("Eigenvalues", "Proportion Explained", "Cumulative Proportion")) %>%
+  bind_cols(c("Eigenvalues",
+              "Proportion Explained",
+              "Cumulative Proportion")) %>%
   rename("variables" = "...4") %>%
   mutate(across(where(is.numeric), as.double))
 values <- pca %>%
@@ -989,7 +991,8 @@ rm(list = setdiff(ls(), c("sites", "species", "traits", "pcaSoil")))
 ### b Climate PCA  -----------------------------------------------------
 
 ### * Temperature ####
-data <- read_csv(here("data", "raw", "temperature", "data", "data_OBS_DEU_P1M_T2M.csv"),
+data <- read_csv(here("data", "raw", "temperature", "data",
+                      "data_OBS_DEU_P1M_T2M.csv"),
   col_names = TRUE, na = c("", "NA", "na"), col_types =
     cols(
       .default = "?"
@@ -1032,7 +1035,9 @@ data <- read_csv(here("data", "raw", "temperature", "data", "data_OBS_DEU_P1M_T2
     names_from = season, values_from = seasonMean
   ) %>%
   group_by(year) %>%
-  summarise(across(where(is.numeric), ~ max(., na.rm = TRUE)), .groups = "keep") %>% # warnings because of lates year (summer, autumn, winter), can be ignored
+  summarise(across(where(is.numeric), ~ max(., na.rm = TRUE)),
+            .groups = "keep") %>%
+  # warnings because of lates year (summer, autumn, winter), can be ignored
   mutate(year = factor(year))
 
 sites <- sites %>%
@@ -1073,7 +1078,8 @@ sites <- sites %>%
   )
 
 ### * Precipitation ####
-data <- read_csv(here("data", "raw", "precipitation", "data", "data_OBS_DEU_P1M_RR.csv"),
+data <- read_csv(here("data", "raw", "precipitation", "data",
+                      "data_OBS_DEU_P1M_RR.csv"),
   col_names = TRUE, na = c("", "NA", "na"), col_types =
     cols(
       .default = "?"
@@ -1120,7 +1126,8 @@ data <- read_csv(here("data", "raw", "precipitation", "data", "data_OBS_DEU_P1M_
     .groups = "keep"
   ) %>%
   mutate(currentMean = if_else(season == "spring", currentMean, NA_real_)) %>%
-  pivot_wider(id_cols = c(year, yearMean, currentMean), names_from = season, values_from = seasonMean) %>%
+  pivot_wider(id_cols = c(year, yearMean, currentMean),
+              names_from = season, values_from = seasonMean) %>%
   group_by(year) %>%
   summarise(across(where(is.numeric), ~ max(., na.rm = TRUE)),
     .groups = "keep"
@@ -1184,7 +1191,9 @@ eigenvals <- pca %>%
   summary() %>%
   as_tibble() %>%
   select(PC1:PC3) %>%
-  bind_cols(c("Eigenvalues", "Proportion Explained", "Cumulative Proportion")) %>%
+  bind_cols(c("Eigenvalues",
+              "Proportion Explained",
+              "Cumulative Proportion")) %>%
   rename("variables" = "...4") %>%
   mutate(across(where(is.numeric), as.double))
 values <- pca %>%
@@ -1248,7 +1257,9 @@ eigenvals <- pca %>%
   summary() %>%
   as_tibble() %>%
   select(PC1:PC3) %>%
-  bind_cols(c("Eigenvalues", "Proportion Explained", "Cumulative Proportion")) %>%
+  bind_cols(c("Eigenvalues",
+              "Proportion Explained",
+              "Cumulative Proportion")) %>%
   rename("variables" = "...4") %>%
   mutate(across(where(is.numeric), as.double))
 values <- pca %>%
@@ -1266,7 +1277,9 @@ pcaConstuctionYear <- values$species[, 1:3] %>%
     "precMean_constructionYear", "precSpring_constructionYear",
     "precSummer_constructionYear", "precAutumn_constructionYear",
     "precWinter_constructionYear",
-    "precMean_constructionYearPlus", "precSpring_constructionYearPlus", "precSummer_constructionYearPlus", "precAutumn_constructionYearPlus", "precWinter_constructionYearPlus"
+    "precMean_constructionYearPlus",
+    "precSpring_constructionYearPlus", "precSummer_constructionYearPlus",
+    "precAutumn_constructionYearPlus", "precWinter_constructionYearPlus"
   )) %>%
   rename(variables = "...4") %>%
   bind_rows(eigenvals)

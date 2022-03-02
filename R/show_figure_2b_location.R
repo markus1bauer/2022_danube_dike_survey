@@ -51,7 +51,7 @@ m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil +
             data = sites)
 
 ### * Functions ####
-theme_mb <- function(){
+theme_mb <- function() {
   theme(
     panel.background = element_rect(fill = "white"),
     text  = element_text(size = 9, color = "black"),
@@ -83,26 +83,28 @@ data_model <- ggeffect(m2, type = "emm", c("locationYear"), back.transform = TRU
          cross = if_else(x %in% c("PFE-2008", "IRL-2003"), "filled", "open"))
 
 data <- sites %>%
-  rename(predicted = y, x = locationYear) 
+  rename(predicted = y, x = locationYear)
 
 (graph_b <- ggplot() +
-    geom_quasirandom(data = data, 
+    geom_quasirandom(data = data,
                      aes(x = x, predicted),
-                     dodge.width = .6, size = 1, shape = 16, color = "grey70") + 
+                     dodge.width = .6, size = 1, shape = 16,
+                     color = "grey70") +
     geom_hline(yintercept = c(mean(sites$y),
                               mean(sites$y) + 0.5 * sd(sites$y),
                               mean(sites$y) - 0.5 * sd(sites$y)),
                linetype = c(1, 2, 2),
                color = "grey70") +
-    geom_errorbar(data = data_model, 
-                  aes(x, predicted, ymin = conf.low, ymax = conf.high), 
+    geom_errorbar(data = data_model,
+                  aes(x, predicted, ymin = conf.low, ymax = conf.high),
                   width = 0.0, size = 0.4) +
     geom_point(data = data_model,
                aes(x, predicted, shape = cross),
                size = 2) +
     scale_y_continuous(limits = c(0, .92), breaks = seq(0, 400, .1)) +
     scale_shape_manual(values = c("circle", "circle open")) +
-    labs(x = "", y = expression(Temporal~"beta"~diversity~"["*italic('D')[sor]*"]")) +
+    labs(x = "",
+         y = expression(Temporal ~ "beta" ~ diversity ~ "[" * italic("D")[sor] * "]")) +
     theme_mb())
 
 ### Save ###

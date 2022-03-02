@@ -36,7 +36,8 @@ sites <- read_csv("data_processed_sites_temporal.csv",
       side = col_factor(levels = c("land", "water"))
     )
 ) %>%
-  mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale)) %>%
+  mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"),
+                scale)) %>%
   filter(comparison == "1718" | comparison == "1819" | comparison == "1921") %>%
   mutate(y = C_presence - B_presence)
 
@@ -44,7 +45,7 @@ sites <- read_csv("data_processed_sites_temporal.csv",
 m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil +
   side + distanceRiver + locationYear +
   (1 | plot),
-REML = T,
+REML = TRUE,
 control = lmerControl(optimizer = "Nelder_Mead"),
 cov.prior = wishart,
 data = sites
@@ -78,7 +79,8 @@ theme_mb <- function() {
 # B Plot ################################################################
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_model <- ggeffect(m3, type = "emm", c("locationYear"), back.transform = TRUE)
+data_model <- ggeffect(m3, type = "emm", c("locationYear"),
+                       back.transform = TRUE)
 
 
 data <- sites %>%

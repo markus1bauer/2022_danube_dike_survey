@@ -19,7 +19,7 @@ library(ggbeeswarm)
 
 ### Start ###
 rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
-setwd(here("data/processed"))
+setwd(here("data", "processed"))
 
 ### Load data ###
 sites <- read_csv("data_processed_sites_temporal.csv",
@@ -35,15 +35,18 @@ sites <- read_csv("data_processed_sites_temporal.csv",
       side = col_factor(levels = c("land", "water"))
     )
 ) %>%
-  mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale)) %>%
-  filter(comparison == "1718" | comparison == "1819" | comparison == "1921") %>%
+  mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"),
+                scale)) %>%
+  filter(comparison == "1718" |
+           comparison == "1819" |
+           comparison == "1921") %>%
   mutate(y = C_presence - B_presence)
 
 ### * Model ####
 m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil +
   side + distanceRiver + locationYear +
   (1 | plot),
-REML = T,
+REML = TRUE,
 control = lmerControl(optimizer = "Nelder_Mead"),
 cov.prior = wishart,
 data = sites
@@ -55,9 +58,12 @@ theme_mb <- function() {
     panel.background = element_rect(fill = "white"),
     text = element_text(size = 9, color = "black"),
     strip.text = element_text(size = 10),
-    axis.text.y = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
-    axis.text.x = element_text(angle = 90, hjust = 0.5, size = 9, color = "black"),
-    axis.title = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
+    axis.text.y = element_text(angle = 0, hjust = 0.5, size = 9,
+                               color = "black"),
+    axis.text.x = element_text(angle = 90, hjust = 0.5, size = 9,
+                               color = "black"),
+    axis.title = element_text(angle = 0, hjust = 0.5, size = 9,
+                              color = "black"),
     axis.line = element_line(),
     legend.key = element_rect(fill = "white"),
     legend.position = "none",
@@ -72,10 +78,15 @@ theme_mb <- function() {
 # B Plot #################################################################
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_model <- ggeffect(m3, type = "emm", c("comparison", "exposition"), back.transform = TRUE) %>%
+data_model <- ggeffect(m3, type = "emm", c("comparison", "exposition"),
+                       back.transform = TRUE) %>%
   mutate(
-    cross = if_else(x %in% c("1718", "1921") & group == "north", "open", "filled"),
-    x = fct_recode(x, "2017 vs 2018" = "1718", "2018 vs 2019" = "1819", "2019 vs 2021" = "1921"),
+    cross = if_else(x %in% c("1718", "1921") & group == "north",
+                    "open", "filled"),
+    x = fct_recode(x,
+                   "2017 vs 2018" = "1718",
+                   "2018 vs 2019" = "1819",
+                   "2019 vs 2021" = "1921"),
     group = fct_recode(group, "North" = "north", "South" = "south")
   )
 
@@ -83,7 +94,10 @@ data_model <- ggeffect(m3, type = "emm", c("comparison", "exposition"), back.tra
 data <- sites %>%
   rename(predicted = y, x = comparison, group = exposition) %>%
   mutate(
-    x = fct_recode(x, "2017 vs 2018" = "1718", "2018 vs 2019" = "1819", "2019 vs 2021" = "1921"),
+    x = fct_recode(x,
+                   "2017 vs 2018" = "1718",
+                   "2018 vs 2019" = "1819",
+                   "2019 vs 2021" = "1921"),
     group = fct_recode(group, "North" = "north", "South" = "south")
   )
 
@@ -108,10 +122,12 @@ data <- sites %>%
   geom_hline(yintercept = 0, linetype = 2) +
   scale_y_continuous(limits = c(-.6, .5), breaks = seq(-1, 400, .2)) +
   scale_shape_manual(values = c("circle", "circle open")) +
-  labs(x = "", y = expression(Gains ~ -~Losses ~ "[" * italic("C")[sor] - italic("B")[sor] * "]")) +
+  labs(x = "",
+       y = expression(Gains ~ -~Losses ~ "[" * italic("C")[sor] - italic("B")[sor] * "]")) +
   theme_mb())
 
 ### Save ###
-ggsave(here("outputs", "figures", "figure_3a_comparison_exposition_800dpi_8x8cm.tiff"),
+ggsave(here("outputs", "figures",
+            "figure_3a_comparison_exposition_800dpi_8x8cm.tiff"),
   dpi = 800, width = 8, height = 8, units = "cm"
 )

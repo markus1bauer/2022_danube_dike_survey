@@ -57,9 +57,12 @@ theme_mb <- function() {
     panel.background = element_rect(fill = "white"),
     text = element_text(size = 9, color = "black"),
     strip.text = element_text(size = 10),
-    axis.text.y = element_text(angle = 0, hjust = 1, size = 9, color = "black"),
-    axis.text.x = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
-    axis.title.x = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
+    axis.text.y = element_text(angle = 0, hjust = 1, size = 9,
+                               color = "black"),
+    axis.text.x = element_text(angle = 0, hjust = 0.5, size = 9,
+                               color = "black"),
+    axis.title.x = element_text(angle = 0, hjust = 0.5, size = 9,
+                                color = "black"),
     axis.title.y = element_blank(),
     axis.line = element_line(),
     legend.key = element_rect(fill = "white"),
@@ -85,7 +88,8 @@ theme_mb <- function() {
       !str_detect(term, "(Intercept)")
   ) %>%
   mutate(
-    cross = if_else(term %in% c("sidewater", "D_abundance", "PC3soil"), "filled", "open"),
+    cross = if_else(term %in% c("sidewater", "D_abundance", "PC3soil"),
+                    "filled", "open"),
     term = fct_relevel(term, c(
       "expositionnorth:PC1soil", "PC3soil", "PC2soil", "PC1soil",
       "distanceRiver", "sidewater", "expositionnorth", "D_abundance"

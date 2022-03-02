@@ -20,7 +20,8 @@ rm(list = ls())
 
 
 ### Load data ###
-selection <- read_csv(here("data", "processed", "data_processed_sites_spatial.csv"),
+selection <- read_csv(here("data", "processed",
+                           "data_processed_sites_spatial.csv"),
   col_names = TRUE, na = "na", col_types =
     cols(
       .default = "?"

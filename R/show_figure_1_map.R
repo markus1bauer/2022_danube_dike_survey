@@ -27,9 +27,11 @@ setwd(here("data", "processed", "spatial"))
 
 ### Load data ###
 germany <- st_read("germany_epsg4326.shp")
-danube <- st_read(here("data", "raw", "spatial", "danube_isar_digitized_epsg4326.shp"))
+danube <- st_read(here("data", "raw", "spatial",
+                       "danube_isar_digitized_epsg4326.shp"))
 danube$river[2] <- "Isar"
-filter <- read_csv(here("data", "processed", "data_processed_sites_spatial.csv"),
+filter <- read_csv(here("data", "processed",
+                        "data_processed_sites_spatial.csv"),
   col_names = TRUE, na = c("na", "NA"), col_types =
     cols(
       .default = "?"
@@ -46,7 +48,7 @@ conservation_area <- st_read("conservation_area_epsg4326.shp")
 ffh_area <- st_read("ffh_area_epsg4326.shp")
 dikes <- st_read("dikes_epsg4326.shp")
 locations <- read_csv("locations.csv",
-  col_names = T, col_types =
+  col_names = TRUE, col_types =
     cols(
       locationYear = "f"
     )
@@ -138,7 +140,7 @@ graphSites + inset_element(graphGermany,
   bottom = .65,
   right = .99,
   top = .99,
-  on_top = T
+  on_top = TRUE
 )
 
 
@@ -198,7 +200,7 @@ graphSites + inset_element(graphGermany,
   bottom = .65,
   right = .99,
   top = .99,
-  on_top = T
+  on_top = TRUE
 )
 
 ### c Save --------------------------------------------------------------
@@ -227,10 +229,10 @@ tmap <- tm_shape(danube) +
   tm_dots(col = "red", size = .2, shape = 16) +
   tm_compass(position = c("left", "bottom"), size = 2) +
   tm_scale_bar(position = c("left", "bottom", with = 0.4)) +
-  tm_layout(frame = F)
+  tm_layout(frame = FALSE)
 tmap_ger <- tm_shape(germany) +
   tm_borders(col = "black") +
-  tm_layout(frame = F)
+  tm_layout(frame = FALSE)
 
 ### b Save --------------------------------------------------------------
 
@@ -242,6 +244,7 @@ tmap_save(tmap,
     width = unit(3, "cm"),
     height = unit(4, "cm")
   ),
-  filename = paste0(here("outputs", "figures"), "/", "figure_1_map_tmap_300dpi_8x11cm.tiff"),
+  filename = paste0(here("outputs", "figures"), "/",
+                    "figure_1_map_tmap_300dpi_8x11cm.tiff"),
   dpi = 300
 )

@@ -42,7 +42,8 @@ sites <- read_csv(here("data", "raw", "data_raw_sites.csv"),
       exposition = "f"
     )
 ) %>%
-  select(id, location, longitude, latitude, constructionYear, sandPerc, phosphorus, phosphorusClass) %>%
+  select(id, location, longitude, latitude, constructionYear, sandPerc,
+         phosphorus, phosphorusClass) %>%
   mutate(
     plot = str_sub(id, start = 1, end = 2),
     locationAbb = str_sub(location, 1, 3),
@@ -62,9 +63,14 @@ rm(coord)
 #### Calculate center of locations ###
 locations <- sites_basic %>%
   group_by(locationYear) %>%
-  summarise(across(c(longitude, latitude, constructionYear), mean, na.rm = TRUE)) %>%
+  summarise(across(c(longitude, latitude, constructionYear),
+                   mean, na.rm = TRUE)) %>%
   rename(longitude_center = longitude, latitude_center = latitude)
-sites_basic <- left_join(sites_basic, locations %>% select(-constructionYear), by = "locationYear")
+sites_basic <- left_join(
+  sites_basic,
+  locations %>% select(-constructionYear),
+  by = "locationYear"
+  )
 
 
 ## 2 Transform shp files ################################################
@@ -103,7 +109,8 @@ st_intersection(bbox) # problem
 # plot(st_geometry(danube_isar))
 # rm(data)
 ### Here the digitized file ###
-danube_isar <- st_read(here("data", "raw", "spatial", "danube_isar_digitized_epsg4326.shp"))
+danube_isar <- st_read(here("data", "raw", "spatial",
+                            "danube_isar_digitized_epsg4326.shp"))
 
 
 ## 4 Background map #####################################################
@@ -208,7 +215,7 @@ st_write(dikes,
   dsn = here("data", "processed", "spatial")
 )
 st_write(conservation_area,
-  layer = "conservation_area_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
+  layer = "conservation_area_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE,
   dsn = here("data", "processed", "spatial")
 )
 st_write(ffh_area,

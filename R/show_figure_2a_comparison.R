@@ -58,8 +58,10 @@ theme_mb <- function() {
     panel.background = element_rect(fill = "white"),
     text = element_text(size = 9, color = "black"),
     strip.text = element_text(size = 10),
-    axis.text = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
-    axis.title = element_text(angle = 0, hjust = 0.5, size = 9, color = "black"),
+    axis.text = element_text(angle = 0, hjust = 0.5, size = 9,
+                             color = "black"),
+    axis.title = element_text(angle = 0, hjust = 0.5, size = 9,
+                              color = "black"),
     axis.line = element_line(),
     legend.key = element_rect(fill = "white"),
     legend.position = "none",
@@ -75,18 +77,25 @@ theme_mb <- function() {
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-data_model <- ggeffect(m2, type = "emm", c("comparison"), back.transform = TRUE) %>%
+data_model <- ggeffect(m2, type = "emm", c("comparison"),
+                       back.transform = TRUE) %>%
   mutate(
     predicted = exp(predicted),
     conf.low = exp(conf.low),
     conf.high = exp(conf.high),
     cross = if_else(x %in% c("1819"), "filled", "open"),
-    x = fct_recode(x, "2017 vs 2018" = "1718", "2018 vs 2019" = "1819", "2019 vs 2021" = "1921")
+    x = fct_recode(x,
+                   "2017 vs 2018" = "1718",
+                   "2018 vs 2019" = "1819",
+                   "2019 vs 2021" = "1921")
   )
 
 data <- sites %>%
   rename(predicted = y, x = comparison) %>%
-  mutate(x = fct_recode(x, "2017 vs 2018" = "1718", "2018 vs 2019" = "1819", "2019 vs 2021" = "1921"))
+  mutate(x = fct_recode(x,
+                        "2017 vs 2018" = "1718",
+                        "2018 vs 2019" = "1819",
+                        "2019 vs 2021" = "1921"))
 
 (graph_a <- ggplot() +
   geom_quasirandom(

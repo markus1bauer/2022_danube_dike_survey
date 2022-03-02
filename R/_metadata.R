@@ -14,7 +14,7 @@ library(EMLassemblyline)
 
 ### Start ###
 rm(list = ls())
-setwd(here("data/raw"))
+setwd(here("data", "raw"))
 
 
 
