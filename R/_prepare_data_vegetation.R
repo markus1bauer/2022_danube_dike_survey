@@ -938,52 +938,44 @@ data <- sites %>%
   ) %>%
   column_to_rownames(var = "plot")
 ### Calculate PCA ###
-pca <- rda(X = decostand(data, method = "standardize"), scale = TRUE)
-biplot(pca, display = "species")
-screeplot(pca, bstick = TRUE, type = "l", main = NULL)
-### Make data frames ###
+pca <- rda(data, scale = TRUE)
+summary(pca, axes = 0)
+screeplot(pca, bstick = TRUE, npcs = length(pca$CA$eig))
+biplot(pca, display = "species", scaling = 2)
+### create summary table ###
 eigenvals <- pca %>%
   eigenvals() %>%
   summary() %>%
-  as_tibble() %>%
-  select(PC1:PC3) %>%
-  bind_cols(c("Eigenvalues",
-              "Proportion Explained",
-              "Cumulative Proportion")) %>%
-  rename("variables" = "...4") %>%
-  mutate(across(where(is.numeric), as.double))
-values <- pca %>%
-  summary()
-### create summary table ###
-pcaSoil <- values$species[, 1:4] %>%
-  as_tibble() %>%
-  bind_cols(c(
-    "pH",
-    "calciumcarbonatPerc", "humusPerc", "NtotalPerc", "cnRatio", "NtotalConc",
-    "sandPerc", "siltPerc", "clayPerc",
-    "phosphorous", "potassium", "magnesium",
-    "topsoilDepth"
-  )) %>%
-  rename(variables = "...5") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "variables") %>%
+  tibble() %>%
+  select(PC1:PC4, variables)
+data <- pca %>%
+  summary() %>%
+  magrittr::extract2("species") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "variables") %>%
+  tibble() %>%
+  select(PC1:PC4, variables)
+pcaSoil <- data %>%
   bind_rows(eigenvals)
-data <- as_tibble(values$sites[, 1:4]) %>%
+### Add to sites ###
+data <- pca %>%
+  summary() %>%
+  magrittr::extract2("sites") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "plot") %>%
+  tibble() %>%
+  select(plot, PC1:PC4) %>%
   rename(
     PC1soil = PC1,
     PC2soil = PC2,
     PC3soil = PC3,
     PC4soil = PC4
   )
-### Add to sites ###
-data <- sites %>%
-  filter(accumulatedCov > 0) %>%
-  add_count(plot) %>%
-  filter(n == max(n) & surveyYear == 2017) %>%
-  group_by(plot) %>%
-  slice(1) %>%
-  ungroup() %>%
-  select(plot) %>%
-  bind_cols(data)
-sites <- left_join(sites, data, by = "plot")
+sites <- sites %>%
+  left_join(data, by = "plot")
+
 
 rm(list = setdiff(ls(), c("sites", "species", "traits", "pcaSoil")))
 
@@ -1183,33 +1175,34 @@ data <- sites %>%
   )
 ### Calculate PCA ###
 pca <- rda(X = decostand(data, method = "standardize"), scale = TRUE)
-biplot(pca, display = "species")
-screeplot(pca, bstick = TRUE, type = "l", main = NULL)
+summary(pca, axes = 0)
+screeplot(pca, bstick = TRUE, npcs = length(pca$CA$eig))
+biplot(pca, display = "species", scaling = 2)
 ### Make data frames ###
 eigenvals <- pca %>%
   eigenvals() %>%
   summary() %>%
-  as_tibble() %>%
-  select(PC1:PC3) %>%
-  bind_cols(c("Eigenvalues",
-              "Proportion Explained",
-              "Cumulative Proportion")) %>%
-  rename("variables" = "...4") %>%
-  mutate(across(where(is.numeric), as.double))
-values <- pca %>%
-  summary()
-### create summary table ###
-pcaSurveyYear <- values$species[, 1:3] %>%
-  as_tibble() %>%
-  bind_cols(c(
-    "tempMean_surveyYear", "tempSpring_surveyYear", "tempSummer_surveyYear",
-    "tempAutumn_surveyYear", "tempWinter_surveyYear",
-    "precMean_surveyYear", "precSpring_surveyYear", "precSummer_surveyYear",
-    "precAutumn_surveyYear", "precWinter_surveyYear"
-  )) %>%
-  rename(variables = "...4") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "variables") %>%
+  tibble() %>%
+  select(PC1:PC3, variables)
+data <- pca %>%
+  summary() %>%
+  magrittr::extract2("species") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "variables") %>%
+  tibble() %>%
+  select(PC1:PC3, variables)
+pcaSurveyYear <- data %>%
   bind_rows(eigenvals)
-data <- as_tibble(values$sites[, 1:3]) %>%
+### create summary table ###
+data <- pca %>%
+  summary() %>%
+  magrittr::extract2("sites") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "plot") %>%
+  tibble() %>%
+  select(plot, PC1:PC3) %>%
   rename(
     PC1surveyYear = PC1,
     PC2surveyYear = PC2,
@@ -1217,13 +1210,7 @@ data <- as_tibble(values$sites[, 1:3]) %>%
   )
 ### Add to sites ###
 sites <- sites %>%
-  bind_cols(data) %>%
-  select(
-    -tempSpring_surveyYear, -tempSummer_surveyYear, -tempAutumn_surveyYear,
-    -tempWinter_surveyYear,
-    -precSpring_surveyYear, -precSummer_surveyYear, -precAutumn_surveyYear,
-    -precWinter_surveyYear
-  )
+  left_join(data, by = "plot")
 
 ### * Calculation constructionYear ####
 ### Prepare data ###
@@ -1249,54 +1236,43 @@ data <- sites %>%
   select(-plot)
 ### Calculate PCA ###
 pca <- rda(X = decostand(data, method = "standardize"), scale = TRUE)
-biplot(pca, display = "species")
-screeplot(pca, bstick = TRUE, type = "l", main = NULL)
+summary(pca, axes = 0)
+screeplot(pca, bstick = TRUE, npcs = length(pca$CA$eig))
+biplot(pca, display = "species", scaling = 2)
 ### Make data frames ###
 eigenvals <- pca %>%
   eigenvals() %>%
   summary() %>%
-  as_tibble() %>%
-  select(PC1:PC3) %>%
-  bind_cols(c("Eigenvalues",
-              "Proportion Explained",
-              "Cumulative Proportion")) %>%
-  rename("variables" = "...4") %>%
-  mutate(across(where(is.numeric), as.double))
-values <- pca %>%
-  summary()
-### create summary table ###
-pcaConstuctionYear <- values$species[, 1:3] %>%
-  as_tibble() %>%
-  bind_cols(c(
-    "tempMean_constructionYear", "tempSpring_constructionYear",
-    "tempSummer_constructionYear", "tempAutumn_constructionYear",
-    "tempWinter_constructionYear",
-    "tempMean_constructionYearPlus", "tempSpring_constructionYearPlus",
-    "tempSummer_constructionYearPlus", "tempAutumn_constructionYearPlus",
-    "tempWinter_constructionYearPlus",
-    "precMean_constructionYear", "precSpring_constructionYear",
-    "precSummer_constructionYear", "precAutumn_constructionYear",
-    "precWinter_constructionYear",
-    "precMean_constructionYearPlus",
-    "precSpring_constructionYearPlus", "precSummer_constructionYearPlus",
-    "precAutumn_constructionYearPlus", "precWinter_constructionYearPlus"
-  )) %>%
-  rename(variables = "...4") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "variables") %>%
+  tibble() %>%
+  select(PC1:PC3, variables)
+data <- pca %>%
+  summary() %>%
+  magrittr::extract2("species") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "variables") %>%
+  tibble() %>%
+  select(PC1:PC3, variables)
+pcaSurveyYear <- data %>%
   bind_rows(eigenvals)
-data <- as_tibble(values$sites[, 1:3]) %>%
+### create summary table ###
+data <- pca %>%
+  summary() %>%
+  magrittr::extract2("sites") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "plot") %>%
+  tibble() %>%
+  select(plot, PC1:PC3) %>%
   rename(
     PC1constructionYear = PC1,
     PC2constructionYear = PC2,
     PC3constructionYear = PC3
   )
 ### Add to sites ###
-data <- sites %>%
-  group_by(plot) %>%
-  slice(1) %>%
-  ungroup() %>%
-  select(plot) %>%
-  bind_cols(data)
-sites <- left_join(sites, data, by = "plot")
+sites <- sites %>%
+  left_join(data, by = "plot")
+
 
 rm(list = setdiff(ls(), c(
   "sites", "species", "traits",
