@@ -140,23 +140,23 @@ m1c <- blmer(log(y) ~ 1 + (1 | plot), data = sites, REML = TRUE)
 MuMIn::AICc(m1a, m1b, m1c) # m1c most parsimonous
 
 #### * fixed effects ####
-m1 <- blmer(log(y) ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side +
-  distanceRiver + locationYear + D_abundance +
-  (1 | plot),
+m1 <- blmer(log(y) ~
+              (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil +
+              side + distanceRiver + locationYear + D_abundance +
+              (1 | plot),
 REML = FALSE,
 control = lmerControl(optimizer = "Nelder_Mead"),
 cov.prior = wishart,
 data = sites
 )
 simulateResiduals(m1, plot = TRUE)
-m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side +
-  distanceRiver + locationYear + D_abundance +
-  (1 | plot),
-  REML = FALSE,
-  control = lmerControl(optimizer = "Nelder_Mead"),
-  cov.prior = wishart,
-  data = sites
-)
+m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil +
+              side + distanceRiver + locationYear + D_abundance +
+              (1 | plot),
+            REML = FALSE,
+            control = lmerControl(optimizer = "Nelder_Mead"),
+            cov.prior = wishart,
+            data = sites)
 simulateResiduals(m2, plot = TRUE)
 m3 <- blmer(log(y) ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side +
   distanceRiver + locationYear + D_abundance +
