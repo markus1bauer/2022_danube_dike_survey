@@ -170,7 +170,7 @@ associatedParty <- list(
     role = "Professor",
     organizationName = "Technical University of Munich",
     address = address,
-    electronicMailAddress = "jkollmann@wzw.tum.de",
+    electronicMailAddress = "johannes.kollmann@tum.de",
     phone = "0049-8161-714144",
     id = "https://orcid.org/0000-0002-4990-3636"
   )
@@ -182,7 +182,7 @@ contact <-
     electronicMailAddress = creator$electronicMailAddress,
     address = address,
     organizationName = "Technical University of Munich",
-    onlineUrl = "DOI address to the database"
+    onlineUrl = "https://doi.org/10.5281/zenodo.6334100"
   )
 
 
