@@ -36,24 +36,18 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
 This work is licensed under a
 [Creative Commons Attribution 4.0 International License][cc-by].
 
-[![CC BY 4.0][cc-by-image]][cc-by]
-
 [cc-by]: http://creativecommons.org/licenses/by/4.0/
-[cc-by-image]: https://i.creativecommons.org/l/by/4.0/88x31.png
 [cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
 
-***
 
 When using the __data available__ in this repository, please cite the original publication and the dataset.  
 
+__Publication__
+
+> Bauer M, Huber J, & Kollmann J (Under review) Beta diversity of restored grasslands is strongly influenced by uncontrolled spatio-temporal variability.
+
+__Dataset__
+
+> Bauer M, Huber J & Kollmann J (2022) Data and code for Bauer et al. (submitted): Restored dike grasslands (v1.0.2) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.6334100
+
 Contact markus1.bauer@tum.de for any further information.  
-
-**Citation:**
-
-> Bauer M, Huber J, & Kollmann J (submitted). Beta diversity of restored grasslands.
-
-***
-
-**Dataset**
-
-[![DOI](https://zenodo.org/badge/340059790.svg)](https://zenodo.org/badge/latestdoi/340059790)
