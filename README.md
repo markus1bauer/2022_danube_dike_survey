@@ -28,6 +28,15 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
 3. __R__: the folder `R` contains  
     * Scripts to calculate all models (.R)
     * Scripts to generate all figures and tables (.R)
+
+***
+
+__Package versioning__
+
+The used versions of R and the packages are saved in `2022_waste_bricks_trees/renv.lock`.
+
+You can restore this state by executing `renv::restore()` in the console.
+
     
 ***
 
