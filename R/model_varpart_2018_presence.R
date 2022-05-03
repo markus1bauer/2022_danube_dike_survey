@@ -95,7 +95,7 @@ GGally::ggpairs(data, lower = list(continuous = "smooth_loess"))
 #--> PC3constructionYear removed
 
 ### * Calculate: Baselga presence-absence ####
-beta <- beta.div.comp(species, coef = "BS", quant = F)
+beta <- beta.div.comp(species, coef = "BS", quant = FALSE)
 beta$Note
 beta$part # total = 0.331, substitution = 0.281, subsets = 0.050
 beta_total <- beta$D %>% # sörensen dissimilarity
@@ -112,10 +112,11 @@ beta_subsets <- beta$rich %>% # nestedness
 ### a Overall variation partitioning ------------------------------------
 
 (m1_total_varpart <- varpart(beta_total, sites_soil, sites_space, sites_history))
-plot(m1_total_varpart,
+plot(
+  m1_total_varpart,
   Xnames = c("Site", "Space", "History"),
   cutoff = 0.01, digits = 1, bg = NA, id.size = 1
-)
+  )
 
 ### b Substitution ------------------------------------------------------
 
@@ -180,13 +181,15 @@ sites_history_selected <- sites %>%
 
 ### * Variation partitioning ####
 (m1_substitution_varpart <- varpart(beta_substitution, sites_soil_selected, sites_space_selected))
-tiff(here("outputs", "figures", "figure_4b_2018_800dpi_12x12cm.tiff"),
+tiff(
+  here("outputs", "figures", "figure_4b_2018_800dpi_12x12cm.tiff"),
   res = 72, width = 12, height = 12, units = "cm", compression = "none"
-)
-plot(m1_substitution_varpart,
+  )
+plot(
+  m1_substitution_varpart,
   Xnames = c("Site", "Space"),
   cutoff = 0.01, digits = 2, bg = NA
-)
+  )
 dev.off()
 
 ### * partial db-RDA ####
