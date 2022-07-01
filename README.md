@@ -8,7 +8,7 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
 
 **DOI**: [https://doi.org/???](https://doi.org/???)
 
-**Supporting information**: [link](https://www.???.org/supplementarydata.pdf)
+**Study region**: [River Danube around Deggendorf](https://www.openstreetmap.org/#map=11/48.8127/12.9790)
 
 ## Content of the repository
 

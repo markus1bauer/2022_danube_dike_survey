@@ -86,12 +86,14 @@ themeMB <- function() {
 
 ### a Map of project site -----------------------------------------------
 
-(graphSites <- ggmap(background_terrain,
+(graphSites <- ggmap(
+  background_terrain,
   base_layer = ggplot(sites_ggmap, aes(x = X, y = Y))
-) +
+  ) +
   geom_point(size = 2, color = "black", pch = 15) +
   geom_text_repel(
-    data = locations, aes(
+    data = locations,
+    aes(
       label = constructionYear,
       x = longitude_center,
       y = latitude_center
