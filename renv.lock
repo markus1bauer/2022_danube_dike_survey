@@ -1139,6 +1139,14 @@
       "Hash": "ac5c6baf7822ce8732b343f14c072c4d",
       "Requirements": []
     },
+    "gtools": {
+      "Package": "gtools",
+      "Version": "3.9.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "32600a0bea839c4d0ac998d7c547ecf7",
+      "Requirements": []
+    },
     "haven": {
       "Package": "haven",
       "Version": "2.5.0",
@@ -2653,6 +2661,21 @@
         "stringr",
         "taxize",
         "worrms"
+      ]
+    },
+    "tempo": {
+      "Package": "tempo",
+      "Version": "0.0.0.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "tempo",
+      "RemoteUsername": "larsito",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "7d059fdd3dd79acdbf33f424e3c0364ee0ab30fe",
+      "Hash": "3af162af5b2bee0468178b145535bbd1",
+      "Requirements": [
+        "gtools"
       ]
     },
     "terra": {

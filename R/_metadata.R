@@ -18,12 +18,12 @@ setwd(here("data", "raw"))
 
 
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Collect metadata ####################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Collect metadata ##########################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-### 1 Methods and units #################################################
+### 1 Methods and units #######################################################
 
 methods_file <- here("data/text/methods.odt")
 methods <- set_methods(methods_file)
@@ -50,44 +50,44 @@ custom_units <- bind_rows(
 unitList <- set_unitList(custom_units)
 
 
-### 2 Raw data ##########################################################
+### 2 Raw data ################################################################
 
-### a data_raw_species  -------------------------------------------------
+### a data_raw_species  -------------------------------------------------------
 attributes <- read_csv("data_raw_species_metadata.csv")
 physical_raw_species <- set_physical("data_raw_species.csv")
 
-### b data_raw_traits  --------------------------------------------------
+### b data_raw_traits  --------------------------------------------------------
 attributes <- read_csv("data_raw_traits_metadata.csv") %>%
   select(-type, -factor)
 physical_raw_traits <- set_physical("data_raw_traits.csv")
 
-### c data_raw_sites  ---------------------------------------------------
+### c data_raw_sites  ---------------------------------------------------------
 attributes <- read_csv("data_raw_sites_metadata.csv") %>%
   select(-type, -factor)
 physical_raw_sites <- set_physical("data_raw_sites.csv")
 
 
-### 3 Processed data ####################################################
+### 3 Processed data ##########################################################
 
-### a data_processed_species  -------------------------------------------
+### a data_processed_species  -------------------------------------------------
 
 attributes <- read_csv(here("data/processed/data_processed_species_metadata.csv")) %>%
   select(-type, -factor)
 physical_processed_species <- set_physical("data_processed_species.csv")
 
 
-### b data_processed_traits  --------------------------------------------
+### b data_processed_traits  --------------------------------------------------
 attributes <- read_csv(here("data/processed/data_processed_traits_metadata.csv")) %>%
   select(-type, -factor)
 physical_processed_traits <- set_physical("data_raw_traits.csv")
 
 
-### c data_processed_sites  ---------------------------------------------
+### c data_processed_sites  ---------------------------------------------------
 attributes <- read_csv(here("data/processed/data_processed_sites_metadata.csv"))
 physical_processed_sites <- set_physical("data_raw_sites.csv")
 
 
-### 4 Put data table together ###########################################
+### 4 Put data table together #################################################
 
 dataTable <- list(
   list(
@@ -129,7 +129,7 @@ dataTable <- list(
 )
 
 
-### 5 Contact ###########################################################
+### 5 Contact #################################################################
 
 address <- list(
   deliveryPoint = "Emil-Ramann-Strasse 6",
@@ -186,7 +186,7 @@ contact <-
   )
 
 
-### 6 Temporal and spatial coverage #####################################
+### 6 Temporal and spatial coverage ###########################################
 
 geographicDescription <- "Danube dikes near Deggendorf"
 
@@ -203,7 +203,7 @@ coverage <- set_coverage(
 )
 
 
-### 7 Description #######################################################
+### 7 Description #############################################################
 
 pubDate <- "2022"
 
@@ -234,9 +234,9 @@ intellectualRights <- "CC-BY-4.0: https://creativecommons.org/licenses/by/4.0/de
 
 
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B finalize EML ########################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B finalize EML ##############################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 dataset <- list(

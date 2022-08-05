@@ -19,9 +19,9 @@ library(tempo) # calc_sync
 
 ### Start ###
 #installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
-checklist::setup_source()
-checklist::check_source()
-renv::status()
+#checklist::setup_source()
+#checklist::check_source()
+#renv::status()
 #renv::snapshot()
 #renv::restore()
 
@@ -112,6 +112,12 @@ sites <- read_csv("data_raw_sites.csv",
     .after = constructionYear
   )
 
+sites_splot <- read_delim(here("data", "raw", "splot",
+                         "sPlotOpen_header.txt"),
+                    col_names = TRUE, na = c("", "NA", "na"), col_types =
+                      cols(
+                        .default = "?"
+                      )) 
 
 ### 2 Species #########################################################
 
@@ -138,6 +144,15 @@ species <- data.table::fread("data_raw_species.csv",
   ungroup() %>%
   select(name, sort(tidyselect::peek_vars()), -total, -presence) %>%
   mutate(across(where(is.numeric), ~ replace(., is.na(.), 0)))
+
+species_splot <- read_delim(here("data", "raw", "splot",
+                        "sPlotOpen_DT.txt"),
+                   col_names = TRUE, na = c("", "NA", "na"), col_types =
+                     cols(
+                       .default = "?"
+                     )) %>%
+  filter(Abundance_scale == "CoverPerc")
+
 
 ### Create list with species names and their frequency ###
 specieslist <- species %>%
@@ -191,7 +206,33 @@ species$name[which(!(species$name %in% traits$name))]
 traits <- semi_join(traits, species, by = "name")
 
 
-### 4 Check data frames ################################################
+### 4 Temperature #######################################################
+
+temperature <- read_csv(here("data", "raw", "temperature", "data",
+                      "data_OBS_DEU_P1M_T2M.csv"),
+                 col_names = TRUE, na = c("", "NA", "na"), col_types =
+                   cols(
+                     .default = "?"
+                   )
+) %>%
+  rename(date = Zeitstempel, value = Wert, site = SDO_ID) %>%
+  select(site, date, value) %>%
+
+  
+### 5 Precipitation #######################################################
+
+precipitation <-  read_csv(here("data", "raw", "precipitation", "data",
+                "data_OBS_DEU_P1M_RR.csv"),
+           col_names = TRUE, na = c("", "NA", "na"), col_types =
+             cols(
+               .default = "?"
+             )
+  ) %>%
+  rename(date = Zeitstempel, value = Wert, site = SDO_ID) %>%
+  select(site, date, value)
+  
+
+### 6 Check data frames ################################################
 
 ### Check typos ###
 sites %>%
@@ -977,22 +1018,13 @@ data <- pca %>%
 sites <- sites %>%
   left_join(data, by = "plot")
 
-
 rm(list = setdiff(ls(), c("sites", "species", "traits", "pcaSoil")))
 
 
 ### b Climate PCA  -----------------------------------------------------
 
 ### * Temperature ####
-data <- read_csv(here("data", "raw", "temperature", "data",
-                      "data_OBS_DEU_P1M_T2M.csv"),
-  col_names = TRUE, na = c("", "NA", "na"), col_types =
-    cols(
-      .default = "?"
-    )
-) %>%
-  rename(date = Zeitstempel, value = Wert, site = SDO_ID) %>%
-  select(site, date, value) %>%
+data <- temperature
   filter(date >= "2002-03-01") %>%
   mutate(
     site = factor(site),
@@ -1071,15 +1103,7 @@ sites <- sites %>%
   )
 
 ### * Precipitation ####
-data <- read_csv(here("data", "raw", "precipitation", "data",
-                      "data_OBS_DEU_P1M_RR.csv"),
-  col_names = TRUE, na = c("", "NA", "na"), col_types =
-    cols(
-      .default = "?"
-    )
-) %>%
-  rename(date = Zeitstempel, value = Wert, site = SDO_ID) %>%
-  select(site, date, value) %>%
+data <- precipitation %>%
   filter(date >= "2002-03-01") %>%
   mutate(
     site = factor(site),
@@ -1280,25 +1304,46 @@ rm(list = setdiff(ls(), c(
   "pcaConstuctionYear", "pcaSoil", "pcaSurveyYear"
 )))
 
+
 ## 7 sPlot open data ###################################################
 
-### a Soil PCA  --------------------------------------------------------
 
+data1 <- species_splot %>%
+  filter(str_detect(Species, "^Arrhenatherum") |
+           str_detect(Species, "^Campanula patula") |
+           str_detect(Species, "^Centaurea jacea") |
+           str_detect(Species, "^Crepis biennis") |
+           str_detect(Species, "^Galium album") |
+           str_detect(Species, "^Geranium pratense") |
+           str_detect(Species, "^Helictotrichon pubescens") |
+           str_detect(Species, "^Knautia arvensis") |
+           str_detect(Species, "^Pimpinella major") |
+           str_detect(Species, "^Sanguisorba officinalis") |
+           str_detect(Species, "^Tragopogon pratensis")) %>%
+  distinct(PlotObservationID)
 
+data2 <- sites_splot %>%
+  semi_join(data1, by = "PlotObservationID") %>%
+  filter(Grassland == TRUE &
+           Releve_area >= 10 &
+           Releve_area <= 40 &
+           Longitude > 11.96215 &
+           Longitude < 13.96215 &
+           Latitude > 47.83298 &
+           Latitude < 49.83298)
+           
+data3 <- data %>%
+  semi_join(data2, by = "PlotObservationID") %>%
+  select(Species, PlotObservationID, Original_abundance) %>%
+  pivot_wider(names_from = "PlotObservationID",
+              values_from = "Original_abundance",
+              values_fn = sum)
 
-### b Climate PCA  -----------------------------------------------------
-
-### * Temperature ####
-data <- read_csv(here("data", "raw", "temperature", "data",
-                      "data_OBS_DEU_P1M_T2M.csv"),
-                 col_names = TRUE, na = c("", "NA", "na"), col_types =
-                   cols(
-                     .default = "?"
-                   )
 
 rm(list = setdiff(ls(), c("sites", "species", "traits", "pcaSoil")))
 
-## 7 TBI: Temporal Beta diversity Index ################################
+
+## 8 TBI: Temporal Beta diversity Index ################################
 
 ### * Prepare data ####
 data_sites <- sites %>%
@@ -1507,7 +1552,7 @@ rm(list = setdiff(ls(), c(
 )))
 
 
-## 8 Finalization ######################################################
+## 9 Finalization ######################################################
 
 ### a Rounding ---------------------------------------------------------
 
