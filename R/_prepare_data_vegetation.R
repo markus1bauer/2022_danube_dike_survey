@@ -19,8 +19,8 @@ library(tempo) # calc_sync
 
 ### Start ###
 #installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
-#checklist::check_source()
-#checklist::setup_source()
+checklist::setup_source()
+checklist::check_source()
 renv::status()
 #renv::snapshot()
 #renv::restore()
@@ -1280,6 +1280,23 @@ rm(list = setdiff(ls(), c(
   "pcaConstuctionYear", "pcaSoil", "pcaSurveyYear"
 )))
 
+## 7 sPlot open data ###################################################
+
+### a Soil PCA  --------------------------------------------------------
+
+
+
+### b Climate PCA  -----------------------------------------------------
+
+### * Temperature ####
+data <- read_csv(here("data", "raw", "temperature", "data",
+                      "data_OBS_DEU_P1M_T2M.csv"),
+                 col_names = TRUE, na = c("", "NA", "na"), col_types =
+                   cols(
+                     .default = "?"
+                   )
+
+rm(list = setdiff(ls(), c("sites", "species", "traits", "pcaSoil")))
 
 ## 7 TBI: Temporal Beta diversity Index ################################
 
