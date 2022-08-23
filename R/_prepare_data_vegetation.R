@@ -1665,7 +1665,7 @@ sites <- sites %>%
     pc1_construction_year, pc2_construction_year, pc3_construction_year,
     # response variables
     accumulated_cover, species_richness, eveness, shannon,
-    graminoid_cover_ratio,
+    graminoid_cover_ratio, ruderal_cover,
     target_richness, target_richness_ratio, target_cover_ratio
   )
 

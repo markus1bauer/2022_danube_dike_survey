@@ -18,21 +18,15 @@ rm(list = ls())
 setwd(here("data", "processed"))
 
 ### Load data ###
-sites_dikes <- read_csv("data_processed_sites_spatial.csv", col_names = TRUE,
-                  na = c("na", "NA", ""), col_types =
+sites_dikes <- read_csv("data_processed_sites_spatial_nmds.csv",
+                        col_names = TRUE, na = c("na", "NA", ""), col_types =
                     cols(
                       .default = "?",
-                      id = "f",
-                      locationAbb = "f",
-                      block = "f",
-                      plot = "f",
-                      exposition = "f"
+                      id = "f"
                     )) %>%
-  select(id, surveyYear, locationYear, latitude, longitude, riverkm,
-         distanceRiver, constructionYear, plotAge, exposition, side, PC1soil,
-         PC2soil, speciesRichness, accumulatedCov) %>%
-  mutate(surveyYearF = as_factor(surveyYear)) %>%
-  filter(accumulatedCov > 0)
+  select(id, survey_year, species_richness, eveness, shannon, target_richness,
+         accumulated_cover, target_cover_ratio, graminoid_cover_ratio) %>%
+  mutate(survey_year_factor = as_factor(survey_year))
 
 sites_splot <- read_csv("data_processed_sites_splot.csv", col_names = TRUE,
                   na = c("na", "NA", ""), col_types =
@@ -42,7 +36,8 @@ sites_splot <- read_csv("data_processed_sites_splot.csv", col_names = TRUE,
 
 sites <- sites_dikes %>%
   bind_rows(sites_splot) %>%
-  mutate(reference = if_else(is.na(reference), "no", reference))
+  mutate(reference = if_else(is.na(reference), "no", reference),
+         esy = if_else(is.na(esy), "dike", esy))
 
 species_dikes <- read_csv("data_processed_species.csv", col_names = TRUE,
                     na = c("na", "NA", ""), col_types =
@@ -66,6 +61,7 @@ species <- species_dikes %>%
   semi_join(sites, by = "id") %>%
   column_to_rownames("id")
 
+rm(list = setdiff(ls(), c("sites", "species")))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # B Statistics ################################################################
@@ -95,17 +91,17 @@ points(ordi, display = "sites", cex = gof * 300)
 
 #### a Vectors ----------------------------------------------------------------
 (ef_vector1 <- envfit(ordi ~
-                        speciesRichness + eveness + shannon +
-                        accumulatedCov + graminoidCovratio +
-                        targetRichness + targetCovratio,
+                        species_richness + #eveness + shannon +
+                        accumulated_cover + graminoid_cover_ratio +
+                        target_richness + target_cover_ratio,
               data = sites, 
               permu = 999, 
               na.rm = TRUE))
 plot(ordi, type = "n")
 plot(ef_vector1, add = TRUE, p. = .99)
 (ef_vector2 <- envfit(ordi ~
-                        speciesRichness +
-                        accumulatedCov, 
+                        species_richness +
+                        accumulated_cover, 
                       data = sites, 
                       permu = 999, 
                       na.rm = T))
@@ -113,11 +109,11 @@ plot(ordi, type = "n")
 plot(ef_vector2, add = TRUE, p. = .99)
 
 #### b Factors ----------------------------------------------------------------
-(ef_factor1 <- envfit(ordi ~  surveyYearF + exposition + reference, 
+(ef_factor1 <- envfit(ordi ~  survey_year_factor + exposition + esy, 
               data = sites, permu = 999, na.rm = TRUE))
 plot(ordi, type = "n")
-ordiellipse(ordi, sites$surveyYearF, kind = "sd", draw = "lines", label = TRUE)
+ordiellipse(ordi, sites$survey_year_factor, kind = "sd", draw = "lines", label = TRUE)
 plot(ordi, type = "n")
 ordiellipse(ordi, sites$exposition, kind = "sd", draw = "lines", label = TRUE)
 plot(ordi, type = "p")
-ordiellipse(ordi, sites$reference, kind = "sd", draw = "lines", label = TRUE)
+ordiellipse(ordi, sites$esy, kind = "sd", draw = "lines", label = TRUE)

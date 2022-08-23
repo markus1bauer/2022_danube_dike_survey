@@ -1,4 +1,4 @@
-# Show Figure 2 NMDS ####
+# Show Figure NMDS ####
 # Markus Bauer
 
 
@@ -12,49 +12,77 @@
 library(here)
 library(tidyverse)
 library(vegan)
-library(ggrepel)
 
 ### Start ###
 rm(list = ls())
 setwd(here("data", "processed"))
 
-### Load data ###
-sites <- read_csv("data_processed_sites.csv", col_names = TRUE,
-                  na = c("na", "NA", ""), col_types =
-                    cols(
-                      .default = "d",
-                      id = "f",
-                      locationAbb = "f",
-                      block = "f",
-                      plot = "f",
-                      exposition = "f"
-                    )) %>%
-  select(id, plot, block, locationAbb, surveyYear, exposition, vegetationCov, targetCov, graminoidCovratio, speciesRichness, targetRichness, shannon, eveness, accumulatedCov) %>%
-  mutate(surveyYearF = as_factor(surveyYear)) %>%
-  filter(accumulatedCov > 0)
+### * Load data sites ####
+sites_dikes <- read_csv("data_processed_sites_spatial_nmds.csv",
+                        col_names = TRUE, na = c("na", "NA", ""), col_types =
+                          cols(
+                            .default = "?",
+                            id = "f"
+                          )) %>%
+  select(id, survey_year, target_richness) %>%
+  mutate(survey_year_factor = as_factor(survey_year),
+         target_richness_group = if_else(
+           target_richness < 10, "<10", if_else(
+             target_richness >= 10 & target_richness < 20, "10-19", if_else(
+               target_richness >= 20 & target_richness < 30, "20-29", if_else(
+                 target_richness >= 30, ">30", "warning"
+                 )
+               )
+             )
+           ),
+         target_richness_group = fct_relevel(target_richness_group,
+                                             "<10", "10-19", "20-29", ">30"))
 
-species <- read_csv("data_processed_species.csv", col_names = T, na = c("na", "NA", ""), col_types = 
-                      cols(
-                        .default = "d",
-                        name = "f"
-                      )) %>%  
+sites_splot <- read_csv("data_processed_sites_splot.csv", col_names = TRUE,
+                        na = c("na", "NA", ""), col_types =
+                          cols(
+                            .default = "?"
+                          ))
+
+sites <- sites_dikes %>%
+  bind_rows(sites_splot) %>%
+  mutate(esy = if_else(
+    is.na(esy), "Dike plots", if_else(
+      esy == "E12a", "Dry grassland", if_else(
+        esy == "E22", "Hay meadow", "warning"
+      )
+    
+  )))
+
+### * Load data species ####
+species_dikes <- read_csv("data_processed_species.csv", col_names = TRUE,
+                          na = c("na", "NA", ""), col_types =
+                            cols(
+                              .default = "d",
+                              name = "f"
+                            ))
+
+species_splot <- read_csv("data_processed_species_splot.csv", col_names = TRUE,
+                          na = c("na", "NA", ""), col_types =
+                            cols(
+                              .default = "?"
+                            ))
+
+species <- species_dikes %>%
+  full_join(species_splot, by = "name") %>%
   mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
-  pivot_longer(-name, "id", "value") %>%
-  pivot_wider(id, name) %>%
+  pivot_longer(cols = -name, names_to = "id", values_to = "value") %>%
+  pivot_wider(names_from = "name", values_from = "value") %>%
   arrange(id) %>%
   semi_join(sites, by = "id") %>%
   column_to_rownames("id")
 
-#### a Choosen model ----------------------------------------------------------
+rm(list = setdiff(ls(), c("sites", "species")))
+
+#### * Choosen model ####
 set.seed(1)
 (ordi <- metaMDS(species, dist = "bray", binary = FALSE,
                  try = 99, previous.best = TRUE, na.rm = TRUE))
-### ef_vector ###
-(ef <- envfit(ordi ~  targetRichness + eveness + graminoidCovratio, 
-                      data = sites, permu = 999, na.rm = T))
-rownames(ef$vectors$arrows) <- c("target species\nrichness",
-                                 "eveness",
-                                 "graminoid coverage")
 
 
 
@@ -75,7 +103,7 @@ theme_mb <- function() {
                               color = "black"),
     axis.line = element_line(),
     legend.key = element_rect(fill = "white"),
-    legend.position = "bottom",
+    legend.position = "right",
     legend.margin = margin(0, 0, 0, 0, "cm"),
     plot.margin = margin(0, 0, 0, 0, "cm")
   )
@@ -88,22 +116,21 @@ veganCovEllipse <- function(cov, center = c(0, 0), scale = 1, npoints = 100) {
 }
 
 
-
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Plot ######################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
+### * Preparation ####
 ellipses <- tibble()
 
-data1 <-  sites %>%
-  mutate(group_type = str_c(surveyYear_fac, exposition, targetType,
-                            sep = "."),
-         group_type = factor(group_type))
+data_nmds <-  sites %>%
+  select(id, esy, target_richness_group) %>% # modify group
+  mutate(group_type = as_factor(esy), # modify group
+         NMDS1 = ordi$points[,1],
+         NMDS2 = ordi$points[,2]) %>%
+  group_by(group_type) %>%
+  mutate(mean1 = mean(NMDS1),
+         mean2 = mean(NMDS2))
 
-for(group in levels(data1$group_type)) {
+for(group in levels(data_nmds$group_type)) {
   
-  data2 <- data1 %>%
+  ellipses_calc <- data_nmds %>%
     filter(group_type == group) %>%
     with(
       cov.wt(
@@ -113,56 +140,38 @@ for(group in levels(data1$group_type)) {
     )
   
   ellipses <- 
-    veganCovEllipse(cov = data2$cov, center = data2$center) %>%
+    veganCovEllipse(cov = ellipses_calc$cov, center = ellipses_calc$center) %>%
     as_tibble() %>%
-    bind_cols(group = group) %>%
+    bind_cols(group_type = group) %>%
     bind_rows(ellipses)
   
-  data <- ellipses %>%
-    separate(
-      group,
-      sep = "\\.",
-      c("surveyYear_fac", "exposition", "targetType")
-    )
+  data <- ellipses
   
 }
 
 
 (graph_a <- ggplot() +
     geom_point(
-      aes(y = NMDS2, x = NMDS1, color = surveyYear_fac,
-          shape = surveyYear_fac, alpha = surveyYear_fac),
-      data = sites,
+      aes(y = NMDS2, x = NMDS1, color = target_richness_group,
+          shape = group_type),
+      data = data_nmds,
       cex = 2
     ) +
     geom_path(
-      aes(x = NMDS1, y = NMDS2, color = surveyYear_fac),
+      aes(x = NMDS1, y = NMDS2, linetype = group_type),
       data = data,
-      size = 1
+      size = 1,
+      show.legend = FALSE
     ) +
-    facet_grid(
-      exposition ~ targetType,
-      labeller = as_labeller(
-        c(south = "South", north = "North",
-          "dry_grassland" = "Dry grassland", "hay_meadow" = "Hay meadow")
-      )
+    geom_text(
+      aes(x = mean1, y = mean2, label = group_type),
+      data = data_nmds
     ) +
     coord_fixed() +
-    scale_color_manual(
-      values = c(
-        "orange1", "firebrick2", "deeppink3", "mediumpurple4",
-        "royalblue", "black"
-      )
-    ) +
-    scale_shape_manual(
-      values = c(
-        "circle open", "circle open", "circle open", "circle open",
-        "square", "square open"
-      )
-    ) +
-    scale_alpha_manual(values = c(.3, .3, .3, .3, .7, .6)) +
+    scale_color_brewer(na.value = "black") +
+    scale_linetype_manual(values = c(1, 1, 1)) +
     labs(
-      x = "NMDS1", y = "NMDS2", fill = "", color = "", shape = "", alpha = ""
+      x = "NMDS1", y = "NMDS2", color = "Target species\nrichness", shape = ""
     ) +
     theme_mb())
 
