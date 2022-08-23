@@ -66,9 +66,9 @@ sites <- read_csv("data_raw_sites.csv",
       starts_with("litter_cover.") |
       starts_with("botanist."),
     names_to = c("x", "survey_year"),
-    names_sep = ".",
+    names_sep = "\\.",
     values_to = "n"
-    ) #%>%
+    ) %>%
   pivot_wider(names_from = x, values_from = n) %>%
   mutate(across(
     c(survey_year, vegetation_cover, vegetation_height,
@@ -92,20 +92,21 @@ sites <- read_csv("data_raw_sites.csv",
     location_abb = factor(location_abb,
       levels = unique(location_abb[order(construction_year)])
     ),
-    location_construction_year = str_c(location_abb, construction_year, sep = "-")
+    location_construction_year = str_c(location_abb, construction_year,
+                                       sep = "-")
   ) %>%
   select(
     -position, -starts_with("survey_date_"), -starts_with("topsoil_depth_"),
-    -cnLevel, -ends_with("_class")
+    -cn_level, -ends_with("_class")
   ) %>%
-  relocate(plot, .after = id) %>%
-  relocate(c("location_abb", "location_construction_year"), .after = location) %>%
+  relocate(plot,
+           .after = id) %>%
+  relocate(c("location_abb", "location_construction_year"),
+           .after = location) %>%
   relocate(c("survey_year", "survey_year_factor", "survey_year_factor_minus"),
-    .after = riverkm
-  ) %>%
+           .after = river_km) %>%
   relocate(c("construction_year_factor", "construction_year_factor_plus"),
-    .after = construction_year
-  )
+           .after = construction_year)
 
 sites_splot <- read_delim(here("data", "raw", "splot", "sPlotOpen_header.txt"),
                          col_names = TRUE, na = c("", "NA", "na"),
@@ -285,16 +286,16 @@ rm(list = setdiff(ls(), c("sites", "sites_splot",
 
 traits <- traits %>%
   mutate(
-    leanIndicator = if_else(
+    lean_indicator = if_else(
       !(is.na(table30)) | !(is.na(table33)) | !(is.na(table34)), "yes", "no"
     ),
     target = if_else(
-      target_herb == "yes" | targetGrass == "yes", "yes", "no"
+      target_herb == "yes" | target_grass == "yes", "yes", "no"
     ),
     ruderal = if_else(
       sociology >= 3300 & sociology < 3700, "yes", "no"
     ),
-    targetEllenberg = if_else(
+    target_ellenberg = if_else(
       sociology >= 5300 & sociology < 5400, "dry_grassland", if_else(
         sociology >= 5400 & sociology < 6000, "hay_meadow", if_else(
           sociology >= 5100 & sociology < 5200, "nardus_grassland", if_else(
@@ -307,11 +308,9 @@ traits <- traits %>%
 
 sites <- sites %>%
   mutate(
-    conf.low = seq_along(id),
-    conf.high = seq_along(id),
-    NtotalConc = finematerialDepth * finematerialDensity * 10 *
-      NtotalPerc / 100,
-    plotAge = survey_year - construction_year
+    n_total_concentration = finematerial_depth * finematerial_density * 10 *
+      n_total_ratio / 100,
+    plot_age = survey_year - construction_year
   )
 
 
@@ -320,8 +319,8 @@ sites <- sites %>%
 cover <- species %>%
   left_join(traits, by = "name") %>%
   select(
-    name, family, target, target_herb, targetArrhenatherion, leanIndicator,
-    nitrogenIndicator, ruderalIndicator, table33, target_Ellenberg,
+    name, family, target, target_herb, target_arrhenatherion, lean_indicator,
+    nitrogen_indicator, ruderal, table33, target_ellenberg,
     starts_with("X")
   ) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
@@ -342,49 +341,49 @@ cover_total_and_graminoid <- cover %>%
   mutate(accumulated_cover = graminoid_cover + herb_cover) %>%
   ungroup()
 
-### * Target species' coverage ####
+### * German biotope mapping: Target species' coverage ####
 cover_target <- cover %>%
   filter(target == "yes") %>%
   summarise(target_cover = sum(n, na.rm = TRUE)) %>%
   mutate(target_cover = round(target_cover, 1)) %>%
   ungroup()
 
-### * Target herb species' coverage ####
+### * German biotope mapping: Target herb species' coverage ####
 cover_target_herb <- cover %>%
   filter(target_herb == "yes") %>%
   summarise(target_herb_cover = sum(n, na.rm = TRUE)) %>%
   mutate(target_herb_cover = round(target_herb_cover, 1)) %>%
   ungroup()
 
-### * Arrhenatherum species' cover ratio ####
-cover_targetArrhenatherion <- cover %>%
-  filter(targetArrhenatherion == "yes") %>%
+### * German biotope mapping: Arrhenatherum species' cover ratio ####
+cover_target_arrhenatherion <- cover %>%
+  filter(target_arrhenatherion == "yes") %>%
   summarise(arrh_cover = sum(n, na.rm = TRUE)) %>%
   mutate(arrh_cover = round(arrh_cover, 1)) %>%
   ungroup()
 
-### * Lean indicator's coverage ####
-cover_leanIndicator <- cover %>%
-  filter(leanIndicator == "yes") %>%
+### * German biotope mapping: Lean indicator's coverage ####
+cover_lean_indicator <- cover %>%
+  filter(lean_indicator == "yes") %>%
   summarise(lean_cover = sum(n, na.rm = TRUE)) %>%
   mutate(lean_cover = round(lean_cover, 1)) %>%
   ungroup()
 
-### * Nitrogen indicator's coverage ####
-cover_nitrogenIndicator <- cover %>%
-  filter(nitrogenIndicator == "yes") %>%
+### * German biotope mapping: Nitrogen indicator's coverage ####
+cover_nitrogen_indicator <- cover %>%
+  filter(nitrogen_indicator == "yes") %>%
   summarise(nitrogen_cover = sum(n, na.rm = TRUE)) %>%
   mutate(nitrogen_cover = round(nitrogen_cover, 1)) %>%
   ungroup()
 
-### * Ruderal indicator's coverage ####
-cover_ruderalIndicator <- cover %>%
-  filter(ruderalIndicator == "yes") %>%
+### * Ruderal's coverage ####
+cover_ruderal <- cover %>%
+  filter(ruderal == "yes") %>%
   summarise(ruderal_cover = sum(n, na.rm = TRUE)) %>%
   mutate(ruderal_cover = round(ruderal_cover, 1)) %>%
   ungroup()
 
-### * Table 33 species' coverage ####
+### * German biotope mapping: Table 33 species' coverage ####
 cover_table33 <- cover %>%
   mutate(table33 = if_else(table33 == "4" |
     table33 == "3" |
@@ -396,20 +395,32 @@ cover_table33 <- cover %>%
   mutate(table33_cover = round(table33_cover, 1)) %>%
   ungroup()
 
+### * Ellenberg target species' coverage ####
+cover_ellenberg <- cover %>%
+  mutate(ellenberg = if_else(target_ellenberg == "dry_grassland" |
+                          target_ellenberg == "hay_meadow",
+                        "ellenberg_cover", "other"
+  )) %>%
+  filter(ellenberg == "ellenberg_cover") %>%
+  summarise(ellenberg_cover = sum(n, na.rm = TRUE)) %>%
+  mutate(ellenberg_cover = round(ellenberg_cover, 1)) %>%
+  ungroup()
+
 ### * implement in sites data set ####
 sites <- sites %>%
   right_join(cover_total_and_graminoid, by = "id") %>%
   right_join(cover_target, by = "id") %>%
   right_join(cover_target_herb, by = "id") %>%
-  right_join(cover_targetArrhenatherion, by = "id") %>%
-  right_join(cover_leanIndicator, by = "id") %>%
-  right_join(cover_nitrogenIndicator, by = "id") %>%
-  right_join(cover_ruderalIndicator, by = "id") %>%
+  right_join(cover_target_arrhenatherion, by = "id") %>%
+  right_join(cover_lean_indicator, by = "id") %>%
+  right_join(cover_nitrogen_indicator, by = "id") %>%
+  right_join(cover_ruderal, by = "id") %>%
   right_join(cover_table33, by = "id") %>%
+  right_join(cover_ellenberg, by = "id") %>%
   ### Calcute the ratio of target species richness of total species richness
   mutate(
-    target_coverratio = target_cover / accumulated_cover,
-    graminoid_coverratio = graminoid_cover / accumulated_cover
+    target_cover_ratio = target_cover / accumulated_cover,
+    graminoid_cover_ratio = graminoid_cover / accumulated_cover
   )
 
 rm(list = setdiff(ls(), c("sites", "sites_splot",
@@ -422,10 +433,10 @@ rm(list = setdiff(ls(), c("sites", "sites_splot",
 
 ### a Species richness -------------------------------------------------
 
-speciesRichness <- left_join(species, traits, by = "name") %>%
+richness <- left_join(species, traits, by = "name") %>%
   select(
-    name, rlg, rlb, target, target_herb, targetArrhenatherion,
-    ffh6510, ffh6210, nitrogenIndicator, leanIndicator, table33, table34,
+    name, rlg, rlb, target, target_herb, target_arrhenatherion,
+    ffh6510, ffh6210, nitrogen_indicator, lean_indicator, table33, table34,
     starts_with("X")
   ) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
@@ -433,100 +444,100 @@ speciesRichness <- left_join(species, traits, by = "name") %>%
   group_by(id)
 
 ### * total species richness ####
-speciesRichness_all <- speciesRichness %>%
-  summarise(speciesRichness = sum(n, na.rm = TRUE)) %>%
+richness_total <- richness %>%
+  summarise(species_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * red list Germany (species richness) ####
-speciesRichness_rlg <- speciesRichness %>%
+richness_rlg <- richness %>%
   filter(rlg == "1" | rlg == "2" | rlg == "3" | rlg == "V") %>%
-  summarise(rlgRichness = sum(n, na.rm = TRUE)) %>%
+  summarise(rlg_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * red list Bavaria (species richness) ####
-speciesRichness_rlb <- speciesRichness %>%
+richness_rlb <- richness %>%
   filter(rlb == "1" | rlb == "2" | rlb == "3" | rlb == "V") %>%
-  summarise(rlbRichness = sum(n, na.rm = TRUE)) %>%
+  summarise(rlb_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-### * target species (species richness) ####
-speciesRichness_target <- speciesRichness %>%
+### * German biotope mapping: target species (species richness) ####
+richness_target <- richness %>%
   filter(target == "yes") %>%
-  summarise(targetRichness = sum(n, na.rm = TRUE)) %>%
+  summarise(target_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-### * target herb species (species richness) ####
-speciesRichness_target_herb <- speciesRichness %>%
+### * German biotope mapping: target herb species (species richness) ####
+richness_target_herb <- richness %>%
   filter(target_herb == "yes") %>%
-  summarise(target_herbRichness = sum(n, na.rm = TRUE)) %>%
+  summarise(target_herb_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-### * Arrhenatherion species (species richness) ####
-speciesRichness_arrh <- speciesRichness %>%
-  filter(targetArrhenatherion == "yes") %>%
-  summarise(arrhRichness = sum(n, na.rm = TRUE)) %>%
+### * German biotope mapping: Arrhenatherion species (species richness) ####
+richness_arrh <- richness %>%
+  filter(target_arrhenatherion == "yes") %>%
+  summarise(arrh_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * ffh6510 species (species richness) ####
-speciesRichness_ffh6510 <- speciesRichness %>%
+richness_ffh6510 <- richness %>%
   filter(ffh6510 == "yes") %>%
-  summarise(ffh6510Richness = sum(n, na.rm = TRUE)) %>%
+  summarise(ffh6510_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * ffh6210 species (species richness) ####
-speciesRichness_ffh6210 <- speciesRichness %>%
+richness_ffh6210 <- richness %>%
   filter(ffh6210 == "yes") %>%
-  summarise(ffh6210Richness = sum(n, na.rm = TRUE)) %>%
+  summarise(ffh6210_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-### * leanIndicator species (species richness) ####
-speciesRichness_leanIndicator <- speciesRichness %>%
-  filter(leanIndicator == "yes") %>%
-  summarise(leanIndicatorRichness = sum(n, na.rm = TRUE)) %>%
+### * German biotope mapping: lean_indicator species (species richness) ####
+richness_lean_indicator <- richness %>%
+  filter(lean_indicator == "yes") %>%
+  summarise(lean_indicator_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-### * table33 (species richness) ####
-speciesRichness_table33_2 <- speciesRichness %>%
+### * German biotope mapping: table33 (species richness) ####
+richness_table33_2 <- richness %>%
   filter(table33 == "2") %>%
-  summarise(table33_2Richness = sum(n, na.rm = TRUE)) %>%
+  summarise(table33_2_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
-speciesRichness_table33_3 <- speciesRichness %>%
+richness_table33_3 <- richness %>%
   filter(table33 == "3") %>%
-  summarise(table33_3Richness = sum(n, na.rm = TRUE)) %>%
+  summarise(table33_3_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
-speciesRichness_table33_4 <- speciesRichness %>%
+richness_table33_4 <- richness %>%
   filter(table33 == "4") %>%
-  summarise(table33_4Richness = sum(n, na.rm = TRUE)) %>%
+  summarise(table33_4_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-### * table34 (species richness) ####
-speciesRichness_table34_2 <- speciesRichness %>%
+### * German biotope mapping: table34 (species richness) ####
+richness_table34_2 <- richness %>%
   filter(table34 == "2") %>%
-  summarise(table34_2Richness = sum(n, na.rm = TRUE)) %>%
+  summarise(table34_2_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
-speciesRichness_table34_3 <- speciesRichness %>%
+richness_table34_3 <- richness %>%
   filter(table34 == "3") %>%
-  summarise(table34_3Richness = sum(n, na.rm = TRUE)) %>%
+  summarise(table34_3_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 ### * implement in sites data set (species richness) ####
 sites <- sites %>%
-  right_join(speciesRichness_all, by = "id") %>%
-  right_join(speciesRichness_rlg, by = "id") %>%
-  right_join(speciesRichness_rlb, by = "id") %>%
-  right_join(speciesRichness_target, by = "id") %>%
-  right_join(speciesRichness_target_herb, by = "id") %>%
-  right_join(speciesRichness_arrh, by = "id") %>%
-  right_join(speciesRichness_ffh6510, by = "id") %>%
-  right_join(speciesRichness_ffh6210, by = "id") %>%
-  right_join(speciesRichness_leanIndicator, by = "id") %>%
-  right_join(speciesRichness_table33_2, by = "id") %>%
-  right_join(speciesRichness_table33_3, by = "id") %>%
-  right_join(speciesRichness_table33_4, by = "id") %>%
-  right_join(speciesRichness_table34_2, by = "id") %>%
-  right_join(speciesRichness_table34_3, by = "id") %>%
+  right_join(richness_total, by = "id") %>%
+  right_join(richness_rlg, by = "id") %>%
+  right_join(richness_rlb, by = "id") %>%
+  right_join(richness_target, by = "id") %>%
+  right_join(richness_target_herb, by = "id") %>%
+  right_join(richness_arrh, by = "id") %>%
+  right_join(richness_ffh6510, by = "id") %>%
+  right_join(richness_ffh6210, by = "id") %>%
+  right_join(richness_lean_indicator, by = "id") %>%
+  right_join(richness_table33_2, by = "id") %>%
+  right_join(richness_table33_3, by = "id") %>%
+  right_join(richness_table33_4, by = "id") %>%
+  right_join(richness_table34_2, by = "id") %>%
+  right_join(richness_table34_3, by = "id") %>%
   ### Calcute the ratio of target species richness of total species richness
-  mutate(targetRichratio = targetRichness / speciesRichness)
+  mutate(target_richness_ratio = target_richness / species_richness)
 
 ### b Species eveness and shannon --------------------------------------
 
@@ -542,7 +553,7 @@ data <- species %>%
   rename(shannon = value)
 sites <- sites %>%
   left_join(data, by = "id") %>%
-  mutate(eveness = shannon / log(speciesRichness))
+  mutate(eveness = shannon / log(species_richness))
 
 rm(list = setdiff(ls(), c("sites", "sites_splot",
                           "sites_precipitation", "sites_temperature",
@@ -556,15 +567,15 @@ rm(list = setdiff(ls(), c("sites", "sites_splot",
 
 biotopetypes <- sites %>%
   select(
-    id, table33_2Richness, table33_3Richness, table33_4Richness,
-    table33_cover, table34_2Richness, table34_3Richness, targetRichness,
-    target_herbRichness, arrhRichness, target_cover, lean_cover, arrh_cover,
+    id, table33_2_richness, table33_3_richness, table33_4_richness,
+    table33_cover, table34_2_richness, table34_3_richness, target_richness,
+    target_herb_richness, arrh_richness, target_cover, lean_cover, arrh_cover,
     target_herb_cover, nitrogen_cover
   ) %>%
   mutate(
     table33Rich_proof = if_else(
-      table33_2Richness >= 2 | table33_2Richness + table33_3Richness >= 3 |
-        table33_2Richness + table33_3Richness + table33_4Richness >= 4,
+      table33_2_richness >= 2 | table33_2_richness + table33_3_richness >= 3 |
+        table33_2_richness + table33_3_richness + table33_4_richness >= 4,
       "yes", "no"
     ),
     table33_cover_proof = if_else(
@@ -576,7 +587,7 @@ biotopetypes <- sites %>%
       "yes", "no"
     ),
     table34Rich_proof = if_else(
-      table34_2Richness >= 2 | table34_2Richness + table34_3Richness >= 3,
+      table34_2_richness >= 2 | table34_2_richness + table34_3_richness >= 3,
       "yes", "no"
     ),
     G312_GT6210_type = if_else(
@@ -584,12 +595,12 @@ biotopetypes <- sites %>%
       "yes", "no"
     ),
     GE_proof = if_else(
-      target_herb_cover >= 12.5 & targetRichness >= 20 & nitrogen_cover < 25,
+      target_herb_cover >= 12.5 & target_richness >= 20 & nitrogen_cover < 25,
       "yes", "no"
     ),
     G214_GE6510_type = if_else(
       GE_proof == "yes" &
-        arrhRichness >= 1 &
+        arrh_richness >= 1 &
         arrh_cover > 0.5 &
         lean_cover >= 25 &
         target_herb_cover >= 12.5,
@@ -597,14 +608,14 @@ biotopetypes <- sites %>%
     ),
     G212_LR6510_type = if_else(
       GE_proof == "yes" &
-        arrhRichness >= 1 &
+        arrh_richness >= 1 &
         arrh_cover > 0.5 &
         lean_cover < 25,
       "yes", "no"
     ),
     G214_GE00BK_type = if_else(
       GE_proof == "yes" &
-        arrhRichness == 0 &
+        arrh_richness == 0 &
         lean_cover >= 25 &
         target_herb_cover >= 12.5,
       "yes", if_else(
@@ -617,7 +628,7 @@ biotopetypes <- sites %>%
     ),
     G213_GE00BK_type = if_else(
       GE_proof == "yes" &
-        arrhRichness == 0 &
+        arrh_richness == 0 &
         lean_cover >= 25 &
         target_herb_cover < 12.5,
       "yes", if_else(
@@ -636,14 +647,14 @@ biotopetypes <- sites %>%
       lean_cover >= 1 &
         lean_cover < 25 &
         target_herb_cover >= 12.5 &
-        target_herbRichness >= 10,
+        target_herb_richness >= 10,
       "yes", "no"
     ),
     G211_type = if_else(
       lean_cover >= 1 &
         lean_cover < 25 &
         target_herb_cover >= 1 &
-        target_herbRichness >= 5,
+        target_herb_richness >= 5,
       "yes", "no"
     ),
     biotopeType = if_else(
@@ -698,22 +709,25 @@ biotopetypes <- sites %>%
     min8 = as_factor(if_else(biotopePoints >= 8, "yes", "no")),
     min9 = as_factor(if_else(biotopePoints >= 9, "yes", "no"))
   )
-sites <- left_join(sites, biotopetypes, by = "id") %>%
+sites <- sites %>%
+  left_join(biotopetypes, by = "id") %>%
   select(
     -target_herb_cover, -arrh_cover, -lean_cover, -nitrogen_cover, -table33_cover,
-    -target_herbRichness, -arrhRichness, -leanIndicatorRichness,
-    -ffh6510Richness, -ffh6210Richness, -table33_2Richness,
-    -table33_3Richness, -table33_4Richness, -table34_2Richness,
-    -table34_3Richness
-  )
-traits <- traits %>%
-  select(
-    -targetArrhenatherion, -table30, -table33, -table34,
-    -nitrogenIndicator, -nitrogenIndicator2, -leanIndicator,
-    -grazingIndicator, -ruderalIndicator
+    -target_herb_richness, -arrh_richness, -lean_indicator_richness,
+    -ffh6510_richness, -ffh6210_richness, -table33_2_richness,
+    -table33_3_richness, -table33_4_richness, -table34_2_richness,
+    -table34_3_richness
   )
 
-### b Calculate constancy ---------------------------------------------
+traits <- traits %>%
+  select(
+    -target_arrhenatherion, -table30, -table33, -table34,
+    -nitrogen_indicator, -nitrogen_indicator2, -lean_indicator,
+    -grazing_indicator, -rlb, -target_herb, -target_grass,
+    -sociology, -legal
+  )
+
+### b Calculate constancy of ffh evaluation -----------------------------------
 
 data <- sites %>%
   select(id, plot, survey_year, ffh) %>%
@@ -724,30 +738,33 @@ data <- sites %>%
               names_from = "survey_year",
               values_from = "ffh") %>% # group_by(plot) %>%
   rename(x17 = "2017", x18 = "2018", x19 = "2019") %>%
-  mutate(changeType = ifelse(
-    (x17 == "non-FFH" & x18 != "non-FFH" & x19 != "non-FFH"),
-    "better", ifelse(
-      (x17 != "non-FFH" & x18 == "non-FFH" & x19 != "non-FFH") |
-        (x17 == "non-FFH" & x18 != "non-FFH" & x19 == "non-FFH") |
-        (x17 == "non-FFH" & x18 == "non-FFH" & x19 != "non-FFH") |
-        (x17 != "non-FFH" & x18 != "non-FFH" & x19 == "non-FFH"),
-      "change", ifelse(
-        (x17 == "non-FFH" & x18 == "non-FFH" & x19 == "non-FFH"),
-        "non-FFH", ifelse(
-          x17 == "6510" & x18 == "6510" & x19 == "6510",
-          "FFH6510", ifelse(
-            x17 == "6210" & x18 == "6210" & x19 == "6210",
-            "FFH6210", ifelse(
-              x17 != "non-FFH" & x18 != "non-FFH" & x19 != "non-FFH",
-              "any-FFH", "worse"
+  mutate(
+    changeType = ifelse(
+      (x17 == "non-FFH" & x18 != "non-FFH" & x19 != "non-FFH"),
+      "better", ifelse(
+        (x17 != "non-FFH" & x18 == "non-FFH" & x19 != "non-FFH") |
+          (x17 == "non-FFH" & x18 != "non-FFH" & x19 == "non-FFH") |
+          (x17 == "non-FFH" & x18 == "non-FFH" & x19 != "non-FFH") |
+          (x17 != "non-FFH" & x18 != "non-FFH" & x19 == "non-FFH"),
+        "change", ifelse(
+          (x17 == "non-FFH" & x18 == "non-FFH" & x19 == "non-FFH"),
+          "non-FFH", ifelse(
+            x17 == "6510" & x18 == "6510" & x19 == "6510",
+            "FFH6510", ifelse(
+              x17 == "6210" & x18 == "6210" & x19 == "6210",
+              "FFH6210", ifelse(
+                x17 != "non-FFH" & x18 != "non-FFH" & x19 != "non-FFH",
+                "any-FFH", "worse"
+              )
             )
           )
         )
       )
-    )
-  )) %>%
+      )
+    ) %>%
   select(plot, changeType)
-sites <- left_join(sites, data, by = "plot")
+sites <- sites %>%
+  left_join(data, by = "plot")
 
 rm(list = setdiff(ls(), c("sites", "sites_splot",
                           "sites_precipitation", "sites_temperature",
@@ -767,25 +784,25 @@ data_sites <- sites %>%
   add_count(plot) %>%
   filter(n == max(n))
 data_species <- species %>%
-  pivot_longer(-name, "id", "value") %>%
-  pivot_wider(id, name) %>%
+  pivot_longer(-name, names_to = "id", values_to = "value") %>%
+  pivot_wider(id, names_from = "name", values_from = "value") %>%
   arrange(id) %>%
   semi_join(data_sites, by = "id") %>%
   mutate(across(where(is.numeric), ~ replace(., is.na(.), 0)))
 
 ### * 2017 ####
-data_sites_dbMEM <- data_sites %>%
+data_sites_dbmem <- data_sites %>%
   filter(survey_year == 2017) %>%
   select(id, longitude, latitude)
-data_species_dbMEM <- data_species %>%
-  semi_join(data_sites_dbMEM, by = "id") %>%
+data_species_dbmem <- data_species %>%
+  semi_join(data_sites_dbmem, by = "id") %>%
   column_to_rownames(var = "id") %>%
   decostand("hellinger")
-i <- (colSums(data_species_dbMEM, na.rm = T) != 0)
-data_species_dbMEM <- data_species_dbMEM[, i]
-data_sites_dbMEM <- data_sites_dbMEM %>%
+i <- (colSums(data_species_dbmem, na.rm = T) != 0)
+data_species_dbmem <- data_species_dbmem[, i]
+data_sites_dbmem <- data_sites_dbmem %>%
   column_to_rownames("id")
-m <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
+m <- quickMEM(data_species_dbmem, data_sites_dbmem,
   alpha = 0.05,
   method = "fwd",
   rangexy = TRUE,
@@ -795,25 +812,25 @@ m <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
 m$RDA_test # p = 0.002
 m$RDA_axes_test # RDA1 sig axes
 m$RDA # PC1 = 0.114
-dbMEMred <- m$dbMEM %>%
+dbmem_reduced <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM1) %>%
-  rename(MEM1_2017 = MEM1)
-sites <- left_join(sites, dbMEMred, by = "id")
+  rename(mem1_2017 = MEM1)
+sites <- left_join(sites, dbmem_reduced, by = "id")
 
 ### * 2018 ####
-data_sites_dbMEM <- data_sites %>%
+data_sites_dbmem <- data_sites %>%
   filter(survey_year == 2018) %>%
   select(id, longitude, latitude)
-data_species_dbMEM <- data_species %>%
-  semi_join(data_sites_dbMEM, by = "id") %>%
+data_species_dbmem <- data_species %>%
+  semi_join(data_sites_dbmem, by = "id") %>%
   column_to_rownames(var = "id") %>%
   decostand("hellinger")
-i <- (colSums(data_species_dbMEM, na.rm = T) != 0)
-data_species_dbMEM <- data_species_dbMEM[, i]
-data_sites_dbMEM <- data_sites_dbMEM %>%
+i <- (colSums(data_species_dbmem, na.rm = T) != 0)
+data_species_dbmem <- data_species_dbmem[, i]
+data_sites_dbmem <- data_sites_dbmem %>%
   column_to_rownames("id")
-m1 <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
+m1 <- quickMEM(data_species_dbmem, data_sites_dbmem,
   alpha = 0.05,
   method = "fwd",
   rangexy = TRUE,
@@ -823,25 +840,25 @@ m1 <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
 m1$RDA_test # p = 0.006
 m1$RDA_axes_test #  RDA2 sig. axes
 m1$RDA # PC1 = 0.109, PC2 = 0.082
-dbMEMred <- m1$dbMEM %>%
+dbmem_reduced <- m1$dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM2) %>%
-  rename(MEM2_2018 = MEM2)
-sites <- left_join(sites, dbMEMred, by = "id")
+  rename(mem2_2018 = MEM2)
+sites <- left_join(sites, dbmem_reduced, by = "id")
 
 ### * 2019 ####
-data_sites_dbMEM <- data_sites %>%
+data_sites_dbmem <- data_sites %>%
   filter(survey_year == 2019) %>%
   select(id, longitude, latitude)
-data_species_dbMEM <- data_species %>%
-  semi_join(data_sites_dbMEM, by = "id") %>%
+data_species_dbmem <- data_species %>%
+  semi_join(data_sites_dbmem, by = "id") %>%
   column_to_rownames(var = "id") %>%
   decostand("hellinger")
-i <- (colSums(data_species_dbMEM, na.rm = T) != 0)
-data_species_dbMEM <- data_species_dbMEM[, i]
-data_sites_dbMEM <- data_sites_dbMEM %>%
+i <- (colSums(data_species_dbmem, na.rm = T) != 0)
+data_species_dbmem <- data_species_dbmem[, i]
+data_sites_dbmem <- data_sites_dbmem %>%
   column_to_rownames("id")
-m <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
+m <- quickMEM(data_species_dbmem, data_sites_dbmem,
   alpha = 0.05,
   method = "fwd",
   detrend = FALSE,
@@ -852,25 +869,25 @@ m <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
 m$RDA_test # p = 0.001
 m$RDA_axes_test # RDA1 sig axes
 m$RDA # PC1 = 0.080
-dbMEMred <- m$dbMEM %>%
+dbmem_reduced <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM1) %>%
-  rename(MEM1_2019 = MEM1)
-sites <- left_join(sites, dbMEMred, by = "id")
+  rename(mem1_2019 = MEM1)
+sites <- left_join(sites, dbmem_reduced, by = "id")
 
 ### * 2021 ####
-data_sites_dbMEM <- data_sites %>%
+data_sites_dbmem <- data_sites %>%
   filter(survey_year == 2021) %>%
   select(id, longitude, latitude)
-data_species_dbMEM <- data_species %>%
-  semi_join(data_sites_dbMEM, by = "id") %>%
+data_species_dbmem <- data_species %>%
+  semi_join(data_sites_dbmem, by = "id") %>%
   column_to_rownames(var = "id") %>%
   decostand("hellinger")
-i <- (colSums(data_species_dbMEM, na.rm = T) != 0)
-data_species_dbMEM <- data_species_dbMEM[, i]
-data_sites_dbMEM <- data_sites_dbMEM %>%
+i <- (colSums(data_species_dbmem, na.rm = T) != 0)
+data_species_dbmem <- data_species_dbmem[, i]
+data_sites_dbmem <- data_sites_dbmem %>%
   column_to_rownames("id")
-m <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
+m <- quickMEM(data_species_dbmem, data_sites_dbmem,
   alpha = 0.05,
   method = "fwd",
   detrend = FALSE,
@@ -881,11 +898,11 @@ m <- quickMEM(data_species_dbMEM, data_sites_dbMEM,
 m$RDA_test # p = 0.001
 m$RDA_axes_test # RDA1, RDA2 sig axes
 m$RDA # PC1 = 0.096, PC2 = 0.085
-dbMEMred <- m$dbMEM %>%
+dbmem_reduced <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM1, MEM2) %>%
-  rename(MEM1_2021 = MEM1, MEM2_2021 = MEM2)
-sites <- left_join(sites, dbMEMred, by = "id")
+  rename(mem1_2021 = MEM1, mem2_2021 = MEM2)
+sites <- left_join(sites, dbmem_reduced, by = "id")
 
 ### b LCBD (Local Contributions to Beta Diversity) --------------------
 
@@ -991,11 +1008,11 @@ data <- sites %>%
   add_count(plot) %>%
   filter(n == max(n) & survey_year == 2017) %>%
   select(
-    plot, pH,
-    calciumcarbonatPerc, humusPerc, NtotalPerc, NtotalConc, cnRatio,
-    sandPerc, siltPerc, clayPerc,
+    plot, ph,
+    calciumcarbonat, humus, n_total_ratio, n_total_concentration, cn_ratio,
+    sand, silt, clay,
     phosphorus, potassium, magnesium,
-    topsoilDepth
+    topsoil_depth
   ) %>%
   column_to_rownames(var = "plot")
 ### Calculate PCA ###
@@ -1029,10 +1046,10 @@ data <- pca %>%
   tibble() %>%
   select(plot, PC1:PC4) %>%
   rename(
-    PC1soil = PC1,
-    PC2soil = PC2,
-    PC3soil = PC3,
-    PC4soil = PC4
+    pc1_soil = PC1,
+    pc2_soil = PC2,
+    pc3_soil = PC3,
+    pc4_soil = PC4
   )
 sites <- sites %>%
   left_join(data, by = "plot")
@@ -1046,7 +1063,7 @@ rm(list = setdiff(ls(), c("sites", "sites_splot",
 ### b Climate PCA  -----------------------------------------------------
 
 ### * Temperature ####
-data <- temperature
+data <- sites_temperature %>%
   filter(date >= "2002-03-01") %>%
   mutate(
     site = factor(site),
@@ -1125,7 +1142,7 @@ sites <- sites %>%
   )
 
 ### * Precipitation ####
-data <- precipitation %>%
+data <- sites_precipitation %>%
   filter(date >= "2002-03-01") %>%
   mutate(
     site = factor(site),
@@ -1251,9 +1268,9 @@ data <- pca %>%
   tibble() %>%
   select(plot, PC1:PC3) %>%
   rename(
-    PC1survey_year = PC1,
-    PC2survey_year = PC2,
-    PC3survey_year = PC3
+    pc1_survey_year = PC1,
+    pc2_survey_year = PC2,
+    pc3_survey_year = PC3
   )
 ### Add to sites ###
 sites <- sites %>%
@@ -1312,18 +1329,16 @@ data <- pca %>%
   tibble() %>%
   select(plot, PC1:PC3) %>%
   rename(
-    PC1construction_year = PC1,
-    PC2construction_year = PC2,
-    PC3construction_year = PC3
+    pc1_construction_year = PC1,
+    pc2_construction_year = PC2,
+    pc3_construction_year = PC3
   )
 ### Add to sites ###
 sites <- sites %>%
   left_join(data, by = "plot")
 
 
-rm(list = setdiff(ls(), c("sites", "sites_splot",
-                          "sites_precipitation", "sites_temperature",
-                          "species", "species_splot",
+rm(list = setdiff(ls(), c("sites", "sites_splot", "species", "species_splot",
                           "traits", "pca_soil", "pca_construction_year",
                           "pca_survey_year")))
 
@@ -1615,21 +1630,21 @@ sites <- sites %>%
     c(
       lcbd,
       syn_total, syn_trend, syn_detrend,
-      PC1soil, PC2soil, PC3soil, PC1survey_year, PC2survey_year,
-      PC3survey_year,
-      PC1construction_year, PC2construction_year, PC3construction_year
+      pc1_soil, pc2_soil, pc3_soil, pc1_survey_year, pc2_survey_year,
+      pc3_survey_year,
+      pc1_construction_year, pc2_construction_year, pc3_construction_year
     ),
     ~ round(.x, digits = 4)
   )) %>%
   mutate(across(
     c(
-      NtotalPerc, target_coverratio, graminoid_coverratio, targetRichratio,
-      shannon, eveness
+      n_total_rerc, target_cover_ratio, graminoid_cover_ratio,
+      target_richness_ratio, shannon, eveness
     ),
     ~ round(.x, digits = 3)
   )) %>%
   mutate(across(
-    c(distanceRiver, accumulated_cover),
+    c(river_distance, accumulated_cover),
     ~ round(.x, digits = 1)
   ))
 
@@ -1639,17 +1654,19 @@ sites <- sites %>%
   select(
     id, plot, block, botanist,
     # space
-    location, locationAbb, locationYear, latitude, longitude, riverkm,
-    distanceRiver, MEM1_2017, MEM2_2018, MEM1_2019, MEM1_2021, MEM2_2021,
+    location, location_abb, location_construction_year, latitude, longitude,
+    river_km, river_distance,
+    mem1_2017, mem2_2018, mem1_2019, mem1_2021, mem2_2021,
     # time
-    survey_year, construction_year, plotAge,
+    survey_year, construction_year, plot_age,
     # local site characteristics
-    exposition, orientation, PC1soil, PC2soil, PC3soil,
+    exposition, orientation, pc1_soil, pc2_soil, pc3_soil,
     # historical factors
-    PC1construction_year, PC2construction_year, PC3construction_year,
+    pc1_construction_year, pc2_construction_year, pc3_construction_year,
     # response variables
-    accumulated_cover, speciesRichness, eveness, shannon, graminoid_coverratio,
-    targetRichness, targetRichratio, target_coverratio
+    accumulated_cover, species_richness, eveness, shannon,
+    graminoid_cover_ratio,
+    target_richness, target_richness_ratio, target_cover_ratio
   )
 
 sites_temporal <- sites_temporal %>%
@@ -1683,10 +1700,10 @@ sites_restoration <- sites %>%
     # local site characteristics
     exposition, orientation, PC1soil, PC2soil, PC3soil,
     # response variables
-    accumulated_cover, speciesRichness, eveness, graminoid_coverratio,
+    accumulated_cover, richness, eveness, graminoid_cover_ratio,
     ruderal_cover,
     # conservation
-    targetRichness, targetRichratio, rlgRichness, target_coverratio,
+    target_richness, targetRich_ratio, rlg_richness, target_cover_ratio,
     # legal evaluation
     biotopeType, ffh, changeType, baykompv, biotopePoints, min8, min9,
     botanist, conf.low, conf.high
