@@ -5,9 +5,10 @@
 
 
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Preparation #########################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation ###############################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 
 ### Packages ###
@@ -24,12 +25,15 @@ register_google(key = "AIzaSyB5nQU_dgB_kPsQkk-_cq7pA0g1-2qka4E")
 
 
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Load shp files ######################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Load shp files ############################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-## 1 Sites ##############################################################
+
+#______________________________________________________________________________
+## 1 Sites ####################################################################
+
 
 sites <- read_csv(here("data", "raw", "data_raw_sites.csv"),
   col_names = TRUE,
@@ -48,7 +52,8 @@ sites <- read_csv(here("data", "raw", "data_raw_sites.csv"),
     plot = str_sub(id, start = 1, end = 2),
     locationAbb = str_sub(location, 1, 3),
     locationAbb = str_to_upper(locationAbb),
-    locationAbb = factor(locationAbb, levels = unique(locationAbb[order(constructionYear)])),
+    locationAbb = factor(locationAbb,
+                         levels = unique(locationAbb[order(constructionYear)])),
     locationYear = str_c(locationAbb, constructionYear, sep = "-")
   ) %>%
   st_as_sf(coords = c("longitude", "latitude"), crs = 31468) %>%
@@ -73,7 +78,10 @@ sites_basic <- left_join(
   )
 
 
-## 2 Transform shp files ################################################
+
+#______________________________________________________________________________
+## 2 Transform shp files ######################################################
+
 
 setwd(here("data", "raw", "spatial"))
 
@@ -96,7 +104,10 @@ ffh_area <- st_read("ffh_epsg31468.shp") %>%
 st_intersection(bbox) # problem
 
 
-## 3 Digitize shp files #################################################
+
+#______________________________________________________________________________
+## 3 Digitize shp files #######################################################
+
 
 # data <- mapview() %>% editMap()
 # mapview(data$finished)
@@ -113,9 +124,13 @@ danube_isar <- st_read(here("data", "raw", "spatial",
                             "danube_isar_digitized_epsg4326.shp"))
 
 
-## 4 Background map #####################################################
 
-germany <- raster::getData("GADM", country = "DEU", level = 0, download = FALSE) %>%
+#______________________________________________________________________________
+## 4 Background map ###########################################################
+
+
+germany <- raster::getData("GADM", country = "DEU",
+                           level = 0, download = FALSE) %>%
   st_as_sf() %>%
   st_set_crs(4326)
 
@@ -155,9 +170,12 @@ background_terrain <- get_map(
 ggmap(background_terrain)
 
 
-## 5 Calculate distance to river ########################################
 
-### Prepare data ##
+#______________________________________________________________________________
+## 5 Calculate distance to river ##############################################
+
+
+### Prepare data ###
 coordinates_plots <- sites %>%
   st_coordinates()
 coordinates_danube_isar <- danube_isar %>%
@@ -165,7 +183,9 @@ coordinates_danube_isar <- danube_isar %>%
   as_tibble() %>%
   select(X, Y)
 ### Calculate distances ###
-distance <- geosphere::dist2Line(p = coordinates_plots, line = coordinates_danube_isar) %>%
+distance <- geosphere::dist2Line(
+  p = coordinates_plots, line = coordinates_danube_isar
+  ) %>%
   as_tibble() %>%
   rename(distance_river = distance)
 distance_river <- distance$distance_river
@@ -181,53 +201,70 @@ ggplot() +
 
 
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# C Save ################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# C Save #######################################################################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-save(background_google,
-  file = paste0(here("data", "processed", "spatial"), "/", "background_google.rda")
-)
-save(background_toner,
-  file = paste0(here("data", "processed", "spatial"), "/", "background_toner.rda")
-)
-save(background_terrain,
-  file = paste0(here("data", "processed", "spatial"), "/", "background_terrain.rda")
-)
-st_write(germany,
-  layer = "germany_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE,
-  dsn = here("data", "processed", "spatial")
-)
-st_write(rivers,
-  layer = "rivers_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE,
-  dsn = here("data", "processed", "spatial")
-)
-### River layer was one time digitized ###
-# st_write(danube_isar, layer = "danube_isar_digitized_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = T,
-# dsn = here("data", "processed", "spatial"))
-st_write(grazing,
-  layer = "grazing_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE,
-  dsn = here("data", "processed", "spatial")
-)
-st_write(dikes,
-  layer = "dikes_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE,
-  dsn = here("data", "processed", "spatial")
-)
-st_write(conservation_area,
-  layer = "conservation_area_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE,
-  dsn = here("data", "processed", "spatial")
-)
-st_write(ffh_area,
-  layer = "ffh_area_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE,
-  dsn = here("data", "processed", "spatial")
-)
-st_write(sites,
-  layer = "sites_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE,
-  dsn = here("data", "processed", "spatial")
-)
-write_csv(sites_basic, file = here("data", "processed", "spatial", "sites_basic.csv"))
-write_csv(locations, file = here("data", "processed", "spatial", "locations.csv"))
+
+save(
+  background_google,
+  file = paste0(here("data", "processed", "spatial"),
+                "/", "background_google.rda")
+  )
+save(
+  background_toner,
+  file = paste0(here("data", "processed", "spatial"),
+                "/", "background_toner.rda")
+  )
+save(
+  background_terrain,
+  file = paste0(here("data", "processed", "spatial"),
+                "/", "background_terrain.rda")
+  )
+st_write(
+  germany,
+  layer = "germany_epsg4326.shp", driver = "ESRI Shapefile",
+  delete_layer = TRUE, dsn = here("data", "processed", "spatial")
+  )
+st_write(
+  rivers,
+  layer = "rivers_epsg4326.shp", driver = "ESRI Shapefile",
+  delete_layer = TRUE, dsn = here("data", "processed", "spatial")
+  )
+st_write(
+  grazing,
+  layer = "grazing_epsg4326.shp", driver = "ESRI Shapefile",
+  delete_layer = TRUE, dsn = here("data", "processed", "spatial")
+  )
+st_write(
+  dikes,
+  layer = "dikes_epsg4326.shp", driver = "ESRI Shapefile",
+  delete_layer = TRUE, dsn = here("data", "processed", "spatial")
+  )
+st_write(
+  conservation_area,
+  layer = "conservation_area_epsg4326.shp", driver = "ESRI Shapefile",
+  delete_layer = TRUE, dsn = here("data", "processed", "spatial")
+  )
+st_write(
+  ffh_area,
+  layer = "ffh_area_epsg4326.shp", driver = "ESRI Shapefile",
+  delete_layer = TRUE, dsn = here("data", "processed", "spatial")
+  )
+st_write(
+  sites,
+  layer = "sites_epsg4326.shp", driver = "ESRI Shapefile",
+  delete_layer = TRUE, dsn = here("data", "processed", "spatial")
+  )
+write_csv(
+  sites_basic,
+  file = here("data", "processed", "spatial", "sites_basic.csv")
+  )
+write_csv(
+  locations,
+  file = here("data", "processed", "spatial", "locations.csv")
+  )
 sites_basic %>%
   select(id, longitude, latitude) %>%
   mutate(id = as.character(id)) %>%
@@ -236,3 +273,5 @@ sites_basic %>%
     "data", "processed", "spatial",
     "danube_old_dikes_plots.gpx"
   ))
+### River layer was one time digitized ###
+# st_write(danube_isar, layer = "danube_isar_digitized_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE, dsn = here("data", "processed", "spatial"))
