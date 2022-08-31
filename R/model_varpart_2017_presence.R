@@ -32,13 +32,12 @@ sites <- read_csv("data_processed_sites_spatial.csv",
       plot = "f",
       exposition = "f",
       side = "f",
-      ffh = "f",
-      vegetationCov = "d",
       locationYear = "f"
     )) %>%
   filter(surveyYear == 2017) %>%
   select(
-    id, plot, block, locationYear, constructionYear, longitude, latitude,
+    id, plot, block, longitude, latitude,
+    botanist, locationYear, constructionYear,
     exposition, side, PC1soil, PC2soil, PC3soil,
     locationAbb, riverkm, distanceRiver,
     surveyYear, plotAge, PC1constructionYear, PC2constructionYear,
@@ -49,7 +48,8 @@ sites <- read_csv("data_processed_sites_spatial.csv",
     surveyYearF = as_factor(surveyYear),
     exposition_numeric = as.double(exposition),
     side_numeric = as.double(side),
-    locationAbb_numeric = as.double(locationAbb)
+    locationAbb_numeric = as.double(locationAbb),
+    botanist_numeric = as.double(as_factor(botanist))
   )
 
 species <- read_csv("data_processed_species.csv",
@@ -58,11 +58,10 @@ species <- read_csv("data_processed_species.csv",
     cols(
       .default = "d",
       name = "f"
-    )
-) %>%
+    )) %>%
   mutate(across(where(is.numeric), ~ replace(., is.na(.), 0))) %>%
-  pivot_longer(-name, "id", "value") %>%
-  pivot_wider(id, name) %>%
+  pivot_longer(-name, names_to = "id", values_to = "value") %>%
+  pivot_wider(id, names_from = "name", values_from = "value") %>%
   semi_join(sites, by = "id") %>%
   arrange(id) %>%
   column_to_rownames("id")
@@ -127,9 +126,10 @@ plot(
 #--> this trend is captured by riverkm
 ### * full model ####
 m1 <- dbrda(
-  beta_substitution ~ PC1soil + PC2soil + PC3soil + exposition + side +
-  locationAbb + riverkm + distanceRiver +
-  plotAge + PC1constructionYear + PC2constructionYear + PC3constructionYear,
+  beta_substitution ~ 
+    PC1soil + PC2soil + PC3soil + exposition + side + 
+    locationAbb + riverkm + distanceRiver +
+    plotAge + PC1constructionYear + PC2constructionYear + PC3constructionYear,
   data = sites
   )
 anova(m1, permutations = how(nperm = 9999)) # P = .001

@@ -68,11 +68,11 @@ rm(list = setdiff(ls(), c("sites", "species")))
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-### 1 NMDY ####################################################################
+### 1 NMDS ####################################################################
 
 ### Calculate ###
 set.seed(1)
-(ordi <- metaMDS(species, dist = "bray", binary = FALSE,
+(ordi <- metaMDS(species, dist = "sorensen", binary = FALSE,
                  try = 99, previous.best = TRUE, na.rm = TRUE))
 ### Stress ###
 stressplot(ordi)
