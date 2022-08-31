@@ -5,6 +5,30 @@
 
 
 
+# Content #####################################################################
+# A Load data +++++++++++++++++++++++++++++++++++++
+## 1 Sites and sPlotOpen
+## 2 Species and sPlotOpen
+## 3 Traits
+## 4 Temperature and precipitation
+## 5 Check data frames
+# B Create variables ++++++++++++++++++++++++++++++
+## 1 Create simple variables
+## 2 Coverages
+## 3 Alpha diversity
+## 4 Biotope types
+## 5 LCBD: Local contributions to beta diversity
+## 6 Synchrony
+## 7 PCAs: Principle component analyses
+## 8 sPlotOpen
+## 9 dbMEM: Distance-based Moran's eigenvector maps
+## 10 TBI: Temporal beta diversity index
+## 11 Finalization of data frames
+# C Save processed data +++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
 ### Packages ###
 library(here)
 library(tidyverse)
@@ -16,13 +40,13 @@ library(adespatial)
 #remotes::install_github(file.path("larsito", "tempo"))
 library(tempo) # calc_sync
 #remotes::install_github(file.path("inbo", "checklist"))
+library(installr)
 
 ### Start ###
 #installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
 #checklist::setup_source()
 #checklist::check_source()
 renv::status()
-
 
 rm(list = ls())
 setwd(here("data", "raw"))
@@ -36,10 +60,10 @@ setwd(here("data", "raw"))
 
 
 #______________________________________________________________________________
-## 1 Sites ####################################################################
+## 1 Sites of dikes and sPlotOpen #############################################
 
 
-sites <- read_csv("data_raw_sites.csv",
+sites_dikes <- read_csv("data_raw_sites.csv",
   col_names = TRUE,
   na = c("", "NA", "na"), col_types =
     cols(
@@ -110,6 +134,9 @@ sites <- read_csv("data_raw_sites.csv",
   relocate(c("construction_year_factor", "construction_year_factor_plus"),
            .after = construction_year)
 
+
+### Sabatini et al. (2021) Global Ecol Biogeogr
+### https://doi.org/10.1111/geb.13346
 sites_splot <- read_delim(here("data", "raw", "splot", "sPlotOpen_header.txt"),
                          col_names = TRUE, na = c("", "NA", "na"),
                          col_types = cols(
@@ -120,10 +147,10 @@ sites_splot <- read_delim(here("data", "raw", "splot", "sPlotOpen_header.txt"),
 
 
 #______________________________________________________________________________
-## 2 Species ##################################################################
+## 2 Species and sPlotOpen ####################################################
 
 
-species <- data.table::fread("data_raw_species.csv",
+species_dikes <- data.table::fread("data_raw_species.csv",
   sep = ",",
   dec = ".",
   skip = 0,
@@ -131,12 +158,11 @@ species <- data.table::fread("data_raw_species.csv",
   na.strings = c("", "NA", "na"),
   colClasses = list(
     character = "name"
-  )
-) %>%
+  )) %>%
   ### Check that each species occurs at least one time ###
   group_by(name) %>%
   arrange(name) %>%
-  select(name, all_of(sites$id)) %>%
+  select(name, all_of(sites_dikes$id)) %>%
   mutate(
     total = sum(c_across(starts_with("X")), na.rm = TRUE),
     presence = if_else(total > 0, 1, 0),
@@ -147,6 +173,9 @@ species <- data.table::fread("data_raw_species.csv",
   select(name, sort(tidyselect::peek_vars()), -total, -presence) %>%
   mutate(across(where(is.numeric), ~ replace(., is.na(.), 0)))
 
+
+### Sabatini et al. (2021) Global Ecol Biogeogr
+### https://doi.org/10.1111/geb.13346
 species_splot <- read_delim(here("data", "raw", "splot",
                         "sPlotOpen_DT.txt"),
                    col_names = TRUE, na = c("", "NA", "na"), col_types =
@@ -157,7 +186,7 @@ species_splot <- read_delim(here("data", "raw", "splot",
 
 
 ### Create list with species names and their frequency ###
-specieslist <- species %>%
+specieslist <- species_dikes %>%
   mutate_if(is.numeric, ~ 1 * (. != 0)) %>%
   mutate(
     sum = rowSums(across(where(is.numeric)), na.rm = TRUE),
@@ -186,8 +215,7 @@ traits <- read_csv("data_raw_traits.csv",
       f = "d",
       r = "d",
       n = "d"
-    )
-) %>%
+    )) %>%
   separate(name, c("genus", "species", "ssp", "subspecies"), "_",
     remove = FALSE, extra = "drop", fill = "right"
   ) %>%
@@ -205,15 +233,28 @@ traits <- read_csv("data_raw_traits.csv",
   select(-ssp) %>%
   arrange(name)
 
-### Check congruency of traits and species table ###
+### Check congruency of traits and species_dikes table ###
 traits[duplicated(traits$abb), ]
-# traits$name[which(!(traits$name %in% species$name))]
-species$name[which(!(species$name %in% traits$name))]
+traits$name[which(!(traits$name %in% species_dikes$name))]
+species_dikes$name[which(!(species_dikes$name %in% traits$name))]
 
-### Combine with species table ###
+### Combine with species_dikes table ###
 traits <- traits %>%
-  semi_join(species, by = "name")
+  semi_join(species_dikes, by = "name")
 
+### Check species names (not working) ###
+library(TNRS)
+traits2 <- traits %>%
+  mutate(name = str_replace(name, "_", " ")) %>%
+  select(name)
+tnrs <- TNRS(
+    taxonomic_names = traits2,
+    sources = c("tropicos", "wcvp", "wfo"),
+    classification = "wfo",
+    mode = "resolve"
+    )
+head(results, 10)
+metadata_tnrs <- TNRS_metadata()
 
 
 #______________________________________________________________________________
@@ -246,24 +287,24 @@ sites_precipitation <-  read_csv(here("data", "raw", "precipitation", "data",
 
 
 ### Check typos ###
-sites %>%
+sites_dikes %>%
   filter(!str_detect(id, "_seeded$")) %>%
   janitor::tabyl(vegetation_cover)
-# sites %>% filter(vegetation_cover == 17)
-species %>%
+# sites_dikes %>% filter(vegetation_cover == 17)
+species_dikes %>%
   select(-name) %>%
   unlist() %>%
   janitor::tabyl()
-species %>% # Check special typos
+species_dikes %>% # Check special typos
   pivot_longer(-name, names_to = "id", values_to = "value") %>%
   filter(value == 8)
 
 ### Compare vegetation_cover and accumulated_cover ###
-species %>%
+species_dikes %>%
   summarise(across(where(is.double), ~ sum(.x, na.rm = TRUE))) %>%
   pivot_longer(cols = everything(), names_to = "id", values_to = "value") %>%
   mutate(id = factor(id)) %>%
-  full_join(sites, by = "id") %>%
+  full_join(sites_dikes, by = "id") %>%
   mutate(diff = (value - vegetation_cover)) %>%
   select(id, survey_year, value, vegetation_cover, diff) %>%
   filter(diff > 50 | diff < -30) %>%
@@ -271,20 +312,20 @@ species %>%
   print(n = 100)
 
 ### Check plots over time ###
-species %>%
+species_dikes %>%
   select(name, starts_with("X01")) %>%
   filter(if_any(starts_with("X"), ~ . > 0)) %>%
   print(n = 70)
 
 ### Check missing data ###
-miss_var_summary(sites, order = TRUE)
-vis_miss(sites, cluster = FALSE, sort_miss = TRUE)
+miss_var_summary(sites_dikes, order = TRUE)
+vis_miss(sites_dikes, cluster = FALSE, sort_miss = TRUE)
 vis_miss(traits, cluster = FALSE, sort_miss = TRUE)
 
 
-rm(list = setdiff(ls(), c("sites", "sites_splot",
+rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "sites_precipitation", "sites_temperature",
-                          "species", "species_splot",
+                          "species_dikes", "species_splot",
                           "traits")))
 
 
@@ -321,7 +362,7 @@ traits <- traits %>%
     )
   )
 
-sites <- sites %>%
+sites_dikes <- sites_dikes %>%
   mutate(
     n_total_concentration = finematerial_depth * finematerial_density * 10 *
       n_total_ratio / 100,
@@ -334,7 +375,7 @@ sites <- sites %>%
 ## 2 Coverages #################################################################
 
 
-cover <- species %>%
+cover <- species_dikes %>%
   left_join(traits, by = "name") %>%
   select(
     name, family, target, target_herb, target_arrhenatherion, lean_indicator,
@@ -424,8 +465,7 @@ cover_ellenberg <- cover %>%
   mutate(ellenberg_cover = round(ellenberg_cover, 1)) %>%
   ungroup()
 
-#### * implement in sites data set ###
-sites <- sites %>%
+sites_dikes <- sites_dikes %>%
   right_join(cover_total_and_graminoid, by = "id") %>%
   right_join(cover_target, by = "id") %>%
   right_join(cover_target_herb, by = "id") %>%
@@ -435,15 +475,14 @@ sites <- sites %>%
   right_join(cover_ruderal, by = "id") %>%
   right_join(cover_table33, by = "id") %>%
   right_join(cover_ellenberg, by = "id") %>%
-  ### Calcute the ratio of target species richness of total species richness
   mutate(
     target_cover_ratio = target_cover / accumulated_cover,
     graminoid_cover_ratio = graminoid_cover / accumulated_cover
   )
 
-rm(list = setdiff(ls(), c("sites", "sites_splot",
+rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "sites_precipitation", "sites_temperature",
-                          "species", "species_splot",
+                          "species_dikes", "species_splot",
                           "traits")))
 
 
@@ -454,7 +493,7 @@ rm(list = setdiff(ls(), c("sites", "sites_splot",
 
 ### a Species richness -------------------------------------------------------
 
-richness <- left_join(species, traits, by = "name") %>%
+richness <- left_join(species_dikes, traits, by = "name") %>%
   select(
     name, rlg, rlb, target, target_herb, target_arrhenatherion,
     ffh6510, ffh6210, nitrogen_indicator, lean_indicator, table33, table34,
@@ -541,8 +580,7 @@ richness_table34_3 <- richness %>%
   summarise(table34_3_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-#### * implement in sites data set ###
-sites <- sites %>%
+sites_dikes <- sites_dikes %>%
   right_join(richness_total, by = "id") %>%
   right_join(richness_rlg, by = "id") %>%
   right_join(richness_rlb, by = "id") %>%
@@ -557,13 +595,14 @@ sites <- sites %>%
   right_join(richness_table33_4, by = "id") %>%
   right_join(richness_table34_2, by = "id") %>%
   right_join(richness_table34_3, by = "id") %>%
-  ### Calcute the ratio of target species richness of total species richness
-  mutate(target_richness_ratio = target_richness / species_richness)
+  mutate(
+    target_richness_ratio = target_richness / species_richness
+    )
 
 
 ### b Species eveness and shannon ---------------------------------------------
 
-data <- species %>%
+data <- species_dikes %>%
   mutate(across(where(is.numeric), ~ replace(., is.na(.), 0))) %>%
   pivot_longer(-name, names_to = "id", values_to = "value") %>%
   pivot_wider(names_from = "name", values_from = "value") %>%
@@ -573,13 +612,13 @@ data <- species %>%
   rownames_to_column(var = "id") %>%
   mutate(id = factor(id)) %>%
   rename(shannon = value)
-sites <- sites %>%
+sites_dikes <- sites_dikes %>%
   left_join(data, by = "id") %>%
   mutate(eveness = shannon / log(species_richness))
 
-rm(list = setdiff(ls(), c("sites", "sites_splot",
+rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "sites_precipitation", "sites_temperature",
-                          "species", "species_splot",
+                          "species_dikes", "species_splot",
                           "traits")))
 
 
@@ -590,7 +629,7 @@ rm(list = setdiff(ls(), c("sites", "sites_splot",
 
 ### a Calculate types --------------------------------------------------------
 
-data <- sites %>%
+data <- sites_dikes %>%
   select(
     id, table33_2_richness, table33_3_richness, table33_4_richness,
     table33_cover, table34_2_richness, table34_3_richness, target_richness,
@@ -733,7 +772,7 @@ data <- sites %>%
     )
   )
 
-sites <- sites %>%
+sites_dikes <- sites_dikes %>%
   left_join(data, by = "id") %>%
   select(
     -target_herb_cover, -arrh_cover, -lean_cover, -nitrogen_cover,
@@ -755,14 +794,15 @@ traits <- traits %>%
 
 ### b Calculate constancy of ffh evaluation -----------------------------------
 
-data <- sites %>%
+data <- sites_dikes %>%
   select(id, plot, survey_year, ffh) %>%
   group_by(plot) %>%
   mutate(count = n()) %>%
   filter(count == max(count)) %>%
   pivot_wider(id_cols = -id,
               names_from = "survey_year",
-              values_from = "ffh") %>% # group_by(plot) %>%
+              values_from = "ffh") %>%
+  group_by(plot) %>%
   rename(x17 = "2017", x18 = "2018", x19 = "2019") %>%
   mutate(
     changeType = ifelse(
@@ -790,24 +830,24 @@ data <- sites %>%
     ) %>%
   select(plot, changeType)
 
-#sites <- left_join(sites, data, by = "plot")
+#sites_dikes <- left_join(sites_dikes, data, by = "plot")
 
-rm(list = setdiff(ls(), c("sites", "sites_splot",
+rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "sites_precipitation", "sites_temperature",
-                          "species", "species_splot",
+                          "species_dikes", "species_splot",
                           "traits")))
 
 
 
 #______________________________________________________________________________
-## 6 LCBD: Local contributions to beta diversity ##############################
+## 5 LCBD: Local contributions to beta diversity ##############################
 
-### * Prepare data ###
-data_sites <- sites %>%
+
+data_sites <- sites_dikes %>%
   filter(accumulated_cover > 0) %>%
   add_count(plot) %>%
   filter(n == max(n))
-data_species <- species %>%
+data_species <- species_dikes %>%
   pivot_longer(-name, names_to = "id", values_to = "value") %>%
   pivot_wider(id, names_from = "name", values_from = "value") %>%
   arrange(id) %>%
@@ -850,31 +890,30 @@ data_2021 <- data$LCBD
 row.names(data_species_lcbd[which(p.adjust(data$p.LCBD, "holm") <= 0.05), ])
 #--> none
 
-#### * implement in sites data set ###
+
 data <- c(data_2017, data_2018, data_2019, data_2021)
 data <- data_sites %>%
   mutate(lcbd = data) %>%
   select(id, lcbd)
-#sites <- left_join(sites, data, by = "id")
+#sites_dikes <- left_join(sites_dikes, data, by = "id")
 
-rm(list = setdiff(ls(), c("sites", "sites_splot",
+rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "sites_precipitation", "sites_temperature",
-                          "species", "species_splot",
+                          "species_dikes", "species_splot",
                           "traits")))
 
 
 
 #______________________________________________________________________________
-## 8 Synchrony ################################################################
+## 6 Synchrony ################################################################
 
 
-### Preparation ###
-data_sites <- sites %>%
+data_sites <- sites_dikes %>%
   select(id, plot, vegetation_cover) %>%
   filter(vegetation_cover > 0) %>%
   add_count(plot) %>%
   filter(n == max(n))
-data_species <- species %>%
+data_species <- species_dikes %>%
   select(where(~ !all(is.na(.x)))) %>%
   mutate(across(where(is.numeric), ~ replace(., is.na(.), 0))) %>%
   pivot_longer(-name, names_to = "id", values_to = "value") %>%
@@ -894,8 +933,10 @@ data <- data_species %>%
   map(~ (.x %>% select(-plot, -year))) %>%
   map(~ (.x %>% select(where(~ !all(is.na(.x))))))
 
-### Calculate synchrony ###
+
 sync_indices <- map(data, calc_sync)
+
+
 data <- do.call("rbind", sync_indices) %>%
   #'map' function does not work because 'plot' is missing
   rownames_to_column("plot") %>%
@@ -904,23 +945,22 @@ data <- do.call("rbind", sync_indices) %>%
   select(plot, syn_total, syn_trend, syn_detrend)
 #'log_varrrat_t3' excluded because it does not allow missing years
 
-#sites <- left_join(sites, data, by = "plot")
+#sites_dikes <- left_join(sites_dikes, data, by = "plot")
 
-rm(list = setdiff(ls(), c("sites", "sites_splot",
+rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "sites_precipitation", "sites_temperature",
-                          "species", "species_splot",
+                          "species_dikes", "species_splot",
                           "traits")))
 
 
 
 #______________________________________________________________________________
-## 9 Environmental variables ##################################################
+## 7 PCAs: Principle component analyses #######################################
 
 
 ### a Soil PCA  ---------------------------------------------------------------
 
-### Prepare data ###
-data <- sites %>%
+data <- sites_dikes %>%
   filter(accumulated_cover > 0) %>%
   add_count(plot) %>%
   filter(n == max(n) & survey_year == 2017) %>%
@@ -933,14 +973,16 @@ data <- sites %>%
   ) %>%
   column_to_rownames(var = "plot")
 
-### Calculate PCA ###
+
 pca <- rda(data, scale = TRUE)
+
 
 summary(pca, axes = 0)
 screeplot(pca, bstick = TRUE, npcs = length(pca$CA$eig))
 biplot(pca, display = "species", scaling = 2)
-### create summary table ###
-eigenvals <- pca %>%
+
+
+summary_table <- pca %>%
   eigenvals() %>%
   summary() %>%
   as.data.frame() %>%
@@ -955,11 +997,12 @@ data <- pca %>%
   tibble() %>%
   select(PC1:PC4, variables)
 pca_soil <- data %>%
-  bind_rows(eigenvals)
-### Add to sites ###
+  bind_rows(summary_table)
+
+
 data <- pca %>%
   summary() %>%
-  magrittr::extract2("sites") %>%
+  magrittr::extract2("sites_dikes") %>%
   as.data.frame() %>%
   rownames_to_column(var = "plot") %>%
   tibble() %>%
@@ -970,16 +1013,16 @@ data <- pca %>%
     pc3_soil = PC3,
     pc4_soil = PC4
   )
-sites <- left_join(sites, data, by = "plot") %>%
+sites_dikes <- left_join(sites_dikes, data, by = "plot") %>%
   select(-c550, -calciumcarbonat, -c_organic, -humus, -humus_level,
          -n_total_ratio, -cn_ratio, -ph, -sand, -silt, -clay, -phosphorus,
          -potassium, -magnesium, -topsoil_depth, -finematerial_depth,
          -finematerial_density, -sceleton_ratio_volume, -sceleton_ratio_mass,
          -sceleton_level, -ufc_percent, -ufc_mm, -n_total_concentration)
 
-rm(list = setdiff(ls(), c("sites", "sites_splot",
+rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "sites_precipitation", "sites_temperature",
-                          "species", "species_splot",
+                          "species_dikes", "species_splot",
                           "traits", "pca_soil")))
 
 
@@ -1009,7 +1052,8 @@ data <- sites_temperature %>%
     currentYear = if_else(season == "spring", 0, 1),
     currentYear = year + currentYear
   ) %>%
-  #--> current year of 2021 is e.g. from summer 2020 to spring 2021 = climate for survey_year
+  # current year of 2021 is e.g. from summer 2020 to spring 2021 =
+  # climate for survey_year
   group_by(currentYear) %>%
   mutate(
     current_mean = mean(value),
@@ -1028,7 +1072,7 @@ data <- sites_temperature %>%
   # warnings because of lates year (summer, autumn, winter), can be ignored
   mutate(year = factor(year))
 
-sites <- sites %>%
+sites_dikes <- sites_dikes %>%
   left_join(data %>% select(-current_mean),
     by = c("construction_year_factor" = "year")
   ) %>%
@@ -1088,7 +1132,8 @@ data <- sites_precipitation %>%
     currentYear = if_else(season == "spring", 0, 1),
     currentYear = year + currentYear
   ) %>%
-  # current year of 2021 is e.g. from summer 2020 to spring 2021 = climate for survey_year
+  # current year of 2021 is e.g. from summer 2020 to spring 2021 =
+  # climate for survey_year
   group_by(site, currentYear) %>%
   mutate(
     currentSum = sum(value),
@@ -1116,7 +1161,7 @@ data <- sites_precipitation %>%
   # warnings because of lates year (summer, autumn, winter), can be ignored
   mutate(year = factor(year))
 
-sites <- sites %>%
+sites_dikes <- sites_dikes %>%
   left_join(data %>% select(-current_mean),
     by = c("construction_year_factor" = "year")
   ) %>%
@@ -1156,8 +1201,7 @@ sites <- sites %>%
 
 ### c Climate PCA - Survey year  ----------------------------------------------
 
-### Prepare data ###
-data <- sites %>%
+data <- sites_dikes %>%
   arrange(id) %>%
   column_to_rownames("id") %>%
   select(
@@ -1167,14 +1211,16 @@ data <- sites %>%
     prec_autumn_survey_year, prec_winter_survey_year
   )
 
-### Calculate PCA ###
+
 pca <- rda(X = decostand(data, method = "standardize"), scale = TRUE)
+
 
 summary(pca, axes = 0)
 screeplot(pca, bstick = TRUE, npcs = length(pca$CA$eig))
 biplot(pca, display = "species", scaling = 2)
-### Make summary table ###
-eigenvals <- pca %>%
+
+
+summary_table <- pca %>%
   eigenvals() %>%
   summary() %>%
   as.data.frame() %>%
@@ -1183,17 +1229,18 @@ eigenvals <- pca %>%
   select(PC1:PC3, variables)
 data <- pca %>%
   summary() %>%
-  magrittr::extract2("species") %>%
+  magrittr::extract2("species_dikes") %>%
   as.data.frame() %>%
   rownames_to_column(var = "variables") %>%
   tibble() %>%
   select(PC1:PC3, variables)
 pca_survey_year <- data %>%
-  bind_rows(eigenvals)
-### Add to sites ###
+  bind_rows(summary_table)
+
+
 data <- pca %>%
   summary() %>%
-  magrittr::extract2("sites") %>%
+  magrittr::extract2("sites_dikes") %>%
   as.data.frame() %>%
   rownames_to_column(var = "plot") %>%
   tibble() %>%
@@ -1203,14 +1250,12 @@ data <- pca %>%
     pc2_survey_year = PC2,
     pc3_survey_year = PC3
   )
-### Add to sites ###
-sites <- left_join(sites, data, by = "plot")
+sites_dikes <- left_join(sites_dikes, data, by = "plot")
 
 
 ### d Climate PCA - Construction year  ----------------------------------------
 
-### Prepare data ###
-data <- sites %>%
+data <- sites_dikes %>%
   arrange(id) %>%
   select(
     plot,
@@ -1231,14 +1276,16 @@ data <- sites %>%
   summarise(across(where(is.numeric), ~ median(.x, na.rm = TRUE))) %>%
   column_to_rownames("plot")
 
-### Calculate PCA ###
+
 pca <- rda(X = decostand(data, method = "standardize"), scale = TRUE)
+
 
 summary(pca, axes = 0)
 screeplot(pca, bstick = TRUE, npcs = length(pca$CA$eig))
 biplot(pca, display = "species", scaling = 2)
-### Make summary table ###
-eigenvals <- pca %>%
+
+
+summary_table <- pca %>%
   eigenvals() %>%
   summary() %>%
   as.data.frame() %>%
@@ -1247,17 +1294,18 @@ eigenvals <- pca %>%
   select(PC1:PC3, variables)
 data <- pca %>%
   summary() %>%
-  magrittr::extract2("species") %>%
+  magrittr::extract2("species_dikes") %>%
   as.data.frame() %>%
   rownames_to_column(var = "variables") %>%
   tibble() %>%
   select(PC1:PC3, variables)
 pca_construction_year <- data %>%
-  bind_rows(eigenvals)
-### Add to sites ###
+  bind_rows(summary_table)
+
+
 data <- pca %>%
   summary() %>%
-  magrittr::extract2("sites") %>%
+  magrittr::extract2("sites_dikes") %>%
   as.data.frame() %>%
   rownames_to_column(var = "plot") %>%
   tibble() %>%
@@ -1267,21 +1315,20 @@ data <- pca %>%
     pc2_construction_year = PC2,
     pc3_construction_year = PC3
   )
-### Add to sites ###
-sites <- left_join(sites, data, by = "plot") %>%
+sites_dikes <- left_join(sites_dikes, data, by = "plot") %>%
   select(-starts_with("temp"), -starts_with("prec"))
 
-rm(list = setdiff(ls(), c("sites", "sites_splot", "species", "species_splot",
+rm(list = setdiff(ls(), c("sites_dikes", "sites_splot", "species_dikes",
+                          "species_splot",
                           "traits", "pca_soil", "pca_construction_year",
                           "pca_survey_year")))
 
 
 
 #______________________________________________________________________________
-## 10 sPlot open data ##########################################################
+## 8 sPlotOpen ################################################################
 
 
-### Sites data ###
 data_sites <- sites_splot %>%
   filter(
     #Hay meadow: EUNIS2007 code E2.2 Chytry et al. 2020 Appl Veg Sci
@@ -1304,11 +1351,10 @@ data_sites <- sites_splot %>%
     reference = str_replace(reference, "Germany", "reference"),
     survey_year = year(survey_year)
   ) %>%
-  select(id, survey_year, longitude, latitude, elevation, plotSize,
+  select(id, givd_id, longitude, latitude, elevation, plotSize, survey_year, 
          reference, esy)
 sites_splot <- data_sites
 
-### Species abundance data ###
 data_species <- species_splot %>%
   rename(id = PlotObservationID, name = Species,
          abundance = Original_abundance) %>%
@@ -1340,24 +1386,24 @@ species_splot %>%
   select(name) %>%
   filter(name == "Galium mollugo")
 
-rm(list = setdiff(ls(), c("sites", "sites_splot", "species", "species_splot",
+rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
+                          "species_dikes", "species_splot",
                           "traits", "pca_soil", "pca_construction_year",
                           "pca_survey_year")))
 
 
 
 #______________________________________________________________________________
-## 5 dbMEM: Distance-based Moran's eigenvector maps (41 plots) ################
+## 9 dbMEM: Distance-based Moran's eigenvector maps (41 plots) ################
 
 
-### Prepare data ###
-# function 'quickMEM' from Numerical Ecology book
+# function 'quickMEM' from Numerical Ecology book:
 source("https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/quickMEM.R")
-data_sites <- sites %>%
+data_sites <- sites_dikes %>%
   filter(accumulated_cover > 0) %>%
   add_count(plot) %>%
   filter(n == max(n))
-data_species <- species %>%
+data_species <- species_dikes %>%
   pivot_longer(-name, names_to = "id", values_to = "value") %>%
   pivot_wider(id, names_from = "name", values_from = "value") %>%
   arrange(id) %>%
@@ -1367,7 +1413,6 @@ data_species <- species %>%
 
 ### a 2017 ---------------------------------------------------------------------
 
-### Preparation ###
 data_sites_dbmem <- data_sites %>%
   filter(survey_year == 2017) %>%
   select(id, longitude, latitude)
@@ -1380,7 +1425,7 @@ data_species_dbmem <- data_species_dbmem[, i]
 data_sites_dbmem <- data_sites_dbmem %>%
   column_to_rownames("id")
 
-### Calculate dbMEM ###
+
 m <- quickMEM(
   data_species_dbmem, data_sites_dbmem,
   alpha = 0.05,
@@ -1388,6 +1433,7 @@ m <- quickMEM(
   rangexy = TRUE,
   perm.max = 999
 )
+
 
 # --> undetrended data, R2adj of minimum (final) model = 0.05
 m$RDA_test # p = 0.001
@@ -1397,12 +1443,11 @@ dbmem_reduced <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM1) %>%
   rename(mem1_2017 = MEM1)
-sites <- left_join(sites, dbmem_reduced, by = "id")
+sites_dikes <- left_join(sites_dikes, dbmem_reduced, by = "id")
 
 
 ### b 2018 ---------------------------------------------------------------------
 
-### Preparation ###
 data_sites_dbmem <- data_sites %>%
   filter(survey_year == 2018) %>%
   select(id, longitude, latitude)
@@ -1415,7 +1460,7 @@ data_species_dbmem <- data_species_dbmem[, i]
 data_sites_dbmem <- data_sites_dbmem %>%
   column_to_rownames("id")
 
-### Calculate dbMEM ###
+
 m <- quickMEM(
   data_species_dbmem, data_sites_dbmem,
   alpha = 0.05,
@@ -1424,6 +1469,7 @@ m <- quickMEM(
   detrend = FALSE,
   perm.max = 999
 )
+
 
 # --> undetrended data, R2adj of minimum (final) model = 0.04
 m$RDA_test # p = 0.006
@@ -1434,12 +1480,11 @@ dbmem_reduced <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM2) %>%
   rename(mem2_2018 = MEM2)
-sites <- left_join(sites, dbmem_reduced, by = "id")
+sites_dikes <- left_join(sites_dikes, dbmem_reduced, by = "id")
 
 
 ### c 2019 ---------------------------------------------------------------------
 
-### Preparation ###
 data_sites_dbmem <- data_sites %>%
   filter(survey_year == 2019) %>%
   select(id, longitude, latitude)
@@ -1452,7 +1497,7 @@ data_species_dbmem <- data_species_dbmem[, i]
 data_sites_dbmem <- data_sites_dbmem %>%
   column_to_rownames("id")
 
-### Calculate dbMEM ###
+
 m <- quickMEM(
   data_species_dbmem, data_sites_dbmem,
   alpha = 0.05,
@@ -1461,6 +1506,7 @@ m <- quickMEM(
   rangexy = TRUE,
   perm.max = 999
 )
+
 
 # --> not detrended, R2adj of minimum (final) model = 0.056
 m$RDA_test # p = 0.001
@@ -1471,12 +1517,11 @@ dbmem_reduced <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM1) %>%
   rename(mem1_2019 = MEM1)
-sites <- left_join(sites, dbmem_reduced, by = "id")
+sites_dikes <- left_join(sites_dikes, dbmem_reduced, by = "id")
 
 
 ### d 2021 ---------------------------------------------------------------------
 
-### Preparation ###
 data_sites_dbmem <- data_sites %>%
   filter(survey_year == 2021) %>%
   select(id, longitude, latitude)
@@ -1489,7 +1534,7 @@ data_species_dbmem <- data_species_dbmem[, i]
 data_sites_dbmem <- data_sites_dbmem %>%
   column_to_rownames("id")
 
-### Calculate dbMEM ###
+
 m <- quickMEM(
   data_species_dbmem, data_sites_dbmem,
   alpha = 0.05,
@@ -1498,6 +1543,7 @@ m <- quickMEM(
   rangexy = TRUE,
   perm.max = 999
 )
+
 
 # --> undetrended data, R2adj of minimum (final) model = 0.064
 m$RDA_test # p = 0.001
@@ -1508,22 +1554,22 @@ dbmem_reduced <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM1, MEM2) %>%
   rename(mem1_2021 = MEM1, mem2_2021 = MEM2)
-sites <- left_join(sites, dbmem_reduced, by = "id")
+sites_dikes <- left_join(sites_dikes, dbmem_reduced, by = "id")
 
 
 
 #______________________________________________________________________________
-## 11 TBI: Temporal Beta diversity Index ######################################
+## 10 TBI: Temporal Beta diversity Index ######################################
 
 
-### Prepare data ###
-data_sites <- sites %>%
+### Preparation ###
+data_sites <- sites_dikes %>%
   ### Choose only plots which were surveyed in each year
   filter(accumulated_cover > 0) %>%
   add_count(plot) %>%
   filter(n == max(n)) %>%
   select(id, plot)
-data_species <- species %>%
+data_species <- species_dikes %>%
   select(where(~ !all(is.na(.x)))) %>%
   mutate(across(where(is.numeric), ~ replace(., is.na(.), 0))) %>%
   left_join(traits %>% select(name, target), by = "name")
@@ -1553,7 +1599,6 @@ data_species_target <- data_species %>%
   semi_join(data_sites, by = "id") %>%
   select(plot, year, tidyselect::peek_vars(), -id)
 
-### Separate each year in several tibbles ###
 for (i in unique(data_species_all$year)) {
   nam <- paste("data_species_all_", i, sep = "")
 
@@ -1635,7 +1680,7 @@ tbi1721 <- as_tibble(res1721$BCD.mat) %>%
   mutate(comparison = "1721")
 plot(res1721, type = "BC")
 
-#### * Combine datasets ###
+
 data_presence_all <- bind_rows(tbi1718, tbi1819, tbi1921, tbi1719, tbi1721) %>%
   mutate(presabu = "presence",
          pool = "all")
@@ -1703,7 +1748,7 @@ tbi1721 <- as_tibble(res1721$BCD.mat) %>%
   mutate(comparison = "1721")
 plot(res1721, type = "BC")
 
-#### * Combine datasets ###
+
 data_abundance_all <- bind_rows(tbi1718, tbi1819, tbi1921, tbi1719, tbi1721) %>%
   mutate(presabu = "abundance",
          pool = "all")
@@ -1771,7 +1816,7 @@ tbi1721 <- as_tibble(res1721$BCD.mat) %>%
   mutate(comparison = "1721")
 plot(res1721, type = "BC")
 
-#### * Combine datasets ###
+
 data_presence_target <- bind_rows(
   tbi1718, tbi1819, tbi1921, tbi1719, tbi1721
   ) %>%
@@ -1841,7 +1886,7 @@ tbi1721 <- as_tibble(res1721$BCD.mat) %>%
   mutate(comparison = "1721")
 plot(res1721, type = "BC")
 
-#### * Combine datasets ###
+
 data_abundance_target <- bind_rows(
   tbi1718, tbi1819, tbi1921, tbi1719, tbi1721
   ) %>%
@@ -1860,10 +1905,10 @@ data <- add_row(data_presence_target, data_abundance_target) %>%
   mutate(plot = rep(
     plot,
     length(data_abundance_all$comparison) *
-      length(unique(sites$survey_year)) /
+      length(unique(sites_dikes$survey_year)) /
       length(data_species_all_2017[, 1])
     ))
-sites_temporal <- sites %>%
+sites_temporal <- sites_dikes %>%
   filter(survey_year_factor == "2017") %>%
   left_join(data, by = "plot") %>%
   rename(
@@ -1875,20 +1920,20 @@ sites_temporal <- sites %>%
     plot = as_factor(plot)
   )
 
-rm(list = setdiff(ls(), c("sites", "sites_splot", "sites_temporal",
-                          "species", "species_splot", "traits",
+rm(list = setdiff(ls(), c("sites_dikes", "sites_splot", "sites_temporal",
+                          "species_dikes", "species_splot", "traits",
                           "pca_soil", "pca_construction_year",
                           "pca_survey_year")))
 
 
 
 #______________________________________________________________________________
-## 12 Finalization ############################################################
+## 11 Finalization ############################################################
 
 
 ### a Rounding ----------------------------------------------------------------
 
-sites <- sites %>%
+sites_dikes <- sites_dikes %>%
   mutate(across(
     c(
       pc1_soil, pc2_soil, pc3_soil,
@@ -1918,7 +1963,7 @@ sites_temporal <- sites_temporal %>%
 
 ### b Final selection of variables --------------------------------------------
 
-sites_spatial <- sites %>%
+sites_spatial <- sites_dikes %>%
   select(
     id, plot, block, latitude, longitude, survey_year, botanist,
     # local
@@ -1951,7 +1996,7 @@ sites_temporal <- sites_temporal %>%
     starts_with("b_"), starts_with("c_"), starts_with("d_")
   )
 
-sites_restoration <- sites %>%
+sites_restoration <- sites_dikes %>%
   select(
     id, plot, block, latitude, longitude, botanist, survey_year,
     # local
@@ -2007,7 +2052,7 @@ write_csv(
 )
 ### Species and traits data ###
 write_csv(
-  species,
+  species_dikes,
   here("data", "processed", "data_processed_species.csv")
 )
 write_csv(

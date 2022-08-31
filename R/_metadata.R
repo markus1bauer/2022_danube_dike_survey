@@ -10,7 +10,6 @@ library(tidyverse)
 library(EML)
 library(emld)
 #remotes::install_github("EDIorg/EMLassemblyline")
-library(EMLassemblyline)
 
 ### Start ###
 rm(list = ls())
@@ -28,7 +27,8 @@ setwd(here("data", "raw"))
 methods_file <- here("data/text/methods.odt")
 methods <- set_methods(methods_file)
 
-EMLassemblyline::view_unit_dictionary() # List of standard units, which should be used in metadata file
+### List of standard units, which should be used in metadata file ###
+EMLassemblyline::view_unit_dictionary()
 
 custom_units <- bind_rows(
   data.frame(
@@ -71,13 +71,17 @@ physical_raw_sites <- set_physical("data_raw_sites.csv")
 
 ### a data_processed_species  -------------------------------------------------
 
-attributes <- read_csv(here("data/processed/data_processed_species_metadata.csv")) %>%
+attributes <- read_csv(
+  here("data/processed/data_processed_species_metadata.csv")
+  ) %>%
   select(-type, -factor)
 physical_processed_species <- set_physical("data_processed_species.csv")
 
 
 ### b data_processed_traits  --------------------------------------------------
-attributes <- read_csv(here("data/processed/data_processed_traits_metadata.csv")) %>%
+attributes <- read_csv(
+  here("data/processed/data_processed_traits_metadata.csv")
+  ) %>%
   select(-type, -factor)
 physical_processed_traits <- set_physical("data_raw_traits.csv")
 

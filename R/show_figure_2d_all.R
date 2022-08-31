@@ -10,6 +10,7 @@
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+
 ### Packages ###
 library(here)
 library(tidyverse)
@@ -19,39 +20,7 @@ library(blme)
 rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
 setwd(here("data", "processed"))
 
-
-### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv",
-  col_names = TRUE,
-  na = c("", "na", "NA"), col_types =
-    cols(
-      .default = "?",
-      side = col_factor(levels = c("land", "water")),
-      exposition = col_factor(levels = c("south", "north")),
-      plot = "f",
-      block = "f",
-      comparison = "f",
-      locationYear = "f"
-    )
-) %>%
-  filter(comparison == "1718" | comparison == "1819" | comparison == "1921") %>%
-  mutate(
-    y = D_presence,
-    comparison = factor(comparison)
-  ) %>%
-  mutate(across(where(is.numeric) & !y, scale))
-
-### * Model ####
-m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil +
-  side + distanceRiver + locationYear + D_abundance +
-  (1 | plot),
-REML = TRUE,
-control = lmerControl(optimizer = "Nelder_Mead"),
-cov.prior = wishart,
-data = sites
-)
-
-### * Functions ####
+### Functions ###
 theme_mb <- function() {
   theme(
     panel.background = element_rect(fill = "white"),
@@ -72,11 +41,42 @@ theme_mb <- function() {
   )
 }
 
+### Load data ###
+sites <- read_csv("data_processed_sites_temporal.csv",
+  col_names = TRUE,
+  na = c("", "na", "NA"), col_types =
+    cols(
+      .default = "?",
+      side = col_factor(levels = c("land", "water")),
+      exposition = col_factor(levels = c("south", "north")),
+      plot = "f",
+      block = "f",
+      comparison = "f",
+      locationYear = "f"
+    )) %>%
+  filter(comparison == "1718" | comparison == "1819" | comparison == "1921") %>%
+  mutate(
+    y = D_presence,
+    comparison = factor(comparison)
+  ) %>%
+  mutate(across(where(is.numeric) & !y, scale))
+
+### * Model ####
+m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil +
+  side + distanceRiver + locationYear + D_abundance +
+  (1 | plot),
+  REML = TRUE,
+  control = lmerControl(optimizer = "Nelder_Mead"),
+  cov.prior = wishart,
+  data = sites
+  )
+
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # B Plot #################################################################
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 
 (graph_d <- m2 %>%

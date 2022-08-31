@@ -5,9 +5,9 @@
 
 
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Preparation #########################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation ###############################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 ### Packages ###
@@ -52,12 +52,12 @@ sites <- sites %>%
 
 
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Statistics ##########################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Statistics ################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-## 1 Data exploration ###################################################
+## 1 Data exploration #########################################################
 
 #### * Graphs #####
 mean(sites$y)
@@ -139,9 +139,9 @@ GGally::ggpairs(data_collinearity, lower = list(continuous = "smooth_loess"))
 rm(data_collinearity)
 
 
-## 2 Model building #####################################################
+## 2 Model building ###########################################################
 
-### a models ------------------------------------------------------------
+### a models ------------------------------------------------------------------
 
 ### * Random structure ####
 m1a <- blmer(y ~ 1 + (1 | locationYear), data = sites, REML = TRUE)
@@ -191,7 +191,7 @@ data = sites
 )
 simulateResiduals(m5, plot = TRUE)
 
-### b comparison --------------------------------------------------------
+### b comparison --------------------------------------------------------------
 
 MuMIn::AICc(m1, m2, m3, m4, m5) # m4 most parsimonious, Use AICc and not AIC since ratio n/K < 40 (Burnahm & Anderson 2002 p. 66)
 dotwhisker::dwplot(list(m4, m3), # m4 bad model critique, m3 ok
@@ -206,7 +206,7 @@ dotwhisker::dwplot(list(m4, m3), # m4 bad model critique, m3 ok
 m <- update(m3, REML = TRUE)
 rm(list = setdiff(ls(), c("sites", "m")))
 
-### c model check -------------------------------------------------------
+### c model check -------------------------------------------------------------
 
 simulationOutput <- simulateResiduals(m, plot = TRUE)
 plotResiduals(simulationOutput$scaledResiduals, sites$locationYear)
@@ -221,10 +221,11 @@ plotResiduals(simulationOutput$scaledResiduals, sites$PC2soil)
 plotResiduals(simulationOutput$scaledResiduals, sites$PC3soil)
 plotResiduals(simulationOutput$scaledResiduals, sites$distanceRiver)
 plotResiduals(simulationOutput$scaledResiduals, sites$riverkm)
-car::vif(m) # --> remove riverkm > 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol)
+car::vif(m)
+# --> remove riverkm > 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol)
 
 
-## 3 Chosen model output ################################################
+## 3 Chosen model output ######################################################
 
 ### * Model output ####
 MuMIn::r.squaredGLMM(m) # R2m = 0.413, R2c = 0.438
@@ -243,4 +244,5 @@ dotwhisker::dwplot(m,
 ### * Effect sizes ####
 (emm <- emmeans(m, revpairwise ~ comparison | exposition, type = "response"))
 plot(emm, comparison = TRUE)
-sjPlot::plot_model(m, type = "emm", terms = c("comparison", "exposition"), show.data = FALSE)
+sjPlot::plot_model(m, type = "emm", terms = c("comparison", "exposition"),
+                   show.data = FALSE)
