@@ -25,26 +25,26 @@ setwd(here("data", "processed"))
 
 ### Load data ###
 sites <- read_csv("data_processed_sites_temporal.csv",
-  col_names = TRUE, na = c("", "na", "NA"),
-  col_types =
-    cols(
-      .default = "?",
-      plot = "f",
-      block = "f",
-      comparison = "f",
-      location = "f",
-      location_construction_year = "f",
-      exposition = col_factor(levels = c("south", "north")),
-      orientation = col_factor(levels = c("land", "water"))
-    )) %>%
-  filter(comparison == "1718" | comparison == "1819" | comparison == "1921") %>%
-  mutate(
-    y = c_presence_all - b_presence_all,
-    comparison = factor(comparison)
-  )
+                  col_names = TRUE, na = c("", "na", "NA"),
+                  col_types =
+                    cols(
+                      .default = "?",
+                      plot = "f",
+                      block = "f",
+                      comparison = "f",
+                      location = "f",
+                      location_construction_year = "f",
+                      exposition = col_factor(levels = c("south", "north")),
+                      orientation = col_factor(levels = c("land", "water"))
+                    )) %>%
+  filter(
+    (comparison == "1718" | comparison == "1819" | comparison == "1921") &
+      pool == "all" & presabu == "presence") %>%
+  mutate(y = c - b,
+         comparison = factor(comparison))
 
 data_collinearity <- sites %>%
-  select(ends_with("ude"), river_km, river_distance, starts_with("pc"))
+  select(where(is.numeric), -b, -c, -d, -y)
 
 sites <- sites %>%
   mutate(across(c("river_km", "river_distance"), scale))

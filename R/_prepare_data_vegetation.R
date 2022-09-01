@@ -35,7 +35,7 @@ suppressPackageStartupMessages(library(installr))
 suppressPackageStartupMessages(library(lubridate))
 library(tidyverse)
 library(naniar)
-library(TNRS)
+suppressPackageStartupMessages(library(TNRS))
 suppressPackageStartupMessages(library(vegan))
 suppressPackageStartupMessages(library(FD))
 suppressPackageStartupMessages(library(adespatial))
@@ -47,8 +47,7 @@ library(checklist)
 ### Start ###
 #installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
 #checklist::check_source()
-renv::status()
-
+#renv::status()
 rm(list = ls())
 setwd(here("data", "raw"))
 
@@ -1440,11 +1439,12 @@ m <- quickMEM(
 m$RDA_test # p = 0.001
 m$RDA_axes_test # RDA1 = sig. axis
 m$RDA # RDA1 0.05
-dbmem_reduced <- m$dbMEM %>%
+
+data <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM1) %>%
   rename(mem1_2017 = MEM1)
-sites_dikes <- left_join(sites_dikes, dbmem_reduced, by = "id")
+sites_dikes <- left_join(sites_dikes, data, by = "id")
 
 
 ### b 2018 ---------------------------------------------------------------------
@@ -1477,12 +1477,12 @@ m <- quickMEM(
 m$RDA_test # p = 0.006
 m$RDA_axes_test #  RDA2 = sig. axis
 m$RDA # RDA2 = 0.03
-### Add to sites ###
-dbmem_reduced <- m$dbMEM %>%
+
+data <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM2) %>%
   rename(mem2_2018 = MEM2)
-sites_dikes <- left_join(sites_dikes, dbmem_reduced, by = "id")
+sites_dikes <- left_join(sites_dikes, data, by = "id")
 
 
 ### c 2019 ---------------------------------------------------------------------
@@ -1514,12 +1514,12 @@ m <- quickMEM(
 m$RDA_test # p = 0.001
 m$RDA_axes_test # RDA1 = sig axis
 m$RDA # RDA1 = 0.04
-### Add to sites ###
-dbmem_reduced <- m$dbMEM %>%
+
+data <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM1) %>%
   rename(mem1_2019 = MEM1)
-sites_dikes <- left_join(sites_dikes, dbmem_reduced, by = "id")
+sites_dikes <- left_join(sites_dikes, data, by = "id")
 
 
 ### d 2021 ---------------------------------------------------------------------
@@ -1551,12 +1551,17 @@ m <- quickMEM(
 m$RDA_test # p = 0.001
 m$RDA_axes_test # RDA1, RDA2 = sig axes
 m$RDA # RDA1 = 0.05, RDA2 = 0.04
-### Add to sites ###
-dbmem_reduced <- m$dbMEM %>%
+
+data <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
   select(id, MEM1, MEM2) %>%
   rename(mem1_2021 = MEM1, mem2_2021 = MEM2)
-sites_dikes <- left_join(sites_dikes, dbmem_reduced, by = "id")
+sites_dikes <- left_join(sites_dikes, data, by = "id")
+
+rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
+                          "species_dikes", "species_splot",
+                          "traits", "pca_soil", "pca_construction_year",
+                          "pca_survey_year")))
 
 
 
@@ -1956,7 +1961,7 @@ sites_dikes <- sites_dikes %>%
 
 sites_temporal <- sites_temporal %>%
   mutate(across(
-    c(pc1_soil, pc2_soil, pc3_soil, river_distance, B, C, D),
+    c(pc1_soil, pc2_soil, pc3_soil, river_distance, b, c, d),
     ~ round(.x, digits = 4)
   ))
 
@@ -1983,7 +1988,7 @@ sites_spatial <- sites_dikes %>%
 
 sites_temporal <- sites_temporal %>%
   select(
-    plot, block, comparison,
+    plot, block, comparison, pool, presabu,
     # local
     exposition, orientation, pc1_soil, pc2_soil, pc3_soil,
     # space
