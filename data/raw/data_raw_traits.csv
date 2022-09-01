@@ -74,7 +74,7 @@ Clinopodium_vulgare,http://www.worldfloraonline.org/taxon/wfo-0000893535,na,Lami
 Colchicum_autumnale,http://www.worldfloraonline.org/taxon/wfo-0000763824,na,Colchicaceae,herb,NA,NA,NA,no,5400,6,5,2,6,1,7,NA,yes,no,no,no,no,no,no,no,no,no,no
 Convolvulus_arvensis,http://www.worldfloraonline.org/taxon/wfo-0001296633,na,Convolvulaceae,herb,NA,NA,NA,no,3611,7,6,4,NA,7,NA,,no,no,no,no,no,no,no,no,no,yes,no
 Cornus_controversa,http://www.worldfloraonline.org/taxon/wfo-0000924640,Cornus_sanguinea,Cornaceae,shrub,NA,NA,NA,no,0,7,5,4,5,NA,7,NA,no,no,no,no,no,no,no,no,no,no,no
-Coryllus_avellana,http://www.worldfloraonline.org/taxon/wfo-0000925259,NA,Betulaceae,shrub,NA,NA,NA,no,0,6,5,3,NA,NA,NA,5,no,no,no,no,no,no,no,no,no,no,no
+Corylus_avellana,http://www.worldfloraonline.org/taxon/wfo-0000925259,NA,Betulaceae,shrub,NA,NA,NA,no,0,6,5,3,NA,NA,NA,5,no,no,no,no,no,no,no,no,no,no,no
 Cota_tinctoria,http://www.worldfloraonline.org/taxon/wfo-0000076814,Anthemis_tinctoria,Asteraceae,herb,NA,NA,NA,no,3611,8,6,5,3,NA,6,4,yes,no,no,no,no,no,no,no,no,no,no
 Crataegus_monogyna,http://www.worldfloraonline.org/taxon/wfo-0001009785,NA,Rosaceae,shrub,NA,NA,NA,no,0,7,5,3,4,NA,8,4,no,no,no,no,no,no,no,no,no,no,no
 Crepis_biennis,http://www.worldfloraonline.org/taxon/wfo-0000061510,na,Asteraceae,herb,NA,NA,NA,no,5421,7,5,3,5,NA,6,5,yes,no,yes,yes,no,no,no,no,no,no,no
@@ -155,7 +155,7 @@ Onobrychis_viciifolia,http://www.worldfloraonline.org/taxon/wfo-0000205013,na,Fa
 Ononis_spinosa,http://www.worldfloraonline.org/taxon/wfo-0000183372,na,Fabaceae,legume,NA,NA,NA,no,5322,8,6,5,4,1,7,3,yes,no,no,no,no,no,3,no,no,no,no
 Ononis_spinosa_ssp_procurrens,http://www.worldfloraonline.org/taxon/wfo-0000186975,Ononis_repens,Fabaceae,legume,NA,NA,NA,no,5322,8,5,2,4,1,7,2,yes,no,no,no,no,no,no,no,no,no,no
 Origanum_vulgare,http://www.worldfloraonline.org/taxon/wfo-0000260765,na,Lamiaceae,herb,NA,NA,NA,no,6110,7,NA,3,3,NA,8,3,yes,no,no,no,no,no,no,no,no,no,no
-Orobanche_spec,http://www.worldfloraonline.org/taxon/wfo-4000027206,na,Orobanchaceae,parasite,NA,NA,NA,no,NA,NA,NA,NA,NA,NA,NA,NA,yes,no,no,no,yes,no,2,no,no,no,no
+Orobanche,http://www.worldfloraonline.org/taxon/wfo-4000027206,na,Orobanchaceae,parasite,NA,NA,NA,no,NA,NA,NA,NA,NA,NA,NA,NA,yes,no,no,no,yes,no,2,no,no,no,no
 Papaver_rhoeas,http://www.worldfloraonline.org/taxon/wfo-0000481006,na,Papaveraceae,herb,NA,NA,NA,no,3400,6,6,3,5,NA,7,6,no,no,no,no,no,no,no,no,no,no,no
 Parthenocissus_inserta,http://www.worldfloraonline.org/taxon/wfo-0000476975,na,Vitaceae,liana,NA,NA,NA,yes,NA,NA,NA,NA,NA,NA,NA,NA,no,no,no,no,no,no,no,no,no,no,no
 Persicaria_amphibia,http://www.worldfloraonline.org/taxon/wfo-0000488056,Polygonum_amphibium,Polygonaceae,herb,NA,NA,NA,no,1312,7,6,NA,11,NA,6,4,yes,no,no,no,no,no,no,no,no,no,no
@@ -193,7 +193,7 @@ Ranunculus_acris,http://www.worldfloraonline.org/taxon/wfo-0000461396,na,Ranuncu
 Ranunculus_bulbosus,http://www.worldfloraonline.org/taxon/wfo-0000461562,na,Ranunculaceae,herb,NA,NA,NA,no,5322,8,6,3,3,NA,7,3,yes,no,no,no,yes,no,4,no,no,no,no
 Ranunculus_repens,http://www.worldfloraonline.org/taxon/wfo-0000463198,na,Ranunculaceae,herb,NA,NA,NA,no,NA,6,NA,NA,7,1,NA,NA,no,no,no,no,no,no,no,no,no,no,yes
 Ranunculus_serpens_ssp_nemorosus,http://www.worldfloraonline.org/taxon/wfo-0000462219,Ranunculus_nemorosus,Ranunculaceae,herb,NA,V,NA,no,NA,6,NA,4,5,NA,6,NA,yes,no,no,no,no,no,no,no,no,no,no
-Ranunculus_spec,http://www.worldfloraonline.org/taxon/wfo-4000032540,NA,Ranunculaceae,herb,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,no,no,no,no,no,no,no,no,no,no,no
+Ranunculus,http://www.worldfloraonline.org/taxon/wfo-4000032540,NA,Ranunculaceae,herb,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,no,no,no,no,no,no,no,no,no,no,no
 Reseda_lutea,http://www.worldfloraonline.org/taxon/wfo-0000462651,na,Resedaceae,herb,NA,NA,NA,no,3540,7,6,3,3,NA,8,5,yes,no,no,no,no,no,no,no,no,no,no
 Rhinanthus_alectorolophus,http://www.worldfloraonline.org/taxon/wfo-0000463700,na,Orobanchaceae,hemiparasite,NA,NA,NA,no,NA,8,NA,2,4,NA,7,3,yes,no,no,no,no,no,4,no,no,no,no
 Rhinanthus_glacialis,http://www.worldfloraonline.org/taxon/wfo-0001138801,na,Orobanchaceae,hemiparasite,NA,V,NA,no,5111,8,3,4,5,NA,4,2,yes,no,no,no,yes,no,no,2,no,no,no

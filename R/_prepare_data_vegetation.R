@@ -35,13 +35,14 @@ suppressPackageStartupMessages(library(installr))
 suppressPackageStartupMessages(library(lubridate))
 library(tidyverse)
 library(naniar)
-library(vegan)
-library(FD)
+library(TNRS)
+suppressPackageStartupMessages(library(vegan))
+suppressPackageStartupMessages(library(FD))
 suppressPackageStartupMessages(library(adespatial))
-library(checklist)
 library(remotes)
 #remotes::install_github(file.path("larsito", "tempo"))
 library(tempo)
+library(checklist)
 
 ### Start ###
 #installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
@@ -233,28 +234,31 @@ traits <- read_csv("data_raw_traits.csv",
   select(-ssp) %>%
   arrange(name)
 
-### Check congruency of traits and species_dikes table ###
-traits[duplicated(traits$abb), ]
-traits$name[which(!(traits$name %in% species_dikes$name))]
-species_dikes$name[which(!(species_dikes$name %in% traits$name))]
+### Check species names ###
+anti_join(traits, species_dikes, by = "name") %>% select(name)
+anti_join(species_dikes, traits, by = "name") %>% select(name)
+data <- traits %>%
+  mutate(name = str_replace_all(name, "_", " ")) %>%
+  select(abb, name)
+TNRS::TNRS(
+    taxonomic_names = data,
+    sources = c("wfo", "tropicos", "wcvp"),
+    classification = "wfo",
+    mode = "resolve"
+    ) %>%
+  select(ID, Name_submitted, Overall_score, Source, Accepted_name,
+         Accepted_name_rank, Accepted_name_author, Accepted_family,
+         Accepted_name_url, Taxonomic_status) %>%
+  filter(
+    Overall_score < 1 | Source != "wfo" | Taxonomic_status != "Accepted"
+    ) %>%
+  arrange(Source)
+
 
 ### Combine with species_dikes table ###
 traits <- traits %>%
   semi_join(species_dikes, by = "name")
 
-### Check species names (not working) ###
-library(TNRS)
-traits2 <- traits %>%
-  mutate(name = str_replace(name, "_", " ")) %>%
-  select(name)
-tnrs <- TNRS(
-    taxonomic_names = traits2,
-    sources = c("tropicos", "wcvp", "wfo"),
-    classification = "wfo",
-    mode = "resolve"
-    )
-head(results, 10)
-metadata_tnrs <- TNRS_metadata()
 
 
 #______________________________________________________________________________
@@ -1002,7 +1006,7 @@ pca_soil <- data %>%
 
 data <- pca %>%
   summary() %>%
-  magrittr::extract2("sites_dikes") %>%
+  magrittr::extract2("sites") %>%
   as.data.frame() %>%
   rownames_to_column(var = "plot") %>%
   tibble() %>%
@@ -1229,7 +1233,7 @@ summary_table <- pca %>%
   select(PC1:PC3, variables)
 data <- pca %>%
   summary() %>%
-  magrittr::extract2("species_dikes") %>%
+  magrittr::extract2("species") %>%
   as.data.frame() %>%
   rownames_to_column(var = "variables") %>%
   tibble() %>%
@@ -1240,7 +1244,7 @@ pca_survey_year <- data %>%
 
 data <- pca %>%
   summary() %>%
-  magrittr::extract2("sites_dikes") %>%
+  magrittr::extract2("sites") %>%
   as.data.frame() %>%
   rownames_to_column(var = "plot") %>%
   tibble() %>%
@@ -1294,7 +1298,7 @@ summary_table <- pca %>%
   select(PC1:PC3, variables)
 data <- pca %>%
   summary() %>%
-  magrittr::extract2("species_dikes") %>%
+  magrittr::extract2("species") %>%
   as.data.frame() %>%
   rownames_to_column(var = "variables") %>%
   tibble() %>%
@@ -1305,7 +1309,7 @@ pca_construction_year <- data %>%
 
 data <- pca %>%
   summary() %>%
-  magrittr::extract2("sites_dikes") %>%
+  magrittr::extract2("sites") %>%
   as.data.frame() %>%
   rownames_to_column(var = "plot") %>%
   tibble() %>%
@@ -1319,8 +1323,8 @@ sites_dikes <- left_join(sites_dikes, data, by = "plot") %>%
   select(-starts_with("temp"), -starts_with("prec"))
 
 rm(list = setdiff(ls(), c("sites_dikes", "sites_splot", "species_dikes",
-                          "species_splot",
-                          "traits", "pca_soil", "pca_construction_year",
+                          "species_splot", "traits",
+                          "pca_soil", "pca_construction_year",
                           "pca_survey_year")))
 
 
@@ -1381,7 +1385,7 @@ data_species <- species_splot %>%
 species_splot <- data_species
 
 ### Check species name congruency ###
-data_species$name[which(!(data_species$name %in% traits$name))]
+data <- anti_join(species_splot, traits, by = "name") %>% select(name)
 species_splot %>%
   select(name) %>%
   filter(name == "Galium mollugo")
