@@ -756,7 +756,7 @@ data <- sites_dikes %>%
     ffh = str_replace(ffh, "NA", ""),
     ffh = as_factor(str_replace(ffh, "NA", "non-FFH")),
     biotope_type = as_factor(biotope_type),
-    biotopePoints = if_else(
+    biotope_points = if_else(
       biotope_type == "G312-GT6210", 13, if_else(
         biotope_type == "G214-GE6510", 12, if_else(
           biotope_type == "G212-LR6510", 9, if_else(
@@ -1986,7 +1986,7 @@ sites_spatial <- sites_dikes %>%
 sites_temporal <- sites_temporal %>%
   rename(b = "B", c = "C", d = "D") %>%
   pivot_wider(names_from = c("presabu", "pool"),
-              values_from = c("B", "C", "D")) %>%
+              values_from = c("b", "c", "d")) %>%
   select(
     plot, block, comparison,
     # local

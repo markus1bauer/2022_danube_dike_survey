@@ -73,7 +73,7 @@ Clinopodium_vulgare,Clinvulg,http://www.worldfloraonline.org/taxon/wfo-000089353
 Colchicum_autumnale,Colcautu,http://www.worldfloraonline.org/taxon/wfo-0000763824,na,Colchicaceae,herb,"NA",no,6,5,2,6,1,7,NA,no,no,yes,no,hay_meadow
 Convolvulus_arvensis,Convarve,http://www.worldfloraonline.org/taxon/wfo-0001296633,na,Convolvulaceae,herb,"NA",no,7,6,4,NA,7,NA,NA,no,no,no,yes,no
 Cornus_controversa,Corncont,http://www.worldfloraonline.org/taxon/wfo-0000924640,Cornus_sanguinea,Cornaceae,shrub,"NA",no,7,5,4,5,"NA",7,NA,no,no,no,no,no
-Coryllus_avellana,Coryavel,http://www.worldfloraonline.org/taxon/wfo-0000925259,"NA",Betulaceae,shrub,"NA",no,6,5,3,NA,"NA",NA,5,no,no,no,no,no
+Corylus_avellana,Coryavel,http://www.worldfloraonline.org/taxon/wfo-0000925259,"NA",Betulaceae,shrub,"NA",no,6,5,3,NA,"NA",NA,5,no,no,no,no,no
 Cota_tinctoria,Cotatinc,http://www.worldfloraonline.org/taxon/wfo-0000076814,Anthemis_tinctoria,Asteraceae,herb,"NA",no,8,6,5,3,"NA",6,4,no,no,yes,yes,no
 Crataegus_monogyna,Cratmono,http://www.worldfloraonline.org/taxon/wfo-0001009785,"NA",Rosaceae,shrub,"NA",no,7,5,3,4,"NA",8,4,no,no,no,no,no
 Crepis_biennis,Crepbien,http://www.worldfloraonline.org/taxon/wfo-0000061510,na,Asteraceae,herb,"NA",no,7,5,3,5,"NA",6,5,yes,no,yes,no,hay_meadow
@@ -154,7 +154,7 @@ Onobrychis_viciifolia,Onobvici,http://www.worldfloraonline.org/taxon/wfo-0000205
 Ononis_spinosa,Ononspin,http://www.worldfloraonline.org/taxon/wfo-0000183372,na,Fabaceae,legume,"NA",no,8,6,5,4,1,7,3,no,no,yes,no,dry_grassland
 Ononis_spinosa_ssp_procurrens,Ononspinproc,http://www.worldfloraonline.org/taxon/wfo-0000186975,Ononis_repens,Fabaceae,legume,"NA",no,8,5,2,4,1,7,2,no,no,yes,no,dry_grassland
 Origanum_vulgare,Origvulg,http://www.worldfloraonline.org/taxon/wfo-0000260765,na,Lamiaceae,herb,"NA",no,7,NA,3,3,"NA",8,3,no,no,yes,no,no
-Orobanche_spec,Orobspec,http://www.worldfloraonline.org/taxon/wfo-4000027206,na,Orobanchaceae,parasite,"NA",no,NA,NA,NA,NA,"NA",NA,NA,no,yes,yes,NA,NA
+Orobanche,OrobNA,http://www.worldfloraonline.org/taxon/wfo-4000027206,na,Orobanchaceae,parasite,"NA",no,NA,NA,NA,NA,"NA",NA,NA,no,yes,yes,NA,NA
 Papaver_rhoeas,Paparhoe,http://www.worldfloraonline.org/taxon/wfo-0000481006,na,Papaveraceae,herb,"NA",no,6,6,3,5,"NA",7,6,no,no,no,yes,no
 Parthenocissus_inserta,Partinse,http://www.worldfloraonline.org/taxon/wfo-0000476975,na,Vitaceae,liana,"NA",yes,NA,NA,NA,NA,"NA",NA,NA,no,no,no,NA,NA
 Persicaria_amphibia,Persamph,http://www.worldfloraonline.org/taxon/wfo-0000488056,Polygonum_amphibium,Polygonaceae,herb,"NA",no,7,6,NA,11,"NA",6,4,no,no,yes,no,no
@@ -188,11 +188,11 @@ Potentilla_recta,Poterect,http://www.worldfloraonline.org/taxon/wfo-0000983388,n
 Potentilla_reptans,Poterept,http://www.worldfloraonline.org/taxon/wfo-0001011690,na,Rosaceae,herb,"NA",no,6,6,3,6,"NA",7,5,no,no,yes,no,no
 Prunella_vulgaris,Prunvulg,http://www.worldfloraonline.org/taxon/wfo-0000283746,na,Lamiaceae,herb,"NA",no,7,NA,3,5,"NA",7,NA,yes,no,yes,no,hay_meadow
 Quercus_robur,Querrobu,http://www.worldfloraonline.org/taxon/wfo-0000292858,"NA",Fagaceae,tree,"NA",no,7,5,5,NA,no,NA,NA,no,no,no,no,no
+Ranunculus,RanuNA,http://www.worldfloraonline.org/taxon/wfo-4000032540,"NA",Ranunculaceae,herb,"NA","NA",NA,NA,NA,NA,"NA",NA,NA,no,no,no,NA,NA
 Ranunculus_acris,Ranuacri,http://www.worldfloraonline.org/taxon/wfo-0000461396,na,Ranunculaceae,herb,"NA",no,7,NA,3,6,"NA",NA,NA,yes,no,yes,no,hay_meadow
 Ranunculus_bulbosus,Ranubulb,http://www.worldfloraonline.org/taxon/wfo-0000461562,na,Ranunculaceae,herb,"NA",no,8,6,3,3,"NA",7,3,no,yes,yes,no,dry_grassland
 Ranunculus_repens,Ranurepe,http://www.worldfloraonline.org/taxon/wfo-0000463198,na,Ranunculaceae,herb,"NA",no,6,NA,NA,7,1,NA,NA,no,no,no,NA,NA
 Ranunculus_serpens_ssp_nemorosus,Ranuserpnemo,http://www.worldfloraonline.org/taxon/wfo-0000462219,Ranunculus_nemorosus,Ranunculaceae,herb,V,no,6,NA,4,5,"NA",6,NA,no,no,yes,NA,NA
-Ranunculus_spec,Ranuspec,http://www.worldfloraonline.org/taxon/wfo-4000032540,"NA",Ranunculaceae,herb,"NA","NA",NA,NA,NA,NA,"NA",NA,NA,no,no,no,NA,NA
 Reseda_lutea,Reselute,http://www.worldfloraonline.org/taxon/wfo-0000462651,na,Resedaceae,herb,"NA",no,7,6,3,3,"NA",8,5,no,no,yes,yes,no
 Rhinanthus_alectorolophus,Rhinalec,http://www.worldfloraonline.org/taxon/wfo-0000463700,na,Orobanchaceae,hemiparasite,"NA",no,8,NA,2,4,"NA",7,3,no,no,yes,NA,NA
 Rhinanthus_glacialis,Rhinglac,http://www.worldfloraonline.org/taxon/wfo-0001138801,na,Orobanchaceae,hemiparasite,V,no,8,3,4,5,"NA",4,2,no,yes,yes,no,nardus_grassland
