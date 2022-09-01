@@ -31,20 +31,20 @@
 
 ### Packages ###
 library(here)
+suppressPackageStartupMessages(library(installr))
+suppressPackageStartupMessages(library(lubridate))
 library(tidyverse)
-library(naniar) # are_na
-library(lubridate) # modify dates
-library(vegan) # metaMDS
-library(FD) # dbFD
-library(adespatial)
+library(naniar)
+library(vegan)
+library(FD)
+suppressPackageStartupMessages(library(adespatial))
+library(checklist)
+library(remotes)
 #remotes::install_github(file.path("larsito", "tempo"))
-library(tempo) # calc_sync
-#remotes::install_github(file.path("inbo", "checklist"))
-library(installr)
+library(tempo)
 
 ### Start ###
 #installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
-#checklist::setup_source()
 #checklist::check_source()
 renv::status()
 
@@ -934,7 +934,7 @@ data <- data_species %>%
   map(~ (.x %>% select(where(~ !all(is.na(.x))))))
 
 
-sync_indices <- map(data, calc_sync)
+sync_indices <- map(data, tempo::calc_sync)
 
 
 data <- do.call("rbind", sync_indices) %>%
