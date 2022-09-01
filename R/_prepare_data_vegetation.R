@@ -809,7 +809,7 @@ data <- sites_dikes %>%
   group_by(plot) %>%
   rename(x17 = "2017", x18 = "2018", x19 = "2019") %>%
   mutate(
-    changeType = ifelse(
+    change_type = ifelse(
       (x17 == "non-FFH" & x18 != "non-FFH" & x19 != "non-FFH"),
       "better", ifelse(
         (x17 != "non-FFH" & x18 == "non-FFH" & x19 != "non-FFH") |
@@ -832,7 +832,7 @@ data <- sites_dikes %>%
         )
       )
     ) %>%
-  select(plot, changeType)
+  select(plot, change_type)
 
 #sites_dikes <- left_join(sites_dikes, data, by = "plot")
 
@@ -1914,11 +1914,9 @@ sites_temporal <- sites_dikes %>%
   filter(survey_year_factor == "2017") %>%
   left_join(data, by = "plot") %>%
   rename(
-    B = "B/(2A+B+C)", C = "C/(2A+B+C)", D = "D=(B+C)/(2A+B+C)",
-    change = Change
+    b = "B/(2A+B+C)", c = "C/(2A+B+C)", d = "D=(B+C)/(2A+B+C)",
   ) %>%
   mutate(
-    change = C - B,
     plot = as_factor(plot)
   )
 
@@ -1984,9 +1982,6 @@ sites_spatial <- sites_dikes %>%
   )
 
 sites_temporal <- sites_temporal %>%
-  rename(b = "B", c = "C", d = "D") %>%
-  pivot_wider(names_from = c("presabu", "pool"),
-              values_from = c("b", "c", "d")) %>%
   select(
     plot, block, comparison,
     # local
@@ -1995,7 +1990,7 @@ sites_temporal <- sites_temporal %>%
     location, location_abb, location_construction_year,
     river_km, river_distance,
     # temporal beta-diversity indices (TBI)
-    starts_with("b_"), starts_with("c_"), starts_with("d_")
+    b, c, d
   )
 
 sites_restoration <- sites_dikes %>%
@@ -2050,7 +2045,7 @@ write_csv(
 )
 write_csv(
   sites_restoration,
-  here("data", "processed", "data_processed_sites_restoration.csv")
+  here("data", "processed", "data_processed_sites_for_practioners.csv")
 )
 ### Species and traits data ###
 write_csv(

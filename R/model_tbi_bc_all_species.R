@@ -33,23 +33,21 @@ sites <- read_csv("data_processed_sites_temporal.csv",
       block = "f",
       comparison = "f",
       location = "f",
-      locationYear = "f",
+      location_construction_year = "f",
       exposition = col_factor(levels = c("south", "north")),
-      side = col_factor(levels = c("land", "water")),
-      constructionYear = "f"
-    )
-) %>%
+      orientation = col_factor(levels = c("land", "water"))
+    )) %>%
   filter(comparison == "1718" | comparison == "1819" | comparison == "1921") %>%
   mutate(
-    y = C_presence - B_presence,
+    y = c_presence_all - b_presence_all,
     comparison = factor(comparison)
   )
 
 data_collinearity <- sites %>%
-  select(ends_with("ude"), riverkm, distanceRiver, starts_with("PC"))
+  select(ends_with("ude"), river_km, river_distance, starts_with("pc"))
 
 sites <- sites %>%
-  mutate(across(c("longitude", "latitude", "riverkm", "distanceRiver"), scale))
+  mutate(across(c("river_km", "river_distance"), scale))
 
 
 
@@ -75,7 +73,7 @@ ggplot(sites, aes(x = comparison, y = y)) +
 ggplot(sites, aes(x = exposition, y = y)) +
   geom_boxplot() +
   geom_quasirandom()
-ggplot(sites, aes(x = side, y = y)) +
+ggplot(sites, aes(x = orientation, y = y)) +
   geom_boxplot() +
   geom_quasirandom()
 ggplot(sites, aes(x = riverkm, y = (y))) +
@@ -87,31 +85,31 @@ ggplot(sites, aes(x = location, y = y)) +
 ggplot(sites, aes(x = constructionYear, y = y)) +
   geom_boxplot() +
   geom_quasirandom()
-ggplot(sites, aes(x = (distanceRiver), y = (y))) +
+ggplot(sites, aes(x = (river_distance), y = (y))) +
   geom_point() +
   geom_smooth(method = "loess")
 ggplot(sites, aes(x = as.double(constructionYear), y = y)) +
   geom_point() +
   geom_smooth(method = "loess")
-ggplot(sites, aes(x = PC1soil, y = (y))) +
+ggplot(sites, aes(x = pc1_soil, y = (y))) +
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(sites, aes(x = (PC2soil), y = y)) +
+ggplot(sites, aes(x = (pc2_soil), y = y)) +
   geom_point() +
   geom_smooth(method = "lm")
 ggplot(sites, aes(x = exposition, y = y, color = comparison)) +
   geom_boxplot() +
   geom_quasirandom(dodge.width = .8)
-ggplot(sites, aes(x = PC1soil, y = y, color = comparison)) +
+ggplot(sites, aes(x = pc1_soil, y = y, color = comparison)) +
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(sites, aes(x = PC2soil, y = y, color = comparison)) +
+ggplot(sites, aes(x = pc2_soil, y = y, color = comparison)) +
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(sites, aes(x = PC1soil, y = y, color = exposition)) +
+ggplot(sites, aes(x = pc1_soil, y = y, color = exposition)) +
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(sites, aes(x = (PC2soil), y = y, color = exposition)) +
+ggplot(sites, aes(x = (pc2_soil), y = y, color = exposition)) +
   geom_point() +
   geom_smooth(method = "lm")
 
@@ -122,7 +120,7 @@ dotchart((sites$y),
   groups = factor(sites$exposition),
   main = "Cleveland dotplot"
 )
-sites %>% count(locationYear)
+sites %>% count(location_construction_year)
 sites %>%
   count(plot) %>%
   count(n)
@@ -140,7 +138,7 @@ ggplot(sites, aes(log(y))) +
 ### c Check collinearity ------------------------------------------------------
 
 GGally::ggpairs(data_collinearity, lower = list(continuous = "smooth_loess"))
-#--> riverkm ~ longitude/latitude has r > 0.7 (Dormann et al. 2013 Ecography)
+#--> exclude r > 0.7 (Dormann et al. 2013 Ecography)
 rm(data_collinearity)
 
 
@@ -151,13 +149,13 @@ rm(data_collinearity)
 ### a models ------------------------------------------------------------------
 
 ### * Random structure ####
-m1a <- blmer(y ~ 1 + (1 | locationYear), data = sites, REML = TRUE)
-m1b <- blmer(y ~ 1 + (1 | locationYear / plot), data = sites, REML = TRUE)
+m1a <- blmer(y ~ 1 + (1 | location_construction_year), data = sites, REML = TRUE)
+m1b <- blmer(y ~ 1 + (1 | location_construction_year / plot), data = sites, REML = TRUE)
 m1c <- blmer(y ~ 1 + (1 | plot), data = sites, REML = TRUE)
 MuMIn::AICc(m1a, m1b, m1c) # m1b most parsimonious
 
 ### * Fixed effects ####
-m1 <- blmer(y ~ (comparison + exposition + PC1soil)^2 + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m1 <- blmer(y ~ (comparison + exposition + pc1_soil)^2 + pc2_soil + pc3_soil + orientation + river_distance + location_construction_year +
   (1 | plot),
 REML = FALSE,
 control = lmerControl(optimizer = "Nelder_Mead"),
@@ -165,7 +163,7 @@ cov.prior = wishart,
 data = sites
 )
 simulateResiduals(m1, plot = TRUE)
-m2 <- blmer(y ~ comparison + exposition * PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m2 <- blmer(y ~ comparison + exposition * pc1_soil + pc2_soil + pc3_soil + orientation + river_distance + location_construction_year +
   (1 | plot),
 REML = FALSE,
 control = lmerControl(optimizer = "Nelder_Mead"),
@@ -173,7 +171,7 @@ cov.prior = wishart,
 data = sites
 )
 simulateResiduals(m2, plot = TRUE)
-m3 <- blmer(y ~ comparison * exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m3 <- blmer(y ~ comparison * exposition + pc1_soil + pc2_soil + pc3_soil + orientation + river_distance + location_construction_year +
   (1 | plot),
 REML = FALSE,
 control = lmerControl(optimizer = "Nelder_Mead"),
@@ -181,7 +179,7 @@ cov.prior = wishart,
 data = sites
 )
 simulateResiduals(m3, plot = TRUE)
-m4 <- blmer(y ~ comparison * PC1soil + exposition + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m4 <- blmer(y ~ comparison * pc1_soil + exposition + pc2_soil + pc3_soil + orientation + river_distance + location_construction_year +
   (1 | plot),
 REML = FALSE,
 control = lmerControl(optimizer = "Nelder_Mead"),
@@ -189,7 +187,7 @@ cov.prior = wishart,
 data = sites
 )
 simulateResiduals(m4, plot = TRUE)
-m5 <- blmer(y ~ comparison + exposition + PC1soil + PC2soil + PC3soil + side + distanceRiver + locationYear +
+m5 <- blmer(y ~ comparison + exposition + pc1_soil + pc2_soil + pc3_soil + orientation + river_distance + location_construction_year +
   (1 | plot),
 REML = FALSE,
 control = lmerControl(optimizer = "Nelder_Mead"),
@@ -218,17 +216,17 @@ rm(list = setdiff(ls(), c("sites", "m")))
 ### c model check -------------------------------------------------------------
 
 simulationOutput <- simulateResiduals(m, plot = TRUE)
-plotResiduals(simulationOutput$scaledResiduals, sites$locationYear)
+plotResiduals(simulationOutput$scaledResiduals, sites$location_construction_year)
 plotResiduals(simulationOutput$scaledResiduals, sites$plot)
 plotResiduals(simulationOutput$scaledResiduals, sites$location)
 plotResiduals(simulationOutput$scaledResiduals, sites$constructionYear)
 plotResiduals(simulationOutput$scaledResiduals, sites$comparison)
 plotResiduals(simulationOutput$scaledResiduals, sites$exposition)
-plotResiduals(simulationOutput$scaledResiduals, sites$side)
-plotResiduals(simulationOutput$scaledResiduals, sites$PC1soil)
-plotResiduals(simulationOutput$scaledResiduals, sites$PC2soil)
-plotResiduals(simulationOutput$scaledResiduals, sites$PC3soil)
-plotResiduals(simulationOutput$scaledResiduals, sites$distanceRiver)
+plotResiduals(simulationOutput$scaledResiduals, sites$orientation)
+plotResiduals(simulationOutput$scaledResiduals, sites$pc1_soil)
+plotResiduals(simulationOutput$scaledResiduals, sites$pc2_soil)
+plotResiduals(simulationOutput$scaledResiduals, sites$pc3_soil)
+plotResiduals(simulationOutput$scaledResiduals, sites$river_distance)
 plotResiduals(simulationOutput$scaledResiduals, sites$riverkm)
 car::vif(m)
 # --> remove riverkm > 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol)
