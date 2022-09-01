@@ -1386,9 +1386,6 @@ species_splot <- data_species
 
 ### Check species name congruency ###
 data <- anti_join(species_splot, traits, by = "name") %>% select(name)
-species_splot %>%
-  select(name) %>%
-  filter(name == "Galium mollugo")
 
 rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "species_dikes", "species_splot",
@@ -1465,6 +1462,7 @@ data_sites_dbmem <- data_sites_dbmem %>%
   column_to_rownames("id")
 
 
+### Try several times ###
 m <- quickMEM(
   data_species_dbmem, data_sites_dbmem,
   alpha = 0.05,

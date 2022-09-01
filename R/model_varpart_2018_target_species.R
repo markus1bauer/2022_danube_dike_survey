@@ -1,13 +1,14 @@
 # Beta diversity on dike grasslands
-# Variation partitioning of 2018 (presence-absence data) ####
+# Variation partitioning of 2018 - Target species ####
 # Markus Bauer
-# 2022-01-11
+# 2022-09-01
 
 
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Preparation #########################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation ###############################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 
 ### Packages ###
@@ -22,18 +23,18 @@ setwd(here("data", "processed"))
 
 ### Load data ###
 sites <- read_csv("data_processed_sites_spatial.csv",
-  col_names = TRUE,
-  na = c("na", "NA"), col_types =
-    cols(
-      .default = "?",
-      id = "f",
-      locationAbb = "f",
-      block = "f",
-      plot = "f",
-      exposition = "f",
-      side = "f",
-      locationYear = "f"
-    )
+                  col_names = TRUE,
+                  na = c("na", "NA"), col_types =
+                    cols(
+                      .default = "?",
+                      id = "f",
+                      locationAbb = "f",
+                      block = "f",
+                      plot = "f",
+                      exposition = "f",
+                      side = "f",
+                      locationYear = "f"
+                    )
 ) %>%
   select(
     id, plot, block, locationYear, constructionYear, longitude, latitude,
@@ -52,12 +53,12 @@ sites <- read_csv("data_processed_sites_spatial.csv",
   )
 
 species <- read_csv("data_processed_species.csv",
-  col_names = TRUE,
-  na = c("na", "NA", ""), col_types =
-    cols(
-      .default = "d",
-      name = "f"
-    )
+                    col_names = TRUE,
+                    na = c("na", "NA", ""), col_types =
+                      cols(
+                        .default = "d",
+                        name = "f"
+                      )
 ) %>%
   mutate(across(where(is.numeric), ~ replace(., is.na(.), 0))) %>%
   pivot_longer(-name, "id", "value") %>%
@@ -78,12 +79,14 @@ sites_history <- sites %>%
 
 
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Statistics ##########################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Statistics ################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-## 1 Beta diversity #####################################################
+
+## 1 Calculate beta diversity #################################################
+
 
 ### * check collinearity ####
 data <- sites %>% select(
@@ -107,72 +110,76 @@ beta_subsets <- beta$rich %>% # nestedness
   as.matrix()
 
 
-## 2 db-RDA #############################################################
 
-### a Overall variation partitioning ------------------------------------
+## 2 db-RDA ###################################################################
+
+
+### a Overall variation partitioning ------------------------------------------
 
 (m1_total_varpart <- varpart(beta_total, sites_soil, sites_space, sites_history))
 plot(
   m1_total_varpart,
   Xnames = c("Site", "Space", "History"),
   cutoff = 0.01, digits = 1, bg = NA, id.size = 1
-  )
+)
 
-### b Substitution ------------------------------------------------------
 
-### * linear trend in data ####
+### b Substitution ------------------------------------------------------------
+
+### * Check linear trend in data ####
 # m1 <- dbrda(beta_substitution ~ longitude + latitude, data = sites)
 # anova(m1) #sig
 # beta_substitution_detrended <- resid(lm(beta_substitution ~ longitude + latitude, data = sites))
 #--> this trend is captured by riverkm
 
-### * full model ####
+### * Full model ####
 m1 <- dbrda(beta_substitution ~ PC1soil + PC2soil + PC3soil + exposition + side +
-  locationAbb + riverkm + distanceRiver + MEM2_2018 +
-  plotAge + PC1constructionYear + PC2constructionYear,
-data = sites
+              locationAbb + riverkm + distanceRiver + MEM2_2018 +
+              plotAge + PC1constructionYear + PC2constructionYear,
+            data = sites
 )
 anova(m1, permutations = how(nperm = 9999)) # P = 1e-04***
 (r2adj <- RsquareAdj(m1)$adj.r.squared) # R2adj = .307
 
-### * forward selection ####
-### Soil ###
+### * Forward selection soil ####
 m1 <- dbrda(beta_substitution ~ PC1soil + PC2soil + PC3soil + exposition + side,
-  data = sites
+            data = sites
 )
 r2adj <- RsquareAdj(m1)$adj.r.squared
 sel <- forward.sel(beta_substitution,
-  sites_soil,
-  adjR2thresh = r2adj,
-  nperm = 9999
+                   sites_soil,
+                   adjR2thresh = r2adj,
+                   nperm = 9999
 )
 sel$p_adj <- p.adjust(sel$pvalue, method = "holm", n = ncol(sites_soil))
 sel # https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 sites_soil_selected <- sites %>%
   select(PC3soil)
-### Space ###
+
+### * Forward selection space ####
 m1 <- dbrda(beta_substitution ~ MEM2_2018 + locationAbb + riverkm + distanceRiver,
-  data = sites
+            data = sites
 )
 r2adj <- RsquareAdj(m1)$adj.r.squared
 sel <- forward.sel(beta_substitution,
-  sites_space,
-  adjR2thresh = r2adj,
-  nperm = 9999
+                   sites_space,
+                   adjR2thresh = r2adj,
+                   nperm = 9999
 )
 sel$p_adj <- p.adjust(sel$pvalue, method = "holm", n = ncol(sites_space))
 sel # https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 sites_space_selected <- sites %>%
   select(locationAbb_numeric)
-### History ###
+
+### * Forward selection history ####
 m1 <- dbrda(beta_substitution ~ plotAge + PC1constructionYear + PC2constructionYear,
-  data = sites
+            data = sites
 )
 (r2adj <- RsquareAdj(m1)$adj.r.squared)
 sel <- forward.sel(beta_substitution,
-  sites_history,
-  adjR2thresh = r2adj,
-  nperm = 9999
+                   sites_history,
+                   adjR2thresh = r2adj,
+                   nperm = 9999
 )
 sel$p_adj <- p.adjust(sel$pvalue, method = "holm", n = ncol(sites_history))
 sel # https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
@@ -184,40 +191,41 @@ sites_history_selected <- sites %>%
 tiff(
   here("outputs", "figures", "figure_4b_2018_800dpi_12x12cm.tiff"),
   res = 72, width = 12, height = 12, units = "cm", compression = "none"
-  )
+)
 plot(
   m1_substitution_varpart,
   Xnames = c("Site", "Space"),
   cutoff = 0.01, digits = 2, bg = NA
-  )
+)
 dev.off()
 
-### * partial db-RDA ####
+### * Partial db-RDA single variables ####
 ### Soil / PC3soil ###
 m1_substitution <- dbrda(beta_substitution ~ PC3soil +
-  Condition(locationAbb),
-data = sites
+                           Condition(locationAbb),
+                         data = sites
 )
 anova(m1_substitution, permutations = how(nperm = 9999)) # p = .579
 RsquareAdj(m1_substitution) # R2adj = .017
 ### Space / locationAbb ###
 m1_substitution <- dbrda(beta_substitution ~ locationAbb +
-  Condition(PC3soil),
-data = sites
+                           Condition(PC3soil),
+                         data = sites
 )
 anova(m1_substitution, permutations = how(nperm = 9999)) # p = 1e-04
 RsquareAdj(m1_substitution) # R2adj = .179
 
-### c Subsets ----------------------------------------------------------
 
-### * full model ####
+### c Subsets -----------------------------------------------------------------
+
+### * Full model ####
 m1 <- dbrda(beta_subsets ~ PC1soil + PC2soil + PC3soil + exposition + side +
-  locationAbb + riverkm + distanceRiver +
-  plotAge + PC1constructionYear + PC2constructionYear,
-data = sites
+              locationAbb + riverkm + distanceRiver +
+              plotAge + PC1constructionYear + PC2constructionYear,
+            data = sites
 )
 anova(m1, permutations = how(nperm = 9999)) # P = .523
 (r2adj <- RsquareAdj(m1)$adj.r.squared) # R2adj = -.015
 
-### * forward selection ####
+### * Forward selection ####
 # --> now forward selection because full model is not significant
