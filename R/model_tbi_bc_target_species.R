@@ -17,6 +17,7 @@ library(tidyverse)
 library(ggbeeswarm)
 library(blme)
 library(DHARMa)
+library(sjPlot)
 library(emmeans)
 
 ### Start ###
@@ -82,13 +83,7 @@ ggplot(sites, aes(x = river_km, y = (y))) +
 ggplot(sites, aes(x = location, y = y)) +
   geom_boxplot() +
   geom_quasirandom()
-ggplot(sites, aes(x = construction_year, y = y)) +
-  geom_boxplot() +
-  geom_quasirandom()
 ggplot(sites, aes(x = (river_distance), y = (y))) +
-  geom_point() +
-  geom_smooth(method = "loess")
-ggplot(sites, aes(x = as.double(construction_year), y = y)) +
   geom_point() +
   geom_smooth(method = "loess")
 ggplot(sites, aes(x = pc1_soil, y = (y))) +
@@ -118,8 +113,7 @@ ggplot(sites, aes(x = (pc2_soil), y = y, color = exposition)) +
 
 dotchart((sites$y),
          groups = factor(sites$exposition),
-         main = "Cleveland dotplot"
-)
+         main = "Cleveland dotplot")
 sites %>% count(location_construction_year)
 sites %>%
   count(plot) %>%
@@ -138,7 +132,7 @@ ggplot(sites, aes(log(y))) +
 ### c check collinearity ------------------------------------------------------
 
 GGally::ggpairs(data_collinearity, lower = list(continuous = "smooth_loess"))
-#--> river_km ~ longitude/latitude has r > 0.7 (Dormann et al. 2013 Ecography)
+#--> exclude r > 0.7 (Dormann et al. 2013 Ecography)
 rm(data_collinearity)
 
 
@@ -213,7 +207,7 @@ simulateResiduals(m5, plot = TRUE)
 MuMIn::AICc(m1, m2, m3, m4, m5) %>%
   arrange(AICc)
 # Use AICc and not AIC since ratio n/K < 40 (Burnahm & Anderson 2002 p. 66)
-dotwhisker::dwplot(list(m4, m3),
+dotwhisker::dwplot(list(m3, m5),
                    show_intercept = FALSE,
                    vline = geom_vline(
                      xintercept = 0,
@@ -221,7 +215,7 @@ dotwhisker::dwplot(list(m4, m3),
                      linetype = 2
                    )) +
   theme_classic()
-m <- update(m3, REML = TRUE)
+m <- update(m5, REML = FALSE)
 rm(list = setdiff(ls(), c("sites", "m")))
 
 
@@ -232,7 +226,6 @@ plotResiduals(simulationOutput$scaledResiduals,
               sites$location_construction_year)
 plotResiduals(simulationOutput$scaledResiduals, sites$plot)
 plotResiduals(simulationOutput$scaledResiduals, sites$location)
-plotResiduals(simulationOutput$scaledResiduals, sites$construction_year)
 plotResiduals(simulationOutput$scaledResiduals, sites$comparison)
 plotResiduals(simulationOutput$scaledResiduals, sites$exposition)
 plotResiduals(simulationOutput$scaledResiduals, sites$orientation)
@@ -250,7 +243,7 @@ car::vif(m)
 
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m) # R2m = 0.309, R2c = 0.337
+MuMIn::r.squaredGLMM(m) # R2m = 0.314, R2c = 0.326
 VarCorr(m)
 sjPlot::plot_model(m, type = "re", show.values = TRUE)
 dotwhisker::dwplot(m,

@@ -144,8 +144,7 @@ MuMIn::AICc(m1a, m1b, m1c) %>% arrange(AICc)
 
 #### * fixed effects ####
 m1 <- blmer(
-  log(y) ~
-    (comparison + exposition + pc1_soil)^2 + pc2_soil + pc3_soil +
+  log(y) ~ (comparison + exposition + pc1_soil)^2 + pc2_soil + pc3_soil +
     orientation + river_distance + location_construction_year +
     (1 | plot),
   REML = FALSE,
@@ -155,8 +154,7 @@ m1 <- blmer(
 )
 simulateResiduals(m1, plot = TRUE)
 m2 <- blmer(
-  log(y) ~
-    comparison + exposition * pc1_soil + pc2_soil + pc3_soil +
+  log(y) ~ comparison + exposition * pc1_soil + pc2_soil + pc3_soil +
     orientation + river_distance + location_construction_year +
     (1 | plot),
   REML = FALSE,
@@ -166,10 +164,8 @@ m2 <- blmer(
 )
 simulateResiduals(m2, plot = TRUE)
 m3 <- blmer(
-  log(y) ~
-    comparison * exposition + pc1_soil + pc2_soil + pc3_soil +
-    orientation +
-    river_distance + location_construction_year +
+  log(y) ~ comparison * exposition + pc1_soil + pc2_soil + pc3_soil +
+    orientation + river_distance + location_construction_year +
     (1 | plot),
   REML = FALSE,
   control = lmerControl(optimizer = "Nelder_Mead"),
@@ -178,10 +174,8 @@ m3 <- blmer(
 )
 simulateResiduals(m3, plot = TRUE)
 m4 <- blmer(
-  log(y) ~
-    comparison * pc1_soil + exposition + pc2_soil + pc3_soil +
-    orientation +
-    river_distance + location_construction_year +
+  log(y) ~ comparison * pc1_soil + exposition + pc2_soil + pc3_soil +
+    orientation + river_distance + location_construction_year +
     (1 | plot),
   REML = FALSE,
   control = lmerControl(optimizer = "Nelder_Mead"),
@@ -190,8 +184,7 @@ m4 <- blmer(
 )
 simulateResiduals(m4, plot = TRUE)
 m5 <- blmer(
-  log(y) ~
-    comparison + exposition + pc1_soil + pc2_soil + pc3_soil +
+  log(y) ~ comparison + exposition + pc1_soil + pc2_soil + pc3_soil +
     orientation + river_distance + location_construction_year +
     (1 | plot),
   REML = FALSE,
@@ -212,8 +205,7 @@ dotwhisker::dwplot(list(m2, m5),
                      xintercept = 0,
                      colour = "grey60",
                      linetype = 2
-                   )
-) +
+                   )) +
   theme_classic()
 m <- update(m5, REML = TRUE)
 rm(list = setdiff(ls(), c("sites", "m")))

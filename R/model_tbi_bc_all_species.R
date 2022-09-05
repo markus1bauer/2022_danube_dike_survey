@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
 # Ratio of gains and losses of TBI - All species ####
 # Markus Bauer
-# 2022-01-11
+# 2022-09-05
 
 
 
@@ -76,19 +76,13 @@ ggplot(sites, aes(x = exposition, y = y)) +
 ggplot(sites, aes(x = orientation, y = y)) +
   geom_boxplot() +
   geom_quasirandom()
-ggplot(sites, aes(x = riverkm, y = (y))) +
+ggplot(sites, aes(x = river_km, y = (y))) +
   geom_point() +
   geom_smooth(method = "loess")
-ggplot(sites, aes(x = location, y = y)) +
-  geom_boxplot() +
-  geom_quasirandom()
-ggplot(sites, aes(x = constructionYear, y = y)) +
+ggplot(sites, aes(x = location_construction_year, y = y)) +
   geom_boxplot() +
   geom_quasirandom()
 ggplot(sites, aes(x = (river_distance), y = (y))) +
-  geom_point() +
-  geom_smooth(method = "loess")
-ggplot(sites, aes(x = as.double(constructionYear), y = y)) +
   geom_point() +
   geom_smooth(method = "loess")
 ggplot(sites, aes(x = pc1_soil, y = (y))) +
@@ -149,65 +143,77 @@ rm(data_collinearity)
 ### a models ------------------------------------------------------------------
 
 ### * Random structure ####
-m1a <- blmer(y ~ 1 + (1 | location_construction_year), data = sites, REML = TRUE)
-m1b <- blmer(y ~ 1 + (1 | location_construction_year / plot), data = sites, REML = TRUE)
+m1a <- blmer(y ~ 1 + (1 | location_construction_year),
+             data = sites, REML = TRUE)
+m1b <- blmer(y ~ 1 + (1 | location_construction_year / plot),
+             data = sites, REML = TRUE)
 m1c <- blmer(y ~ 1 + (1 | plot), data = sites, REML = TRUE)
-MuMIn::AICc(m1a, m1b, m1c) # m1b most parsimonious
+MuMIn::AICc(m1a, m1b, m1c) %>% arrange(AICc)
 
 ### * Fixed effects ####
-m1 <- blmer(y ~ (comparison + exposition + pc1_soil)^2 + pc2_soil + pc3_soil + orientation + river_distance + location_construction_year +
-  (1 | plot),
-REML = FALSE,
-control = lmerControl(optimizer = "Nelder_Mead"),
-cov.prior = wishart,
-data = sites
-)
+m1 <- blmer(
+  y ~ (comparison + exposition + pc1_soil)^2 + pc2_soil + pc3_soil +
+    orientation + river_distance + location_construction_year +
+    (1 | plot),
+  REML = FALSE,
+  control = lmerControl(optimizer = "Nelder_Mead"),
+  cov.prior = wishart,
+  data = sites
+  )
 simulateResiduals(m1, plot = TRUE)
-m2 <- blmer(y ~ comparison + exposition * pc1_soil + pc2_soil + pc3_soil + orientation + river_distance + location_construction_year +
-  (1 | plot),
-REML = FALSE,
-control = lmerControl(optimizer = "Nelder_Mead"),
-cov.prior = wishart,
-data = sites
+m2 <- blmer(
+  y ~ comparison + exposition * pc1_soil + pc2_soil + pc3_soil +
+    orientation + river_distance + location_construction_year +
+    (1 | plot),
+  REML = FALSE,
+  control = lmerControl(optimizer = "Nelder_Mead"),
+  cov.prior = wishart,
+  data = sites
 )
 simulateResiduals(m2, plot = TRUE)
-m3 <- blmer(y ~ comparison * exposition + pc1_soil + pc2_soil + pc3_soil + orientation + river_distance + location_construction_year +
-  (1 | plot),
-REML = FALSE,
-control = lmerControl(optimizer = "Nelder_Mead"),
-cov.prior = wishart,
-data = sites
+m3 <- blmer(
+  y ~ comparison * exposition + pc1_soil + pc2_soil + pc3_soil +
+    orientation + river_distance + location_construction_year +
+    (1 | plot),
+  REML = FALSE,
+  control = lmerControl(optimizer = "Nelder_Mead"),
+  cov.prior = wishart,
+  data = sites
 )
 simulateResiduals(m3, plot = TRUE)
-m4 <- blmer(y ~ comparison * pc1_soil + exposition + pc2_soil + pc3_soil + orientation + river_distance + location_construction_year +
-  (1 | plot),
-REML = FALSE,
-control = lmerControl(optimizer = "Nelder_Mead"),
-cov.prior = wishart,
-data = sites
+m4 <- blmer(
+  y ~ comparison * pc1_soil + exposition + pc2_soil + pc3_soil +
+    orientation + river_distance + location_construction_year +
+    (1 | plot),
+  REML = FALSE,
+  control = lmerControl(optimizer = "Nelder_Mead"),
+  cov.prior = wishart,
+  data = sites
 )
 simulateResiduals(m4, plot = TRUE)
-m5 <- blmer(y ~ comparison + exposition + pc1_soil + pc2_soil + pc3_soil + orientation + river_distance + location_construction_year +
-  (1 | plot),
-REML = FALSE,
-control = lmerControl(optimizer = "Nelder_Mead"),
-cov.prior = wishart,
-data = sites
+m5 <- blmer(
+  y ~ comparison + exposition + pc1_soil + pc2_soil + pc3_soil +
+    orientation + river_distance + location_construction_year +
+    (1 | plot),
+  REML = FALSE,
+  control = lmerControl(optimizer = "Nelder_Mead"),
+  cov.prior = wishart,
+  data = sites
 )
 simulateResiduals(m5, plot = TRUE)
 
 
 ### b comparison --------------------------------------------------------------
 
-MuMIn::AICc(m1, m2, m3, m4, m5) # m4 most parsimonious, Use AICc and not AIC since ratio n/K < 40 (Burnahm & Anderson 2002 p. 66)
-dotwhisker::dwplot(list(m4, m3), # m4 bad model critique, m3 ok
-  show_intercept = FALSE,
-  vline = geom_vline(
-    xintercept = 0,
-    colour = "grey60",
-    linetype = 2
-  )
-) +
+MuMIn::AICc(m1, m2, m3, m4, m5) %>% arrange(AICc)
+# Use AICc and not AIC since ratio n/K < 40 (Burnahm & Anderson 2002 p. 66)
+dotwhisker::dwplot(list(m1, m3),
+                   show_intercept = FALSE,
+                   vline = geom_vline(
+                     xintercept = 0,
+                     colour = "grey60",
+                     linetype = 2
+                   )) +
   theme_classic()
 m <- update(m3, REML = TRUE)
 rm(list = setdiff(ls(), c("sites", "m")))
@@ -219,7 +225,6 @@ simulationOutput <- simulateResiduals(m, plot = TRUE)
 plotResiduals(simulationOutput$scaledResiduals, sites$location_construction_year)
 plotResiduals(simulationOutput$scaledResiduals, sites$plot)
 plotResiduals(simulationOutput$scaledResiduals, sites$location)
-plotResiduals(simulationOutput$scaledResiduals, sites$constructionYear)
 plotResiduals(simulationOutput$scaledResiduals, sites$comparison)
 plotResiduals(simulationOutput$scaledResiduals, sites$exposition)
 plotResiduals(simulationOutput$scaledResiduals, sites$orientation)
@@ -227,9 +232,9 @@ plotResiduals(simulationOutput$scaledResiduals, sites$pc1_soil)
 plotResiduals(simulationOutput$scaledResiduals, sites$pc2_soil)
 plotResiduals(simulationOutput$scaledResiduals, sites$pc3_soil)
 plotResiduals(simulationOutput$scaledResiduals, sites$river_distance)
-plotResiduals(simulationOutput$scaledResiduals, sites$riverkm)
+plotResiduals(simulationOutput$scaledResiduals, sites$river_km)
 car::vif(m)
-# --> remove riverkm > 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol)
+# --> remove river_km: > 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol)
 
 
 
@@ -237,16 +242,16 @@ car::vif(m)
 
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m) # R2m = 0.413, R2c = 0.438
+MuMIn::r.squaredGLMM(m) # R2m = 0.369, R2c = 0.395
 VarCorr(m)
 sjPlot::plot_model(m, type = "re", show.values = TRUE)
 dotwhisker::dwplot(m,
-  show_intercept = FALSE,
-  vline = geom_vline(
-    xintercept = 0,
-    colour = "grey60",
-    linetype = 2
-  )) +
+                   show_intercept = FALSE,
+                   vline = geom_vline(
+                     xintercept = 0,
+                     colour = "grey60",
+                     linetype = 2
+                   )) +
   theme_classic()
 
 ### * Effect sizes ####

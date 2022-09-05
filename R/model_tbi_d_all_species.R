@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
 # Total temporal beta diversity (TBI) - All species ####
 # Markus Bauer
-# 2022-01-11
+# 2022-09-05
 
 
 
@@ -66,9 +66,6 @@ median(sites$y)
 sd(sites$y)
 Rmisc::CI(sites$y, ci = .95)
 quantile(sites$y, probs = c(0.05, 0.95), na.rm = TRUE)
-ggplot(sites, aes(x = D_abundance, y = y)) +
-  geom_point() +
-  geom_smooth(method = "loess")
 ggplot(sites, aes(x = comparison, y = y)) +
   geom_boxplot() +
   geom_quasirandom()
@@ -84,10 +81,7 @@ ggplot(sites, aes(x = river_km, y = (y))) +
 ggplot(sites, aes(x = (river_distance), y = log(y))) +
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(sites, aes(x = construction_year, y = y)) +
-  geom_point() +
-  geom_smooth(method = "loess")
-ggplot(sites, aes(x = pc1__soil, y = (y))) +
+ggplot(sites, aes(x = pc1_soil, y = (y))) +
   geom_point() +
   geom_smooth(method = "lm")
 ggplot(sites, aes(x = exp(pc2_soil), y = y)) +
@@ -96,13 +90,13 @@ ggplot(sites, aes(x = exp(pc2_soil), y = y)) +
 ggplot(sites, aes(x = exposition, y = y, color = comparison)) +
   geom_boxplot() +
   geom_quasirandom(dodge.width = .8)
-ggplot(sites, aes(x = pc1__soil, y = y, color = comparison)) +
+ggplot(sites, aes(x = pc1_soil, y = y, color = comparison)) +
   geom_point() +
   geom_smooth(method = "lm")
 ggplot(sites, aes(x = pc2_soil, y = y, color = comparison)) +
   geom_point() +
   geom_smooth(method = "lm")
-ggplot(sites, aes(x = pc1__soil, y = y, color = exposition)) +
+ggplot(sites, aes(x = pc1_soil, y = y, color = exposition)) +
   geom_point() +
   geom_smooth(method = "lm")
 ggplot(sites, aes(x = (pc2_soil), y = y, color = exposition)) +
@@ -156,7 +150,7 @@ m1 <- blmer(
   control = lmerControl(optimizer = "Nelder_Mead"),
   cov.prior = wishart,
   data = sites
-)
+  )
 simulateResiduals(m1, plot = TRUE)
 m2 <- blmer(
   log(y) ~ comparison + exposition * pc1_soil + pc2_soil + pc3_soil +
@@ -207,17 +201,15 @@ simulateResiduals(m5, plot = TRUE)
 
 MuMIn::AICc(m1, m2, m3, m4, m5) %>% arrange(AICc)
 # Use AICc and not AIC since ratio n/K < 40 (Burnahm & Anderson 2002 p. 66)
-dotwhisker::dwplot(
-  list(m2, m5),
-  show_intercept = FALSE,
-  vline = geom_vline(
-    xintercept = 0,
-    colour = "grey60",
-    linetype = 2
-    )
-  ) +
+dotwhisker::dwplot(list(m2, m5),
+                   show_intercept = FALSE,
+                   vline = geom_vline(
+                     xintercept = 0,
+                     colour = "grey60",
+                     linetype = 2
+                   )) +
   theme_classic()
-m <- update(m2, REML = TRUE)
+m <- update(m5, REML = TRUE)
 rm(list = setdiff(ls(), c("sites", "m")))
 
 
@@ -234,7 +226,8 @@ plotResiduals(simulationOutput$scaledResiduals, sites$pc2_soil)
 plotResiduals(simulationOutput$scaledResiduals, sites$pc3_soil)
 plotResiduals(simulationOutput$scaledResiduals, sites$river_distance)
 plotResiduals(simulationOutput$scaledResiduals, sites$river_km)
-car::vif(m) # remove river_km since > 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol)
+car::vif(m)
+# remove river_km since > 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol)
 
 
 
@@ -242,7 +235,7 @@ car::vif(m) # remove river_km since > 3 oder 10 (Zuur et al. 2010 Methods Ecol E
 
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m) # R2m = 0.375, R2c = 0.534
+MuMIn::r.squaredGLMM(m) # R2m = 0.374, R2c = 0.485
 VarCorr(m)
 sjPlot::plot_model(m, type = "re", show.values = TRUE)
 dotwhisker::dwplot(m,
