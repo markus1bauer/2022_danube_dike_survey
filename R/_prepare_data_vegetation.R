@@ -1000,8 +1000,7 @@ data <- pca %>%
   rownames_to_column(var = "variables") %>%
   tibble() %>%
   select(PC1:PC4, variables)
-pca_soil <- data %>%
-  bind_rows(summary_table)
+pca_soil <- bind_rows(data, summary_table)
 
 
 data <- pca %>%

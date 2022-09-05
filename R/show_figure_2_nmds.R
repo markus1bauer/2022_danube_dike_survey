@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
-# Plot Fig X ####
+# Plot Fig. 2 ####
 # Markus Bauer
-# 2022-08-29
+# 2022-09-05
 
 
 
@@ -116,18 +116,18 @@ species <- species_dikes %>%
   semi_join(sites, by = "id") %>%
   column_to_rownames("id")
 
-rm(list = setdiff(ls(), c("sites", "species")))
+rm(list = setdiff(ls(), c("sites", "species", "theme_mb", "veganCovEllipse")))
 
 #### * Choosen model ####
 
 set.seed(1)
-(ordi <- metaMDS(species, dist = "sorensen", binary = FALSE,
+(ordi <- metaMDS(species, binary = TRUE,
                  try = 99, previous.best = TRUE, na.rm = TRUE))
 
-data_envfit <- envfit(ordi ~ graminoid_cover_ratio + ruderal_cover,
+(data_envfit <- envfit(ordi ~ graminoid_cover_ratio + ruderal_cover,
                       data = sites,
                       perm = 999,
-                      na.rm = TRUE)
+                      na.rm = TRUE))
 
 
 
@@ -226,5 +226,5 @@ for(group in levels(data_nmds$group_type)) {
 
 
 ### Save ###
-ggsave(here("outputs", "figures", "figure_nmds_800dpi_16.5x16cm.tiff"),
+ggsave(here("outputs", "figures", "figure_2_800dpi_16.5x16cm.tiff"),
        dpi = 800, width = 16.5, height = 16, units = "cm")
