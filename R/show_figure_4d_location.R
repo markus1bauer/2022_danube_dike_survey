@@ -106,18 +106,20 @@ data <- sites %>%
   ) +
   geom_errorbar(
     data = data_model,
-    aes(x, predicted, ymin = conf.low, ymax = conf.high),
+    aes(x= x, y = predicted, ymin = conf.low, ymax = conf.high),
     width = 0.0, size = 0.4
   ) +
   geom_point(
     data = data_model,
-    aes(x = X, y = predicted),
+    aes(x = x, y = predicted),
     size = 2,
     shape = 1
   ) +
-  geom_hline(yintercept = 0, linetype = 2) +
+  geom_hline(
+    yintercept = 0, linetype = 2,  color = "grey70"
+    ) +
   scale_y_continuous(limits = c(-.6, .5), breaks = seq(-1, 400, .1)) +
-  labs(x = "", y = expression(Gains ~ -~Losses ~ "[" * TBI[sor] * "]")) +
+  labs(x = "", y = expression(Gains ~ - ~ Losses ~ "[" * TBI[sor] * "]")) +
   theme_mb())
 
 ### Save ###

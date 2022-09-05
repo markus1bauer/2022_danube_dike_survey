@@ -31,6 +31,7 @@
 
 ### Packages ###
 library(here)
+library(ellipsis)
 suppressPackageStartupMessages(library(installr))
 suppressPackageStartupMessages(library(lubridate))
 library(tidyverse)

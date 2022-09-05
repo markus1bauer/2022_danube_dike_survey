@@ -127,8 +127,10 @@ data <- sites %>%
       aes(x = x, y = predicted, shape = cross),
       size = 2
     ) +
+    geom_hline(
+      yintercept = 0, linetype = 2,  color = "grey70"
+      ) +
     facet_wrap(~group) +
-    geom_hline(yintercept = 0, linetype = 2) +
     scale_y_continuous(limits = c(-.6, .5), breaks = seq(-1, 400, .2)) +
     scale_shape_manual(values = c("circle", "circle open")) +
     guides(shape = "none") +
