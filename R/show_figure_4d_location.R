@@ -22,7 +22,7 @@ library(ggbeeswarm)
 rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
 setwd(here("data", "processed"))
 
-### Functions ####
+### Functions ###
 theme_mb <- function() {
   theme(
     panel.background = element_rect(fill = "white"),
@@ -54,16 +54,21 @@ sites <- read_csv("data_processed_sites_temporal.csv",
                       block = "f",
                       comparison = "f",
                       location = "f",
-                      location_construction_year = "f",
+                      location_construction_year = col_factor(levels = ),
                       exposition = col_factor(levels = c("south", "north")),
                       orientation = col_factor(levels = c("land", "water"))
                     )) %>%
   filter(
     (comparison == "1718" | comparison == "1819" | comparison == "1921") &
       pool == "all" & presabu == "presence") %>%
-  mutate(y = c - b,
-         comparison = factor(comparison)) %>%
-  mutate(across(c("river_km", "river_distance"), scale))
+  mutate(
+    y = c - b,
+    comparison = factor(comparison),
+    location_construction_year = fct_relevel(
+      location_construction_year, "HOF-2012", after = Inf
+      ),
+    across(c("river_km", "river_distance"), scale)
+  )
 
 ### * Model ####
 m3 <- blmer(
@@ -90,13 +95,13 @@ data_model <- ggeffect(m3, type = "emm", c("location_construction_year"),
 
 
 data <- sites %>%
-  rename(predicted = y, x = locationYear)
+  rename(predicted = y, x = location_construction_year)
 
 
-(graph_b <- ggplot() +
+(graph_d <- ggplot() +
   geom_quasirandom(
     data = data,
-    aes(x = x, predicted),
+    aes(x = x, y = predicted),
     dodge.width = .6, size = 1, shape = 16, color = "grey70"
   ) +
   geom_errorbar(
@@ -106,7 +111,7 @@ data <- sites %>%
   ) +
   geom_point(
     data = data_model,
-    aes(x, predicted),
+    aes(x = X, y = predicted),
     size = 2,
     shape = 1
   ) +
@@ -117,6 +122,6 @@ data <- sites %>%
 
 ### Save ###
 ggsave(
-  here("outputs", "figures", "figure_3b_location_800dpi_8x8cm.tiff"),
+  here("outputs", "figures", "figure_4d_location_800dpi_8x8cm.tiff"),
   dpi = 800, width = 8, height = 8, units = "cm"
   )

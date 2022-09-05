@@ -21,38 +21,7 @@ library(ggbeeswarm)
 rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
 setwd(here("data", "processed"))
 
-### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv",
-  col_names = TRUE,
-  na = c("", "na", "NA"), col_types =
-    cols(
-      .default = "?",
-      plot = "f",
-      block = "f",
-      comparison = "f",
-      exposition = "f",
-      side = "f",
-      locationYear = "f"
-    )
-) %>%
-  filter(comparison == "1718" | comparison == "1819" | comparison == "1921") %>%
-  mutate(
-    y = D_presence,
-    comparison = factor(comparison)
-  ) %>%
-  mutate(across(where(is.numeric) & !y, scale))
-
-### * Model ####
-m2 <- blmer(log(y) ~ comparison + exposition * PC1soil + PC2soil + PC3soil +
-  side + distanceRiver + locationYear + D_abundance +
-  (1 | plot),
-REML = TRUE,
-control = lmerControl(optimizer = "Nelder_Mead"),
-cov.prior = wishart,
-data = sites
-)
-
-### * Functions ####
+### Functions ###
 theme_mb <- function() {
   theme(
     panel.background = element_rect(fill = "white"),
@@ -70,6 +39,40 @@ theme_mb <- function() {
   )
 }
 
+### Load data ###
+sites <- read_csv("data_processed_sites_temporal.csv",
+                  col_names = TRUE,
+                  na = c("", "na", "NA"), col_types =
+                    cols(
+                      .default = "?",
+                      plot = "f",
+                      block = "f",
+                      comparison = "f",
+                      exposition = "f",
+                      orientation = "f",
+                      location_construction_year = "f"
+                    )) %>%
+  filter(
+    (comparison == "1718" | comparison == "1819" | comparison == "1921") &
+      pool == "all" & presabu == "presence") %>%
+  mutate(y = d,
+         comparison = factor(comparison),
+         location_construction_year = fct_relevel(
+           location_construction_year, "HOF-2012", after = Inf
+         ),
+         across(c("river_km", "river_distance"), scale))
+
+### * Model ####
+m5 <- blmer(
+  log(y) ~ comparison + exposition + pc1_soil + pc2_soil + pc3_soil +
+    orientation + river_distance + location_construction_year +
+    (1 | plot),
+  REML = FALSE,
+  control = lmerControl(optimizer = "Nelder_Mead"),
+  cov.prior = wishart,
+  data = sites
+)
+
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -77,7 +80,8 @@ theme_mb <- function() {
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-data_model <- ggeffect(m2, type = "emm", c("comparison"),
+
+data_model <- ggeffect(m5, type = "emm", c("comparison"),
                        back.transform = TRUE) %>%
   mutate(
     predicted = exp(predicted),
@@ -122,12 +126,12 @@ data <- sites %>%
     aes(x, predicted, shape = cross),
     size = 2
   ) +
-  scale_y_continuous(limits = c(0, .92), breaks = seq(-100, 400, .1)) +
+  scale_y_continuous(limits = c(0, .83), breaks = seq(-100, 400, .1)) +
   scale_shape_manual(values = c("circle", "circle open")) +
-  labs(x = "", y = expression(Temporal ~ "beta" ~ diversity ~ "[" * italic("D")[sor] * "]")) +
+  labs(x = "", y = expression(Temporal ~ "beta" ~ diversity ~ "[" *
+                                italic("D")[sor] * "]")) +
   theme_mb())
 
 ### Save ###
-ggsave(here("outputs", "figures", "figure_2a_800dpi_8x8cm.tiff"),
-  dpi = 800, width = 8, height = 8, units = "cm"
-)
+ggsave(here("outputs", "figures", "figure_4a_800dpi_8x8cm.tiff"),
+  dpi = 800, width = 8, height = 8, units = "cm")
