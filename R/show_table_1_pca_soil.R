@@ -1,5 +1,5 @@
 # Beta diversity on dike grasslands
-# Table 3 ####
+# Table A1 ####
 # Markus Bauer
 # 2022-02-12
 
@@ -21,49 +21,46 @@ setwd(here("outputs", "statistics"))
 
 ### Load data ###
 data <- read_csv("pca_soil.csv",
-  col_names = TRUE,
-  na = c("na", "NA", " "), col_types =
-    cols(
-      .default = "?"
-    )
-) %>%
-  relocate(variables) %>%
+                 col_names = TRUE,
+                 na = c("na", "NA", " "), col_types =
+                   cols(
+                     .default = "?"
+                   )) %>%
+relocate(variables) %>%
   select(-PC4) %>%
-  filter(variables != "Eigenvalues" &
-    variables != "Proportion Explained" &
-    variables != "Cumulative Proportion") %>%
-  mutate(across(where(is.numeric), ~ round(., digits = 2))) %>%
-  mutate(
-    variables = fct_relevel(variables, c(
-      "pH",
-      "topsoilDepth",
-      "clayPerc",
-      "siltPerc",
-      "sandPerc",
-      "calciumcarbonatPerc",
-      "humusPerc",
-      "cnRatio",
-      "NtotalPerc",
-      "NtotalConc",
-      "phosphorous",
-      "potassium",
-      "magnesium"
-    )),
-    variables = fct_recode(variables,
-      "Topsoil depth" = "topsoilDepth",
-      "Clay" = "clayPerc",
-      "Silt" = "siltPerc",
-      "Sand" = "sandPerc",
-      "Humus" = "humusPerc",
-      "CaCO3" = "calciumcarbonatPerc",
-      "C:N ratio" = "cnRatio",
-      "N" = "NtotalPerc",
-      "N concentration" = "NtotalConc",
-      "P" = "phosphorous",
-      "K" = "potassium",
-      "Mg2+" = "magnesium"
-    )
-  ) %>%
+  mutate(across(where(is.numeric), ~ round(., digits = 2)),
+         variables = fct_relevel(
+           variables, c(
+           "ph",
+           "topsoil_depth",
+           "clay",
+           "silt",
+           "sand",
+           "calciumcarbonat",
+           "humus",
+           "cn_ratio",
+           "n_total_ratio",
+           "n_total_concentration",
+           "phosphorus",
+           "potassium",
+           "magnesium"
+         )),
+         variables = fct_recode(
+           variables,
+           "pH" = "ph",
+           "Topsoil depth" = "topsoil_depth",
+           "Clay" = "clay",
+           "Silt" = "silt",
+           "Sand" = "sand",
+           "Humus" = "humus",
+           "CaCO3" = "calciumcarbonat",
+           "C:N ratio" = "cn_ratio",
+           "N" = "n_total_ratio",
+           "N concentration" = "n_total_concentration",
+           "P" = "phosphorus",
+           "K" = "potassium",
+           "Mg2+" = "magnesium"
+         )) %>%
   arrange(variables) %>%
   mutate(unit = c(
     "",
@@ -78,7 +75,8 @@ data <- read_csv("pca_soil.csv",
     "kg/m²",
     "mg/100g",
     "mg/100g",
-    "mg/100g"
+    "mg/100g",
+    "", "", ""
   ))
 
 
@@ -138,9 +136,9 @@ data <- read_csv("pca_soil.csv",
   ### Column labels ####
   cols_label(
     variables = md(""),
-    PC1 = md("**PC1 (43%)**"),
-    PC2 = md("**PC2 (21%)**"),
-    PC3 = md("**PC3 (10%)**"),
+    PC1 = md("**PC1**"),
+    PC2 = md("**PC2**"),
+    PC3 = md("**PC3**"),
     unit = md("**Unit**")
   ) %>%
   ### Highlight certain cells ####
@@ -201,10 +199,5 @@ data <- read_csv("pca_soil.csv",
 )
 
 
-
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# C Save ################################################################
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-gtsave(table, here("outputs", "tables", "table_1_pca_soil.png"))
+### Save ###
+gtsave(table, here("outputs", "tables", "table_a3_pca_soil.png"))

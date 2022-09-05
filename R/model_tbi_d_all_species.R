@@ -142,8 +142,7 @@ MuMIn::AICc(m1a, m1b, m1c) %>% arrange(AICc)
 
 #### * fixed effects ####
 m1 <- blmer(
-  log(y) ~
-    (comparison + exposition + pc1_soil)^2 + pc2_soil + pc3_soil +
+  log(y) ~ (comparison + exposition + pc1_soil)^2 + pc2_soil + pc3_soil +
     orientation + river_distance + location_construction_year +
     (1 | plot),
   REML = FALSE,
