@@ -1,13 +1,13 @@
 # Beta diversity on dike grasslands
-# Figure A4 ####
+# Figure A7 ####
 # Markus Bauer
 # 2022-01-11
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Preparation ##########################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation ###############################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 ### Packages ###
@@ -18,23 +18,7 @@ library(tidyverse)
 rm(list = ls())
 setwd(here("data", "processed"))
 
-### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv",
-  col_names = TRUE,
-  na = c("na", "NA"), col_types =
-    cols(
-      .default = "?",
-      block = "f",
-      plot = "f",
-      locationYear = "f",
-      exposition = "f",
-      side = "f",
-      comparison = "f"
-    )
-) %>%
-  select(plot, D_presence, D_abundance)
-
-### * Functions ####
+### Functions ###
 theme_mb <- function() {
   theme(
     panel.background = element_rect(fill = "white"),
@@ -51,14 +35,37 @@ theme_mb <- function() {
   )
 }
 
+### Load data ###
+sites <- read_csv("data_processed_sites_temporal.csv",
+  col_names = TRUE,
+  na = c("na", "NA"), col_types =
+    cols(
+      .default = "?",
+      block = "f",
+      plot = "f",
+      location_construction_year = "f",
+      exposition = "f",
+      orientation = "f",
+      comparison = "f"
+    )) %>%
+  select(plot, d, comparison, presabu, pool) %>%
+  filter(
+    (comparison == "1718" | comparison == "1819" | comparison == "1921") &
+      pool == "all") %>%
+  mutate(comparison = factor(comparison)) %>%
+  pivot_wider(names_from = "presabu", values_from = "d")
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Plot #################################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-ggplot(data = sites, aes(x = D_abundance, y = D_presence)) +
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Plot ######################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+ggplot(
+  data = sites,
+  aes(x = abundance, y = presence)) +
   stat_density_2d(aes(fill = after_stat(level)),
     geom = "polygon",
     contour = TRUE,
@@ -78,6 +85,5 @@ ggplot(data = sites, aes(x = D_abundance, y = D_presence)) +
   theme_mb()
 
 ### Save ###
-ggsave(here("outputs", "figures", "figure_a5_800dpi_8x8cm.tiff"),
-  dpi = 800, width = 8, height = 8, units = "cm"
-)
+ggsave(here("outputs", "figures", "figure_a8_800dpi_8x8cm.tiff"),
+  dpi = 800, width = 8, height = 8, units = "cm")

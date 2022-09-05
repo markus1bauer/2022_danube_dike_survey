@@ -10,6 +10,7 @@
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+
 ### Packages ###
 library(here)
 library(tidyverse)
@@ -100,7 +101,7 @@ dikes <- st_read("dikes_epsg4326.shp")
     minimized = TRUE
   ))
 
-mapshot(map, url = here("outputs", "figures", "figure_a7_map_interactive.html"))
+mapshot(map, url = here("outputs", "figures", "figure_a9_map_interactive.html"))
 
 
 leaflet() %>%
