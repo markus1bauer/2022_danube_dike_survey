@@ -835,6 +835,7 @@ data <- sites_dikes %>%
   select(plot, change_type)
 
 #sites_dikes <- left_join(sites_dikes, data, by = "plot")
+# Data not used
 
 rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "sites_precipitation", "sites_temperature",
@@ -900,6 +901,7 @@ data <- data_sites %>%
   mutate(lcbd = data) %>%
   select(id, lcbd)
 #sites_dikes <- left_join(sites_dikes, data, by = "id")
+# Data not used
 
 rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "sites_precipitation", "sites_temperature",
@@ -950,6 +952,7 @@ data <- do.call("rbind", sync_indices) %>%
 #'log_varrrat_t3' excluded because it does not allow missing years
 
 #sites_dikes <- left_join(sites_dikes, data, by = "plot")
+# Data not used
 
 rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "sites_precipitation", "sites_temperature",
@@ -986,22 +989,22 @@ screeplot(pca, bstick = TRUE, npcs = length(pca$CA$eig))
 biplot(pca, display = "species", scaling = 2)
 
 
-summary_table <- pca %>%
-  eigenvals() %>%
-  summary() %>%
-  as.data.frame() %>%
-  rownames_to_column(var = "variables") %>%
-  tibble() %>%
-  select(PC1:PC4, variables)
-data <- pca %>%
+summary_table_part_1 <- pca %>%
   summary() %>%
   magrittr::extract2("species") %>%
   as.data.frame() %>%
   rownames_to_column(var = "variables") %>%
   tibble() %>%
   select(PC1:PC4, variables)
-pca_soil <- bind_rows(data, summary_table)
-
+summary_table_part_2 <- pca %>%
+  eigenvals() %>%
+  summary() %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "variables") %>%
+  tibble() %>%
+  select(PC1:PC4, variables)
+pca_soil <- bind_rows(summary_table_part_1, summary_table_part_2) %>%
+  mutate(across(where(is.numeric), ~ round(., digits = 3)))
 
 data <- pca %>%
   summary() %>%
@@ -1223,22 +1226,22 @@ screeplot(pca, bstick = TRUE, npcs = length(pca$CA$eig))
 biplot(pca, display = "species", scaling = 2)
 
 
-summary_table <- pca %>%
-  eigenvals() %>%
-  summary() %>%
-  as.data.frame() %>%
-  rownames_to_column(var = "variables") %>%
-  tibble() %>%
-  select(PC1:PC3, variables)
-data <- pca %>%
+summary_table_part_1 <- pca %>%
   summary() %>%
   magrittr::extract2("species") %>%
   as.data.frame() %>%
   rownames_to_column(var = "variables") %>%
   tibble() %>%
   select(PC1:PC3, variables)
-pca_survey_year <- data %>%
-  bind_rows(summary_table)
+summary_table_part_2 <- pca %>%
+  eigenvals() %>%
+  summary() %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "variables") %>%
+  tibble() %>%
+  select(PC1:PC3, variables)
+pca_survey_year <- bind_rows(summary_table_part_1, summary_table_part_2) %>%
+  mutate(across(where(is.numeric), ~ round(., digits = 3)))
 
 
 data <- pca %>%
@@ -1253,8 +1256,8 @@ data <- pca %>%
     pc2_survey_year = PC2,
     pc3_survey_year = PC3
   )
-sites_dikes <- left_join(sites_dikes, data, by = "plot")
-
+#sites_dikes <- left_join(sites_dikes, data, by = "plot")
+# Data not used
 
 ### d Climate PCA - Construction year  ----------------------------------------
 
@@ -1288,22 +1291,24 @@ screeplot(pca, bstick = TRUE, npcs = length(pca$CA$eig))
 biplot(pca, display = "species", scaling = 2)
 
 
-summary_table <- pca %>%
-  eigenvals() %>%
-  summary() %>%
-  as.data.frame() %>%
-  rownames_to_column(var = "variables") %>%
-  tibble() %>%
-  select(PC1:PC3, variables)
-data <- pca %>%
+summary_table_part_1 <- pca %>%
   summary() %>%
   magrittr::extract2("species") %>%
   as.data.frame() %>%
   rownames_to_column(var = "variables") %>%
   tibble() %>%
   select(PC1:PC3, variables)
-pca_construction_year <- data %>%
-  bind_rows(summary_table)
+summary_table_part_2 <- pca %>%
+  eigenvals() %>%
+  summary() %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "variables") %>%
+  tibble() %>%
+  select(PC1:PC3, variables)
+pca_construction_year <- bind_rows(
+  summary_table_part_1, summary_table_part_2
+  ) %>%
+  mutate(across(where(is.numeric), ~ round(., digits = 3)))
 
 
 data <- pca %>%
@@ -2076,10 +2081,8 @@ write_csv(
   here("outputs", "statistics", "pca_soil.csv")
 )
 write_csv(
-  pca_survey_year,
-  here("outputs", "statistics", "pca_survey_year.csv")
-)
-write_csv(
   pca_construction_year,
   here("outputs", "statistics", "pca_construction_year.csv")
 )
+#write_csv(pca_survey_year, here("outputs", "statistics", "pca_survey_year.csv"))
+# Not used

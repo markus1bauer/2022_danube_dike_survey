@@ -1,24 +1,24 @@
 PC1,PC2,PC3,variables
-0.5757605527614962,0.6786447801656882,0.5895188248024893,temp_mean_construction_year
-0.4368487450131371,-0.9278138318074024,0.28440545374503456,temp_spring_construction_year
-0.2124127433443191,-0.15010867848784124,0.7719554731954248,temp_summer_construction_year
-0.25334773478633843,1.2416212057032874,-0.3531100019475348,temp_autumn_construction_year
-0.2091277969911321,0.8492243945434902,0.5442588759887467,temp_winter_construction_year
-0.15989115546490607,0.773582221332437,-0.5619165219642465,temp_mean_construction_year_plus
--0.8508143090543187,0.6410915396916151,-0.570386525331216,temp_spring_construction_year_plus
-1.0511374809696936,-0.17453054883860053,-0.5428496422291885,temp_summer_construction_year_plus
--0.6044340668594441,-0.28525854641662846,0.5120385777569025,temp_autumn_construction_year_plus
-0.6042801787325932,0.8049927481168191,-0.1639451378877153,temp_winter_construction_year_plus
-1.0911373316904296,-0.021192093891421,-0.6346670712402058,prec_mean_construction_year
--0.30639859261005054,0.8548186600403723,-0.17299334272933312,prec_spring_construction_year
-0.8705204064734973,-0.1846838714470992,-0.8970205912682937,prec_summer_construction_year
-0.8114745110319747,-0.5197847396765924,-0.0026370963998345338,prec_autumn_construction_year
-0.46564360578215275,-0.06115072209817395,-0.09710808796731372,prec_winter_construction_year
--1.0766517970891376,0.09642292034658745,-0.4825428536692204,prec_mean_construction_year_plus
--0.2828677340779371,0.12538658756268112,0.710665852120701,prec_spring_construction_year_plus
--0.9636425913143642,-0.009239397482010055,-0.538190823921092,prec_summer_construction_year_plus
-0.2595156400470543,1.060370482546448,0.29802557110854005,prec_autumn_construction_year_plus
--0.47680480043515483,-0.5283739956344163,-1.017170364854488,prec_winter_construction_year_plus
-4.651772454266944,4.222995813159925,3.266840193879023,Eigenvalue
-0.23258862271334718,0.21114979065799622,0.1633420096939511,Proportion Explained
-0.23258862271334718,0.4437384133713434,0.6070804230652945,Cumulative Proportion
+0.576,0.679,0.59,temp_mean_construction_year
+0.437,-0.928,0.284,temp_spring_construction_year
+0.212,-0.15,0.772,temp_summer_construction_year
+0.253,1.242,-0.353,temp_autumn_construction_year
+0.209,0.849,0.544,temp_winter_construction_year
+0.16,0.774,-0.562,temp_mean_construction_year_plus
+-0.851,0.641,-0.57,temp_spring_construction_year_plus
+1.051,-0.175,-0.543,temp_summer_construction_year_plus
+-0.604,-0.285,0.512,temp_autumn_construction_year_plus
+0.604,0.805,-0.164,temp_winter_construction_year_plus
+1.091,-0.021,-0.635,prec_mean_construction_year
+-0.306,0.855,-0.173,prec_spring_construction_year
+0.871,-0.185,-0.897,prec_summer_construction_year
+0.811,-0.52,-0.003,prec_autumn_construction_year
+0.466,-0.061,-0.097,prec_winter_construction_year
+-1.077,0.096,-0.483,prec_mean_construction_year_plus
+-0.283,0.125,0.711,prec_spring_construction_year_plus
+-0.964,-0.009,-0.538,prec_summer_construction_year_plus
+0.26,1.06,0.298,prec_autumn_construction_year_plus
+-0.477,-0.528,-1.017,prec_winter_construction_year_plus
+4.652,4.223,3.267,Eigenvalue
+0.233,0.211,0.163,Proportion Explained
+0.233,0.444,0.607,Cumulative Proportion
