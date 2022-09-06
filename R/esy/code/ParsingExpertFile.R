@@ -1,25 +1,16 @@
 ###   Parsing membership formulas    ###
 
 parse.classification.expert.file <- function(expertfile) {
-  
-  
 ################################### #
 ### Load the expert system file  ####
 ################################### #
-  
-  
 expert  <- read.csv(expertfile, header = FALSE,
                      encoding="UTF-8", stringsAsFactors = FALSE, sep="\t")[,1]
 # str(expert) # chr [1:31518]
 expert <- expert[!grepl('---', expert)]
-
-
-
 ########################### #
 ### Species aggregation  ####
 ########################### #
-
-
 section1 <- grep('SECTION 1', expert)
 species.agg <- expert[(section1[1]+1) : (section1[2]-1)]
 index.agg.names <- which(substr(species.agg,1,1)!=" ")
@@ -33,11 +24,9 @@ names(aggs) <- trim.trailing(species.agg[index.agg.names])
 for(i in 1:length(aggs))
   aggs[[i]] <- sapply(aggs[[i]], function(x) trim.trailing(x), USE.NAMES = FALSE)
 
-
 ###################### #
 ### Species groups  ####
 ###################### #
-
 section2 <- grep('SECTION 2', expert)
 species.groups <- expert[(section2[1]+1) : (section2[2]-1)]
 index.group.names <- which(substr(species.groups,1,1)!=" ")
@@ -56,13 +45,9 @@ discr <- substr(names(groups)[startsWith(names(groups), '+')], 2, 3)
 if(any(table(discr) < 2)) stop(paste('Discriminating set', names(table(discr)[table(discr)<2]), 'occur only once!'))
 table(discr)
 
-
-
 ####################################################################### #
 ###  Step 1: Parse membership formulas into membership expressions   ####
 ####################################################################### #
-
-
 # COULD BE LAPPLYfied like the above
 section3 <- grep('SECTION 3', expert)
 group.definitions <-  expert[(section3[1]+1) : (section3[2]-1)]  # formerly called 'expert3'
@@ -154,14 +139,9 @@ if(any(duplicated(gr))) stop(paste('Duplicated group name found', gr[duplicated(
 # there are three "##N" fields used in the code: 
 # $$N Altitude (m) # $$N DEG_LAT # $$N DEG_LON
 
-
-
 ############################################################################################################ #
 ### Step 2: Add right-hand sides of membership expressions where there are no right-hand side conditions. ####
 ############################################################################################################ #
-
-
-
 # Before the expressions can be split at the logical operators GR, GE or EQ
 # into a left-hand side and right-hand side condition, some right hand-sides
 # have to be complemented to ease coding.
@@ -415,15 +395,10 @@ membership.expressions <- membership.expressions[-index3]
 membership.expressions <- c(membership.expressions,membership.expressions2)
 # HB end
 '
-
-
-
 # HB
 ########################################################################################## #
 ### Step 3B: Add EXCEPT on right-hand sides of #SC conditions                           ####
 ########################################################################################## #
-
-
 
 index3 <- grep("#SC",membership.expressions)
 a <- unique(membership.expressions[index3])

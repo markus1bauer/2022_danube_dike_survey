@@ -28,7 +28,7 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
   FUN <- function(i) obs[obs$TaxonName %in% groups[[fmatch(i, groups.names)]], list(x=length(Cover_Perc)), by=RELEVE_NR]
   if(length(w) > 0) {
      cond <- sapply(conditions[w], function(x) substr(x, 5, nchar(x)), USE.NAMES = FALSE)
-     l <- mclapply(cond, function(x) FUN(x), mc.cores = mc)
+     l <- mclapply(cond, function(x) FUN(x), mc.cores=mc)
      ind <- matrix(c(fmatch(unlist(sapply(l, function(x) x$RELEVE_NR)), dimnames(plot.cond)[[1]]), 
                     rep(w, sapply(l, function(x) nrow(x))) ), ncol = 2)
      plot.cond[ind] <- unlist(sapply(l, function(x) x$x, USE.NAMES = FALSE))

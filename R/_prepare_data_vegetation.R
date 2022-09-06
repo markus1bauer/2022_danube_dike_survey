@@ -1404,10 +1404,9 @@ rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
 #### * Start ####
 
 rm(list = setdiff(ls(), c("sites_dikes","species_dikes")))
+setwd(here("R", "esy"))
 
-setwd(here("data", "ESy-master"))
-
-source('code/prep.R')
+source(here("R", "esy", "code", "prep.R"))
 
 expertfile <- "EUNIS-ESy-2021-06-01.txt"
 
@@ -1448,7 +1447,7 @@ header <- sites_dikes %>%
   sf::st_drop_geometry();head(header)
 
 #### Step 1 and 2: Load and parse the expert file ###
-source('code/step1and2_load-and-parse-the-expert-file.R')
+source(here("R", "esy", "code", "step1and2_load-and-parse-the-expert-file.R"))
 
 #### Step 3: Create a numerical plot x membership condition matrix  ###
 plot.cond <- array(
@@ -1461,7 +1460,7 @@ plot.cond <- array(
   )
 
 ### Step 4: Aggregate taxon levels ###
-source('code/step4_aggregate-taxon-levels.R')
+source(here("R", "esy", "code", "step4_aggregate-taxon-levels.R"))
 
 obs %>%
   rename(ind = "TaxonName") %>%
@@ -1471,7 +1470,9 @@ obs %>%
   as.data.frame()
 
 #### Step 5: Solve the membership conditions ###
-source('code/step3and5_extract-and-solve-membership-conditions.R')
+mc <- 1
+source(here("R", "esy", "code",
+            "step3and5_extract-and-solve-membership-conditions.R"))
 
 table(result.classification)
 eval.EUNIS(which(result.classification == 'A25c')[1], 'A25c')
