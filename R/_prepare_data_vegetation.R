@@ -1398,6 +1398,122 @@ rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
 
 
 
+### test ####
+rm(list = setdiff(ls(), c("sites_dikes","species_dikes")))
+setwd(here("data", "ESy-master"))
+source('code/prep.R') #### Loading packages
+
+### define expert file:
+expertfile <- "EUNIS-ESy-2020-06-08.txt" # latest version of the EUNIS system, used in Chytrý et al. 2020, AVS
+
+### Start  ######################
+### Read and parse the expert file
+#################################################################### #
+### Step 1: Parse membership formulas into membership expressions ####
+### Step 2: Add right-hand sides of membership expressions        ####
+###         where there are no right-hand side conditions
+#################################################################### #
+source('code/step1and2_load-and-parse-the-expert-file.R')
+
+######################################################## #
+### Input 2                                           ####
+obs <- fread(file.path('data', 'obs_100716Hoppe2005.csv'))
+obs <- species_dikes %>%
+  pivot_longer(cols = -name,
+               names_to = "RELEVE_NR",
+               values_to = "Cover_Perc") %>%
+  rename(TaxonName = "name") %>%
+  mutate(
+    TaxonName = str_replace_all(TaxonName, "_", " "),
+    TaxonName = str_replace_all(TaxonName, "ssp", "subsp."),
+    TaxonName = str_replace_all(TaxonName, "Acinos arvensis", "Clinopodium acinos"),
+    TaxonName = str_replace_all(TaxonName, "Carex praecox subsp. curvata", "Carex praecox"),
+    TaxonName = str_replace_all(TaxonName, "Ranunculus serpens subsp. nemorosus", "Ranunculus polyanthemos"),
+    TaxonName = str_replace_all(TaxonName, "Silene latifolia subsp. alba", "Silene latifolia"),
+    TaxonName = str_replace_all(TaxonName, "Vicia villosa subsp. varia", "Vicia villosa")
+    ) %>%
+  as.data.table()
+  
+
+### Additionally we use header data (plot attributes). For the EUNIS classification expert file 
+### it should contain the columns
+### "RELEVE_NR", "Altitude (m)",  "Latitude", "Longitude", "Country", "Coast_EEA", 'Dunes_Bohn', "Ecoreg", "dataset"
+### which are used in the EVA dataset in Chytry et al. 2020
+### The EUNIS expert classification expects besides plot locations 4 additional header fields for exact assignment, 
+### these are "dataset" "Ecoreg" "Dunes_Bohn" "Coast_EEA"
+### Ecoreg refers to numbers of the 846 WWF ecoregions,
+### see e.g. Eco ID when you click at https://ecoregions2017.appspot.com
+### Dunes_Bohn can take the values "Y_DUNES" and "N_DUNES" for yes and no
+### COAST_EEA can take values ARC_COAST ATL_COAST BAL_COAST BLA_COAST MED_COAST   N_COAST
+### see also ReadTestData.r and the Appendix of Chytry et al. (2020)
+
+header <- read.csv(file.path('data', 'header_100716Hoppe2005.csv'));head(header)
+header <- sites_dikes %>%
+  sf::st_as_sf(coords = c("longitude", "latitude"), crs = 31468) %>%
+  sf::st_transform(4326) %>%
+  rename(
+    RELEVE_NR = id
+    ) %>%
+  mutate(
+    "Altitude (m)" = 313,
+    Latitude = sf::st_coordinates(.)[,2],
+    Longitude = sf::st_coordinates(.)[,1],
+    Country = "Germany",
+    Coast_EEA = "N_COAST",
+    Dunes_Bohn = "N_DUNES",
+    Ecoreg = 686,
+    dataset = "Danube_dikes"
+    ) %>%
+  select(RELEVE_NR, "Altitude (m)", Latitude, Longitude, Country,
+         Coast_EEA, Dunes_Bohn, Ecoreg, dataset) %>%
+  sf::st_drop_geometry();head(header)
+
+
+# ################################################################### #
+# # Step 3: Create a numerical plot x membership condition matrix  ####
+# ################################################################### #
+# Create an Array to collect all membership conditions 
+# of the left- and right-hand side
+plot.cond <- array(0,
+                   c(length(unique(obs$RELEVE_NR)), length(conditions)), 
+                   dimnames = list(
+                     as.character(unique(obs$RELEVE_NR)),
+                     conditions
+                     ))
+
+
+###################################### #
+### Step 4: Aggregate taxon levels  ####
+###################################### #
+source('code/step4_aggregate-taxon-levels.R')
+obs %>%
+  rename(ind = "TaxonName") %>%
+  group_by(ind) %>%
+  slice(1) %>%
+  anti_join(AGG, by = "ind") %>%
+  as.data.frame()
+
+# ############################################################## #
+### Step 5: Solve the membership conditions                   ####
+### and fill in the numerical plot x membership condition matrix
+# ############################################################## #
+source('code/step3and5_extract-and-solve-membership-conditions.R')
+
+# ####################### #
+### Evaluate results   ####
+table(result.classification)
+eval.type('A25c') # give definition and expressions for the given type
+
+### eval.EUNIS(plot, type) gives
+### 1. plant observations of the plot
+### 2. possible type assignments for this plot
+### 3. the formal definition of the type
+### 4. logical rule within the matrix (with column numbers of 3.)
+### 5. the expressions and their results for this plot x type
+
+eval.EUNIS(which(result.classification == 'A25c')[1], 'A25c') # display plot and results of relevant expression for the given plot and type
+
+
 #______________________________________________________________________________
 ## 9 dbMEM: Distance-based Moran's eigenvector maps (41 plots) ################
 
