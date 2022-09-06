@@ -1401,14 +1401,9 @@ rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
 
 ### b ESy: EUNIS expert vegetation classification system ----------------------
 
-#### * Start ####
-
+#### Start ###
 rm(list = setdiff(ls(), c("sites_dikes","species_dikes")))
-setwd(here("R", "esy"))
-
-source(here("R", "esy", "code", "prep.R"))
-
-expertfile <- "EUNIS-ESy-2021-06-01.txt"
+expertfile <- "EUNIS-ESy-2020-06-08.txt" ### newer file is not working
 
 obs <- species_dikes %>%
   pivot_longer(cols = -name,
@@ -1445,6 +1440,8 @@ header <- sites_dikes %>%
   select(RELEVE_NR, "Altitude (m)", Latitude, Longitude, Country,
          Coast_EEA, Dunes_Bohn, Ecoreg, dataset) %>%
   sf::st_drop_geometry();head(header)
+
+source(here("R", "esy", "code", "prep.R"))
 
 #### Step 1 and 2: Load and parse the expert file ###
 source(here("R", "esy", "code", "step1and2_load-and-parse-the-expert-file.R"))

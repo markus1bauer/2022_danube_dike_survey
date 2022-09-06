@@ -3,7 +3,7 @@
 ################### #
 
 aggs <- parsing.result$species.aggs
-AGG <- stack(lapply(aggs, function(x) trim(sapply(x, substr, 1, nchar(x)-1, USE.NAMES = FALSE))), stringsAsFactors = FALSE)
+AGG <- stack(aggs)
 AGG$ind <- as.character(AGG$ind)
 AGG <- AGG[AGG$values != AGG$ind,]
 AGG <- AGG[AGG$values != '',]
