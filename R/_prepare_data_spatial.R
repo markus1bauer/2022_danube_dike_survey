@@ -44,8 +44,7 @@ sites <- read_csv(here("data", "raw", "data_raw_sites.csv"),
       location = "f",
       side = "f",
       exposition = "f"
-    )
-) %>%
+    )) %>%
   select(id, location, longitude, latitude, constructionYear, sandPerc,
          phosphorus, phosphorusClass) %>%
   mutate(
@@ -60,7 +59,8 @@ sites <- read_csv(here("data", "raw", "data_raw_sites.csv"),
   st_transform(4326)
 
 coord <- as_tibble(st_coordinates(sites))
-sites_basic <- st_drop_geometry(sites) %>%
+sites_basic <- sites %>%
+  st_drop_geometry() %>%
   mutate(longitude = coord$X) %>%
   mutate(latitude = coord$Y) %>%
   as_tibble()
