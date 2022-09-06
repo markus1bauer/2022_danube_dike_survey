@@ -1044,7 +1044,8 @@ data <- sites_temperature %>%
     year = year(season),
     season = month(season),
     season = factor(season),
-    season = fct_recode(season,
+    season = fct_recode(
+      season,
       "spring" = "3",
       "summer" = "6",
       "autumn" = "9",
@@ -1125,7 +1126,8 @@ data <- sites_precipitation %>%
     year = year(season),
     season = month(season),
     season = factor(season),
-    season = fct_recode(season,
+    season = fct_recode(
+      season,
       "spring" = "3",
       "summer" = "6",
       "autumn" = "9",
@@ -1337,7 +1339,101 @@ rm(list = setdiff(ls(), c("sites_dikes", "sites_splot", "species_dikes",
 ## 8 Reference sites ##########################################################
 
 
-### a sPlotOpen ---------------------------------------------------------------
+### a ESy: EUNIS expert vegetation classification system ----------------------
+
+#### Start ###
+### Bruelheide et al. 2021 Appl Veg Sci
+### https://doi.org/10.1111/avsc.12562 
+
+expertfile <- "EUNIS-ESy-2020-06-08.txt" ### file of 2021 is not working
+
+obs <- species_dikes %>%
+  pivot_longer(cols = -name,
+               names_to = "RELEVE_NR",
+               values_to = "Cover_Perc") %>%
+  rename(TaxonName = "name") %>%
+  mutate(
+    TaxonName = str_replace_all(TaxonName, "_", " "),
+    TaxonName = str_replace_all(TaxonName, "ssp", "subsp."),
+    TaxonName = as.factor(TaxonName),
+    TaxonName = fct_recode(
+      TaxonName,
+      "Carex praecox" = "Carex praecox subsp. curvata",
+      "Cerastium fontanum" = "Cerastium fontanum subsp. vulgare",
+      "Clinopodium acinos" = "Acinos arvensis",
+      "Ranunculus polyanthemos" = "Ranunculus serpens subsp. nemorosus",
+      "Silene latifolia" = "Silene latifolia subsp. alba",
+      "Vicia villosa" = "Vicia villosa subsp. varia"
+      )
+    ) %>%
+  as.data.table()
+
+header <- sites_dikes %>%
+  sf::st_as_sf(coords = c("longitude", "latitude"), crs = 31468) %>%
+  sf::st_transform(4326) %>%
+  rename(
+    RELEVE_NR = id
+    ) %>%
+  mutate(
+    "Altitude (m)" = 313,
+    Latitude = sf::st_coordinates(.)[,2],
+    Longitude = sf::st_coordinates(.)[,1],
+    Country = "Germany",
+    Coast_EEA = "N_COAST",
+    Dunes_Bohn = "N_DUNES",
+    Ecoreg = 686,
+    dataset = "Danube_dikes"
+    ) %>%
+  select(RELEVE_NR, "Altitude (m)", Latitude, Longitude, Country,
+         Coast_EEA, Dunes_Bohn, Ecoreg, dataset) %>%
+  sf::st_drop_geometry();head(header)
+
+setwd(here("R", "esy"))
+source(here("R", "esy", "code", "prep.R"))
+
+#### Step 1 and 2: Load and parse the expert file ###
+source(here("R", "esy", "code", "step1and2_load-and-parse-the-expert-file.R"))
+
+#### Step 3: Create a numerical plot x membership condition matrix  ###
+plot.cond <- array(
+  0,
+  c(length(unique(obs$RELEVE_NR)), length(conditions)), 
+  dimnames = list(
+    as.character(unique(obs$RELEVE_NR)),
+    conditions
+    )
+  )
+
+### Step 4: Aggregate taxon levels ###
+source(here("R", "esy", "code", "step4_aggregate-taxon-levels.R"))
+
+(data <- obs %>%
+  group_by(TaxonName) %>%
+  slice(1) %>%
+  anti_join(AGG, by = c("TaxonName" = "ind")))
+
+#### Step 5: Solve the membership conditions ###
+mc <- 1
+source(here("R", "esy", "code",
+            "step3and5_extract-and-solve-membership-conditions.R"))
+
+table(result.classification)
+eval.EUNIS(which(result.classification == "R")[1], "R")
+
+data <- sites_dikes %>%
+  mutate(
+    esy = result.classification,
+    esy = if_else(id == "X05_m_2021", "R1A", esy),
+    esy = if_else(id == "X62_m_2019", "R", esy),
+    esy = if_else(id == "X67_o_2021", "R", esy)
+    )
+table(data$esy)
+rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
+                          "species_dikes", "species_splot",
+                          "traits", "pca_soil", "pca_construction_year",
+                          "pca_survey_year", "result.classification")))
+
+### b sPlotOpen ---------------------------------------------------------------
 
 data_sites <- sites_splot %>%
   filter(
@@ -1381,7 +1477,7 @@ data_species <- species_splot %>%
     name = str_replace(name, "Taraxacum", "Taraxacum_campylodes"),
     name = str_replace(
       name, "Cerastium_fontanum", "Cerastium_fontanum_ssp_vulgare"
-      ),
+    ),
     name = str_replace(name, "Leucanthemum_ircutianum", "Leucanthemum_vulgare"),
     name = str_replace(name, "Tragopogon_orientalis", "Tragopogon_pratensis"),
     name = factor(name)
@@ -1397,82 +1493,6 @@ rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "species_dikes", "species_splot",
                           "traits", "pca_soil", "pca_construction_year",
                           "pca_survey_year")))
-
-
-### b ESy: EUNIS expert vegetation classification system ----------------------
-
-#### Start ###
-rm(list = setdiff(ls(), c("sites_dikes","species_dikes")))
-expertfile <- "EUNIS-ESy-2020-06-08.txt" ### newer file is not working
-
-obs <- species_dikes %>%
-  pivot_longer(cols = -name,
-               names_to = "RELEVE_NR",
-               values_to = "Cover_Perc") %>%
-  rename(TaxonName = "name") %>%
-  mutate(
-    TaxonName = str_replace_all(TaxonName, "_", " "),
-    TaxonName = str_replace_all(TaxonName, "ssp", "subsp."),
-    TaxonName = str_replace_all(TaxonName, "Acinos arvensis", "Clinopodium acinos"),
-    TaxonName = str_replace_all(TaxonName, "Carex praecox subsp. curvata", "Carex praecox"),
-    TaxonName = str_replace_all(TaxonName, "Ranunculus serpens subsp. nemorosus", "Ranunculus polyanthemos"),
-    TaxonName = str_replace_all(TaxonName, "Silene latifolia subsp. alba", "Silene latifolia"),
-    TaxonName = str_replace_all(TaxonName, "Vicia villosa subsp. varia", "Vicia villosa")
-    ) %>%
-  as.data.table()
-
-header <- sites_dikes %>%
-  sf::st_as_sf(coords = c("longitude", "latitude"), crs = 31468) %>%
-  sf::st_transform(4326) %>%
-  rename(
-    RELEVE_NR = id
-    ) %>%
-  mutate(
-    "Altitude (m)" = 313,
-    Latitude = sf::st_coordinates(.)[,2],
-    Longitude = sf::st_coordinates(.)[,1],
-    Country = "Germany",
-    Coast_EEA = "N_COAST",
-    Dunes_Bohn = "N_DUNES",
-    Ecoreg = 686,
-    dataset = "Danube_dikes"
-    ) %>%
-  select(RELEVE_NR, "Altitude (m)", Latitude, Longitude, Country,
-         Coast_EEA, Dunes_Bohn, Ecoreg, dataset) %>%
-  sf::st_drop_geometry();head(header)
-
-source(here("R", "esy", "code", "prep.R"))
-
-#### Step 1 and 2: Load and parse the expert file ###
-source(here("R", "esy", "code", "step1and2_load-and-parse-the-expert-file.R"))
-
-#### Step 3: Create a numerical plot x membership condition matrix  ###
-plot.cond <- array(
-  0,
-  c(length(unique(obs$RELEVE_NR)), length(conditions)), 
-  dimnames = list(
-    as.character(unique(obs$RELEVE_NR)),
-    conditions
-    )
-  )
-
-### Step 4: Aggregate taxon levels ###
-source(here("R", "esy", "code", "step4_aggregate-taxon-levels.R"))
-
-obs %>%
-  rename(ind = "TaxonName") %>%
-  group_by(ind) %>%
-  slice(1) %>%
-  anti_join(AGG, by = "ind") %>%
-  as.data.frame()
-
-#### Step 5: Solve the membership conditions ###
-mc <- 1
-source(here("R", "esy", "code",
-            "step3and5_extract-and-solve-membership-conditions.R"))
-
-table(result.classification)
-eval.EUNIS(which(result.classification == 'A25c')[1], 'A25c')
 
 
 
