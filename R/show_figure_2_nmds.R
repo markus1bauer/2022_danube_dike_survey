@@ -34,6 +34,7 @@ theme_mb <- function() {
     legend.key = element_rect(fill = "white"),
     legend.position = "right",
     legend.margin = margin(0, 0, 0, 0, "cm"),
+    legend.text = element_text(size = 10),
     plot.margin = margin(0, 0, 0, 0, "cm")
   )
 }
@@ -97,7 +98,7 @@ sites <- sites_dikes %>%
     esy = if_else(
       esy == "E22", "R22-ref", if_else(
         esy == "E12a", "R1A-ref", if_else(
-          esy == "?", NA_character_, if_else(
+          esy == "?", "no", if_else(
             esy == "R21", "R", esy
           )
         )
@@ -131,7 +132,7 @@ species <- species_dikes %>%
   semi_join(sites, by = "id") %>%
   column_to_rownames("id")
 
-rm(list = setdiff(ls(), c("sites", "species")))
+rm(list = setdiff(ls(), c("sites", "species", "theme_mb", "veganCovEllipse")))
 
 #### * Choosen model ####
 
@@ -198,53 +199,110 @@ for(group in levels(data_nmds$group_type)) {
     bind_cols(group_type = group) %>%
     bind_rows(ellipses)
   
-  data <- ellipses
+  data_ellipses <- ellipses
   
 }
 
 #### * Plot ####
 
 (graph_a <- ggplot() +
-    geom_point(
-      aes(y = NMDS2, x = NMDS1, color = target_richness_group,
-          shape = group_type),
-      data = data_nmds,
-      cex = 2
-    ) +
-    geom_path(
-      aes(x = NMDS1, y = NMDS2, linetype = group_type),
-      data = data,
-      size = 1,
-      show.legend = FALSE
-    ) +
-    geom_text(
-      aes(x = mean1, y = mean2, label = group_type),
-      data = data_nmds
-    ) +
-    geom_label(
-      aes(x = NMDS1, y = NMDS2, label = variable),
-      data = data_envfit,
-      size = 3
-      ) +
-    geom_segment(
-      data = data_envfit,
-      aes(x = 0, xend = NMDS1, y = 0, yend = NMDS2),
-      arrow = arrow(length = unit(0.25, "cm")),
-      colour = "black",
-      size = 1
-      ) +
-    coord_fixed() +
-    scale_color_brewer(na.value = "black") +
-    scale_shape_manual(values = c(16, 16, 16, 16, 0, 2)) +
-    scale_linetype_manual(values = c(1, 1, 1, 1, 1, 1, 1)) +
-    labs(
-      x = "NMDS1", y = "NMDS2", color = "Target species\nrichness",
-      shape = ""
-    ) +
-    guides(shape = "none") +
-    theme_mb())
+   geom_point(
+     aes(y = NMDS2, x = NMDS1, color = group_type, shape = group_type),
+     data = data_nmds,
+     cex = 2
+   ) +
+   geom_path(
+     aes(x = NMDS1, y = NMDS2, linetype = group_type, color = group_type),
+     data = data_ellipses %>% filter(group_type != "no"),
+     size = 1,
+     show.legend = FALSE
+   ) +
+   ggrepel::geom_label_repel(
+     aes(x = NMDS1, y = NMDS2, label = variable),
+     data = data_envfit %>% filter(NMDS2 < 0),
+     fill = alpha("white", .4),
+     size = 3,
+     nudge_y = -.1,
+     min.segment.length = Inf
+   ) +
+   ggrepel::geom_label_repel(
+     aes(x = NMDS1, y = NMDS2, label = variable),
+     data = data_envfit %>% filter(NMDS2 > 0),
+     fill = alpha("white", .4),
+     size = 3,
+     nudge_y = .1,
+     min.segment.length = Inf
+   ) +
+   geom_segment(
+     data = data_envfit,
+     aes(x = 0, xend = NMDS1, y = 0, yend = NMDS2),
+     arrow = arrow(length = unit(0.25, "cm")),
+     color = "black",
+     size = 1
+   ) +
+   geom_label(
+     aes(x = mean1, y = mean2, label = group_type, fill = group_type),
+     data = data_nmds %>% filter(group_type != "no"),
+     color = "white",
+     size = 3,
+     show.legend = FALSE
+   ) +
+   coord_fixed() +
+   scale_color_manual(
+     labels = c(
+       "R22-ref" = "R22-ref: Hay meadow\n              reference",
+       "R1A-ref" = "R1A-ref: Dry grassland\n               reference",
+       "R22" = "R22: Hay meadow",
+       "R1A" = "R1A: Dry grassland",
+       "R" = "R: Grassland",
+       "V38" = "V38: Dry anthropogenic\n         vegetation",
+       "no" = "no classification"
+     ),
+     values = c(
+       "R22-ref" = "#3399FF",
+       "R1A-ref" = "#FF3333",
+       "R22" = "#3399FF",
+       "R1A" = "#FF3333",
+       "R" = "grey30",
+       "V38" = "#FF33FF",
+       "no" = "grey90"
+       )
+     ) +
+   scale_fill_manual(
+     values = alpha(c(
+       "R22-ref" = "#3399FF",
+       "R1A-ref" = "#FF3333",
+       "R22" = "#3399FF",
+       "R1A" = "#FF3333",
+       "R" = "grey30",
+       "V38" = "#FF33FF"
+     ), alpha = 0.3)
+   ) +
+   scale_shape_manual(
+     labels = c(
+       "R22-ref" = "R22-ref: Hay meadow\n              reference",
+       "R1A-ref" = "R1A-ref: Dry grassland\n               reference",
+       "R22" = "R22: Hay meadow",
+       "R1A" = "R1A: Dry grassland",
+       "R" = "R: Grassland",
+       "V38" = "V38: Dry anthropogenic\n         vegetation",
+       "no" = "no classification"
+     ),
+     values = c(
+       "R22-ref" = 2,
+       "R1A-ref" = 0,
+       "R22" = 16,
+       "R1A" = 16,
+       "R" = 16,
+       "V38" = 16,
+       "no" = 16
+     )
+   ) +
+   scale_linetype_manual(values = c(1, 1, 1, 1, 1, 1, 1)) +
+   labs(x = "NMDS1", y = "NMDS2", shape = "", color = "") +
+   theme_mb())
 
 
 ### Save ###
-ggsave(here("outputs", "figures", "figure_2_800dpi_16.5x16cm.tiff"),
-       dpi = 800, width = 16.5, height = 16, units = "cm")
+ggsave(here("outputs", "figures", "figure_2_800dpi_16.5x11cm.tiff"),
+       dpi = 800, width = 16.5, height = 11, units = "cm")
