@@ -38,12 +38,6 @@ theme_mb <- function() {
   )
 }
 
-veganCovEllipse <- function(cov, center = c(0, 0), scale = 1, npoints = 100) {
-  theta <- (0:npoints) * 2 * pi / npoints
-  Circle <- cbind(cos(theta), sin(theta))
-  t(center + scale * t(Circle %*% chol(cov)))
-}
-
 #### * Load data sites ####
 
 sites_dikes <- read_csv("data_processed_sites_spatial.csv",
@@ -52,7 +46,7 @@ sites_dikes <- read_csv("data_processed_sites_spatial.csv",
                             .default = "?",
                             id = "f"
                           )) %>%
-  select(id, survey_year, orientation, exposition,
+  select(id, survey_year, orientation, exposition, esy,
          species_richness, eveness, shannon,
          target_richness, target_cover_ratio,
          accumulated_cover, graminoid_cover_ratio, ruderal_cover) %>%
@@ -79,20 +73,33 @@ sites <- sites_dikes %>%
   bind_rows(sites_splot) %>%
   mutate(
     survey_year = if_else(is.na(survey_year), 0, survey_year),
-    esy = if_else(
+    reference = if_else(
       survey_year == 2017, "2017", if_else(
         survey_year == 2018, "2018", if_else(
           survey_year == 2019, "2019", if_else(
             survey_year == 2021, "2021", if_else(
-              esy == "E12a", "Dry grassland", if_else(
-                esy == "E22", "Hay meadow", "warning"
+              reference == "reference" & esy == "E12a",
+              "Dry grassland", if_else(
+                reference == "reference" & esy == "E22",
+                "Hay meadow", "warning"
               )
             )
           )
         )
       )
-    )
-  )
+    ),
+    esy = if_else(
+      esy == "E22", "R22-ref", if_else(
+        esy == "E12a", "R1A-ref", if_else(
+          esy == "?", NA_character_, if_else(
+            esy == "R21", "R", esy
+          )
+        )
+      )
+    ),
+    esy = if_else(esy == "?", NA_character_, esy)
+  ) %>%
+  select(-givd_id, -longitude, -latitude)
 
 #### * Load data species ####
 
@@ -132,6 +139,7 @@ rm(list = setdiff(ls(), c("sites", "species")))
 
 
 ### Calculate ###
+table(sites$esy)
 set.seed(1)
 (ordi <- metaMDS(species, dist = "bray", binary = TRUE,
                  try = 99, previous.best = TRUE, na.rm = TRUE))
@@ -159,7 +167,8 @@ points(ordi, display = "sites", cex = goodness_of_fit * 300)
 plot(ordi, type = "n")
 plot(ef_vector1, add = TRUE, p. = .99)
 (ef_vector2 <- envfit(
-  ordi ~ target_richness + graminoid_cover_ratio + ruderal_cover, 
+  ordi ~ target_richness + target_cover_ratio +
+    graminoid_cover_ratio + ruderal_cover, 
   data = sites, 
   permu = 999, 
   na.rm = TRUE
@@ -171,9 +180,9 @@ plot(ef_vector2, add = TRUE, p. = .99)
 #### b Factors ----------------------------------------------------------------
 
 (ef_factor1 <- envfit(
-  ordi ~  survey_year_factor + orientation + exposition + esy, 
+  ordi ~  survey_year_factor + orientation + exposition + esy + reference, 
   data = sites, permu = 999, na.rm = TRUE
-))
+  ))
 plot(ordi, type = "n")
 ordiellipse(ordi, sites$survey_year_factor, kind = "sd", draw = "lines",
             label = TRUE)
@@ -183,3 +192,5 @@ plot(ordi, type = "n")
 ordiellipse(ordi, sites$exposition, kind = "sd", draw = "lines", label = TRUE)
 plot(ordi, type = "n")
 ordiellipse(ordi, sites$esy, kind = "sd", draw = "lines", label = TRUE)
+plot(ordi, type = "n")
+ordiellipse(ordi, sites$reference, kind = "sd", draw = "lines", label = TRUE)

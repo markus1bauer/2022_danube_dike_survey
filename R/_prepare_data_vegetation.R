@@ -1420,14 +1420,14 @@ source(here("R", "esy", "code",
 table(result.classification)
 eval.EUNIS(which(result.classification == "V39")[1], "V39")
 
-data <- sites_dikes %>%
+sites_dikes <- sites_dikes %>%
   mutate(
     esy = result.classification,
     esy = if_else(id == "X05_m_2021", "R1A", esy),
     esy = if_else(id == "X62_m_2019", "R", esy),
     esy = if_else(id == "X67_o_2021", "R", esy)
     )
-table(data$esy)
+table(sites_dikes$esy)
 rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "species_dikes", "species_splot",
                           "traits", "pca_soil", "pca_construction_year",
@@ -2047,7 +2047,6 @@ sites_dikes <- sites_dikes %>%
   mutate(across(
     c(
       pc1_soil, pc2_soil, pc3_soil,
-      pc1_survey_year, pc2_survey_year, pc3_survey_year,
       pc1_construction_year, pc2_construction_year, pc3_construction_year
     ),
     ~ round(.x, digits = 4)
@@ -2075,7 +2074,7 @@ sites_temporal <- sites_temporal %>%
 
 sites_spatial <- sites_dikes %>%
   select(
-    id, plot, block, latitude, longitude, survey_year, botanist,
+    id, plot, block, latitude, longitude, survey_year, botanist, esy,
     # local
     exposition, orientation, pc1_soil, pc2_soil, pc3_soil,
     # space
@@ -2099,13 +2098,15 @@ sites_temporal <- sites_temporal %>%
     # space
     location, location_abb, location_construction_year,
     river_km, river_distance,
+    # history
+    construction_year,
     # temporal beta-diversity indices (TBI)
     b, c, d
   )
 
 sites_restoration <- sites_dikes %>%
   select(
-    id, plot, block, latitude, longitude, botanist, survey_year,
+    id, plot, block, latitude, longitude, botanist, survey_year, esy,
     # local
     exposition, orientation, pc1_soil, pc2_soil, pc3_soil,
     # space
