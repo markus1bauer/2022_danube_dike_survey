@@ -55,20 +55,9 @@ sites_dikes <- read_csv("data_processed_sites_spatial.csv",
                           )) %>%
   select(id, survey_year, orientation, exposition, esy,
          species_richness, eveness, shannon,
-         target_richness, target_cover_ratio,
+         ellenberg_richness, ellenberg_cover_ratio,
          accumulated_cover, graminoid_cover_ratio, ruderal_cover) %>%
-  mutate(survey_year_factor = as_factor(survey_year),
-         target_richness_group = if_else(
-           target_richness < 10, "<10", if_else(
-             target_richness >= 10 & target_richness < 20, "10-19", if_else(
-               target_richness >= 20 & target_richness < 30, "20-29", if_else(
-                 target_richness >= 30, ">30", "warning"
-               )
-             )
-           )
-         ),
-         target_richness_group = fct_relevel(target_richness_group,
-                                             "<10", "10-19", "20-29", ">30"))
+  mutate(survey_year_factor = as_factor(survey_year))
 
 sites_splot <- read_csv("data_processed_sites_splot.csv", col_names = TRUE,
                         na = c("na", "NA", ""), col_types =
@@ -115,7 +104,8 @@ species_dikes <- read_csv("data_processed_species.csv", col_names = TRUE,
                             cols(
                               .default = "d",
                               name = "f"
-                            ))
+                            )) %>%
+  select(name, all_of(sites_dikes$id))
 
 species_splot <- read_csv("data_processed_species_splot.csv", col_names = TRUE,
                           na = c("na", "NA", ""), col_types =
@@ -125,7 +115,7 @@ species_splot <- read_csv("data_processed_species_splot.csv", col_names = TRUE,
 
 species <- species_dikes %>%
   full_join(species_splot, by = "name") %>%
-  mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
+  mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) #%>%
   pivot_longer(cols = -name, names_to = "id", values_to = "value") %>%
   pivot_wider(names_from = "name", values_from = "value") %>%
   arrange(id) %>%
@@ -136,12 +126,12 @@ rm(list = setdiff(ls(), c("sites", "species", "theme_mb", "veganCovEllipse")))
 
 #### * Choosen model ####
 
-set.seed(1)
+set.seed(10)
 (ordi <- metaMDS(species, binary = TRUE,
                  try = 99, previous.best = TRUE, na.rm = TRUE))
 
 (data_envfit <- envfit(ordi ~ graminoid_cover_ratio + ruderal_cover +
-                         target_richness + target_cover_ratio,
+                         ellenberg_richness + ellenberg_cover_ratio,
                       data = sites,
                       perm = 999,
                       na.rm = TRUE))

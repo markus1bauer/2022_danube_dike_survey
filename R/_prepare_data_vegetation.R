@@ -389,7 +389,7 @@ cover <- species_dikes %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   group_by(id)
 
-#### * graminoid, herb, and total coverage ###
+#### Graminoid, herb, and total coverage ###
 cover_total_and_graminoid <- cover %>%
   group_by(id, family) %>%
   summarise(total = sum(n, na.rm = TRUE), .groups = "keep") %>%
@@ -404,49 +404,49 @@ cover_total_and_graminoid <- cover %>%
   mutate(accumulated_cover = graminoid_cover + herb_cover) %>%
   ungroup()
 
-#### * German biotope mapping: Target species' coverage ###
+#### German biotope mapping: Target species' coverage ###
 cover_target <- cover %>%
   filter(target == "yes") %>%
   summarise(target_cover = sum(n, na.rm = TRUE)) %>%
   mutate(target_cover = round(target_cover, 1)) %>%
   ungroup()
 
-#### * German biotope mapping: Target herb species' coverage ###
+#### German biotope mapping: Target herb species' coverage ###
 cover_target_herb <- cover %>%
   filter(target_herb == "yes") %>%
   summarise(target_herb_cover = sum(n, na.rm = TRUE)) %>%
   mutate(target_herb_cover = round(target_herb_cover, 1)) %>%
   ungroup()
 
-#### * German biotope mapping: Arrhenatherum species' cover ratio ###
+#### German biotope mapping: Arrhenatherum species' cover ratio ###
 cover_target_arrhenatherion <- cover %>%
   filter(target_arrhenatherion == "yes") %>%
   summarise(arrh_cover = sum(n, na.rm = TRUE)) %>%
   mutate(arrh_cover = round(arrh_cover, 1)) %>%
   ungroup()
 
-#### * German biotope mapping: Lean indicator's coverage ###
+#### German biotope mapping: Lean indicator's coverage ###
 cover_lean_indicator <- cover %>%
   filter(lean_indicator == "yes") %>%
   summarise(lean_cover = sum(n, na.rm = TRUE)) %>%
   mutate(lean_cover = round(lean_cover, 1)) %>%
   ungroup()
 
-#### * German biotope mapping: Nitrogen indicator's coverage ###
+#### German biotope mapping: Nitrogen indicator's coverage ###
 cover_nitrogen_indicator <- cover %>%
   filter(nitrogen_indicator == "yes") %>%
   summarise(nitrogen_cover = sum(n, na.rm = TRUE)) %>%
   mutate(nitrogen_cover = round(nitrogen_cover, 1)) %>%
   ungroup()
 
-#### * Ruderal's coverage ###
+#### Ruderal's coverage ###
 cover_ruderal <- cover %>%
   filter(ruderal == "yes") %>%
   summarise(ruderal_cover = sum(n, na.rm = TRUE)) %>%
   mutate(ruderal_cover = round(ruderal_cover, 1)) %>%
   ungroup()
 
-#### * German biotope mapping: Table 33 species' coverage ###
+#### German biotope mapping: Table 33 species' coverage ###
 cover_table33 <- cover %>%
   mutate(table33 = if_else(table33 == "4" |
     table33 == "3" |
@@ -458,13 +458,9 @@ cover_table33 <- cover %>%
   mutate(table33_cover = round(table33_cover, 1)) %>%
   ungroup()
 
-#### * Ellenberg target species' coverage ###
+#### Ellenberg target species' coverage ###
 cover_ellenberg <- cover %>%
-  mutate(ellenberg = if_else(target_ellenberg == "dry_grassland" |
-                          target_ellenberg == "hay_meadow",
-                        "ellenberg_cover", "other"
-  )) %>%
-  filter(ellenberg == "ellenberg_cover") %>%
+  filter(target_ellenberg != "no") %>%
   summarise(ellenberg_cover = sum(n, na.rm = TRUE)) %>%
   mutate(ellenberg_cover = round(ellenberg_cover, 1)) %>%
   ungroup()
@@ -480,7 +476,7 @@ sites_dikes <- sites_dikes %>%
   right_join(cover_table33, by = "id") %>%
   right_join(cover_ellenberg, by = "id") %>%
   mutate(
-    target_cover_ratio = target_cover / accumulated_cover,
+    ellenberg_cover_ratio = ellenberg_cover / accumulated_cover,
     graminoid_cover_ratio = graminoid_cover / accumulated_cover
   )
 
@@ -500,67 +496,67 @@ rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
 richness <- left_join(species_dikes, traits, by = "name") %>%
   select(
     name, rlg, rlb, target, target_herb, target_arrhenatherion,
-    ffh6510, ffh6210, nitrogen_indicator, lean_indicator, table33, table34,
-    starts_with("X")
+    target_ellenberg, ffh6510, ffh6210, nitrogen_indicator, lean_indicator,
+    table33, table34, starts_with("X")
   ) %>%
   pivot_longer(names_to = "id", values_to = "n", cols = starts_with("X")) %>%
   mutate(n = if_else(n > 0, 1, 0)) %>%
   group_by(id)
 
-#### * total species richness ###
+#### Total species richness ###
 richness_total <- richness %>%
   summarise(species_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-#### * red list Germany (species richness) ###
+#### Red list Germany (species richness) ###
 richness_rlg <- richness %>%
   filter(rlg == "1" | rlg == "2" | rlg == "3" | rlg == "V") %>%
   summarise(rlg_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-#### * red list Bavaria (species richness) ###
+#### Red list Bavaria (species richness) ###
 richness_rlb <- richness %>%
   filter(rlb == "1" | rlb == "2" | rlb == "3" | rlb == "V") %>%
   summarise(rlb_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-#### * German biotope mapping: target species (species richness) ###
+#### German biotope mapping: target species (species richness) ###
 richness_target <- richness %>%
   filter(target == "yes") %>%
   summarise(target_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-#### * German biotope mapping: target herb species (species richness) ###
+#### German biotope mapping: target herb species (species richness) ###
 richness_target_herb <- richness %>%
   filter(target_herb == "yes") %>%
   summarise(target_herb_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-#### * German biotope mapping: Arrhenatherion species (species richness) ###
+#### German biotope mapping: Arrhenatherion species (species richness) ###
 richness_arrh <- richness %>%
   filter(target_arrhenatherion == "yes") %>%
   summarise(arrh_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-#### * ffh6510 species (species richness) ###
+#### FFH6510 species (species richness) ###
 richness_ffh6510 <- richness %>%
   filter(ffh6510 == "yes") %>%
   summarise(ffh6510_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-#### * ffh6210 species (species richness) ###
+#### FFH6210 species (species richness) ###
 richness_ffh6210 <- richness %>%
   filter(ffh6210 == "yes") %>%
   summarise(ffh6210_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-#### * German biotope mapping: lean_indicator species (species richness) ###
+#### German biotope mapping: lean_indicator species (species richness) ###
 richness_lean_indicator <- richness %>%
   filter(lean_indicator == "yes") %>%
   summarise(lean_indicator_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-#### * German biotope mapping: table33 (species richness) ###
+#### German biotope mapping: table33 (species richness) ###
 richness_table33_2 <- richness %>%
   filter(table33 == "2") %>%
   summarise(table33_2_richness = sum(n, na.rm = TRUE)) %>%
@@ -574,7 +570,7 @@ richness_table33_4 <- richness %>%
   summarise(table33_4_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
-#### * German biotope mapping: table34 (species richness) ###
+#### German biotope mapping: table34 (species richness) ###
 richness_table34_2 <- richness %>%
   filter(table34 == "2") %>%
   summarise(table34_2_richness = sum(n, na.rm = TRUE)) %>%
@@ -582,6 +578,12 @@ richness_table34_2 <- richness %>%
 richness_table34_3 <- richness %>%
   filter(table34 == "3") %>%
   summarise(table34_3_richness = sum(n, na.rm = TRUE)) %>%
+  ungroup()
+
+#### Ellenberg target species (species richness) ###
+richness_ellenberg <- richness %>%
+  filter(target_ellenberg != "no") %>%
+  summarise(ellenberg_richness = sum(n, na.rm = TRUE)) %>%
   ungroup()
 
 sites_dikes <- sites_dikes %>%
@@ -599,8 +601,9 @@ sites_dikes <- sites_dikes %>%
   right_join(richness_table33_4, by = "id") %>%
   right_join(richness_table34_2, by = "id") %>%
   right_join(richness_table34_3, by = "id") %>%
+  right_join(richness_ellenberg, by = "id") %>%
   mutate(
-    target_richness_ratio = target_richness / species_richness
+    ellenberg_richness_ratio = ellenberg_richness / species_richness
     )
 
 
@@ -1684,9 +1687,9 @@ data_sites <- sites_dikes %>%
 data_species <- species_dikes %>%
   select(where(~ !all(is.na(.x)))) %>%
   mutate(across(where(is.numeric), ~ replace(., is.na(.), 0))) %>%
-  left_join(traits %>% select(name, target), by = "name")
+  left_join(traits %>% select(name, target_ellenberg), by = "name")
 data_species_all <- data_species %>%
-  pivot_longer(-c("name", "target"), names_to = "id", values_to = "value") %>%
+  pivot_longer(-c("name", "target_ellenberg"), names_to = "id", values_to = "value") %>%
   pivot_wider(id, names_from = "name", values_from = "value") %>%
   mutate(
     year = str_match(id, "\\d{4}"),
@@ -1698,8 +1701,10 @@ data_species_all <- data_species %>%
   semi_join(data_sites, by = "id") %>%
   select(plot, year, tidyselect::peek_vars(), -id)
 data_species_target <- data_species %>%
-  filter(target == "yes") %>%
-  pivot_longer(-c("name", "target"), names_to = "id", values_to = "value") %>%
+  filter(target_ellenberg != "no") %>%
+  pivot_longer(-c("name", "target_ellenberg"),
+               names_to = "id",
+               values_to = "value") %>%
   pivot_wider(id, names_from = "name", values_from = "value") %>%
   mutate(
     year = str_match(id, "\\d{4}"),
@@ -2053,8 +2058,8 @@ sites_dikes <- sites_dikes %>%
   )) %>%
   mutate(across(
     c(
-      target_cover_ratio, graminoid_cover_ratio,
-      target_richness_ratio, shannon, eveness
+      ellenberg_cover_ratio, graminoid_cover_ratio,
+      ellenberg_richness_ratio, shannon, eveness
     ),
     ~ round(.x, digits = 3)
   )) %>%
@@ -2087,7 +2092,7 @@ sites_spatial <- sites_dikes %>%
     # response variables
     accumulated_cover, species_richness, eveness, shannon,
     graminoid_cover_ratio, ruderal_cover,
-    target_richness, target_richness_ratio, target_cover_ratio
+    ellenberg_richness, ellenberg_richness_ratio, ellenberg_cover_ratio
   )
 
 sites_temporal <- sites_temporal %>%
@@ -2117,7 +2122,8 @@ sites_restoration <- sites_dikes %>%
     # response variables
     species_richness, eveness,
     accumulated_cover, graminoid_cover_ratio, ruderal_cover,
-    target_richness, target_richness_ratio, rlg_richness, target_cover_ratio,
+    ellenberg_richness, ellenberg_richness_ratio,
+    rlg_richness, ellenberg_cover_ratio,
     # legal evaluation
     biotope_type, ffh, baykompv, biotope_points
   )
@@ -2132,6 +2138,21 @@ sites_spatial <- sites_spatial %>%
   filter(n == max(n)) %>%
   select(-n) %>%
   mutate(plot = factor(plot)) # check number of plots
+
+species_dikes <- species_dikes %>%
+  ### remove species with no occurence
+  group_by(name) %>%
+  arrange(name) %>%
+  select(name, all_of(sites_spatial$id)) %>%
+  mutate(
+    total = sum(c_across(starts_with("X")), na.rm = TRUE),
+    presence = if_else(total > 0, 1, 0),
+    name = factor(name)
+  ) %>%
+  filter(presence == 1) %>%
+  ungroup() %>%
+  select(name, sort(tidyselect::peek_vars()), -total, -presence)
+
 
 sites_temporal <- sites_temporal %>%
   semi_join(sites_spatial, by = "plot") %>%
