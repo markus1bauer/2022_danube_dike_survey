@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
 # Prepare species, sites, and traits data ####
 # Markus Bauer
-# 2022-08-30
+# 2022-09-07
 
 
 
@@ -1366,7 +1366,7 @@ obs <- species_dikes %>%
       "Vicia villosa" = "Vicia villosa subsp. varia"
       )
     ) %>%
-  as.data.table()
+  data.table::as.data.table()
 
 header <- sites_dikes %>%
   sf::st_as_sf(coords = c("longitude", "latitude"), crs = 31468) %>%
@@ -1418,7 +1418,7 @@ source(here("R", "esy", "code",
             "step3and5_extract-and-solve-membership-conditions.R"))
 
 table(result.classification)
-eval.EUNIS(which(result.classification == "R")[1], "R")
+eval.EUNIS(which(result.classification == "V39")[1], "V39")
 
 data <- sites_dikes %>%
   mutate(
@@ -1487,7 +1487,9 @@ data_species <- species_splot %>%
 species_splot <- data_species
 
 ### Check species name congruency ###
-data <- anti_join(species_splot, traits, by = "name") %>% select(name)
+data <- anti_join(species_splot, traits, by = "name") %>%
+    select(name) %>%
+    print(n = 50)
 
 rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
                           "species_dikes", "species_splot",
