@@ -220,7 +220,7 @@ for(group in levels(data_nmds$group_type)) {
    ggrepel::geom_label_repel(
      aes(x = NMDS1, y = NMDS2, label = variable),
      data = data_envfit %>% filter(NMDS2 < 0),
-     fill = alpha("white", .4),
+     fill = alpha("white", .8),
      size = 3,
      nudge_y = -.1,
      min.segment.length = Inf
@@ -228,7 +228,7 @@ for(group in levels(data_nmds$group_type)) {
    ggrepel::geom_label_repel(
      aes(x = NMDS1, y = NMDS2, label = variable),
      data = data_envfit %>% filter(NMDS2 > 0),
-     fill = alpha("white", .4),
+     fill = alpha("white", .8),
      size = 3,
      nudge_y = .1,
      min.segment.length = Inf
