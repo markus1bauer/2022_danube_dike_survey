@@ -68,20 +68,10 @@ sites_splot <- read_csv("data_processed_sites_splot.csv", col_names = TRUE,
 sites <- sites_dikes %>%
   bind_rows(sites_splot) %>%
   mutate(
-    survey_year = if_else(is.na(survey_year), 0, survey_year),
+    reference = as.character(survey_year),
     reference = if_else(
-      survey_year == 2017, "2017", if_else(
-        survey_year == 2018, "2018", if_else(
-          survey_year == 2019, "2019", if_else(
-            survey_year == 2021, "2021", if_else(
-              reference == "reference" & esy == "E12a",
-              "Dry grassland", if_else(
-                reference == "reference" & esy == "E22",
-                "Hay meadow", "warning"
-              )
-            )
-          )
-        )
+      esy == "E12a", "Dry grassland", if_else(
+        esy == "E22", "Hay meadow", reference
       )
     ),
     esy = if_else(
@@ -92,8 +82,7 @@ sites <- sites_dikes %>%
           )
         )
       )
-    ),
-    esy = if_else(esy == "?", NA_character_, esy)
+    )
   ) %>%
   select(-givd_id, -longitude, -latitude)
 
@@ -115,7 +104,7 @@ species_splot <- read_csv("data_processed_species_splot.csv", col_names = TRUE,
 
 species <- species_dikes %>%
   full_join(species_splot, by = "name") %>%
-  mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) #%>%
+  mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
   pivot_longer(cols = -name, names_to = "id", values_to = "value") %>%
   pivot_wider(names_from = "name", values_from = "value") %>%
   arrange(id) %>%
@@ -131,7 +120,7 @@ set.seed(10)
                  try = 99, previous.best = TRUE, na.rm = TRUE))
 
 (data_envfit <- envfit(ordi ~ graminoid_cover_ratio + ruderal_cover +
-                         ellenberg_richness + ellenberg_cover_ratio,
+                         ellenberg_richness,
                       data = sites,
                       perm = 999,
                       na.rm = TRUE))
@@ -156,15 +145,14 @@ data_envfit <- data_envfit %>%
       variable,
       "Graminoid cover" = "graminoid_cover_ratio",
       "Ruderal cover" = "ruderal_cover",
-      "Target_richness" = "target_richness",
-      "Target cover" = "target_cover_ratio"
+      "Specialist richness" = "ellenberg_richness"
       )
     )
 
 ellipses <- tibble()
 
 data_nmds <-  sites %>%
-  select(id, esy, target_richness_group) %>% # modify group
+  select(id, esy) %>% # modify group
   mutate(group_type = as_factor(esy), # modify group
          NMDS1 = ordi$points[,1],
          NMDS2 = ordi$points[,2]) %>%

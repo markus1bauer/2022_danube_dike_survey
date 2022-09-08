@@ -358,8 +358,11 @@ traits <- traits %>%
     target_ellenberg = if_else(
       sociology >= 5300 & sociology < 5400, "dry_grassland", if_else(
         sociology >= 5400 & sociology < 6000, "hay_meadow", if_else(
-          sociology >= 5100 & sociology < 5200, "nardus_grassland", if_else(
-            sociology >= 5200 & sociology < 5300, "sand_grassland", "no"
+          sociology >= 5100 & sociology < 5120, "nardus_grassland", if_else(
+            sociology >= 5200 & sociology < 5300, "sand_and_rock_vegetation",
+            if_else(
+              sociology >= 6100 & sociology < 6200, "fringe_vegetation", "no"
+            )
           )
         )
       )
@@ -1570,7 +1573,7 @@ data_sites_dbmem <- data_sites_dbmem %>%
   column_to_rownames("id")
 
 
-### Try several times ###
+### !Try several times! ###
 m <- quickMEM(
   data_species_dbmem, data_sites_dbmem,
   alpha = 0.05,
@@ -2091,7 +2094,7 @@ sites_spatial <- sites_dikes %>%
     pc1_construction_year, pc2_construction_year, pc3_construction_year,
     # response variables
     accumulated_cover, species_richness, eveness, shannon,
-    graminoid_cover_ratio, ruderal_cover,
+    graminoid_cover_ratio, ruderal_cover, ellenberg_cover,
     ellenberg_richness, ellenberg_richness_ratio, ellenberg_cover_ratio
   )
 
@@ -2123,7 +2126,7 @@ sites_restoration <- sites_dikes %>%
     species_richness, eveness,
     accumulated_cover, graminoid_cover_ratio, ruderal_cover,
     ellenberg_richness, ellenberg_richness_ratio,
-    rlg_richness, ellenberg_cover_ratio,
+    rlg_richness, ellenberg_cover_ratio, ellenberg_cover,
     # legal evaluation
     biotope_type, ffh, baykompv, biotope_points
   )

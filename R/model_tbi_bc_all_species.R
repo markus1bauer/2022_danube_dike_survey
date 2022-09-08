@@ -132,7 +132,9 @@ ggplot(sites, aes(log(y))) +
 ### c Check collinearity ------------------------------------------------------
 
 GGally::ggpairs(data_collinearity, lower = list(continuous = "smooth_loess"))
-#--> exclude r > 0.7 (Dormann et al. 2013 Ecography)
+#--> exclude r > 0.7
+# Dormann et al. 2013 Ecography
+# https://doi.org/10.1111/j.1600-0587.2012.07348.x
 rm(data_collinearity)
 
 
@@ -206,7 +208,9 @@ simulateResiduals(m5, plot = TRUE)
 ### b comparison --------------------------------------------------------------
 
 MuMIn::AICc(m1, m2, m3, m4, m5) %>% arrange(AICc)
-# Use AICc and not AIC since ratio n/K < 40 (Burnahm & Anderson 2002 p. 66)
+# Use AICc and not AIC since ratio n/K < 40
+# Burnahm & Anderson 2002 p. 66
+# ISBN: 978-0-387-95364-9
 dotwhisker::dwplot(list(m1, m3),
                    show_intercept = FALSE,
                    vline = geom_vline(
@@ -234,7 +238,9 @@ plotResiduals(simulationOutput$scaledResiduals, sites$pc3_soil)
 plotResiduals(simulationOutput$scaledResiduals, sites$river_distance)
 plotResiduals(simulationOutput$scaledResiduals, sites$river_km)
 car::vif(m)
-# --> remove river_km: > 3 oder 10 (Zuur et al. 2010 Methods Ecol Evol)
+# --> remove river_km: > 3 oder 10
+# Zuur et al. 2010 Methods Ecol Evol
+# https://doi.org/10.1111/j.2041-210X.2009.00001.x
 
 
 
