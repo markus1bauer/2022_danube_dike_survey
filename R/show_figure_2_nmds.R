@@ -228,52 +228,52 @@ for(group in levels(data_nmds$group_type)) {
    coord_fixed() +
    scale_color_manual(
      labels = c(
-       "R22-ref" = "R22-ref: Hay meadow\n              reference",
-       "R1A-ref" = "R1A-ref: Dry grassland\n               reference",
+       "R22-ref" = "R22-ref: Hay meadow\nreference",
+       "R1A-ref" = "R1A-ref: Dry grassland\nreference",
        "R22" = "R22: Hay meadow",
        "R1A" = "R1A: Dry grassland",
-       "R" = "R: Grassland",
-       "V38" = "V38: Dry anthropogenic\n         vegetation",
+       "R" = "R: General grassland",
+       "V38" = "V38: Dry anthropogenic\nvegetation",
        "no" = "no classification"
      ),
      values = c(
-       "R22-ref" = "#3399FF",
-       "R1A-ref" = "#FF3333",
-       "R22" = "#3399FF",
-       "R1A" = "#FF3333",
+       "R22-ref" = "#4182dd",
+       "R1A-ref" = "#b6411a",
+       "R22" = "#4182dd",
+       "R1A" = "#b6411a",
        "R" = "grey30",
-       "V38" = "#FF33FF",
+       "V38" = "#eec3d8",
        "no" = "grey90"
        )
      ) +
    scale_fill_manual(
      values = alpha(c(
-       "R22-ref" = "#3399FF",
-       "R1A-ref" = "#FF3333",
-       "R22" = "#3399FF",
-       "R1A" = "#FF3333",
+       "R22-ref" = "#4182dd",
+       "R1A-ref" = "#b6411a",
+       "R22" = "#4182dd",
+       "R1A" = "#b6411a",
        "R" = "grey30",
-       "V38" = "#FF33FF"
+       "V38" = "#eec3d8"
      ), alpha = 0.3)
    ) +
    scale_shape_manual(
      labels = c(
-       "R22-ref" = "R22-ref: Hay meadow\n              reference",
-       "R1A-ref" = "R1A-ref: Dry grassland\n               reference",
+       "R22-ref" = "R22-ref: Hay meadow\nreference",
+       "R1A-ref" = "R1A-ref: Dry grassland\nreference",
        "R22" = "R22: Hay meadow",
        "R1A" = "R1A: Dry grassland",
-       "R" = "R: Grassland",
-       "V38" = "V38: Dry anthropogenic\n         vegetation",
+       "R" = "R: General grassland",
+       "V38" = "V38: Dry anthropogenic\nvegetation",
        "no" = "no classification"
      ),
      values = c(
-       "R22-ref" = 2,
-       "R1A-ref" = 0,
+       "R22-ref" = 1,
+       "R1A-ref" = 1,
        "R22" = 16,
        "R1A" = 16,
-       "R" = 16,
-       "V38" = 16,
-       "no" = 16
+       "R" = 3,
+       "V38" = 15,
+       "no" = 4
      )
    ) +
    scale_linetype_manual(values = c(1, 1, 1, 1, 1, 1, 1)) +
