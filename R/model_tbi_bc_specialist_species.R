@@ -120,9 +120,7 @@ sites %>%
   count(n)
 boxplot(sites$y)
 plot(table((sites$y)),
-     type = "h",
-     xlab = "Observed values", ylab = "Frequency"
-)
+     type = "h", xlab = "Observed values", ylab = "Frequency")
 ggplot(sites, aes(y)) +
   geom_density()
 ggplot(sites, aes(log(y))) +
@@ -132,7 +130,7 @@ ggplot(sites, aes(log(y))) +
 ### c check collinearity ------------------------------------------------------
 
 GGally::ggpairs(data_collinearity, lower = list(continuous = "smooth_loess"))
-#--> exclude r > 0.7
+# --> exclude r > 0.7
 # Dormann et al. 2013 Ecography
 # https://doi.org/10.1111/j.1600-0587.2012.07348.x
 rm(data_collinearity)
@@ -149,7 +147,8 @@ m1a <- blmer(y ~ 1 + (1 | location_construction_year),
 m1b <- blmer(y ~ 1 + (1 | location_construction_year / plot),
              data = sites, REML = TRUE)
 m1c <- blmer(y ~ 1 + (1 | plot), data = sites, REML = TRUE)
-MuMIn::AICc(m1a, m1b, m1c) %>% arrange(AICc)
+MuMIn::AICc(m1a, m1b, m1c) %>%
+  arrange(AICc)
 
 ### * Fixed effects ####
 m1 <- blmer(
@@ -219,7 +218,7 @@ dotwhisker::dwplot(list(m3, m5),
                      linetype = 2
                    )) +
   theme_classic()
-m <- update(m5, REML = FALSE)
+m <- update(m3, REML = TRUE)
 rm(list = setdiff(ls(), c("sites", "m")))
 
 
@@ -239,7 +238,7 @@ plotResiduals(simulationOutput$scaledResiduals, sites$pc3_soil)
 plotResiduals(simulationOutput$scaledResiduals, sites$river_distance)
 plotResiduals(simulationOutput$scaledResiduals, sites$river_km)
 car::vif(m)
-# --> remove river_km > 3 oder 10
+# --> remove river_km > 3 or 10
 # Zuur et al. 2010 Methods Ecol Evol
 # https://doi.org/10.1111/j.2041-210X.2009.00001.x
 
@@ -249,7 +248,7 @@ car::vif(m)
 
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m) # R2m = 0.314, R2c = 0.326
+MuMIn::r.squaredGLMM(m) # R2m = 0.294, R2c = 0.326
 VarCorr(m)
 sjPlot::plot_model(m, type = "re", show.values = TRUE)
 dotwhisker::dwplot(m,

@@ -125,5 +125,4 @@ data <- sites %>%
 ### Save ###
 ggsave(
   here("outputs", "figures", "figure_4d_location_800dpi_8x8cm.tiff"),
-  dpi = 800, width = 8, height = 8, units = "cm"
-  )
+  dpi = 800, width = 8, height = 8, units = "cm")

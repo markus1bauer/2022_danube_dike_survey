@@ -116,7 +116,8 @@ sites %>%
   count(plot) %>%
   count(n)
 boxplot(sites$y)
-plot(table((sites$y)), type = "h", xlab = "Observed values", ylab = "Frequency")
+plot(table((sites$y)),
+     type = "h", xlab = "Observed values", ylab = "Frequency")
 ggplot(sites, aes(y)) +
   geom_density()
 ggplot(sites, aes(log(y))) +
@@ -144,7 +145,8 @@ m1a <- blmer(log(y) ~ 1 + (1 | location_construction_year),
 m1b <- blmer(log(y) ~ 1 + (1 | location_construction_year / plot),
              data = sites, REML = TRUE)
 m1c <- blmer(log(y) ~ 1 + (1 | plot), data = sites, REML = TRUE)
-MuMIn::AICc(m1a, m1b, m1c) %>% arrange(AICc)
+MuMIn::AICc(m1a, m1b, m1c) %>%
+  arrange(AICc)
 
 #### * fixed effects ####
 m1 <- blmer(
@@ -201,7 +203,8 @@ simulateResiduals(m5, plot = TRUE)
 
 ### b comparison ---------------------------------------------------------------
 
-MuMIn::AICc(m1, m2, m3, m4, m5) %>% arrange(AICc)
+MuMIn::AICc(m1, m2, m3, m4, m5) %>%
+  arrange(AICc)
 # Use AICc and not AIC since ratio n/K < 40
 # Burnahm & Anderson 2002 p. 66
 # ISBN: 978-0-387-95364-9
@@ -232,7 +235,7 @@ plotResiduals(simulationOutput$scaledResiduals, sites$pc3_soil)
 plotResiduals(simulationOutput$scaledResiduals, sites$river_distance)
 plotResiduals(simulationOutput$scaledResiduals, sites$river_km)
 car::vif(m)
-# remove river_km since > 3 oder 10
+# remove river_km since > 3 or 10
 # Zuur et al. 2010 Methods Ecol Evol
 # https://doi.org/10.1111/j.2041-210X.2009.00001.x
 
@@ -242,7 +245,7 @@ car::vif(m)
 
 
 ### * Model output ####
-MuMIn::r.squaredGLMM(m) # R2m = 0.361, R2c = 0.454
+MuMIn::r.squaredGLMM(m) # R2m = 0.303, R2c = 0.316
 VarCorr(m)
 sjPlot::plot_model(m, type = "re", show.values = TRUE)
 dotwhisker::dwplot(m,
@@ -255,7 +258,7 @@ dotwhisker::dwplot(m,
   theme_classic()
 
 ### * Effect sizes ####
-(emm <- emmeans(m, revpairwise ~ orientation, type = "response"))
+(emm <- emmeans(m, revpairwise ~ comparison, type = "response"))
 plot(emm, comparison = TRUE)
 (emm <- emmeans(m, revpairwise ~ comparison, type = "response"))
 sjPlot::plot_model(m, type = "emm", terms = c("pc1_soil", "exposition"),

@@ -136,7 +136,7 @@ sites_dikes <- read_csv("data_raw_sites.csv",
            .after = construction_year)
 
 
-### Sabatini et al. (2021) Global Ecol Biogeogr
+### Sabatini et al. (2021) Global Ecol Biogeogr:
 ### https://doi.org/10.1111/geb.13346
 sites_splot <- read_delim(here("data", "raw", "splot", "sPlotOpen_header.txt"),
                          col_names = TRUE, na = c("", "NA", "na"),
@@ -175,7 +175,7 @@ species_dikes <- data.table::fread("data_raw_species.csv",
   mutate(across(where(is.numeric), ~ replace(., is.na(.), 0)))
 
 
-### Sabatini et al. (2021) Global Ecol Biogeogr
+### Sabatini et al. (2021) Global Ecol Biogeogr:
 ### https://doi.org/10.1111/geb.13346
 species_splot <- read_delim(here("data", "raw", "splot",
                         "sPlotOpen_DT.txt"),
