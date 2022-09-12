@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
 # Plot Fig. 2 ####
 # Markus Bauer
-# 2022-09-05
+# 2022-09-12
 
 
 
@@ -11,14 +11,14 @@
 
 
 
-### Start ###
-rm(list = ls())
-setwd(here("data", "processed"))
-
 ### Packages ###
 library(here)
 library(tidyverse)
 library(vegan)
+
+### Start ###
+rm(list = ls())
+setwd(here("data", "processed"))
 
 ### Functions ###
 theme_mb <- function() {
@@ -198,7 +198,7 @@ for(group in levels(data_nmds$group_type)) {
    ggrepel::geom_label_repel(
      aes(x = NMDS1, y = NMDS2, label = variable),
      data = data_envfit %>% filter(NMDS2 < 0),
-     fill = alpha("white", .8),
+     fill = alpha("white", .7),
      size = 3,
      nudge_y = -.1,
      min.segment.length = Inf
@@ -206,7 +206,7 @@ for(group in levels(data_nmds$group_type)) {
    ggrepel::geom_label_repel(
      aes(x = NMDS1, y = NMDS2, label = variable),
      data = data_envfit %>% filter(NMDS2 > 0),
-     fill = alpha("white", .8),
+     fill = alpha("white", .7),
      size = 3,
      nudge_y = .1,
      min.segment.length = Inf
@@ -220,7 +220,10 @@ for(group in levels(data_nmds$group_type)) {
    ) +
    geom_label(
      aes(x = mean1, y = mean2, label = group_type, fill = group_type),
-     data = data_nmds %>% filter(group_type != "no"),
+     data = data_nmds %>%
+       filter(group_type != "no") %>%
+       group_by(group_type) %>%
+       slice(1),
      color = "white",
      size = 3,
      show.legend = FALSE
@@ -228,42 +231,43 @@ for(group in levels(data_nmds$group_type)) {
    coord_fixed() +
    scale_color_manual(
      labels = c(
-       "R22-ref" = "R22-ref: Hay meadow\nreference",
-       "R1A-ref" = "R1A-ref: Dry grassland\nreference",
+       "R22-ref" = "R22-ref:\nHay meadow reference",
+       "R1A-ref" = "R1A-ref:\nDry grassland reference",
        "R22" = "R22: Hay meadow",
        "R1A" = "R1A: Dry grassland",
        "R" = "R: General grassland",
-       "V38" = "V38: Dry anthropogenic\nvegetation",
+       "V38" = "V38:\nDry anthropogenic\nvegetation",
        "no" = "no classification"
      ),
      values = c(
-       "R22-ref" = "#4182dd",
-       "R1A-ref" = "#b6411a",
-       "R22" = "#4182dd",
-       "R1A" = "#b6411a",
+       "R22-ref" = "#00BFC4",
+       "R1A-ref" = "#F8766D",
+       "R22" = "#00BFC4",
+       "R1A" = "#F8766D",
        "R" = "grey30",
-       "V38" = "#eec3d8",
+       "V38" = "#C77CFF",
        "no" = "grey90"
        )
      ) +
    scale_fill_manual(
      values = alpha(c(
-       "R22-ref" = "#4182dd",
-       "R1A-ref" = "#b6411a",
-       "R22" = "#4182dd",
-       "R1A" = "#b6411a",
+       "R22-ref" = "#00BFC4",
+       "R1A-ref" = "#F8766D",
+       "R22" = "#00BFC4",
+       "R1A" = "#F8766D",
        "R" = "grey30",
-       "V38" = "#eec3d8"
-     ), alpha = 0.3)
+       "V38" = "#C77CFF",
+       "no" = "grey30"
+     ), alpha = 0.6)
    ) +
    scale_shape_manual(
      labels = c(
-       "R22-ref" = "R22-ref: Hay meadow\nreference",
-       "R1A-ref" = "R1A-ref: Dry grassland\nreference",
+       "R22-ref" = "R22-ref:\nHay meadow reference",
+       "R1A-ref" = "R1A-ref:\nDry grassland reference",
        "R22" = "R22: Hay meadow",
        "R1A" = "R1A: Dry grassland",
        "R" = "R: General grassland",
-       "V38" = "V38: Dry anthropogenic\nvegetation",
+       "V38" = "V38:\nDry anthropogenic\nvegetation",
        "no" = "no classification"
      ),
      values = c(
@@ -278,7 +282,8 @@ for(group in levels(data_nmds$group_type)) {
    ) +
    scale_linetype_manual(values = c(1, 1, 1, 1, 1, 1, 1)) +
    labs(x = "NMDS1", y = "NMDS2", shape = "", color = "") +
-   theme_mb())
+   theme_mb() +
+   theme(legend.key.height = unit(.9, "cm")))
 
 
 ### Save ###
