@@ -28,13 +28,13 @@ theme_mb <- function() {
     panel.background = element_rect(fill = "white"),
     text  = element_text(size = 9, color = "black"),
     strip.text = element_text(size = 10),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0,
-                               size = 9, color = "black"),
-    axis.line.x = element_line(),
-    axis.line.y = element_blank(),
-    axis.title.y = element_blank(),
+    axis.text.x = element_blank(),
     axis.text.y = element_blank(),
+    axis.line.x = element_blank(),
+    axis.line.y = element_blank(),
     axis.ticks.y = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.y = element_blank(),
     legend.key = element_rect(fill = "white"),
     legend.position = "none",
     legend.margin = margin(0, 0, 0, 0, "cm"),
@@ -60,9 +60,9 @@ sites <- read_csv("data_processed_sites_temporal.csv",
       pool == "all" & presabu == "presence") %>%
   mutate(y = d,
          comparison = factor(comparison),
-         location_construction_year = fct_relevel(
-           location_construction_year, "HOF-2012", after = Inf
-         ),
+         location_construction_year = fct_reorder(
+           location_construction_year, construction_year
+           ),
          across(c("river_km", "river_distance"), scale))
 
 ### * Model ####
@@ -90,7 +90,8 @@ data_model <- ggeffect(m5, type = "emm", c("location_construction_year"),
          conf.low = exp(conf.low),
          conf.high = exp(conf.high),
          cross = if_else(
-           x %in% c("PFE-2008", "IRL-2003", "MUE-2007", "HOF-2012"),
+           x %in% c("OEB-2012", "PFE-2008", "IRL-2003", "STO-2002", "MUE-2007",
+                    "HOF-2012"),
            "filled", "open"
          ))
 

@@ -64,9 +64,9 @@ sites <- read_csv("data_processed_sites_temporal.csv",
   mutate(
     y = c - b,
     comparison = factor(comparison),
-    location_construction_year = fct_relevel(
-      location_construction_year, "HOF-2012", after = Inf
-      ),
+    location_construction_year = fct_reorder(
+      location_construction_year, construction_year
+    ),
     across(c("river_km", "river_distance"), scale)
   )
 
