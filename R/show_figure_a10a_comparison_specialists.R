@@ -133,5 +133,5 @@ data <- sites %>%
     theme_mb())
 
 ### Save ###
-ggsave(here("outputs", "figures", "figure_a9a_800dpi_8x8cm.tiff"),
+ggsave(here("outputs", "figures", "figure_a10a_800dpi_8x8cm.tiff"),
        dpi = 800, width = 8, height = 8, units = "cm")

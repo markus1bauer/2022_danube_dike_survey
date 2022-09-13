@@ -90,7 +90,7 @@ data <- read_csv("pca_soil.csv",
 
 (table <- data %>%
   gt() %>%
-  ### General settings ####
+  ### 1 General settings ####
   opt_table_lines(
     extent = "none"
   ) %>%
@@ -110,7 +110,7 @@ data <- read_csv("pca_soil.csv",
     table_body.border.bottom.width = px(2),
     table_body.border.top.width = px(1)
   ) %>%
-  ### Alignment of specific columns ####
+  ### 2 Alignment of specific columns ####
   tab_style(
     style = cell_text(
       align = "left"
@@ -135,7 +135,7 @@ data <- read_csv("pca_soil.csv",
       columns = "unit"
     )
   ) %>%
-  ### Column labels ####
+  ### 3 Column labels ####
   cols_label(
     variables = md(""),
     unit = md("**Unit**"),
@@ -143,7 +143,7 @@ data <- read_csv("pca_soil.csv",
     PC2 = md("**PC2**"),
     PC3 = md("**PC3**")
   ) %>%
-  ### Highlight certain cells ####
+  ### 4 Highlight certain cells ####
   tab_style(
     style = list(
       cell_fill(color = "grey"),
@@ -174,7 +174,7 @@ data <- read_csv("pca_soil.csv",
       rows = PC3 >= .9 & PC3 < 1.15 | PC3 <= -.88
     )
   ) %>%
-  ### Make subscripts ####
+  ### 5 Make subscripts ####
   text_transform(
     locations = cells_body(
       columns = c(variables),

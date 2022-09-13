@@ -1,13 +1,13 @@
 # Beta diversity on dike grasslands
-# Plot Fig A9D ####
+# Plot Fig A9C ####
 # Markus Bauer
 # 2022-09-08
 
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# A Preparation ################################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# A Preparation ###############################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 
@@ -28,15 +28,13 @@ theme_mb <- function() {
     panel.background = element_rect(fill = "white"),
     text = element_text(size = 9, color = "black"),
     strip.text = element_text(size = 10),
-    axis.text.x = element_text(
-      angle = 90, vjust = 0.5, hjust = 0,
-      size = 9, color = "black"
-    ),
-    axis.line.x = element_line(),
-    axis.line.y = element_blank(),
-    axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
+    axis.text.y = element_text(angle = 0, hjust = 0.5, size = 9,
+                               color = "black"),
+    axis.text.x = element_text(angle = 90, hjust = 0.5, size = 9,
+                               color = "black"),
+    axis.title = element_text(angle = 0, hjust = 0.5, size = 9,
+                              color = "black"),
+    axis.line = element_line(),
     legend.key = element_rect(fill = "white"),
     legend.position = "none",
     legend.margin = margin(0, 0, 0, 0, "cm"),
@@ -83,22 +81,37 @@ m3 <- blmer(
 
 
 
-
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Plot #######################################################################
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# B Plot ######################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-data_model <- ggeffect(m3, type = "emm", c("location_construction_year"),
-                       back.transform = TRUE)
+
+data_model <- ggeffect(m3, type = "emm", c("comparison", "exposition"),
+                       back.transform = TRUE) %>%
+  mutate(
+    cross = if_else(x %in% c("1718", "1921") & group == "north",
+                    "open", "filled"),
+    x = fct_recode(x,
+                   "2017 vs 2018" = "1718",
+                   "2018 vs 2019" = "1819",
+                   "2019 vs 2021" = "1921"),
+    group = fct_recode(group, "North" = "north", "South" = "south")
+  )
 
 
 data <- sites %>%
-  rename(predicted = y, x = location_construction_year)
+  rename(predicted = y, x = comparison, group = exposition) %>%
+  mutate(
+    x = fct_recode(x,
+                   "2017 vs 2018" = "1718",
+                   "2018 vs 2019" = "1819",
+                   "2019 vs 2021" = "1921"),
+    group = fct_recode(group, "North" = "north", "South" = "south")
+  )
 
 
-(graph_d <- ggplot() +
+(graph_c <- ggplot() +
     geom_quasirandom(
       data = data,
       aes(x = x, y = predicted),
@@ -106,22 +119,29 @@ data <- sites %>%
     ) +
     geom_errorbar(
       data = data_model,
-      aes(x= x, y = predicted, ymin = conf.low, ymax = conf.high),
+      aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high),
       width = 0.0, size = 0.4
     ) +
     geom_point(
       data = data_model,
-      aes(x = x, y = predicted),
-      size = 2,
-      shape = 1
+      aes(x = x, y = predicted, shape = cross),
+      size = 2
     ) +
     geom_hline(
       yintercept = 0, linetype = 2,  color = "grey70"
     ) +
-    scale_y_continuous(limits = c(-.6, .5), breaks = seq(-1, 400, .1)) +
-    labs(x = "", y = expression(Gains ~ - ~ Losses ~ "[" * TBI[sor] * "]")) +
+    facet_wrap(~group) +
+    scale_y_continuous(limits = c(-.6, .5), breaks = seq(-1, 400, .2)) +
+    scale_shape_manual(values = c("circle", "circle open")) +
+    guides(shape = "none") +
+    labs(x = "", shape = "", color = "", group = "",
+         y = expression(Gains ~ -~Losses ~
+                          "[" * italic("C")[sor] - italic("B")[sor] * "]")) +
     theme_mb())
 
 ### Save ###
-ggsave(here("outputs", "figures", "figure_a9d_location_800dpi_8x8cm.tiff"),
-       dpi = 800, width = 8, height = 8, units = "cm")
+ggsave(
+  here("outputs", "figures",
+       "figure_a10c_comparison_exposition_800dpi_8x8cm.tiff"),
+       dpi = 800, width = 8, height = 8, units = "cm"
+  )
