@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
 # Plot Fig. 2 ####
 # Markus Bauer
-# 2022-09-05
+# 2022-09-13
 
 
 
@@ -11,14 +11,15 @@
 
 
 
-### Start ###
-rm(list = ls())
-setwd(here("data", "processed"))
-
 ### Packages ###
 library(here)
 library(tidyverse)
 library(vegan)
+
+### Start ###
+rm(list = ls())
+setwd(here("data", "processed"))
+
 
 ### Functions ###
 theme_mb <- function() {
@@ -47,6 +48,7 @@ sites_dikes <- read_csv("data_processed_sites_spatial.csv",
                             id = "f"
                           )) %>%
   select(id, survey_year, orientation, exposition, esy,
+         location_construction_year,
          species_richness, eveness, shannon,
          ellenberg_richness, ellenberg_cover_ratio,
          accumulated_cover, graminoid_cover_ratio, ruderal_cover)
@@ -112,7 +114,26 @@ rm(list = setdiff(ls(), c("sites", "species")))
 
 
 
-### 1 NMDS ####################################################################
+### 1 Overview ################################################################
+
+
+sites %>%
+  mutate(esy = replace_na(esy, "no class")) %>%
+  filter(!str_detect(esy, "ref")) %>%
+  count(esy, survey_year) %>%
+  pivot_wider(names_from = "survey_year", values_from = "n") %>%
+  write_csv(here("outputs", "statistics",
+                 "vegetation_classification.csv"))
+
+sites %>%
+  mutate(esy = replace_na(esy, "no class")) %>%
+  filter(!str_detect(esy, "ref")) %>%
+  count(esy, location_construction_year) %>%
+  pivot_wider(names_from = "location_construction_year", values_from = "n")
+
+
+
+### 2 NMDS ####################################################################
 
 
 ### Calculate ###
@@ -128,7 +149,7 @@ points(ordi, display = "sites", cex = goodness_of_fit * 300)
 
 
 
-### 2 Environmental factors ###################################################
+### 3 Environmental factors ###################################################
 
 
 #### a Vectors ----------------------------------------------------------------
