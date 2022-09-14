@@ -1,5 +1,5 @@
 # Beta diversity on dike grasslands
-# Plot Fig A6 completely ####
+# Plot Fig A8 complete ####
 # Markus Bauer
 # 2022-09-05
 
