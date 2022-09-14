@@ -1,5 +1,5 @@
 # Beta diversity on dike grasslands
-# Plot Fig A9C ####
+# Plot Fig A10C ####
 # Markus Bauer
 # 2022-09-08
 
@@ -131,7 +131,7 @@ data <- sites %>%
       yintercept = 0, linetype = 2,  color = "grey70"
     ) +
     facet_wrap(~group) +
-    scale_y_continuous(limits = c(-.6, .5), breaks = seq(-1, 400, .2)) +
+    scale_y_continuous(limits = c(-.6, .55), breaks = seq(-1, 400, .2)) +
     scale_shape_manual(values = c("circle", "circle open")) +
     guides(shape = "none") +
     labs(x = "", shape = "", color = "", group = "",

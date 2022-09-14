@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
-# Plot Fig A9D ####
+# Plot Fig A10D ####
 # Markus Bauer
-# 2022-09-08
+# 2022-09-14
 
 
 
@@ -64,8 +64,8 @@ sites <- read_csv("data_processed_sites_temporal.csv",
   mutate(
     y = c - b,
     comparison = factor(comparison),
-    location_construction_year = fct_relevel(
-      location_construction_year, "HOF-2012", after = Inf
+    location_construction_year = fct_reorder(
+      location_construction_year, construction_year
     ),
     across(c("river_km", "river_distance"), scale)
   )
@@ -118,7 +118,7 @@ data <- sites %>%
     geom_hline(
       yintercept = 0, linetype = 2,  color = "grey70"
     ) +
-    scale_y_continuous(limits = c(-.6, .5), breaks = seq(-1, 400, .1)) +
+    scale_y_continuous(limits = c(-.6, .55), breaks = seq(-1, 400, .1)) +
     labs(x = "", y = expression(Gains ~ - ~ Losses ~ "[" * TBI[sor] * "]")) +
     theme_mb())
 
