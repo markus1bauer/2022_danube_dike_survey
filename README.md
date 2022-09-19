@@ -28,6 +28,8 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
 3. __R__: the folder `R` contains  
     * Scripts to calculate all models (.R)
     * Scripts to generate all figures and tables (.R)
+    * Metadata script for creating EML file
+    * Folder for calculating habitat types (ESY)
 
 ***
 
