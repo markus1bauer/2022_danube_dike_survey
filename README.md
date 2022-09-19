@@ -53,7 +53,7 @@ When using the __data available__ in this repository, please cite the original p
 
 __Publication__
 
-> Bauer M, Huber J, & Kollmann J (Under review) Beta diversity of restored grasslands is strongly influenced by uncontrolled spatio-temporal variability.
+> Bauer M, Huber J, & Kollmann J (Under review) Beta diversity of restored dike grasslands is strongly influenced by uncontrolled spatio-temporal variability.
 
 __Dataset__
 
