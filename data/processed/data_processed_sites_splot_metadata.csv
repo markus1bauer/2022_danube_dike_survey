@@ -1,0 +1,10 @@
+attributeName,attributeDefinition,formatString,definition,unit,numberType,type,factor,comment
+id,"Serial nPlot identifier provided by Turboveg 3, unique for each plot.umber and position on the dike per year",NA,"Plot identifier provided by Turboveg 3, unique for each plot.",NA,NA,character,NA,NA
+givd_id,GIVD code of source dataset,NA,GIVD code of source dataset,NA,NA,character,NA,Dengler et al. (2011) J Veg Sci https://doi.org/10.1111/j.1654-1103.2011.01265.x / Jandt & Bruehlheide (2012) Biodivers Evol https://doi.org/10.7809/b-e.00146
+longitude,Coordinates X / Rechtswert (EPSG: 4326 / WGS84),NA,NA,meter,real,numeric,NA,NA
+latitude,Coordinates Y / Hochwert (EPSG: 4326 / WGS84),NA,NA,meter,real,numeric,NA,NA
+elevation,Meter above sea level (m asl) of the plot,NA,NA,meter,integer,numeric,NA,NA
+plotSize,Size of the surveyed plot,NA,NA,meterSquared,integer,numeric,NA,NA
+survey_year,Year of the vegetation survey,YYYY,NA,NA,date,numeric,NA,NA
+referemce,Classification as reference,NA,NA,NA,NA,factor,reference,NA
+esy,EUNIS-Esy: Expert system for automatic classification of European vegetation plots to EUNIS habitats,NA,NA,NA,NA,factor,R1A / R22 / V38 / ? / R ,Chytrý et al. (2020) Appl Veg Sci https://doi.org/10.1111/avsc.12519
