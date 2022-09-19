@@ -39,10 +39,10 @@ theme_mb <- function() {
   )
 }
 
-veganCovEllipse <- function(cov, center = c(0, 0), scale = 1, npoints = 100) {
+vegan_cov_ellipse <- function(cov, center = c(0, 0), scale = 1, npoints = 100) {
   theta <- (0:npoints) * 2 * pi / npoints
-  Circle <- cbind(cos(theta), sin(theta))
-  t(center + scale * t(Circle %*% chol(cov)))
+  circle <- cbind(cos(theta), sin(theta))
+  t(center + scale * t(circle %*% chol(cov)))
 }
 
 #### * Load data sites ####
@@ -111,7 +111,7 @@ species <- species_dikes %>%
   semi_join(sites, by = "id") %>%
   column_to_rownames("id")
 
-rm(list = setdiff(ls(), c("sites", "species", "theme_mb", "veganCovEllipse")))
+rm(list = setdiff(ls(), c("sites", "species", "theme_mb", "vegan_cov_ellipse")))
 
 #### * Choosen model ####
 
@@ -154,14 +154,14 @@ ellipses <- tibble()
 data_nmds <-  sites %>%
   select(id, esy) %>% # modify group
   mutate(group_type = as_factor(esy), # modify group
-         NMDS1 = ordi$points[,1],
-         NMDS2 = ordi$points[,2]) %>%
+         NMDS1 = ordi$points[, 1],
+         NMDS2 = ordi$points[, 2]) %>%
   group_by(group_type) %>%
   mutate(mean1 = mean(NMDS1),
          mean2 = mean(NMDS2))
 
-for(group in levels(data_nmds$group_type)) {
-  
+for (group in levels(data_nmds$group_type)) {
+
   ellipses_calc <- data_nmds %>%
     filter(group_type == group) %>%
     with(
@@ -170,15 +170,17 @@ for(group in levels(data_nmds$group_type)) {
         wt = rep(1 / length(NMDS1), length(NMDS1))
       )
     )
-  
-  ellipses <- 
-    veganCovEllipse(cov = ellipses_calc$cov, center = ellipses_calc$center) %>%
+
+  ellipses <-
+    vegan_cov_ellipse(
+      cov = ellipses_calc$cov, center = ellipses_calc$center
+      ) %>%
     as_tibble() %>%
     bind_cols(group_type = group) %>%
     bind_rows(ellipses)
-  
+
   data_ellipses <- ellipses
-  
+
 }
 
 #### * Plot ####

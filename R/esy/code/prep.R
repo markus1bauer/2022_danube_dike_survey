@@ -51,22 +51,22 @@ library(profvis)
 
 ### Functions ####
 # returns string w/o trailing whitespace, minus or numerical
-trim.trailing <- function (x) sub("\\s+$|\\s+\\d$|\\s+\\-\\s+\\d$", "", x)
+trim.trailing <- function(x) sub("\\s+$|\\s+\\d$|\\s+\\-\\s+\\d$", "", x)
 # returns string w/o leading whitespace
-trim.leading <- function (x)  sub("^\\s+", "", x)
+trim.leading <- function(x)  sub("^\\s+", "", x)
 # returns string w/o leading or trailing whitespace
-trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+trim <- function(x) gsub("^\\s+|\\s+$", "", x)
 
-total.cover <- function(x) round((1 - prod(1 - x/100)) * 100,10)
+total.cover <- function(x) round((1 - prod(1 - x/100)) * 100, 10)
 
-fw <- function(i, p=1) {
+fw <- function(i, p = 1) {
   plot.cond[is.na(plot.cond)] <- 0 # important because NA will ruin the foreach order but appear because of non-solvable conditions
   plot.cond[plot.cond == -Inf] <- 0
-  write.csv2(plot.cond[p, plot.cond[p, ] != 0], paste('plot.group', i, 'csv', sep='.'))
+  write.csv2(plot.cond[p, plot.cond[p, ] != 0], paste('plot.group', i, 'csv', sep = '.'))
 }
 
 # Functions to evaluate output
-eval.EUNIS <- function(p, t, cond=FALSE) {
+eval.EUNIS <- function(p, t, cond = FALSE) {
   if(is.numeric(p)) {
     n <- p
     p <- as.character(header$RELEVE_NR[n])
@@ -77,33 +77,68 @@ eval.EUNIS <- function(p, t, cond=FALSE) {
   if(exists('logi2')) {
       types <-  which(sapply(logi2, function(x) x[n]))
       cat('Possible types of plot"', p, '" (', n, '):', names(types), '\n')
-      cat('Priorities of these types:', vegtype.priority[match(names(types), vegtype.formula.names.short)], '\n')
+      cat('Priorities of these types:',
+          vegtype.priority[match(
+            names(types),
+            vegtype.formula.names.short
+            )],
+          '\n')
   }
   if('ESY 2019-10-28' %in% names(header))
-    cat('\nOfficially classified as:', vegtype.formula.names[match(header$`ESY 2019-10-28`[n], vegtype.formula.names.short)], '\n')
+    cat('\nOfficially classified as:',
+        vegtype.formula.names[match(header$`ESY 2019-10-28`[n],
+                                    vegtype.formula.names.short)],
+        '\n')
   if(!missing(t)) {
     if(is.character(t)) t <- match(t, vegtype.formula.names.short)
     if(is.na(t)) cat('Type not defined.') else {
-      cat(vegtype.formula.names[t], '\n\n', vegtype.formulas[t], '\n\n', vegtype.formulas.p[t], '\n\n')
-      col <- unique(as.numeric(str_extract_all(vegtype.formulas.p[t], "(?<=col\\s{0,1})[-0-9.]+")[[1]]))
-      colcond <- unique(as.numeric(unlist(str_extract_all(names(sapply(logi1, '[', n)[sapply(logi1, '[', n) > 0]), "(?<=col\\s{0,1})[-0-9.]+"))))
-      print(data.frame(row.names = col, 'expressions for this type' = membership.expressions[col], result=col %in% colcond), right=FALSE)
+      cat(vegtype.formula.names[t], '\n\n',
+          vegtype.formulas[t], '\n\n', vegtype.formulas.p[t], '\n\n')
+      col <- unique(as.numeric(str_extract_all(
+        vegtype.formulas.p[t], "(?<=col\\s{0,1})[-0-9.]+"
+        )[[1]]))
+      colcond <- unique(as.numeric(unlist(str_extract_all(
+        names(sapply(logi1, '[', n)[sapply(logi1, '[', n) > 0]),
+        "(?<=col\\s{0,1})[-0-9.]+")
+        )))
+      print(data.frame(
+        row.names = col,
+        'expressions for this type' = membership.expressions[col],
+        result = col %in% colcond),
+        right = FALSE)
     }
   }
   if(cond) {
     cat('\nPlot x conditions matrix:\n')
     v <- plot.cond[n, plot.cond[n, ] != 0]
-    con <- unique(as.numeric(unlist(str_extract_all(names(plot.cond[n, plot.cond[n, ] != 0]), "(?<=col\\s{0,1})[-0-9.]+"))))
-    print(data.frame(row.names = con, value=t(v), conditions=conditions[plot.cond[n, ] != 0]), right = FALSE)
+    con <- unique(as.numeric(unlist(str_extract_all(names(
+      plot.cond[n, plot.cond[n, ] != 0]), "(?<=col\\s{0,1})[-0-9.]+"
+      ))))
+    print(data.frame(
+      row.names = con,
+      value = t(v),
+      conditions = conditions[plot.cond[n, ] != 0]),
+      right = FALSE)
     }
 }
 
 eval.type <- function(t) {
-    if(is.character(t)) t <- match(t, vegtype.formula.names.short)
-    if(is.na(t)) cat('Type not defined.') else {
-      cat(vegtype.formula.names[t], '\n\n', vegtype.formulas[t], '\n\n', vegtype.formulas.p[t], '\n\n')
-      col <- unique(as.numeric(str_extract_all(vegtype.formulas.p[t], "(?<=col\\s{0,1})[-0-9.]+")[[1]]))
-      print(data.frame(row.names = col, expressions = membership.expressions[col]), right=FALSE)
+    if (is.character(t)) t <- match(t, vegtype.formula.names.short)
+    if (is.na(t)) cat('Type not defined.') else {
+      cat(vegtype.formula.names[t],
+          '\n\n',
+          vegtype.formulas[t],
+          '\n\n',
+          vegtype.formulas.p[t],
+          '\n\n')
+      col <- unique(as.numeric(str_extract_all(
+        vegtype.formulas.p[t], "(?<=col\\s{0,1})[-0-9.]+"
+        )[[1]]))
+      print(data.frame(
+        row.names = col,
+        expressions = membership.expressions[col]
+        ),
+        right = FALSE)
     }
 }
 

@@ -4,25 +4,31 @@ parse.classification.expert.file <- function(expertfile) {
 ################################### #
 ### Load the expert system file  ####
 ################################### #
-expert  <- read.csv(expertfile, header = FALSE,
-                     encoding="UTF-8", stringsAsFactors = FALSE, sep="\t")[,1]
+expert  <- read.csv(expertfile,
+                    header = FALSE,
+                    encoding="UTF-8",
+                    stringsAsFactors = FALSE,
+                    sep = "\t")[, 1]
 # str(expert) # chr [1:31518]
 expert <- expert[!grepl('---', expert)]
 ########################### #
 ### Species aggregation  ####
 ########################### #
 section1 <- grep('SECTION 1', expert)
-species.agg <- expert[(section1[1]+1) : (section1[2]-1)]
-index.agg.names <- which(substr(species.agg,1,1)!=" ")
+species.agg <- expert[(section1[1] + 1) : (section1[2] - 1)]
+index.agg.names <- which(substr(species.agg, 1, 1) != " ")
 number.agg <- length(index.agg.names) # 316
-ind.agg.names <- c(index.agg.names, length(species.agg)+1)
-aggs <- lapply(X = 1:number.agg, function(x) trim.leading(species.agg[(ind.agg.names[x] + 1) : (ind.agg.names[x+1] - 1)]) )
+ind.agg.names <- c(index.agg.names, length(species.agg) + 1)
+aggs <- lapply(X = 1:number.agg, function(x) trim.leading(
+  species.agg[(ind.agg.names[x] + 1):(ind.agg.names[x + 1] - 1)])
+  )
 names(aggs) <- trim.trailing(species.agg[index.agg.names])
 
 # AGG <- vector('list', length(aggs))
 # names(AGG) <- names(aggs)
 for(i in 1:length(aggs))
-  aggs[[i]] <- sapply(aggs[[i]], function(x) trim.trailing(x), USE.NAMES = FALSE)
+  aggs[[i]] <- sapply(aggs[[i]], function(x) trim.trailing(x),
+                      USE.NAMES = FALSE)
 
 ###################### #
 ### Species groups  ####
@@ -38,11 +44,14 @@ groups <- lapply(X = 1:number.groups, function(x)
   trim.leading(species.groups[(gr[x] + 1) : (gr[x+1]-1)] ) )
 names(groups) <- species.groups[index.group.names]
 
-if(!all(substr(names(groups),1,3) %in% c('###', '##D', '$$C', '$$N'))) stop(
+if(!all(substr(names(groups),1,3) %in%
+        c('###', '##D', '$$C', '$$N'))) stop(
   paste('Only "###", "##D", and "$$C" are known as (species) group classifiers, I found ', substr(names(groups),1,3)[!substr(names(groups),1,3) %in% c('###', '##D')]))
 
 discr <- substr(names(groups)[startsWith(names(groups), '+')], 2, 3)
-if(any(table(discr) < 2)) stop(paste('Discriminating set', names(table(discr)[table(discr)<2]), 'occur only once!'))
+if(any(table(discr) < 2)) stop(paste('Discriminating set',
+                                     names(table(discr)[table(discr) < 2]),
+                                     'occur only once!'))
 table(discr)
 
 ####################################################################### #
@@ -50,7 +59,7 @@ table(discr)
 ####################################################################### #
 # COULD BE LAPPLYfied like the above
 section3 <- grep('SECTION 3', expert)
-group.definitions <-  expert[(section3[1]+1) : (section3[2]-1)]  # formerly called 'expert3'
+group.definitions <-  expert[(section3[1] + 1):(section3[2] - 1)]  # formerly called 'expert3'
 # length(group.definitions) # approx. 600
 
 # holds formula names and formulas.
@@ -73,32 +82,35 @@ i <- 0
 i <- 0
 while (i < length(group.definitions)){
   i <- i + 1
-  if (substr(group.definitions[i],1,3)!="---"){
+  if (substr(group.definitions[i],1,3) != "---") {
     # these conditions are out-commented and not used
-    if (!grepl("[^0-9]", substr(group.definitions[i],1,1))){
+    if (!grepl("[^0-9]", substr(group.definitions[i], 1, 1))) {
       # checks whether line is a formula name
-      membership.formula.names <- c(membership.formula.names,group.definitions[i])
+      membership.formula.names <- c(membership.formula.names,
+                                    group.definitions[i])
     } else {
       # then the line is a formula or an out-commented formula
       c <- group.definitions[i]
-      while (grepl("[^0-9]", substr(group.definitions[i+1],1,1)) & substr(group.definitions[i+1],1,1)!="-" &
-             i < length(group.definitions)){
+      while (grepl("[^0-9]", substr(group.definitions[i + 1], 1, 1)) &
+             substr(group.definitions[i + 1], 1, 1) != "-" &
+             i < length(group.definitions)) {
         # checks whether the next line is still the current formula
         # if not, two lines are pasted together
         # !grepl("[^0-9]", x)  checks whether the first character of the next line is numeric
         # substr(group.definitions[i+1],1,1)!="-" checks whether the first character of the next line is an out-commented line
-        i <- i +1
-        c <- paste(c, group.definitions[i],sep=" ")
+        i <- i + 1
+        c <- paste(c, group.definitions[i], sep = " ")
       }
-      a <- gregexpr("<",c, fixed=T)[[1]]
-      b <- gregexpr(">",c, fixed=T)[[1]]
-      if (a[1]>0) {
-        membership.formulas <- c(membership.formulas,c)
-        membership.expressions2 <- array("",length(a))
-        for (j in 1: length(a)){
-          membership.expressions2[j] <- substr(c,a[j]+1,b[j]-1)
+      a <- gregexpr("<", c, fixed = TRUE)[[1]]
+      b <- gregexpr(">", c, fixed = TRUE)[[1]]
+      if (a[1] > 0) {
+        membership.formulas <- c(membership.formulas, c)
+        membership.expressions2 <- array("", length(a))
+        for (j in 1:length(a)) {
+          membership.expressions2[j] <- substr(c, a[j] + 1, b[j] - 1)
         }
-        membership.expressions <- c(membership.expressions,membership.expressions2)
+        membership.expressions <- c(membership.expressions,
+                                    membership.expressions2)
       }
     }
   }
@@ -156,62 +168,72 @@ if(any(duplicated(gr))) stop(paste('Duplicated group name found', gr[duplicated(
 # Note, that it has to be checked whether this is also the case in other expert systems
 
 # check whether "#T$" is actually on the right hand side, GR
-index3 <- which(regexpr("#T$", membership.expressions, fixed=T)>0 & 
-                  trim(tstrsplit(membership.expressions,"GR", fixed=T)[[2]])=="#T$")
+index3 <- which(regexpr("#T$", membership.expressions, fixed = TRUE) > 0 & 
+                  trim(tstrsplit(membership.expressions,"GR",
+                                 fixed = TRUE)[[2]])=="#T$")
 
 # not all of them are unique
 b <- unique(membership.expressions[index3])
-a <- tstrsplit(b,"GR", fixed=T)
+a <- tstrsplit(b,"GR", fixed = TRUE)
 a[[1]] <- trim(a[[1]])
 
 for (i in 1:length(b)){
-  index4 <- which(regexpr(b[i], membership.formulas, fixed=T)>0)
+  index4 <- which(regexpr(b[i], membership.formulas, fixed = TRUE)>0)
   # to handle the left-hand side expression <#TC Dry-and-wet-heath-shrubs|#TC Dry-heath-shrubs GR #T$>
   # "#T$" has also to be inserted inside the string
-  a[[1]][i] <- gsub("#TC","#T$",a[[1]][i], fixed=T)
+  a[[1]][i] <- gsub("#TC","#T$",a[[1]][i], fixed = TRUE)
   membership.formulas[index4] <- gsub(b[i],
                 paste(b[i], substr(a[[1]][i],4,nchar(a[[1]][i])), sep=""),
-                membership.formulas[index4],fixed=T)
+                membership.formulas[index4],fixed = TRUE)
 }
 
 # now also change this in the membership expressions
-a <- tstrsplit(membership.expressions[index3],"GR", fixed=T)
+a <- tstrsplit(membership.expressions[index3],"GR", fixed = TRUE)
 a[[1]] <- trim(a[[1]])
 # to handle the left-hand side expression <#TC Dry-and-wet-heath-shrubs|#TC Dry-heath-shrubs GR #T$>
 # "#T$" has also to be inserted inside the string
-a[[1]] <- gsub("#TC","#T$",a[[1]], fixed=T)
+a[[1]] <- gsub("#TC","#T$",a[[1]], fixed = TRUE)
 
-membership.expressions[index3] <- paste(membership.expressions[index3],
-                                        substr(a[[1]],4,nchar(a[[1]])),sep="")
+membership.expressions[index3] <- paste(
+  membership.expressions[index3],
+  substr(a[[1]], 4, nchar(a[[1]])),
+  sep = ""
+  )
 
 # check whether "#T$" is actually on the right hand side, GE
-index3 <- which(regexpr("#T$", membership.expressions, fixed=T)>0 & 
-                  trim(tstrsplit(membership.expressions,"GE", fixed=T)[[2]])=="#T$")
+index3 <- which(regexpr("#T$", membership.expressions, fixed = TRUE) > 0 & 
+                  trim(tstrsplit(membership.expressions,"GE",
+                                 fixed = TRUE)[[2]]) == "#T$")
 
 # not all of them are unique
 b <- unique(membership.expressions[index3])
-a <- tstrsplit(b,"GE", fixed=T)
+a <- tstrsplit(b, "GE", fixed = TRUE)
 a[[1]] <- trim(a[[1]])
 
-for (i in 1:length(b)){
-  index4 <- which(regexpr(b[i], membership.formulas, fixed=T)>0)
+for (i in 1:length(b)) {
+  index4 <- which(regexpr(b[i], membership.formulas, fixed = TRUE) > 0)
   # to handle the left-hand side expression <#TC Dry-and-wet-heath-shrubs|#TC Dry-heath-shrubs GR #T$>
   # "#T$" has also to be inserted inside the string
-  a[[1]][i] <- gsub("#TC","#T$",a[[1]][i], fixed=T)
-  membership.formulas[index4] <- gsub(b[i],
-                                      paste(b[i], substr(a[[1]][i],4,nchar(a[[1]][i])), sep=""),
-                                      membership.formulas[index4],fixed=T)
+  a[[1]][i] <- gsub("#TC","#T$",a[[1]][i], fixed = TRUE)
+  membership.formulas[index4] <- gsub(
+    b[i],
+    paste(b[i], substr(a[[1]][i], 4, nchar(a[[1]][i])), sep = ""),
+    membership.formulas[index4], fixed = TRUE
+    )
 }
 
 # now also change this in the membership expressions
-a <- tstrsplit(membership.expressions[index3],"GE", fixed=T)
+a <- tstrsplit(membership.expressions[index3], "GE", fixed = TRUE)
 a[[1]] <- trim(a[[1]])
 # to handle the left-hand side expression <#TC Dry-and-wet-heath-shrubs|#TC Dry-heath-shrubs GR #T$>
 # "#T$" has also to be inserted inside the string
-a[[1]] <- gsub("#TC","#T$",a[[1]], fixed=T)
+a[[1]] <- gsub("#TC", "#T$", a[[1]], fixed = TRUE)
 
-membership.expressions[index3] <- paste(membership.expressions[index3],
-                                        substr(a[[1]],4,nchar(a[[1]])),sep="")
+membership.expressions[index3] <- paste(
+  membership.expressions[index3],
+  substr(a[[1]], 4, nchar(a[[1]])),
+  sep = ""
+  )
 
 # we identify all conditions without a right-hand side
 # <##D Diagnostic species group>	
@@ -226,12 +248,16 @@ membership.expressions[index3] <- paste(membership.expressions[index3],
 
 # these conditions are replaced with "GR NON", meaning that either number, cover or 
 # sum of squared cover is greater than on the left-hand side
-is.not.right.hand.side <- regexpr("GR",membership.expressions, fixed=T)==-1 &
-  regexpr("GE",membership.expressions, fixed=T)==-1 &
-  regexpr("EQ",membership.expressions, fixed=T)==-1
+is.not.right.hand.side <- regexpr(
+  "GR", membership.expressions, fixed = TRUE
+  ) == -1 &
+  regexpr("GE",membership.expressions, fixed = TRUE) == -1 &
+  regexpr("EQ",membership.expressions, fixed = TRUE) == -1
 
 # We take only those that do not have numeric condition (i.e. #01, #02 etc.)
-index9 <- suppressWarnings(as.numeric(substr(membership.expressions[is.not.right.hand.side],3,3)))
+index9 <- suppressWarnings(
+  as.numeric(substr(membership.expressions[is.not.right.hand.side],3,3))
+  )
 
 a <- membership.expressions[is.not.right.hand.side][is.na(index9)]
 any(duplicated(a)) #T
@@ -239,15 +265,22 @@ any(duplicated(a)) #T
 a <- unique(a)
 
 for (i in 1:length(a)){
-  index4 <- which(regexpr(a[i], membership.formulas, fixed=T)>0)
-  membership.formulas[index4] <- gsub(a[i],  paste(a[i], "GR NON",a[i], sep=" "),
-  membership.formulas[index4], fixed=T)
+  index4 <- which(regexpr(a[i], membership.formulas, fixed = TRUE) > 0)
+  membership.formulas[index4] <- gsub(
+    a[i],  paste(a[i], "GR NON", a[i], sep = " "
+                 ),
+  membership.formulas[index4], fixed = TRUE)
 }
 
-membership.expressions[is.not.right.hand.side][is.na(index9)] <- paste(membership.expressions[is.not.right.hand.side][is.na(index9)], "GR NON", membership.expressions[is.not.right.hand.side][is.na(index9)], sep=" ")
-index9 <- regexpr("GR",membership.expressions, fixed=T)==-1 &
-  regexpr("GE",membership.expressions, fixed=T)==-1 &
-  regexpr("EQ",membership.expressions, fixed=T)==-1
+membership.expressions[is.not.right.hand.side][is.na(index9)] <- paste(
+  membership.expressions[is.not.right.hand.side][is.na(index9)],
+  "GR NON",
+  membership.expressions[is.not.right.hand.side][is.na(index9)],
+  sep = " "
+  )
+index9 <- regexpr("GR",membership.expressions, fixed = TRUE) == -1 &
+  regexpr("GE",membership.expressions, fixed = TRUE) == -1 &
+  regexpr("EQ",membership.expressions, fixed = TRUE) == -1
 membership.expressions[index9]
 # there are 142 expressions without a right-hand side condition
 # but these are all numeric expressions
@@ -284,25 +317,25 @@ b[[2]] <- trim(b[[2]])
 # it may be that some conditions have had a "|" on both sides
 # We check this first
 # finally the result is assigned to the left hand-side (b[[1]])
-index5 <- which(regexpr("|",b[[1]], fixed=T)>0 & regexpr("|",b[[2]], fixed=T)>0)
+index5 <- which(regexpr("|",b[[1]], fixed = TRUE)>0 & regexpr("|",b[[2]], fixed = TRUE)>0)
 #b[[1]][index5]
 #b[[2]][index5]
 
 for(i in 1:length(index5)){
-  c <- unlist(strsplit(b[[1]][index5[i]],"|", fixed=T))
-  d <- unlist(strsplit(b[[2]][index5[i]],"|", fixed=T))
+  c <- unlist(strsplit(b[[1]][index5[i]],"|", fixed = TRUE))
+  d <- unlist(strsplit(b[[2]][index5[i]],"|", fixed = TRUE))
   # combine them pairwise
-  if(regexpr("GR",a[index5[i]], fixed=T)>0){
+  if(regexpr("GR",a[index5[i]], fixed = TRUE)>0){
     # then GR has to be inserted
     e1 <- paste(c," GR ",d, sep="")
     e2 <- paste(c," GR ",d[c(2,1)], sep="")
   } else {
-    if(regexpr("GE",a[index5[i]], fixed=T)>0){
+    if(regexpr("GE",a[index5[i]], fixed = TRUE)>0){
       # then GE has to be inserted
       e1 <- paste(c," GE ",d, sep="")
       e2 <- paste(c," GE ",d[c(2,1)], sep="")
     } else {
-      if(regexpr("EQ",a[index5[i]], fixed=T)>0){
+      if(regexpr("EQ",a[index5[i]], fixed = TRUE)>0){
         # then EQ has to be inserted
         e1 <- paste(c," GE ",d, sep="")
         e2 <- paste(c," GE ",d[c(2,1)], sep="")
@@ -321,18 +354,18 @@ for(i in 1:length(index5)){
 
 
 #b[[1]] is left hand-side
-index4 <- which(regexpr("|",b[[1]], fixed=T)>0)
+index4 <- which(regexpr("|",b[[1]], fixed = TRUE)>0)
 for(i in 1:length(index4)){
-  c <- unlist(strsplit(b[[1]][index4[i]],"|", fixed=T))
-  if(regexpr("GR",a[index4[i]], fixed=T)>0){
+  c <- unlist(strsplit(b[[1]][index4[i]],"|", fixed = TRUE))
+  if(regexpr("GR",a[index4[i]], fixed = TRUE)>0){
     # then GR has to be inserted
     d <- paste(c," GR ",b[[2]][index4[i]], sep="")
   } else {
-    if(regexpr("GE",a[index4[i]], fixed=T)>0){
+    if(regexpr("GE",a[index4[i]], fixed = TRUE)>0){
       # then GE has to be inserted
       d <- paste(c," GE ",b[[2]][index4[i]], sep="")
     } else {
-      if(regexpr("EQ",a[index4[i]], fixed=T)>0){
+      if(regexpr("EQ",a[index4[i]], fixed = TRUE)>0){
         # then EQ has to be inserted
         d <- paste(c," EQ ",b[[2]][index4[i]], sep="")
       } 
@@ -349,19 +382,19 @@ for(i in 1:length(index4)){
 }
 b[[1]]
 
-index6 <- which(regexpr("|",b[[2]], fixed=T)>0)
+index6 <- which(regexpr("|",b[[2]], fixed = TRUE)>0)
 #b[[2]] is left hand-side
 for(i in 1:length(index6)){
-  c <- unlist(strsplit(b[[2]][index6[i]],"|", fixed=T))
-  if(regexpr("GR",a[index6[i]], fixed=T)>0){
+  c <- unlist(strsplit(b[[2]][index6[i]],"|", fixed = TRUE))
+  if(regexpr("GR",a[index6[i]], fixed = TRUE)>0){
     # then GR has to be inserted
     d <- paste(b[[1]][index6[i]]," GR ",c, sep="")
   } else {
-    if(regexpr("GE",a[index6[i]], fixed=T)>0){
+    if(regexpr("GE",a[index6[i]], fixed = TRUE)>0){
       # then GE has to be inserted
       d <- paste(b[[1]][index6[i]]," GE ",c, sep="")
     } else {
-      if(regexpr("EQ",a[index6[i]], fixed=T)>0){
+      if(regexpr("EQ",a[index6[i]], fixed = TRUE)>0){
         # then EQ has to be inserted
         d <- paste(b[[1]][index6[i]]," EQ ",c, sep="")
       } 
@@ -381,13 +414,13 @@ for(i in 1:length(index6)){
 
 c <- paste("<",a,">", sep="")
 for (i in 1:length(a)){
-  index4 <- which(regexpr(c[i], membership.formulas, fixed=T)>0)
+  index4 <- which(regexpr(c[i], membership.formulas, fixed = TRUE)>0)
   membership.formulas[index4] <- gsub(c[i],b[[1]][i],
-                membership.formulas[index4],fixed=T)
+                membership.formulas[index4],fixed = TRUE)
 }
 
 # now also change this in the membership expressions
-# c <- strsplit(b[[1]]," OR ", fixed=T)
+# c <- strsplit(b[[1]]," OR ", fixed = TRUE)
 membership.expressions <- membership.expressions[-index3] 
 # remove the old membership expressions
 
@@ -400,25 +433,30 @@ membership.expressions <- c(membership.expressions,membership.expressions2)
 ### Step 3B: Add EXCEPT on right-hand sides of #SC conditions                           ####
 ########################################################################################## #
 
-index3 <- grep("#SC",membership.expressions)
+index3 <- grep("#SC", membership.expressions)
 a <- unique(membership.expressions[index3])
 
 # First, it is identified whether the "|" occurs at the left- or right hand-side
 # Thus, we split the membership expressions at GR, GE, EQ
-b <- tstrsplit(a,"GR|GE|EQ", fixed=F)
+b <- tstrsplit(a, "GR|GE|EQ", fixed = FALSE)
 b[[1]] <- trim(b[[1]])
 b[[2]] <- trim(b[[2]])
 index4 <- grep("#SC", b[[2]])
 # index4 shows which right-hand side conditions have to be complemented by the left-hand side
 
 # add "EXCEPT and the species name from the left-hand side on the right-hand side
-for (i in 1:length(index4)){
+for (i in 1:length(index4)) {
   index6 <- grep(a[index4[i]], membership.expressions)
-  membership.expressions[index6] <- paste(membership.expressions[index6],"EXCEPT",b[[1]][index4[i]],sep=" ")
+  membership.expressions[index6] <- paste(
+    membership.expressions[index6], "EXCEPT", b[[1]][index4[i]], sep = " "
+    )
   index5 <- grep(a[index4[i]], membership.formulas)
-  membership.formulas[index5] <- gsub(a[index4[i]],
-                                      paste(a[index4[i]],"EXCEPT",b[[1]][index4[i]],sep=" "),
-                                      membership.formulas[index5],fixed=T)
+  membership.formulas[index5] <- gsub(
+    a[index4[i]],
+    paste(a[index4[i]], "EXCEPT", b[[1]][index4[i]], sep = " "),
+    membership.formulas[index5],
+    fixed = TRUE
+    )
 }
 
 ###################################################################### #
@@ -428,16 +466,26 @@ membership.conditions2 <- unlist(strsplit(membership.conditions2, "EQ"))
 membership.conditions2 <- trim(membership.conditions2)
 membership.conditions2 <- sort(unique(membership.conditions2))
 #remove numerical elements
-membership.conditions2 <- suppressWarnings(membership.conditions2[-which(!is.na(as.numeric(membership.conditions2)))])
+membership.conditions2 <- suppressWarnings(
+  membership.conditions2[-which(!is.na(as.numeric(membership.conditions2)))]
+  )
 length(membership.conditions2)
 
 # finished expert system decoding ####
 
 prio <- substr(membership.formula.names, 1, 1)
-p <- factor(prio, ordered = TRUE, levels = c(0:9, LETTERS, letters), exclude = c(0:9, LETTERS, letters)[!c(0:9, LETTERS, letters) %in% prio])
+p <- factor(prio,
+            ordered = TRUE,
+            levels = c(0:9, LETTERS, letters),
+            exclude = c(0:9, LETTERS, letters)[!c(0:9, LETTERS, letters) %in% prio])
 
 names(membership.formulas) <- membership.formula.names
-out <- list(species.aggs = aggs, species.groups = groups, membership.expressions = membership.expressions, group.defs = membership.conditions2, formulas = membership.formulas, membership.priority = p)
+out <- list(species.aggs = aggs,
+            species.groups = groups,
+            membership.expressions = membership.expressions,
+            group.defs = membership.conditions2,
+            formulas = membership.formulas,
+            membership.priority = p)
 
 return(out)
 }

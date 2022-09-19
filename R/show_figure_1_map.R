@@ -65,7 +65,7 @@ load("background_google.rda")
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-themeMB <- function() {
+theme_mb <- function() {
   theme(
     panel.background = element_rect(fill = NA),
     panel.grid = element_line(colour = NA),
@@ -86,7 +86,7 @@ themeMB <- function() {
 
 ### a Map of project site -----------------------------------------------
 
-(graphSites <- ggmap(
+(graph_sites <- ggmap(
   background_terrain,
   base_layer = ggplot(sites_ggmap, aes(x = X, y = Y))
   ) +
@@ -118,7 +118,7 @@ themeMB <- function() {
     pad_y = unit(0.9, "cm"),
     pad_x = unit(0.6, "cm")
   ) +
-  themeMB() +
+  theme_mb() +
   theme(
     legend.position = c(0.8, 0.8),
     legend.background = element_rect(linetype = "solid", colour = "black")
@@ -127,17 +127,17 @@ themeMB <- function() {
 
 ### b Germany -----------------------------------------------------------
 
-graphGermany <- ggplot() +
+graph_germany <- ggplot() +
   geom_sf(data = germany, fill = "transparent", colour = "black") +
   geom_point(aes(x = 12.885, y = 48.839), size = 1) +
-  themeMB() +
+  theme_mb() +
   theme(
     plot.background = element_blank()
   )
 
 ### c Inset -------------------------------------------------------------
 
-graphSites + inset_element(graphGermany,
+graph_sites + inset_element(graph_germany,
   left = .7,
   bottom = .65,
   right = .99,
@@ -158,7 +158,7 @@ ggsave("figure_1_map_ggmap_300dpi_17x11cm.tiff",
 
 ### a Map of project site -----------------------------------------------
 set.seed(2)
-(graphSites <- ggplot() +
+(graph_sites <- ggplot() +
   # geom_sf(data = ffh_area, fill = "grey50", color = "grey50") +
   geom_sf(data = dikes, colour = "grey60") +
   geom_sf(data = danube, colour = "black", size = 1) +
@@ -188,7 +188,7 @@ set.seed(2)
     pad_y = unit(0.9, "cm"),
     pad_x = unit(0.6, "cm")
   ) +
-  themeMB() +
+  theme_mb() +
   theme(
     legend.position = c(0.8, 0.8),
     legend.background = element_rect(linetype = "solid", colour = "black")
@@ -197,7 +197,7 @@ set.seed(2)
 ### b Inset -------------------------------------------------------------
 
 set.seed(2)
-graphSites + inset_element(graphGermany,
+graph_sites + inset_element(graph_germany,
   left = .72,
   bottom = .65,
   right = .99,

@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
 # Prepare meta data ####
 # Markus Bauer
-# 2022-02-11
+# 2022-09-15
 
 
 ### Packages ###
@@ -13,7 +13,6 @@ library(emld)
 
 ### Start ###
 rm(list = ls())
-setwd(here("data", "raw"))
 
 
 
@@ -22,10 +21,9 @@ setwd(here("data", "raw"))
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+
 ### 1 Methods and units #######################################################
 
-methods_file <- here("data/text/methods.odt")
-methods <- set_methods(methods_file)
 
 ### List of standard units, which should be used in metadata file ###
 EMLassemblyline::view_unit_dictionary()
@@ -47,93 +45,12 @@ custom_units <- bind_rows(
   )
 )
 
-unitList <- set_unitList(custom_units)
+unit_list <- set_unitList(custom_units)
 
 
-### 2 Raw data ################################################################
 
-### a data_raw_species  -------------------------------------------------------
-attributes <- read_csv("data_raw_species_metadata.csv")
-physical_raw_species <- set_physical("data_raw_species.csv")
+### 2 Contact #################################################################
 
-### b data_raw_traits  --------------------------------------------------------
-attributes <- read_csv("data_raw_traits_metadata.csv") %>%
-  select(-type, -factor)
-physical_raw_traits <- set_physical("data_raw_traits.csv")
-
-### c data_raw_sites  ---------------------------------------------------------
-attributes <- read_csv("data_raw_sites_metadata.csv") %>%
-  select(-type, -factor)
-physical_raw_sites <- set_physical("data_raw_sites.csv")
-
-
-### 3 Processed data ##########################################################
-
-### a data_processed_species  -------------------------------------------------
-
-attributes <- read_csv(
-  here("data/processed/data_processed_species_metadata.csv")
-  ) %>%
-  select(-type, -factor)
-physical_processed_species <- set_physical("data_processed_species.csv")
-
-
-### b data_processed_traits  --------------------------------------------------
-attributes <- read_csv(
-  here("data/processed/data_processed_traits_metadata.csv")
-  ) %>%
-  select(-type, -factor)
-physical_processed_traits <- set_physical("data_raw_traits.csv")
-
-
-### c data_processed_sites  ---------------------------------------------------
-attributes <- read_csv(here("data/processed/data_processed_sites_metadata.csv"))
-physical_processed_sites <- set_physical("data_raw_sites.csv")
-
-
-### 4 Put data table together #################################################
-
-dataTable <- list(
-  list(
-    entityName = "data_raw_species.csv",
-    # entityDescription = "raw species abundances",
-    physical = physical_raw_species,
-    # attributeList = attributeList_raw_species
-  ),
-  list(
-    entityName = "data_raw_traits.csv",
-    # entityDescription = "raw plant trait list",
-    physical = physical_raw_traits,
-    # attributeList = attributeList_raw_traits
-  ),
-  list(
-    entityName = "data_raw_sites.csv",
-    # entityDescription = "environmental raw data of the sites",
-    # physical = physical_raw_sites,
-    # attributeList = attributeList_raw_sites
-  ),
-  list(
-    entityName = "data_processed_species.csv",
-    # entityDescription = "processed species abundances",
-    physical = physical_processed_species,
-    # attributeList = attributeList_processed_species
-  ),
-  list(
-    entityName = "data_processed_traits.csv",
-    # entityDescription = "processed plant trait list",
-    physical = physical_processed_traits,
-    # attributeList = attributeList_processed_traits
-  ),
-  list(
-    entityName = "data_processed_sites.csv",
-    # entityDescription = "environmental processed data of the sites",
-    physical = physical_processed_sites,
-    # attributeList = attributeList_processed_sites
-  )
-)
-
-
-### 5 Contact #################################################################
 
 address <- list(
   deliveryPoint = "Emil-Ramann-Strasse 6",
@@ -156,13 +73,13 @@ creator <- eml$creator(
   id = "https://orcid.org/0000-0001-5372-4174"
 )
 
-associatedParty <- list(
+associated_party <- list(
   eml$associatedParty(
     individualName = eml$individualName(
       givenName = "Jakob",
       surName = "Huber"
-    ),
-    role = "Researcher",
+      ),
+    positionName = "Researcher",
     organizationName = "Technical University of Munich",
     electronicMailAddress = "jakob.huber@posteo.de"
   ),
@@ -171,12 +88,13 @@ associatedParty <- list(
       givenName = "Johannes",
       surName = "Kollmann"
     ),
-    role = "Professor",
+    positionName = "Professor",
     organizationName = "Technical University of Munich",
     address = address,
     electronicMailAddress = "johannes.kollmann@tum.de",
     phone = "0049-8161-714144",
-    id = "https://orcid.org/0000-0002-4990-3636"
+    id = "https://orcid.org/0000-0002-4990-3636",
+    onlineUrl = "https://www3.ls.tum.de/roek/mitarbeiter-in/prof-dr-johannes-kollmann/"
   )
 )
 
@@ -185,37 +103,49 @@ contact <-
     individualName = creator$individualName,
     electronicMailAddress = creator$electronicMailAddress,
     address = address,
-    organizationName = "Technical University of Munich",
-    onlineUrl = "https://doi.org/10.5281/zenodo.6334100"
+    organizationName = "Technical University of Munich"
   )
 
 
-### 6 Temporal and spatial coverage ###########################################
 
-geographicDescription <- "Danube dikes near Deggendorf"
+### 3 Temporal and spatial coverage ###########################################
+
+
+geographic_description <- "Danube dikes near Deggendorf"
 
 coverage <- set_coverage(
-  begin = "2017-06-01", end = "2021-07-31",
+  begin = "2017-06-01",
+  end = "2021-07-31",
   sci_names = list(list(
     Subdivision = "Spermatophytina"
   )),
-  geographicDescription = geographicDescription,
-  west = 12.58996, east = 13.1162,
-  north = 48.90389, south = 48.67502,
-  altitudeMin = 309, altitudeMaximum = 315,
+  geographicDescription = geographic_description,
+  west = 12.58996,
+  east = 13.1162,
+  north = 48.90389,
+  south = 48.67502,
+  altitudeMin = 309,
+  altitudeMaximum = 315,
   altitudeUnits = "meter"
 )
 
 
-### 7 Description #############################################################
 
-pubDate <- "2022"
+### 4 Description #############################################################
 
-title <- "Danube old dikes"
 
-abstract <- "Not written yet"
+pub_date <- "2022"
 
-keywordSet <- list(
+title <- "Beta diversity of restored river dike grasslands is strongly influenced by uncontrolled  spatio-temporal variability"
+
+abstract <- "1.	Spatio-temporal dynamics of biodiversity are a key measure when monitoring restoration success. Balanced species turnover is aimed for because it increases overall biodiversity and improves ecosystem stability and multifunctionality, while nestedness should be avoided, as richness gradients indicate low biodiversity of certain restored sites. For predictive restoration, it is important to analyse beta diversity and to identify its control using site characteristics, spatial effects, historical factors and non-directional year effects.\\n
+2.	We studied dike grasslands 4–19 years after restoration at River Danube in SE Germany over five years (2017–2021, 41 plots in 12 sites). We calculated beta-diversity indices to describe spatial variation and temporal turnover, including their additive components ‘replacement’ and ‘nestedness’, or ‘gains’ and ‘losses’.\\n
+3.	The analysis of the spatial variation of the restored dike grasslands did not reveal homogenisation despite a significant temporal turnover, and was largely dominated by replacement-driven dissimilarity. The drivers of replacement changed over time, although replacement was mainly affected by exposition and spatial factors. Historical factors were inconsistent over time, and no statistically clear drivers were found for nestedness.\\n
+4.	The dike grasslands exhibited on average 37 ± 11% year-to-year turnover in species composition, with some spatio-temporal variation. Gains and losses were balanced over time, although prevalences changed over time and were mostly pronounced on south-exposed slopes.\\n
+5.	In conclusion, the restored grasslands exhibited spatio-temporal turnover controlled by climate and soil variability, varying management regimes, local stochastic (biotic) dynamics and landscape context. Thus, restoration targets defined as a single state should be extended by a desired variation in species composition. Furthermore, the dominance of replacement move the focus from searching the perfect fit for certain restoration targets to a variation of the approaches to increase the beta diversity within a restoration project.\\n
+"
+
+keyword_set <- list(
   list(
     keywordThesaurus = "LTER controlled vocabulary",
     keyword = list(
@@ -234,8 +164,15 @@ keywordSet <- list(
   )
 )
 
-intellectualRights <- "CC-BY-4.0: https://creativecommons.org/licenses/by/4.0/deed.en"
+intellectual_rights <- "CC-BY-4.0: https://creativecommons.org/licenses/by/4.0/deed.en"
 
+alternate_identifier <- "https://doi.org/10.5281/zenodo.6107806"
+
+short_name <- "Survey of old danube dikes"
+
+language <- "English"
+
+reference_publication <- "Bauer et al. (under review)"
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -245,18 +182,20 @@ intellectualRights <- "CC-BY-4.0: https://creativecommons.org/licenses/by/4.0/de
 
 dataset <- list(
   title = title,
-  pubDate = pubDate,
+  shortName = short_name,
+  pub_date = pub_date,
   creator = creator,
-  associatedParty = associatedParty,
-  intellectualRights = intellectualRights,
+  associated_party = associated_party,
+  intellectual_rights = intellectual_rights,
+  alternateIdentifier = alternate_identifier,
   abstract = abstract,
-  keywordSet = keywordSet,
+  keyword_set = keyword_set,
   coverage = coverage,
+  referencePublication = reference_publication,
+  language = language,
   contact = contact,
-  methods = methods,
-  # dataTable = dataTable,
   additonalMetadata = list(metadata = list(
-    unitList = unitList
+    unit_list = unit_list
   ))
 )
 
@@ -269,4 +208,4 @@ eml <- list(
 write_eml(eml, here("METADATA.xml"))
 eml_validate(here("METADATA.xml"))
 
-# emldown::render_eml(here("METADATA.xml"), open = TRUE, outfile = here("METADATA.html"), publish_mode = FALSE)
+#emldown::render_eml(here("METADATA.xml"), open = TRUE, outfile = here("METADATA.html"), publish_mode = FALSE)

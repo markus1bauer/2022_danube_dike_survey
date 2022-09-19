@@ -46,11 +46,12 @@ library(tempo)
 library(checklist)
 
 ### Start ###
-#installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
-#checklist::check_source()
-#renv::status()
 rm(list = ls())
+setwd(here())
+#checklist::check_lintr()
 setwd(here("data", "raw"))
+#installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
+#renv::status()
 
 
 
@@ -195,7 +196,7 @@ specieslist <- species_dikes %>%
   ) %>%
   group_by(name) %>%
   summarise(sum = sum(sum))
-# write_csv(specieslist, "specieslist_2022xxxx.csv")
+#write_csv(specieslist, "specieslist_2022xxxx.csv")
 
 
 
@@ -294,7 +295,7 @@ sites_precipitation <-  read_csv(here("data", "raw", "precipitation", "data",
 sites_dikes %>%
   filter(!str_detect(id, "_seeded$")) %>%
   janitor::tabyl(vegetation_cover)
-# sites_dikes %>% filter(vegetation_cover == 17)
+#sites_dikes %>% filter(vegetation_cover == 17)
 species_dikes %>%
   select(-name) %>%
   unlist() %>%
@@ -1349,7 +1350,7 @@ rm(list = setdiff(ls(), c("sites_dikes", "sites_splot", "species_dikes",
 
 #### Start ###
 ### Bruelheide et al. 2021 Appl Veg Sci
-### https://doi.org/10.1111/avsc.12562 
+### https://doi.org/10.1111/avsc.12562
 
 expertfile <- "EUNIS-ESy-2020-06-08.txt" ### file of 2021 is not working
 
@@ -1382,8 +1383,8 @@ header <- sites_dikes %>%
     ) %>%
   mutate(
     "Altitude (m)" = 313,
-    Latitude = sf::st_coordinates(.)[,2],
-    Longitude = sf::st_coordinates(.)[,1],
+    Latitude = sf::st_coordinates(.)[, 2],
+    Longitude = sf::st_coordinates(.)[, 1],
     Country = "Germany",
     Coast_EEA = "N_COAST",
     Dunes_Bohn = "N_DUNES",
@@ -1392,7 +1393,7 @@ header <- sites_dikes %>%
     ) %>%
   select(RELEVE_NR, "Altitude (m)", Latitude, Longitude, Country,
          Coast_EEA, Dunes_Bohn, Ecoreg, dataset) %>%
-  sf::st_drop_geometry();head(header)
+  sf::st_drop_geometry()
 
 setwd(here("R", "esy"))
 source(here("R", "esy", "code", "prep.R"))
@@ -1403,7 +1404,7 @@ source(here("R", "esy", "code", "step1and2_load-and-parse-the-expert-file.R"))
 #### Step 3: Create a numerical plot x membership condition matrix  ###
 plot.cond <- array(
   0,
-  c(length(unique(obs$RELEVE_NR)), length(conditions)), 
+  c(length(unique(obs$RELEVE_NR)), length(conditions)),
   dimnames = list(
     as.character(unique(obs$RELEVE_NR)),
     conditions
@@ -1463,7 +1464,7 @@ data_sites <- sites_splot %>%
     reference = str_replace(reference, "Germany", "reference"),
     survey_year = year(survey_year)
   ) %>%
-  select(id, givd_id, longitude, latitude, elevation, plotSize, survey_year, 
+  select(id, givd_id, longitude, latitude, elevation, plotSize, survey_year,
          reference, esy)
 sites_splot <- data_sites
 
@@ -1547,9 +1548,9 @@ m <- quickMEM(
 
 
 # --> undetrended data, R2adj of minimum (final) model = 0.05
-m$RDA_test # p = 0.001
-m$RDA_axes_test # RDA1 = sig. axis
-m$RDA # RDA1 0.05
+m$RDA_test # p: 0.001
+m$RDA_axes_test # RDA1: sig. axis
+m$RDA # RDA1: 0.05
 
 data <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
@@ -1585,9 +1586,9 @@ m <- quickMEM(
 
 
 # --> undetrended data, R2adj of minimum (final) model = 0.04
-m$RDA_test # p = 0.006
-m$RDA_axes_test #  RDA2 = sig. axis
-m$RDA # RDA2 = 0.03
+m$RDA_test # p: 0.006
+m$RDA_axes_test #  RDA2: sig. axis
+m$RDA # RDA2: 0.03
 
 data <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
@@ -1622,9 +1623,9 @@ m <- quickMEM(
 
 
 # --> not detrended, R2adj of minimum (final) model = 0.056
-m$RDA_test # p = 0.001
-m$RDA_axes_test # RDA1 = sig axis
-m$RDA # RDA1 = 0.04
+m$RDA_test # p: 0.001
+m$RDA_axes_test # RDA1: sig axis
+m$RDA # RDA1: 0.04
 
 data <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
@@ -1658,10 +1659,10 @@ m <- quickMEM(
 )
 
 
-# --> undetrended data, R2adj of minimum (final) model = 0.064
-m$RDA_test # p = 0.001
-m$RDA_axes_test # RDA1, RDA2 = sig axes
-m$RDA # RDA1 = 0.05, RDA2 = 0.04
+# --> undetrended data, R2adj of minimum (final) model: 0.064
+m$RDA_test # p: 0.001
+m$RDA_axes_test # RDA1, RDA2: sig axes
+m$RDA # RDA1: 0.05, RDA2: 0.04
 
 data <- m$dbMEM %>%
   rownames_to_column(var = "id") %>%
@@ -1692,7 +1693,8 @@ data_species <- species_dikes %>%
   mutate(across(where(is.numeric), ~ replace(., is.na(.), 0))) %>%
   left_join(traits %>% select(name, target_ellenberg), by = "name")
 data_species_all <- data_species %>%
-  pivot_longer(-c("name", "target_ellenberg"), names_to = "id", values_to = "value") %>%
+  pivot_longer(-c("name", "target_ellenberg"),
+               names_to = "id", values_to = "value") %>%
   pivot_wider(id, names_from = "name", values_from = "value") %>%
   mutate(
     year = str_match(id, "\\d{4}"),
@@ -1730,7 +1732,7 @@ for (i in unique(data_species_all$year)) {
 
 for (i in unique(data_species_target$year)) {
   nam <- paste("data_species_target_", i, sep = "")
-  
+
   assign(nam, data_species_target %>%
            filter(year == i) %>%
            select(-year) %>%
@@ -1746,8 +1748,8 @@ res1718 <- TBI(
   method = "sorensen",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
   )
-res1718$BCD.summary # B = 0.223, C = 0.155, D = 0.378 (58.9% vs. 41.0%)
-res1718$t.test_B.C # p.perm = 0.0058
+res1718$BCD.summary # B: 0.223, C: 0.155, D: 0.378 (58.9% vs. 41.0%)
+res1718$t.test_B.C # p.perm: 0.0058
 tbi1718 <- as_tibble(res1718$BCD.mat) %>%
   mutate(comparison = "1718")
 plot(res1718, type = "BC")
@@ -1758,8 +1760,8 @@ res1819 <- TBI(
   method = "sorensen",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
   )
-res1819$BCD.summary # B = 0.118, C = 0.214, D = 0.332 (35.6% vs. 64.3%)
-res1819$t.test_B.C # p.perm = 1e-04
+res1819$BCD.summary # B: 0.118, C: 0.214, D: 0.332 (35.6% vs. 64.3%)
+res1819$t.test_B.C # p.perm: 1e-04
 tbi1819 <- as_tibble(res1819$BCD.mat) %>%
   mutate(comparison = "1819")
 plot(res1819, type = "BC")
@@ -1770,8 +1772,8 @@ res1921 <- TBI(
   method = "sorensen",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
   )
-res1921$BCD.summary # B = 0.249, C = 0.140, D = 0.390 (63.8% vs. 36.1%)
-res1921$t.test_B.C # p.perm = 1e-04
+res1921$BCD.summary # B: 0.249, C: 0.140, D: 0.390 (63.8% vs. 36.1%)
+res1921$t.test_B.C # p.perm: 1e-04
 tbi1921 <- as_tibble(res1921$BCD.mat) %>%
   mutate(comparison = "1921")
 plot(res1921, type = "BC")
@@ -1782,8 +1784,8 @@ res1719 <- TBI(
   method = "sorensen",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
   )
-res1719$BCD.summary # B = 0.186, C = 0.212, D = 0.399 (46.7% vs. 53.2%)
-res1719$t.test_B.C # p.perm = 0.273
+res1719$BCD.summary # B: 0.186, C: 0.212, D: 0.399 (46.7% vs. 53.2%)
+res1719$t.test_B.C # p.perm: 0.273
 tbi1719 <- as_tibble(res1719$BCD.mat) %>%
   mutate(comparison = "1719")
 plot(res1719, type = "BC")
@@ -1794,8 +1796,8 @@ res1721 <- TBI(
   method = "sorensen",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
   )
-res1721$BCD.summary # B = 0.184, C = 0.450, D = 0.590 (59.0% vs. 40.9%)
-res1721$t.test_B.C # p.perm = 0.0021
+res1721$BCD.summary # B: 0.184, C: 0.450, D: 0.590 (59.0% vs. 40.9%)
+res1721$t.test_B.C # p.perm: 0.0021
 tbi1721 <- as_tibble(res1721$BCD.mat) %>%
   mutate(comparison = "1721")
 plot(res1721, type = "BC")
@@ -1814,8 +1816,8 @@ res1718 <- TBI(
   method = "%diff",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
   )
-res1718$BCD.summary # B = 0.213, C = 0.260, D = 0.473 (45.0% vs. 54.9%)
-res1718$t.test_B.C # p.perm = 0.1756
+res1718$BCD.summary # B: 0.213, C: 0.260, D: 0.473 (45.0% vs. 54.9%)
+res1718$t.test_B.C # p.perm: 0.1756
 tbi1718 <- as_tibble(res1718$BCD.mat) %>%
   mutate(comparison = "1718")
 plot(res1718, type = "BC")
@@ -1826,8 +1828,8 @@ res1819 <- TBI(
   method = "%diff",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
   )
-res1819$BCD.summary # B = 0.167, C = 0.302, D = 0.470 (35.7% vs. 64.2%)
-res1819$t.test_B.C # p.perm = 1e-04
+res1819$BCD.summary # B: 0.167, C: 0.302, D: 0.470 (35.7% vs. 64.2%)
+res1819$t.test_B.C # p.perm: 1e-04
 tbi1819 <- as_tibble(res1819$BCD.mat) %>%
   mutate(comparison = "1819")
 plot(res1819, type = "BC")
@@ -1838,8 +1840,8 @@ res1921 <- TBI(
   method = "%diff",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
   )
-res1921$BCD.summary # B = 0.331, C = 0.168, D = 0.499 (66.3% vs. 33.6%)
-res1921$t.test_B.C # p.perm = 1e-04
+res1921$BCD.summary # B: 0.331, C: 0.168, D: 0.499 (66.3% vs. 33.6%)
+res1921$t.test_B.C # p.perm: 1e-04
 tbi1921 <- as_tibble(res1921$BCD.mat) %>%
   mutate(comparison = "1921")
 plot(res1921, type = "BC")
@@ -1850,8 +1852,8 @@ res1719 <- TBI(
   method = "%diff",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
   )
-res1719$BCD.summary # B = 0.210, C = 0.390, D = 0.601 (35.0% vs. 64.9%)
-res1719$t.test_B.C # p.perm = 1e-04
+res1719$BCD.summary # B: 0.210, C: 0.390, D: 0.601 (35.0% vs. 64.9%)
+res1719$t.test_B.C # p.perm: 1e-04
 tbi1719 <- as_tibble(res1719$BCD.mat) %>%
   mutate(comparison = "1719")
 plot(res1719, type = "BC")
@@ -1862,8 +1864,8 @@ res1721 <- TBI(
   method = "%diff",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
   )
-res1721$BCD.summary # B = 0.301, C = 0.319, D = 0.620 (48.5% vs. 51.4%)
-res1721$t.test_B.C # p.perm = 0.598
+res1721$BCD.summary # B: 0.301, C: 0.319, D: 0.620 (48.5% vs. 51.4%)
+res1721$t.test_B.C # p.perm: 0.598
 tbi1721 <- as_tibble(res1721$BCD.mat) %>%
   mutate(comparison = "1721")
 plot(res1721, type = "BC")
@@ -1882,8 +1884,8 @@ res1718 <- TBI(
   method = "sorensen",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
 )
-res1718$BCD.summary # B = 0.223, C = 0.155, D = 0.378 (58.9% vs. 41.0%)
-res1718$t.test_B.C # p.perm = 0.0058
+res1718$BCD.summary # B: 0.223, C: 0.155, D: 0.378 (58.9% vs. 41.0%)
+res1718$t.test_B.C # p.perm: 0.0058
 tbi1718 <- as_tibble(res1718$BCD.mat) %>%
   mutate(comparison = "1718")
 plot(res1718, type = "BC")
@@ -1894,8 +1896,8 @@ res1819 <- TBI(
   method = "sorensen",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
 )
-res1819$BCD.summary # B = 0.118, C = 0.214, D = 0.332 (35.6% vs. 64.3%)
-res1819$t.test_B.C # p.perm = 1e-04
+res1819$BCD.summary # B: 0.118, C: 0.214, D: 0.332 (35.6% vs. 64.3%)
+res1819$t.test_B.C # p.perm: 1e-04
 tbi1819 <- as_tibble(res1819$BCD.mat) %>%
   mutate(comparison = "1819")
 plot(res1819, type = "BC")
@@ -1906,8 +1908,8 @@ res1921 <- TBI(
   method = "sorensen",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
 )
-res1921$BCD.summary # B = 0.249, C = 0.140, D = 0.390 (63.8% vs. 36.1%)
-res1921$t.test_B.C # p.perm = 1e-04
+res1921$BCD.summary # B: 0.249, C: 0.140, D: 0.390 (63.8% vs. 36.1%)
+res1921$t.test_B.C # p.perm: 1e-04
 tbi1921 <- as_tibble(res1921$BCD.mat) %>%
   mutate(comparison = "1921")
 plot(res1921, type = "BC")
@@ -1918,8 +1920,8 @@ res1719 <- TBI(
   method = "sorensen",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
 )
-res1719$BCD.summary # B = 0.186, C = 0.212, D = 0.399 (46.7% vs. 53.2%)
-res1719$t.test_B.C # p.perm = 0.273
+res1719$BCD.summary # B: 0.186, C: 0.212, D: 0.399 (46.7% vs. 53.2%)
+res1719$t.test_B.C # p.perm: 0.273
 tbi1719 <- as_tibble(res1719$BCD.mat) %>%
   mutate(comparison = "1719")
 plot(res1719, type = "BC")
@@ -1930,8 +1932,8 @@ res1721 <- TBI(
   method = "sorensen",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
 )
-res1721$BCD.summary # B = 0.184, C = 0.450, D = 0.590 (59.0% vs. 40.9%)
-res1721$t.test_B.C # p.perm = 0.0021
+res1721$BCD.summary # B: 0.184, C: 0.450, D: 0.590 (59.0% vs. 40.9%)
+res1721$t.test_B.C # p.perm: 0.0021
 tbi1721 <- as_tibble(res1721$BCD.mat) %>%
   mutate(comparison = "1721")
 plot(res1721, type = "BC")
@@ -1952,8 +1954,8 @@ res1718 <- TBI(
   method = "%diff",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
 )
-res1718$BCD.summary # B = 0.213, C = 0.260, D = 0.473 (45.0% vs. 54.9%)
-res1718$t.test_B.C # p.perm = 0.1756
+res1718$BCD.summary # B: 0.213, C: 0.260, D: 0.473 (45.0% vs. 54.9%)
+res1718$t.test_B.C # p.perm: 0.1756
 tbi1718 <- as_tibble(res1718$BCD.mat) %>%
   mutate(comparison = "1718")
 plot(res1718, type = "BC")
@@ -1964,8 +1966,8 @@ res1819 <- TBI(
   method = "%diff",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
 )
-res1819$BCD.summary # B = 0.167, C = 0.302, D = 0.470 (35.7% vs. 64.2%)
-res1819$t.test_B.C # p.perm = 1e-04
+res1819$BCD.summary # B: 0.167, C: 0.302, D: 0.470 (35.7% vs. 64.2%)
+res1819$t.test_B.C # p.perm: 1e-04
 tbi1819 <- as_tibble(res1819$BCD.mat) %>%
   mutate(comparison = "1819")
 plot(res1819, type = "BC")
@@ -1976,8 +1978,8 @@ res1921 <- TBI(
   method = "%diff",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
 )
-res1921$BCD.summary # B = 0.331, C = 0.168, D = 0.499 (66.3% vs. 33.6%)
-res1921$t.test_B.C # p.perm = 1e-04
+res1921$BCD.summary # B: 0.331, C: 0.168, D: 0.499 (66.3% vs. 33.6%)
+res1921$t.test_B.C # p.perm: 1e-04
 tbi1921 <- as_tibble(res1921$BCD.mat) %>%
   mutate(comparison = "1921")
 plot(res1921, type = "BC")
@@ -1988,8 +1990,8 @@ res1719 <- TBI(
   method = "%diff",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
 )
-res1719$BCD.summary # B = 0.210, C = 0.390, D = 0.601 (35.0% vs. 64.9%)
-res1719$t.test_B.C # p.perm = 1e-04
+res1719$BCD.summary # B: 0.210, C: 0.390, D: 0.601 (35.0% vs. 64.9%)
+res1719$t.test_B.C # p.perm: 1e-04
 tbi1719 <- as_tibble(res1719$BCD.mat) %>%
   mutate(comparison = "1719")
 plot(res1719, type = "BC")
@@ -2000,8 +2002,8 @@ res1721 <- TBI(
   method = "%diff",
   nperm = 9999, test.t.perm = TRUE, clock = TRUE
 )
-res1721$BCD.summary # B = 0.301, C = 0.319, D = 0.620 (48.5% vs. 51.4%)
-res1721$t.test_B.C # p.perm = 0.598
+res1721$BCD.summary # B: 0.301, C: 0.319, D: 0.620 (48.5% vs. 51.4%)
+res1721$t.test_B.C # p.perm: 0.598
 tbi1721 <- as_tibble(res1721$BCD.mat) %>%
   mutate(comparison = "1721")
 plot(res1721, type = "BC")

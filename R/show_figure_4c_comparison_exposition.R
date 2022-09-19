@@ -52,7 +52,7 @@ sites <- read_csv("data_processed_sites_temporal.csv",
                       block = "f",
                       comparison = "f",
                       location = "f",
-                      location_construction_year = col_factor(levels = ),
+                      location_construction_year = "f",
                       exposition = col_factor(levels = c("south", "north")),
                       orientation = col_factor(levels = c("land", "water"))
                     )) %>%

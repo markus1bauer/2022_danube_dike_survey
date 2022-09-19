@@ -222,18 +222,18 @@ rm(list = setdiff(ls(), c("sites", "m")))
 
 ### c model check -------------------------------------------------------------
 
-simulationOutput <- simulateResiduals(m, plot = TRUE)
-plotResiduals(simulationOutput$scaledResiduals,
+simulation_output <- simulateResiduals(m, plot = TRUE)
+plotResiduals(simulation_output$scaledResiduals,
               sites$location_construction_year)
-plotResiduals(simulationOutput$scaledResiduals, sites$plot)
-plotResiduals(simulationOutput$scaledResiduals, sites$comparison)
-plotResiduals(simulationOutput$scaledResiduals, sites$exposition)
-plotResiduals(simulationOutput$scaledResiduals, sites$orientation)
-plotResiduals(simulationOutput$scaledResiduals, sites$pc1_soil)
-plotResiduals(simulationOutput$scaledResiduals, sites$pc2_soil)
-plotResiduals(simulationOutput$scaledResiduals, sites$pc3_soil)
-plotResiduals(simulationOutput$scaledResiduals, sites$river_distance)
-plotResiduals(simulationOutput$scaledResiduals, sites$river_km)
+plotResiduals(simulation_output$scaledResiduals, sites$plot)
+plotResiduals(simulation_output$scaledResiduals, sites$comparison)
+plotResiduals(simulation_output$scaledResiduals, sites$exposition)
+plotResiduals(simulation_output$scaledResiduals, sites$orientation)
+plotResiduals(simulation_output$scaledResiduals, sites$pc1_soil)
+plotResiduals(simulation_output$scaledResiduals, sites$pc2_soil)
+plotResiduals(simulation_output$scaledResiduals, sites$pc3_soil)
+plotResiduals(simulation_output$scaledResiduals, sites$river_distance)
+plotResiduals(simulation_output$scaledResiduals, sites$river_km)
 car::vif(m)
 # remove river_km since > 3 or 10
 # Zuur et al. 2010 Methods Ecol Evol

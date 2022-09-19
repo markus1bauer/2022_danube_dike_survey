@@ -62,7 +62,9 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
     l <- mclapply(cond, function(x) FUN(x), mc.cores=mc)
     ind <- matrix(c(fmatch(unlist(sapply(l, function(x) x$RELEVE_NR)), dimnames(plot.cond)[[1]]),
                     rep(w, sapply(l, function(x) nrow(x))) ), ncol = 2)
-    plot.cond[ind] <- unlist(sapply(l, function(x) round(x$x,5), USE.NAMES = FALSE))
+    plot.cond[ind] <- unlist(sapply(
+      l, function(x) round(x$x,5), USE.NAMES = FALSE
+      ))
     
   }
 
@@ -154,15 +156,19 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
   }
   
   # second: deal with | without except b) #TC
-  wn <- which(startsWith(conditions, "#TC") & grepl("|", conditions, fixed=TRUE) & !grepl("EXCEPT",conditions, fixed=TRUE))
+  wn <- which(startsWith(
+    conditions, "#TC") &
+      grepl("|", conditions, fixed = TRUE) &
+      !grepl("EXCEPT",conditions, fixed = TRUE))
   if(length(wn) > 0) {
     # #TS means total cover of all species not in these groups
     FUN <- function(i) {
       a <- trim(unlist(strsplit(i,"|", fixed=TRUE)))
       b <- unique(unlist(groups[ groups.names %in% substr(a, 5, nchar(a)) ]))
-      return(obs[obs$TaxonName %fin% b, list(x=total.cover(Cover_Perc)), by=RELEVE_NR])
+      return(obs[obs$TaxonName %fin% b, list(x = total.cover(Cover_Perc)),
+                 by = RELEVE_NR])
     }
-    l <-mclapply(conditions[wn], FUN, mc.cores = mc)
+    l <- mclapply(conditions[wn], FUN, mc.cores = mc)
     ind <- matrix(c(fmatch(unlist(sapply(l, function(x) x$RELEVE_NR)), dimnames(plot.cond)[[1]]),
                     rep(wn, sapply(l, function(x) nrow(x))) ), ncol = 2)
     plot.cond[ind] <- unlist(sapply(l, function(x) x$x, USE.NAMES = FALSE))
@@ -187,7 +193,7 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
       # we have to check for single species
       # some species are duplicate because of trailing space, trim inserted
       b2 <- unique(trim(unlist(groups[ groups.names %in% substr(a, 5, nchar(a)) ])))
-      if(is.null(b2)|length(b2)==0){
+      if(is.null(b2)|length(b2) == 0){
         # then a is a single species
         # b2 can be NULL or an empty string, thus, we test both
         b2 <- a
@@ -196,9 +202,11 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
       # calculate b1 EXCEPT b2 only retain species in b1 that are not in b2
       # this results in an error if either b1 or b2 is NULL
       b <- b1[is.na(fmatch(b1,b2))]
-      return(obs[obs$TaxonName %fin% b, list(x=total.cover(Cover_Perc)), by=RELEVE_NR])
+      return(obs[obs$TaxonName %fin% b,
+                 list(x = total.cover(Cover_Perc)),
+                 by = RELEVE_NR])
     }
-    l <-mclapply(conditions[wn], FUN, mc.cores = mc)
+    l <- mclapply(conditions[wn], FUN, mc.cores = mc)
     ind <- matrix(c(fmatch(unlist(sapply(l, function(x) x$RELEVE_NR)), dimnames(plot.cond)[[1]]),
                     rep(wn, sapply(l, function(x) nrow(x))) ), ncol = 2)
     plot.cond[ind] <- unlist(sapply(l, function(x) x$x, USE.NAMES = FALSE))
@@ -206,15 +214,15 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
   
   
   # fourth: deal with EXCEPT only (without #SC, which we have dealt with before)
-  wn <- which(grepl("EXCEPT",conditions, fixed=TRUE) & 
-                !grepl("|", conditions, fixed=TRUE) &
+  wn <- which(grepl("EXCEPT", conditions, fixed = TRUE) & 
+                !grepl("|", conditions, fixed = TRUE) &
                 !startsWith(conditions, "#SC") &
                 !startsWith(conditions, "#$$"))
   # conditions[wn]
   # all have #TC: if other conditions exist they would have to be dealt with separately
   if(length(wn) > 0) {
     FUN <- function(i) {
-      a <- trim(unlist(strsplit(i,"EXCEPT", fixed=TRUE)))
+      a <- trim(unlist(strsplit(i,"EXCEPT", fixed = TRUE)))
       b <- unique(unlist(groups[ groups.names %in% substr(a[1], 5, nchar(a[1])) ]))
       # index [1] for a is necessary, because there might be an EXCEPT and two elements of a
       c <- unique(unlist(groups[ groups.names %in% substr(a[2], 5, nchar(a[2])) ]))
@@ -236,7 +244,7 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
   ### #SC maximum cover of the group ###
   # The cover of the species is greater than the cover of any single species in the functional species group,
   # except of the species at the left-hand side of logical operator.
-  w <- which(grepl("#SC", conditions, fixed=TRUE))
+  w <- which(grepl("#SC", conditions, fixed = TRUE))
   # "#SC" occurs both at the beginning of the condition and after "|" inside
   # "#SC" on left-hand sides can appear with group names
   # it would be logical to write this with EXCEPT, but which currently is not done
@@ -250,7 +258,7 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
     FUN <- function(i) {
       # we assume that there is only a single EXCEPT per condition
       # and extract this first
-      a <- trim(unlist(strsplit(i,"EXCEPT", fixed=TRUE)))
+      a <- trim(unlist(strsplit(i,"EXCEPT", fixed = TRUE)))
       c <- NULL
       if(length(a)>1){
         # then there is an EXCEPT condition, which has to be dealt with
@@ -260,7 +268,7 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
           c<- a[2]
         }
       }
-      e <- unlist(strsplit(a[1],"|", fixed=TRUE), use.names=FALSE)
+      e <- unlist(strsplit(a[1],"|", fixed = TRUE), use.names = FALSE)
       f <- substr(e, 5, nchar(e))
       b <- unique(unlist(groups[ groups.names %in% f[1] ]))
       if (length(e)>1){
@@ -301,11 +309,12 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
     plot.cond[,w] <- tapply(obs$Cover_Perc, obs$RELEVE_NR, max)
   
   ## highest Cover_Perc in plot #$$ EXCEPT for species from a species group ###
-  w = which(startsWith(conditions, "#$$") & grepl("EXCEPT", conditions,fixed=T))
+  w = which(startsWith(conditions, "#$$") &
+              grepl("EXCEPT", conditions,fixed = TRUE))
   message('          Number of conditions with maximum Cover_Perc in plot EXCEPT species of target group: ', length(w))
   if(length(w) > 0) {
     FUN <- function(i) {
-      a <- trim(unlist(strsplit(i,"EXCEPT", fixed=TRUE)))
+      a <- trim(unlist(strsplit(i,"EXCEPT", fixed = TRUE)))
       b <- unique(unlist(groups[ groups.names %in% a[[2]] ]))
       if (is.null(b)){ # then b is a species name not listed in the groups 
         # FJ: should be handled in expert file check
@@ -365,21 +374,26 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
     if (a=="N" | a=="D"){
       # in membership.conditions2 all groups are coded "D", rather than "N"
       # thus we ask for both options
-      x <- apply(plot.group.non.N[,-index9],1, FUN=max, na.rm=T)
+      x <- apply(plot.group.non.N[,-index9], 1, FUN = max, na.rm = TRUE)
     } else {
-      if (a=="C"){
-        x <- apply(plot.group.non.C[,-index9],1, FUN=max, na.rm=T)
+      if (a == "C"){
+        x <- apply(plot.group.non.C[,-index9], 1, FUN = max, na.rm = TRUE)
       } else {
         # then it is "Q"
-        x <- apply(plot.group.non.Q[,index9,drop=F],1, FUN=max, na.rm=T)
+        x <- apply(
+          plot.group.non.Q[,index9,drop = FALSE],
+          1,
+          FUN = max,
+          na.rm = TRUE
+          )
       }
     }
     result <- cbind(result, x)
   }
   
   for (i in 1:length(conditions.wn)){
-    index5 <- which(conditions==conditions[wn[i]])
-    plot.cond[,index5] <- round(result[,i],5)
+    index5 <- which(conditions == conditions[wn[i]])
+    plot.cond[, index5] <- round(result[,i], 5)
     # columns in result are conditions.wn
   }
 
@@ -395,7 +409,7 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
                                    rep(fmatch(W, conditions), each = nrow(header)), 
                                    as.numeric(unlist(header[, m], use.names = FALSE))), ncol = 3)
   ind[,3][is.na(ind[,3])] <- 0
-  plot.cond[ind[,1:2]] <- ind[,3]
+  plot.cond[ind[,1:2]] <- ind[, 3]
 
   ### Categorical
   w <- conditions[startsWith(conditions, '$$C')]
@@ -403,7 +417,7 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
   categorical.header <- intersect(names(header), substr(w, 5, nchar(w)))
   for(i in categorical.header) {
 #    header[,i][is.na(header[,i])] <- NA
-    b <- as.factor(as.character(header[,i]))
+    b <- as.factor(as.character(header[, i]))
     if(length(levels(b)) > 0) {
     # left hand
     # mark NAs as -1, otherwise they will be set 0 and result in wrong 
@@ -419,7 +433,7 @@ if(!'data.table' %in% class(obs)) stop('obs must be of class data.table')
       index7[is.na(index7)] <- 0
       # However, we have to translate the levels into numbers, done with c
       for (j in 1:length(index5)){
-        c <- which(levels(b)==conditions[index5[j]])
+        c <- which(levels(b) == conditions[index5[j]])
         plot.cond[index7 == c, index5[j]] <- c  
       }
     }
@@ -441,7 +455,7 @@ message(paste('adapt conditions', Sys.time()))
   # logi1 holds the results from the evaluation of the membership conditions in plot.cond for every expression.
 # membership expressions are evaluated by referring to col1, col2, .... 
 # instead of membership condition names.
-dimnames(plot.cond)[[2]] <- paste("col", seq(1:dim(plot.cond)[[2]]), sep="")
+dimnames(plot.cond)[[2]] <- paste("col", seq(1:dim(plot.cond)[[2]]), sep = "")
 
 if(any(is.na(plot.cond))) warning('NA in plot.cond')
 plot.cond[is.na(plot.cond)] <- 0 # important because NA will ruin the foreach order but appear(ed) because of non-solvable conditions
@@ -457,7 +471,7 @@ message(paste('loma1 from here on', Sys.time()))
 # both left-hand and right-hand side, which is in conditions and replace them with col1, col2 etc.
 # This has to be done in descending length of conditions
 # membership.expressions.eval <- membership.expressions
- o <- order(nchar(conditions), decreasing =TRUE)
+ o <- order(nchar(conditions), decreasing = TRUE)
 
 # # then replace allin to logical expressions others
 # for (i in 1:length(conditions)){
@@ -471,11 +485,11 @@ message(paste('loma1 from here on', Sys.time()))
 # membership.expressions.eval <- gsub("EQ","==", membership.expressions.eval)
 
 membership.expressions.eval <- stri_replace_all_fixed(membership.expressions, 
-        pattern = conditions[o], replacement = paste("col", o, sep=""), vectorize_all = FALSE)
+        pattern = conditions[o], replacement = paste("col", o, sep = ""), vectorize_all = FALSE)
 
 membership.expressions.eval <- gsub("GR", ">", membership.expressions.eval)
-membership.expressions.eval <- gsub("GE",">=", membership.expressions.eval) 
-membership.expressions.eval <- gsub("EQ","==", membership.expressions.eval)
+membership.expressions.eval <- gsub("GE", ">=", membership.expressions.eval) 
+membership.expressions.eval <- gsub("EQ", "==", membership.expressions.eval)
 
 ####################################################################################### #
 ### Step 8: Evaluate member-ship expressions. Obtain logical plot x expression lists ####
@@ -483,10 +497,10 @@ membership.expressions.eval <- gsub("EQ","==", membership.expressions.eval)
 # for every expression. The key of this step is the eval(parse(text=x)) command 
 # that allows to interpret text as logical expressions in R.
 
-logexpr <- sapply(membership.expressions.eval, function(x) parse(text=x))
+logexpr <- sapply(membership.expressions.eval, function(x) parse(text = x))
 logi1 <- with(plot.cond, lapply(logexpr, function(x) eval(x)))
 
-names(logi1) <- paste("col", seq(1:length(membership.expressions)), sep="")
+names(logi1) <- paste("col", seq(1:length(membership.expressions)), sep = "")
 
 ################################################################## #
 ### Step 9: Evaluate member-ship formulas. Obtain logical lists ####

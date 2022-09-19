@@ -1,5 +1,5 @@
 # Beta diversity on dike grasslands
-# Plot Fig. 2 ####
+# Non-metric multidimensional scaling (NMDS) ordination ####
 # Markus Bauer
 # 2022-09-13
 
@@ -158,17 +158,17 @@ points(ordi, display = "sites", cex = goodness_of_fit * 300)
   ordi ~ species_richness + eveness + shannon +
     accumulated_cover + graminoid_cover_ratio + ruderal_cover +
     ellenberg_richness + ellenberg_cover_ratio,
-  data = sites, 
-  permu = 999, 
+  data = sites,
+  permu = 999,
   na.rm = TRUE
   ))
 plot(ordi, type = "n")
 plot(ef_vector1, add = TRUE, p. = .99)
 (ef_vector2 <- envfit(
   ordi ~ ellenberg_richness + ellenberg_cover_ratio +
-    graminoid_cover_ratio + ruderal_cover, 
-  data = sites, 
-  permu = 999, 
+    graminoid_cover_ratio + ruderal_cover,
+  data = sites,
+  permu = 999,
   na.rm = TRUE
   ))
 plot(ordi, type = "n")
@@ -178,7 +178,7 @@ plot(ef_vector2, add = TRUE, p. = .99)
 #### b Factors ----------------------------------------------------------------
 
 (ef_factor1 <- envfit(
-  ordi ~  orientation + exposition + esy + reference, 
+  ordi ~  orientation + exposition + esy + reference,
   data = sites, permu = 999, na.rm = TRUE
   ))
 plot(ordi, type = "n")

@@ -192,12 +192,12 @@ distance_river <- distance$distance_river
 sites_basic <- sites_basic %>%
   add_column(distance_river)
 ### Plot for proof ###
-dist.sf <- st_as_sf(distance, coords = c("lon", "lat")) %>%
+dist_sf <- st_as_sf(distance, coords = c("lon", "lat")) %>%
   st_set_crs(value = 4326)
 ggplot() +
   geom_sf(data = danube_isar, fill = "grey50", color = "grey50") +
   geom_sf(data = sites) +
-  geom_sf(data = dist.sf, colour = "grey60")
+  geom_sf(data = dist_sf, colour = "grey60")
 
 
 
@@ -274,4 +274,4 @@ sites_basic %>%
     "danube_old_dikes_plots.gpx"
   ))
 ### River layer was one time digitized ###
-# st_write(danube_isar, layer = "danube_isar_digitized_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE, dsn = here("data", "processed", "spatial"))
+#st_write(danube_isar, layer = "danube_isar_digitized_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE, dsn = here("data", "processed", "spatial"))

@@ -23,7 +23,9 @@ vegtype.formulas <- parsing.result$formulas
 vegtype.priority <- parsing.result$membership.priority
 
 vegtype.formula.names <- substr(
-  names(vegtype.formulas), 12, nchar(names(parsing.result$formulas))
+  names(vegtype.formulas),
+  12,
+  nchar(names(parsing.result$formulas))
   )
 
 vegtype.formula.names.short <- trim(substr(vegtype.formula.names, 1, 5))
@@ -39,24 +41,24 @@ anyDuplicated(vegtype.formula.names.short)
 
 
 
-o <- order(nchar(membership.expressions), decreasing =TRUE)
+o <- order(nchar(membership.expressions), decreasing = TRUE)
 vegtype.formulas.p <- stri_replace_all_fixed(
   vegtype.formulas,
   pattern = membership.expressions[o],
   replacement = paste(
     "col",
     seq(1:length(membership.expressions)),
-    sep=""
+    sep = ""
     )[o],
   vectorize_all = FALSE
   )
 
 # remove the angle brackets around expressions
-vegtype.formulas.p <- gsub("<","",vegtype.formulas.p)
-vegtype.formulas.p <- gsub(">","",vegtype.formulas.p)
+vegtype.formulas.p <- gsub("<", "", vegtype.formulas.p)
+vegtype.formulas.p <- gsub(">", "", vegtype.formulas.p)
 # replace logical operators with R operators
-vegtype.formulas.p <- gsub("AND","&",vegtype.formulas.p)
-vegtype.formulas.p <- gsub("OR","|",vegtype.formulas.p)
-vegtype.formulas.p <- gsub("NOT","&!",vegtype.formulas.p)
+vegtype.formulas.p <- gsub("AND", "&", vegtype.formulas.p)
+vegtype.formulas.p <- gsub("OR", "|", vegtype.formulas.p)
+vegtype.formulas.p <- gsub("NOT", "&!", vegtype.formulas.p)
 
-logexpr.formula <- sapply(vegtype.formulas.p, function(x) parse(text=x))
+logexpr.formula <- sapply(vegtype.formulas.p, function(x) parse(text = x))

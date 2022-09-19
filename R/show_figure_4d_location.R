@@ -54,7 +54,7 @@ sites <- read_csv("data_processed_sites_temporal.csv",
                       block = "f",
                       comparison = "f",
                       location = "f",
-                      location_construction_year = col_factor(levels = ),
+                      location_construction_year = "f",
                       exposition = col_factor(levels = c("south", "north")),
                       orientation = col_factor(levels = c("land", "water"))
                     )) %>%
@@ -106,7 +106,7 @@ data <- sites %>%
   ) +
   geom_errorbar(
     data = data_model,
-    aes(x= x, y = predicted, ymin = conf.low, ymax = conf.high),
+    aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high),
     width = 0.0, size = 0.4
   ) +
   geom_point(

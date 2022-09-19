@@ -41,11 +41,11 @@ data <- read_csv("vegetation_classification.csv",
 
 (table <- data %>%
    gt() %>%
-   
-   ### 1 General settings ####
- opt_table_lines(
-   extent = "none"
-   ) %>%
+
+### 1 General settings ####
+   opt_table_lines(
+     extent = "none"
+     ) %>%
    tab_options(
      table.font.style = "Arial",
      table.font.size = px(12),
@@ -62,32 +62,23 @@ data <- read_csv("vegetation_classification.csv",
      column_labels.border.top.width = px(2),
      table_body.border.bottom.width = px(2),
      table_body.border.top.width = px(1)
-   ) %>%
-   
-   ### 2 Alignment of specific columns ####
- tab_style(
-   style = cell_text(
-     align = "left"
-   ),
-   locations = cells_body(
-     columns = "esy"
-   )
- ) %>%
+     ) %>%
+
+### 2 Alignment of specific columns ####
    tab_style(
-     style = cell_text(
-       align = "left"
-     ),
-     locations = cells_column_labels(
-       columns = "esy"
-     )
-   ) %>%
-   
-   ### 3 Column labels ####
- cols_label(
-   "esy" = "Class"
- ) %>%
-   fill_column("2017")
+     locations = cells_body(columns = "esy"),
+     style = cell_text(align = "left")
+     ) %>%
+   tab_style(
+     locations = cells_column_labels(columns = "esy"),
+     style = cell_text(align = "left")
+     ) %>%
+### 3 Column labels ####
+   cols_label(
+     "esy" = "Class"
+     ))
 
 ### Save ###
-gtsave(table, here("outputs", "tables",
-                   "table_a7_vegetation_classification.png"))
+gtsave(table, here(
+  "outputs", "tables", "table_a7_vegetation_classification.png")
+  )
