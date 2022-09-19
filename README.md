@@ -33,7 +33,7 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
 
 __Package versioning__
 
-The used versions of R and the packages are saved in `2022_waste_bricks_trees/renv.lock`.
+The used versions of R and the packages are saved in `2022_danube_dike_survey/renv.lock`.
 
 You can restore this state by executing `renv::restore()` in the console.
 
