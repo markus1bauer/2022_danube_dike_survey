@@ -36,15 +36,3 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
-data/raw/splot/sPlotOpen_references.bib
-data/raw/splot/sPlotOpen_metadata.txt
-data/raw/splot/sPlotOpen_header.txt
-data/raw/splot/sPlotOpen_DT.txt
-data/raw/splot/sPlotOpen_Metadata_dataset_3474.txt
-data/raw/splot/sPlotOpen_CWM_CWV.txt
-data/raw/splot/sPlotOpen.RData/sPlotOpen.RData
-data/raw/splot/sPlotOpen.RData/__MACOSX/._sPlotOpen.RData
-data/raw/splot/Schema/iDiv-Metadata-Schema.xsd
-data/raw/splot/Demo.pdf
-data/raw/splot/3474_54_metadata.html
-data/raw/splot/3474_54_manifest.xml

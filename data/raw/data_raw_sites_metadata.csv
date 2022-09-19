@@ -4,15 +4,15 @@ block,Serial numer of a pair of plots (water and landside),NA,serial numer of a 
 location,Nearest village of the plot,NA,block factor,NA,NA,character,NA,NA
 latitude,Coordinates Y / Hochwert (EPSG: 31468 / GK4),NA,NA,meter,integer,numeric,NA,NA
 longitude,Coordinates X / Rechtswert (EPSG: 31468 / GK4),NA,NA,meter,integer,numeric,NA,NA
-riverkm,Ifficial km of river Danube taken from the BayernAtlas.de,NA,NA,kilometer,integer,numeric,NA,NA
-distanceRiver,Orthogonal distance to center of the river bed of River Danube,NA,NA,meter,real,numeric,NA,NA
-side,Is the plot on the slope oriented to the water or to the land?,NA,NA,NA,NA,factor,water / land,NA
+river_km,Ifficial km of river Danube taken from the BayernAtlas.de,NA,NA,kilometer,integer,numeric,NA,NA
+river_distance,Orthogonal distance to center of the river bed of River Danube,NA,NA,meter,real,numeric,NA,NA
+orientation,Is the plot on the slope oriented to the water or to the land?,NA,NA,NA,NA,factor,water / land,NA
 exposition,Exposition of the plots,NA,NA,NA,NA,factor,north / south / east / west,NA
 construction_year,Year in which the dike was constructed and seeded,YYYY,NA,NA,NA,Date,NA,NA
-surveyDate.2017,Date of the first vegetation survey 2017,YYYY-mm-dd,NA,NA,NA,Date,NA,NA
-surveyDate.2018,Date of the second vegetation survey 2018,YYYY-mm-dd,NA,NA,NA,Date,NA,NA
-surveyDate.2019,Date of the third vegetation survey 2019,YYYY-mm-dd,NA,NA,NA,Date,NA,NA
-surveyDate.2021,Date of the third vegetation survey 2019,YYYY-mm-dd,NA,NA,NA,Date,NA,NA
+survey_date.2017,Date of the first vegetation survey 2017,YYYY-mm-dd,NA,NA,NA,Date,NA,NA
+survey_date.2018,Date of the second vegetation survey 2018,YYYY-mm-dd,NA,NA,NA,Date,NA,NA
+survey_date.2019,Date of the third vegetation survey 2019,YYYY-mm-dd,NA,NA,NA,Date,NA,NA
+survey_date.2021,Date of the third vegetation survey 2019,YYYY-mm-dd,NA,NA,NA,Date,NA,NA
 botanist.2017,Person who surveyed the vegetation 2017,NA,person who surveyed the vegetation 2017,NA,NA,character,NA,NA
 botanist.2018,Person who surveyed the vegetation 2018,NA,person who surveyed the vegetation 2018,NA,NA,character,NA,NA
 botanist.2019,Person who surveyed the vegetation 2019,NA,person who surveyed the vegetation 2019,NA,NA,character,NA,NA
@@ -39,7 +39,7 @@ vegetation_height.2019,Average height of the vegetation (measured in the field) 
 vegetation_height.2021,Average height of the vegetation (measured in the field) 2019,NA,NA,centimeter,integer,numeric,NA,NA
 c550,Percentage of carbon after 550 degree celsius treatment (weight percent) by engineering office Dr. Haeusler 2017-11-28,NA,NA,percent,real,numeric,NA,NA
 calciumcarbonat,Percentage of calcium carbonate (CaCO3) in fine soil (C550Perc * 8.33) (weight percent),NA,NA,percent,real,numeric,NA,NA
-c_org,Percentage of organic carbon (weight percent) = C (total) - C550Perc,NA,NA,percent,real,numeric,NA,NA
+c_organic,Percentage of organic carbon (weight percent) = C (total) - C550Perc,NA,NA,percent,real,numeric,NA,NA
 humus,Percentage of humus (CorgPerc * 1.72) (weight percent),NA,NA,percent,real,numeric,NA,NA
 humus_level,Humus level according to Ad-hoc-AG Boden (2005) Tab. 15,NA,NA,NA,NA,factor,h1 / h2 / h3 / h4 / h5,"Ad-hoc-AG Boden (2005) Manual of soil mapping. 5th ed. Schweizerbart, Hannover. ISBN: 978-3-510-95920-4"
 n_total_ratio,Total nitrogen percentage (weight percent) from CN analyzer by engineering office Dr. Haeusler 2017-11-28,NA,NA,percent,real,numeric,NA,NA
