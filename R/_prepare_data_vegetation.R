@@ -1462,7 +1462,12 @@ data_sites <- sites_splot %>%
   mutate(
     id = paste0("X", id),
     reference = str_replace(reference, "Germany", "reference"),
-    survey_year = year(survey_year)
+    survey_year = year(survey_year),
+    givd_database = if_else(
+      givd_id == "EU-DE-014",
+      "Jandt & Bruelheide (2012) https://doi.org/10.7809/b-e.00146",
+      "other"
+      )
   ) %>%
   select(id, givd_id, longitude, latitude, elevation, plotSize, survey_year,
          reference, esy)

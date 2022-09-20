@@ -10,6 +10,7 @@ library(tidyverse)
 library(EML)
 library(emld)
 #remotes::install_github("EDIorg/EMLassemblyline")
+library(EMLassemblyline)
 
 ### Start ###
 rm(list = ls())
@@ -26,7 +27,7 @@ rm(list = ls())
 
 
 ### List of standard units, which should be used in metadata file ###
-EMLassemblyline::view_unit_dictionary()
+#EMLassemblyline::view_unit_dictionary()
 
 custom_units <- bind_rows(
   data.frame(

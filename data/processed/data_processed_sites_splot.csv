@@ -1,9 +1,9 @@
-id,givd_id,longitude,latitude,elevation,plotSize,survey_year,reference,esy
-X699873,EU-DE-014,11.951246,49.161659,371,15,1993,reference,E12a
-X699880,EU-DE-014,11.951246,49.161659,371,15,1993,reference,E12a
-X701688,EU-DE-014,11.536,49.1905,475,25,NA,reference,E12a
-X702304,EU-DE-014,13.04165,49.22501,600,27,1988,reference,E22
-X703673,EU-DE-014,11.87498,48.92501,410,12,1991,reference,E12a
-X706901,EU-DE-014,12.29165,49.02502,453,35,1978,reference,E22
-X706914,EU-DE-014,12.20831,49.02501,325,35,1978,reference,E22
-X711028,EU-DE-014,13.45831,48.77501,390,32,NA,reference,E22
+id,givd_id,longitude,latitude,elevation,plotSize,survey_year,reference,esy,givd_database
+X699873,EU-DE-014,11.951246,49.161659,371,15,1993,reference,E12a,Jandt & Bruelheide (2012) https://doi.org/10.7809/b-e.00146
+X699880,EU-DE-014,11.951246,49.161659,371,15,1993,reference,E12a,Jandt & Bruelheide (2012) https://doi.org/10.7809/b-e.00147
+X701688,EU-DE-014,11.536,49.1905,475,25,NA,reference,E12a,Jandt & Bruelheide (2012) https://doi.org/10.7809/b-e.00148
+X702304,EU-DE-014,13.04165,49.22501,600,27,1988,reference,E22,Jandt & Bruelheide (2012) https://doi.org/10.7809/b-e.00149
+X703673,EU-DE-014,11.87498,48.92501,410,12,1991,reference,E12a,Jandt & Bruelheide (2012) https://doi.org/10.7809/b-e.00150
+X706901,EU-DE-014,12.29165,49.02502,453,35,1978,reference,E22,Jandt & Bruelheide (2012) https://doi.org/10.7809/b-e.00151
+X706914,EU-DE-014,12.20831,49.02501,325,35,1978,reference,E22,Jandt & Bruelheide (2012) https://doi.org/10.7809/b-e.00152
+X711028,EU-DE-014,13.45831,48.77501,390,32,NA,reference,E22,Jandt & Bruelheide (2012) https://doi.org/10.7809/b-e.00153

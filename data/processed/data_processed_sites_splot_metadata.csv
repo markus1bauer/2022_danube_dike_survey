@@ -8,3 +8,4 @@ plotSize,Size of the surveyed plot,NA,NA,meterSquared,integer,numeric,NA,NA
 survey_year,Year of the vegetation survey,YYYY,NA,NA,date,numeric,NA,NA
 referemce,Classification as reference,NA,NA,NA,NA,factor,reference,NA
 esy,EUNIS-Esy: Expert system for automatic classification of European vegetation plots to EUNIS habitats,NA,NA,NA,NA,factor,R1A / R22 / V38 / ? / R ,Chytrý et al. (2020) Appl Veg Sci https://doi.org/10.1111/avsc.12519
+givd_database,Reference of the GIVD database containing the plot,NA,Reference of the GIVD database containing the plot,NA,NA,character,NA,Dengler et al. (2011) J Veg Sci https://doi.org/10.1111/j.1654-1103.2011.01265.x / Jandt & Bruehlheide (2012) Biodivers Evol https://doi.org/10.7809/b-e.00146

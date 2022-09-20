@@ -26,9 +26,9 @@ graminoid_cover,Total cover of graminoids,NA,NA,percent,real,numeric,NA,NA
 ruderal_cover,Total cover of ruderal species,NA,NA,percent,real,numeric,NA,NA
 ellenberg_richness,Amount of target species per plot (see data/processed/data_processed_traits_metadata.csv),NA,NA,dimensionless,integer,numeric,NA,NA
 ellenberg_richness_ratio,Ratio of target species to total species richness,NA,NA,dimensionless,real,numeric,NA,NA
-rlg_richness,,,,,,,,
+rlg_richness,Amount of red-list-Germany species per plot (see data/processed/data_processed_traits_metadata.csv),NA,NA,dimensionless,integer,numeric,NA,NA
 ellenberg_cover_ratio,Ratio of target species' cover to total cover,NA,NA,dimensionless,real,numeric,NA,NA
-biotope_type,,,,,,,,
-ffh,,,,,,,,
-baxkompv,,,,,,,,
-biotope_points,,,,,,,,
+biotope_type,Which German biotope type according to the Bavarian guideline (LfU 2018b),NA,NA,NA,NA,factor,NA,LfU (Bayersiches Landesamt fuer Umwelt) (2018b) Kartieranleitung Biotopkartierung Bayern Teil 2
+ffh,Which European habitat type according to the Bavarian guideline (LfU & LWF 2018),NA,NA,NA,NA,character,6510 / 6210 / non-FFH,LfU (Bayersiches Landesamt fuer Umwelt) & LWF (Bayersiche Landesanstalt fuer Forstwirtschaft) (2018) Handbuch der Lebensraumtypen nach Anhang I der FFH-Richtlinie in Bayern.
+baykompv,"Which 'biotope and land use types' according to the ""Bayerischen Kompensationsverordnung"" (BayKompV) (LfU 2014)",NA,NA,NA,NA,character,G213 / G214 / other,LfU (Bayerisches Landesamt fuer Umwelt) (2014) Bayerische Kompensationsverordnung (BayKompV). Arbeitshilfe zur Biotopwertliste. Verbale Kurzbeschreibungen.
+biotope_points,"How many 'biotope points' according to the ""Bayerischen Kompensationsverordnung"" (BayKompV) (LfU 2014)",NA,NA,NA,NA,character,NA,LfU (Bayerisches Landesamt fuer Umwelt) (2014) Bayerische Kompensationsverordnung (BayKompV). Arbeitshilfe zur Biotopwertliste. Verbale Kurzbeschreibungen.
