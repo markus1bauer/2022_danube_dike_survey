@@ -41,5 +41,5 @@ vignettes/*.pdf
 data/raw/splot/*.txt
 data/raw/splot/*.xml
 data/raw/splot/*.bib
-/data/processed/*data_processed_sites_for_practioners.csv
+*/data/processed/*data_processed_sites_for_practioners.csv
 data/processed/*data_processed_sites_for_practioners_metadata.csv
