@@ -21,8 +21,8 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
     * `photos` of the plots (.jpg)
     
 2. __Outputs__: the folder `outputs` contains  
-    * The `figures` (.tiff) generated
-    * The `tables` (.png) generated
+    * The `figures` generated (.tiff)
+    * The `tables` generated (.png)
     * The `statistics` tables from the principal component analyses (.csv)
     
 3. __R__: the folder `R` contains  
