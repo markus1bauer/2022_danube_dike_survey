@@ -1,12 +1,12 @@
-# Beta diversity of restored river dike grasslands is strongly influenced by uncontrolled spatio-temporal variability
+# Data and code for "Beta diversity of restored river dike grasslands is strongly influenced by uncontrolled spatio-temporal variability"
 
 _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height = "16"></a>, Jakob Huber, and Johannes Kollmann <a href="https://orcid.org/0000-0002-4990-3636"><img src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height = "16"></a>_  
 
 ***
 
-**Journal**: [XXX](https://www.???.??)
-
 **DOI**: [https://doi.org/???](https://doi.org/???)
+
+**Journal**: [XXX](https://www.???.??)
 
 **Study region**: [River Danube around Deggendorf](https://www.openstreetmap.org/#map=11/48.8127/12.9790)
 
@@ -21,8 +21,8 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
     * `photos` of the plots (.jpg)
     
 2. __Outputs__: the folder `outputs` contains  
-    * The `figures` (.tiff) generated
-    * The `tables` (.png) generated
+    * The `figures` generated (.tiff)
+    * The `tables` generated (.png)
     * The `statistics` tables from the principal component analyses (.csv)
     
 3. __R__: the folder `R` contains  
