@@ -46,7 +46,10 @@ data_collinearity <- sites %>%
   select(where(is.numeric), -b, -c, -d, -y)
 
 sites <- sites %>%
-  mutate(across(c("river_km", "river_distance"), scale))
+  mutate(across(
+    c("river_km", "river_distance", "biotope_area", "biotope_distance"),
+    scale)
+    )
 
 
 
@@ -78,7 +81,13 @@ ggplot(sites, aes(x = orientation, y = y)) +
 ggplot(sites, aes(x = river_km, y = (y))) +
   geom_point() +
   geom_smooth(method = "loess")
-ggplot(sites, aes(x = (river_distance), y = log(y))) +
+ggplot(sites, aes(x = (river_distance), y = (y))) +
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(sites, aes(x = (biotope_distance), y = (y))) +
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(sites, aes(x = (biotope_area), y = (y))) +
   geom_point() +
   geom_smooth(method = "lm")
 ggplot(sites, aes(x = pc1_soil, y = (y))) +
