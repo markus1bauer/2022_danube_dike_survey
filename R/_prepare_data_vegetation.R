@@ -136,6 +136,16 @@ sites_dikes <- read_csv("data_raw_sites.csv",
   relocate(c("construction_year_factor", "construction_year_factor_plus"),
            .after = construction_year)
 
+### Sites with spatial calculations ###
+sites_with_spatial_data <- read_csv(
+  here("data", "processed", "spatial", "sites_with_spatial_data.csv"),
+  col_names = TRUE, na = c("", "NA", "na"),
+  col_types = cols(.default = "?")
+  ) %>%
+  select(plot, longitude_center, latitude_center,
+         river_distance, biotope_area, biotope_distance)
+sites_dikes <- sites_dikes %>%
+  left_join(sites_with_spatial_data, by = "plot")
 
 ### Sabatini et al. (2021) Global Ecol Biogeogr:
 ### https://doi.org/10.1111/geb.13346
@@ -1579,7 +1589,7 @@ data_sites_dbmem <- data_sites_dbmem %>%
   column_to_rownames("id")
 
 
-### !Try several times! ###
+### Try several times! ###
 m <- quickMEM(
   data_species_dbmem, data_sites_dbmem,
   alpha = 0.05,
@@ -2094,7 +2104,7 @@ sites_spatial <- sites_dikes %>%
     exposition, orientation, pc1_soil, pc2_soil, pc3_soil,
     # space
     location, location_abb, location_construction_year, latitude, longitude,
-    river_km, river_distance,
+    river_km, river_distance, biotope_distance, biotope_area,
     mem1_2017, mem2_2018, mem1_2019, mem1_2021, mem2_2021,
     # history
     construction_year, plot_age,
@@ -2112,7 +2122,7 @@ sites_temporal <- sites_temporal %>%
     exposition, orientation, pc1_soil, pc2_soil, pc3_soil,
     # space
     location, location_abb, location_construction_year,
-    river_km, river_distance,
+    river_km, river_distance, biotope_distance, biotope_area,
     # history
     construction_year,
     # temporal beta-diversity indices (TBI)
@@ -2126,7 +2136,7 @@ sites_restoration <- sites_dikes %>%
     exposition, orientation, pc1_soil, pc2_soil, pc3_soil,
     # space
     location, location_abb, location_construction_year,
-    river_km, river_distance,
+    river_km, river_distance, biotope_distance, biotope_area,
     # history
     construction_year, plot_age,
     # response variables
