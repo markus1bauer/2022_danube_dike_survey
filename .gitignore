@@ -45,3 +45,7 @@ data/processed/data_processed_sites_for_practioners.csv
 data/processed/data_processed_sites_for_practioners_metadata.csv
 .github/
 checklist.yml
+data/raw/spatial/bio_fbk_epsg25832_shp.shx
+data/raw/spatial/bio_fbk_epsg25832_shp.dbf
+data/raw/spatial/bio_fbk_epsg25832_shp.prj
+data/raw/spatial/bio_fbk_epsg25832_shp.shp
