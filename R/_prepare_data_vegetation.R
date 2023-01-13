@@ -1479,8 +1479,8 @@ data_sites <- sites_splot %>%
       "other"
       )
   ) %>%
-  select(id, givd_id, longitude, latitude, elevation, plotSize, survey_year,
-         reference, esy)
+  select(id, longitude, latitude, elevation, plotSize, survey_year,
+         reference, esy, givd_id, givd_database)
 sites_splot <- data_sites
 
 data_species <- species_splot %>%
