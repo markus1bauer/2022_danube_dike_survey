@@ -1,0 +1,12 @@
+attributeName,attributeDefinition,formatString,definition,unit,numberType,type,factor,comment
+id,Serial number and position on the dike per year,NA,serial number and position on the dike per year,NA,NA,character,NA,NA
+location,Nearest village of the plot,NA,nearest village of the plot,NA,NA,character,NA,NA
+plot,Serial number of the plot,NA,serial number of the plot,NA,NA,character,NA,NA
+location_abb,Abbreviation of the location,NA,abbreviation of the location,NA,NA,character,NA,NA
+longitude,Coordinates X / Rechtswert (EPSG: 4326 / WGS84),NA,NA,meter,real,numeric,NA,NA
+latitude,Coordinates Y / Hochwert (EPSG: 4326 / WGS84),NA,NA,meter,real,numeric,NA,NA
+longitude_center,Coordinates of location X / Rechtswert (EPSG: 4326 / WGS84),NA,NA,meter,real,numeric,NA,NA
+latitude_center,Coordinates of location Y / Hochwert (EPSG: 4326 / WGS84),NA,NA,meter,real,numeric,NA,NA
+river_distance,Orthogonal distance to center of the river bed of River Danube,NA,NA,meter,real,numeric,NA,NA
+biotope_area,Area of biotopes within a 500 m radius around each plot,NA,NA,meterSquared,real,numeric,NA,LfU (Bayerisches Landesamt fuer Umwelt) (2022) Biotopkartierung Bayern. Bayerisches Fachinformationssystem Naturschutz. https://www.lfu.bayern.de/natur/biotopflaechen_sachdaten/index.htm
+biotope_distance,Distance to closesed grassland habitat,NA,NA,meter,real,numeric,NA,LfU (Bayerisches Landesamt fuer Umwelt) (2022) Biotopkartierung Bayern. Bayerisches Fachinformationssystem Naturschutz. https://www.lfu.bayern.de/natur/biotopflaechen_sachdaten/index.htm
