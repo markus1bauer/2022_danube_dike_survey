@@ -59,7 +59,7 @@ sites <- read_csv(here("data", "raw", "data_raw_sites.csv"),
 
 ### Create tbl instead of sf file ###
 coord <- as_tibble(st_coordinates(sites))
-sites_basic <- sites %>%
+sites_with_spatial_data <- sites %>%
   st_drop_geometry() %>%
   mutate(longitude = coord$X) %>%
   mutate(latitude = coord$Y) %>%
@@ -104,34 +104,41 @@ biotope_mapping <- st_read("bio_fbk_epsg25832_shp.shp") %>%
 ## 3 Background map ###########################################################
 
 
-germany <- raster::getData("GADM", country = "DEU",
-                           level = 0, download = FALSE) %>%
+germany <- geodata::gadm(
+  country = "DEU", level = 0, version = "latest", resolution = 2, path = here()
+  ) %>%
   st_as_sf() %>%
   st_set_crs(4326)
-options("download.file.method" = "libcurl")
-rivers <- rnaturalearth::ne_download(
-  #scale = 10,
-  type = "rivers_lake_centerlines",
-  category = "physical"
-) %>% # problem: https://github.com/ropensci/rnaturalearth/issues/29
-  st_as_sf() %>%
-  st_set_crs(4326) %>%
-  st_intersection(bbox)
 
-background_google <- get_map(
-  location = c(left = 12.55, bottom = 48.65, right = 13.15, top = 48.95),
-  zoom = 10,
-  scale = 1,
-  maptype = "terrain",
-  source = "google" # problem
-)
-ggmap(background_google)
+# problem since 2021
+# https://github.com/ropensci/rnaturalearth/issues/29
+# https://github.com/nvkelso/natural-earth-vector/issues/528
+#rivers <- rnaturalearth::ne_download(
+#  scale = 10,
+#  type = "rivers_lake_centerlines",
+#  category = "physical",
+#  load = FALSE,
+#  returnclass = "sf"
+#) %>%
+#  st_set_crs(4326) %>%
+#  st_intersection(bbox)
+
+# problem
+# no valid key any longer
+#background_google <- get_map(
+#  location = c(left = 12.55, bottom = 48.65, right = 13.15, top = 48.95),
+#  zoom = 10,
+#  scale = 1,
+#  maptype = "terrain",
+#  source = "google" 
+#)
+#ggmap(background_google)
 
 background_toner <- get_map(
   location = c(left = 12.55, bottom = 48.65, right = 13.15, top = 48.95),
   zoom = 10,
   scale = 1,
-  maptype = "toner-background", # problem
+  maptype = "toner-background",
   source = "stamen"
 )
 ggmap(background_toner)
@@ -148,90 +155,7 @@ ggmap(background_terrain)
 
 
 #______________________________________________________________________________
-## 4 Calculate new variables ##################################################
-
-
-### a Calculate center of locations -------------------------------------------
-
-locations <- sites_basic %>%
-  group_by(location_year) %>%
-  summarise(across(c(longitude, latitude, construction_year),
-                   mean, na.rm = TRUE)) %>%
-  rename(longitude_center = longitude, latitude_center = latitude)
-sites_basic <- left_join(
-  sites_basic,
-  locations %>% select(-construction_year),
-  by = "location_year"
-)
-
-
-### b Distance to river -------------------------------------------------------
-
-### Prepare data ###
-coordinates_plots <- sites %>%
-  st_coordinates()
-coordinates_danube_isar <- danube_isar %>%
-  st_coordinates() %>%
-  as_tibble() %>%
-  select(X, Y)
-### Calculate distances ###
-distance <- geosphere::dist2Line(
-  p = coordinates_plots, line = coordinates_danube_isar
-) %>%
-  as_tibble() %>%
-  rename(distance_river = distance)
-distance_river <- distance$distance_river
-sites_basic <- sites_basic %>%
-  add_column(distance_river)
-### Plot for proof ###
-dist_sf <- st_as_sf(distance, coords = c("lon", "lat")) %>%
-  st_set_crs(value = 4326)
-ggplot() +
-  geom_sf(data = danube_isar, fill = "grey50", color = "grey50") +
-  geom_sf(data = sites) +
-  geom_sf(data = dist_sf, colour = "grey60")
-
-
-### c Amount of surrounding habitats ------------------------------------------
-
-buffered_plots <- sites %>%
-  st_buffer(dist = 500)
-biotope_selected <- biotope_mapping %>%
-  st_intersection(buffered_plots) %>%
-  select(id, datum, titel, haupt_typ, neben_typ, geometry) %>%
-  filter(
-    str_detect(haupt_typ, "Flachland-Mähwiesen") | # none available
-      str_detect(haupt_typ, "Magerrasen") |
-      str_detect(haupt_typ, "Artenreiches Extensivgrünland") |
-      str_detect(haupt_typ, "Magere Altgrasbestände") |
-      str_detect(haupt_typ, "Pfeifengraswiese") | # none available
-      str_detect(neben_typ, "Flachland-Mähwiesen") | # none available
-      str_detect(neben_typ, "Magerrasen") |
-      str_detect(neben_typ, "Artenreiches Extensivgrünland") |
-      str_detect(haupt_typ, "Pfeifengraswiese") # none available
-      )
-sites_with_biotopes <- buffered_plots %>%
-  st_intersection(biotope_selected) %>%
-  st_make_valid() %>%
-  group_by(id) %>%
-  summarise(st_union(geometry))
-biotope_area <- sites_with_biotopes %>%
-  mutate(area = st_area(sites_with_biotopes)) %>%
-  st_drop_geometry()
-sites <- sites %>%
-  left_join(biotope_area, by = "id")
-sites_basic <- sites_basic %>%
-  left_join(biotope_area, by = "id")
-### Plot for proof ###
-ggplot() +
-  geom_sf(data = danube_isar, fill = "grey50", color = "grey50") +
-  geom_sf(data = sites) +
-  geom_sf(data = biotope_selected, colour = "grey60")
-
-
-
-#______________________________________________________________________________
-## 5 Digitize shp files #######################################################
+## 4 Digitize shp files #######################################################
 
 
 # Was only done once
@@ -252,12 +176,120 @@ danube_isar <- st_read(here("data", "raw", "spatial",
 
 
 
+#______________________________________________________________________________
+## 5 Calculate new variables ##################################################
+
+
+### a Calculate center of locations -------------------------------------------
+
+locations <- sites_with_spatial_data %>%
+  group_by(location_year) %>%
+  summarise(across(c(longitude, latitude, construction_year),
+                   mean, na.rm = TRUE)) %>%
+  rename(longitude_center = longitude, latitude_center = latitude)
+sites_with_spatial_data <- left_join(
+  sites_with_spatial_data,
+  locations %>% select(-construction_year),
+  by = "location_year"
+)
+
+
+### b Distance to river -------------------------------------------------------
+
+### Prepare data ###
+coordinates_plots <- sites %>%
+  st_coordinates()
+coordinates_danube_isar <- danube_isar %>%
+  st_coordinates() %>%
+  as_tibble() %>%
+  select(X, Y)
+### Calculate distances ###
+distance <- geosphere::dist2Line(
+  p = coordinates_plots, line = coordinates_danube_isar
+  ) %>%
+  as_tibble() %>%
+  mutate(distance = round(distance, digits = 0)) %>%
+  rename(river_distance = distance)
+river_distance <- distance$river_distance
+sites_with_spatial_data <- sites_with_spatial_data %>%
+  add_column(river_distance)
+### Plot for proof ###
+dist_sf <- st_as_sf(distance, coords = c("lon", "lat")) %>%
+  st_set_crs(value = 4326)
+ggplot() +
+  geom_sf(data = danube_isar, fill = "grey50", color = "grey50") +
+  geom_sf(data = sites) +
+  geom_sf(data = dist_sf, colour = "grey60")
+
+
+### c Amount of surrounding habitats ------------------------------------------
+
+### Prepare data ###
+buffered_plots <- sites %>%
+  st_buffer(dist = 500)
+biotope_types <- biotope_mapping %>%
+  select(id, datum, titel, haupt_typ, neben_typ, geometry) %>%
+  filter(
+    str_detect(haupt_typ, "Flachland-Mähwiesen") |
+      str_detect(haupt_typ, "Magerrasen") |
+      str_detect(haupt_typ, "Artenreiches Extensivgrünland") |
+      str_detect(haupt_typ, "Magere Altgrasbestände") |
+      str_detect(haupt_typ, "Pfeifengraswiese") |
+      str_detect(neben_typ, "Flachland-Mähwiesen") |
+      str_detect(neben_typ, "Magerrasen") |
+      str_detect(neben_typ, "Artenreiches Extensivgrünland") |
+      str_detect(neben_typ, "Pfeifengraswiese")
+      )
+sites_with_biotopes <- buffered_plots %>%
+  st_intersection(biotope_types) %>%
+  st_make_valid() %>%
+  group_by(id) %>%
+  summarise(st_union(geometry))
+### Calculate area sizes ###
+biotope_area <- sites_with_biotopes %>%
+  mutate(biotope_area = st_area(sites_with_biotopes),
+         biotope_area = round(biotope_area, digits = 0)) %>%
+  st_drop_geometry()
+sites_with_spatial_data <- sites_with_spatial_data %>%
+  left_join(biotope_area, by = "id")
+### Plot for proof ###
+ggplot() +
+  geom_sf(data = danube_isar, fill = "grey50", color = "grey50") +
+  geom_sf(data = buffered_plots, fill = "transparent") +
+  geom_sf(data = sites, size = .01) +
+  geom_sf(data = sites_with_biotopes, fill = "red", color = "red")
+
+
+### d Distance to closest habitat ---------------------------------------------
+
+coordinates_biotopes <- biotope_types %>%
+ as(Class = "Spatial")
+distance <- geosphere::dist2Line(
+  p = coordinates_plots, line = coordinates_biotopes
+  ) %>%
+  as_tibble() %>%
+  rename(biotope_distance = distance)
+biotope_distance <- distance$biotope_distance
+sites_with_spatial_data <- sites_with_spatial_data %>%
+  add_column(biotope_distance) %>%
+  mutate(biotope_distance = round(biotope_distance, digits = 0))
+### Plot for proof ###
+dist_sf <- st_as_sf(distance, coords = c("lon", "lat")) %>%
+  st_set_crs(value = 4326)
+ggplot() +
+  geom_sf(data = danube_isar, fill = "grey50", color = "grey50") +
+  geom_sf(data = buffered_plots, fill = "transparent") +
+  geom_sf(data = sites, size = 0.01) +
+  geom_sf(data = dist_sf, colour = "grey60")
+
+
+
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # C Save #######################################################################
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-
+### Save shp files ###
 save(
   background_google,
   file = paste0(here("data", "processed", "spatial"),
@@ -308,15 +340,21 @@ st_write(
   layer = "sites_epsg4326.shp", driver = "ESRI Shapefile",
   delete_layer = TRUE, dsn = here("data", "processed", "spatial")
   )
+### River layer (was only once digitized) ###
+#st_write(danube_isar, layer = "danube_isar_digitized_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE, dsn = here("data", "processed", "spatial"))
+
+### Save data frames ###
 write_csv(
-  sites_basic,
-  file = here("data", "processed", "spatial", "sites_basic.csv")
+  sites_with_spatial_data,
+  file = here("data", "processed", "spatial", "sites_with_spatial_data.csv")
   )
 write_csv(
   locations,
   file = here("data", "processed", "spatial", "locations.csv")
   )
-sites_basic %>%
+
+### Save gpx file ###
+sites_with_spatial_data %>%
   select(id, longitude, latitude) %>%
   mutate(id = as.character(id)) %>%
   as.data.frame() %>%
@@ -324,5 +362,3 @@ sites_basic %>%
     "data", "processed", "spatial",
     "danube_old_dikes_plots.gpx"
   ))
-### River layer was one time digitized ###
-#st_write(danube_isar, layer = "danube_isar_digitized_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE, dsn = here("data", "processed", "spatial"))
