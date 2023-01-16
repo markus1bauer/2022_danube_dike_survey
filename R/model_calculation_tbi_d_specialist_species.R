@@ -178,7 +178,7 @@ MuMIn::AICc(m1a, m1b, m1c) %>%
 ### b Fixed effects ------------------------------------------------------------
 
 m1 <- blmer(
-  y ~ (comparison + exposition + pc1_soil)^2 + pc2_soil + pc3_soil +
+  log(y) ~ (comparison + exposition + pc1_soil)^2 + pc2_soil + pc3_soil +
     orientation + river_distance_scaled + river_km_scaled +
     biotope_distance_scaled +
     (1 | plot),
@@ -189,7 +189,7 @@ m1 <- blmer(
 )
 simulateResiduals(m1, plot = TRUE)
 m2 <- blmer(
-  y ~ comparison * exposition + pc1_soil + pc2_soil + pc3_soil +
+  log(y) ~ comparison * exposition + pc1_soil + pc2_soil + pc3_soil +
     orientation + river_distance_scaled + river_km_scaled +
     biotope_distance_scaled +
     (1 | plot),
@@ -200,7 +200,7 @@ m2 <- blmer(
 )
 simulateResiduals(m2, plot = TRUE)
 m3 <- blmer(
-  y ~ comparison + exposition * pc1_soil + pc2_soil + pc3_soil +
+  log(y) ~ comparison + exposition * pc1_soil + pc2_soil + pc3_soil +
     orientation + river_distance_scaled + river_km_scaled +
     biotope_distance_scaled +
     (1 | plot),
@@ -211,7 +211,7 @@ m3 <- blmer(
 )
 simulateResiduals(m3, plot = TRUE)
 m4 <- blmer(
-  y ~ comparison * pc1_soil + exposition + pc2_soil + pc3_soil +
+  log(y) ~ comparison * pc1_soil + exposition + pc2_soil + pc3_soil +
     orientation + river_distance_scaled + river_km_scaled +
     biotope_distance_scaled +
     (1 | plot),
@@ -222,7 +222,7 @@ m4 <- blmer(
 )
 simulateResiduals(m4, plot = TRUE)
 m5 <- blmer(
-  y ~ comparison + exposition + pc1_soil + pc2_soil + pc3_soil +
+  log(y) ~ comparison + exposition + pc1_soil + pc2_soil + pc3_soil +
     orientation + river_distance_scaled + river_km_scaled +
     biotope_distance_scaled +
     (1 | plot),
@@ -237,4 +237,5 @@ simulateResiduals(m5, plot = TRUE)
 ### c Save ---------------------------------------------------------------------
 
 save(m1, file = here("outputs", "models", "model_tbi_d_specialist_1.Rdata"))
-save(m2, file = here("outputs", "models", "model_tbi_d_specialist_2.Rdata"))
+save(m3, file = here("outputs", "models", "model_tbi_d_specialist_3.Rdata"))
+save(m5, file = here("outputs", "models", "model_tbi_d_specialist_5.Rdata"))
