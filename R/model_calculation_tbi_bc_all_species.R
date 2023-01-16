@@ -24,7 +24,7 @@ rm(list = ls())
 setwd(here("data", "processed"))
 
 ### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv",
+sites <- read_csv(here("data", "processed", "data_processed_sites_temporal.csv"),
                   col_names = TRUE, na = c("", "na", "NA"),
                   col_types =
                     cols(
