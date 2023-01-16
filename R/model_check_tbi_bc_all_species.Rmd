@@ -61,8 +61,7 @@ rm(list = ls())
 #### Load data
 
 ```{r load-data}
-setwd(here("data", "processed"))
-sites <- read_csv("data_processed_sites_temporal.csv",
+sites <- read_csv(here("data", "processed", "data_processed_sites_temporal.csv"),
                   col_names = TRUE, na = c("", "na", "NA"),
                   col_types =
                     cols(
@@ -82,8 +81,11 @@ sites <- read_csv("data_processed_sites_temporal.csv",
     y = c - b,
     comparison = factor(comparison)
     ) %>%
-  mutate(across(
-    c("river_km", "river_distance", "biotope_distance", "biotope_area"), scale)
+  mutate(
+    river_km_scaled = scale(river_km),
+    river_distance_scaled = scale(river_distance),
+    biotope_distance_scaled = scale(biotope_distance),
+    biotope_area_scaled = scale(biotope_area)
     )
 ```
 
@@ -215,8 +217,6 @@ simulation_output_2 <- simulateResiduals(m_2, plot = TRUE)
 ```
 
 ```{r dharma_single, collapse = TRUE}
-plotResiduals(simulation_output_1$scaledResiduals,
-              sites$location_construction_year)
 plotResiduals(simulation_output_1$scaledResiduals, sites$plot)
 plotResiduals(simulation_output_2$scaledResiduals, sites$plot)
 plotResiduals(simulation_output_1$scaledResiduals, sites$location)
