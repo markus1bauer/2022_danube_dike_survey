@@ -30,12 +30,14 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
     * Scripts to generate all figures and tables (.R)
     * Metadata script for creating EML file
     * Folder for calculating habitat types (ESY)
+    
+4. __Markdown__: the folder `markdown` contains model checks
 
 ***
 
 __Package versioning__
 
-The used versions of R and the packages are saved in `2022_danube_dike_survey/renv.lock`.
+The used versions of R and the packages are saved in `2023_danube_dike_survey/renv.lock`.
 
 You can restore this state by executing `renv::restore()` in the console.
 
