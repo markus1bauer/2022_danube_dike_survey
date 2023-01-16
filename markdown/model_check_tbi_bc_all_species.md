@@ -395,6 +395,10 @@ plotResiduals(simulation_output_2$scaledResiduals, sites$biotope_distance_scaled
 Remove VIF \> 3 or \> 10 Zuur et al. 2010 Methods Ecol Evol
 <https://doi.org/10.1111/j.2041-210X.2009.00001.x>
 
+``` r
+car::vif(m_1)
+```
+
     ##                             GVIF Df GVIF^(1/(2*Df))
     ## comparison              3.621165  2        1.379469
     ## exposition              3.069442  1        1.751982
@@ -408,6 +412,10 @@ Remove VIF \> 3 or \> 10 Zuur et al. 2010 Methods Ecol Evol
     ## comparison:exposition   7.644611  2        1.662796
     ## comparison:pc1_soil     3.157971  2        1.333067
     ## exposition:pc1_soil     2.934371  1        1.713000
+
+``` r
+car::vif(m_2)
+```
 
     ##                             GVIF Df GVIF^(1/(2*Df))
     ## comparison              3.473140  2        1.365151
@@ -507,6 +515,7 @@ summary(m_2)
 ``` r
 dotwhisker::dwplot(
   list(m_1, m_2),
+  ci = 0.95,
   show_intercept = FALSE,
   vline = geom_vline(xintercept = 0, colour = "grey60", linetype = 2)) +
   xlim(-0.3, 0.35) +

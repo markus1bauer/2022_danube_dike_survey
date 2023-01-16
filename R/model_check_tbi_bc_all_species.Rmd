@@ -217,7 +217,7 @@ m_2@call
 
 ### DHARMa
 
-```{r dharma_all, collapse = TRUE, warning = FALSE, fig.height = 5}
+```{r dharma_all, collapse = TRUE, warning = FALSE}
 simulation_output_1 <- simulateResiduals(m_1, plot = TRUE)
 simulation_output_2 <- simulateResiduals(m_2, plot = TRUE)
 ```
@@ -255,7 +255,7 @@ Remove VIF > 3 or > 10
 Zuur et al. 2010 Methods Ecol Evol
 https://doi.org/10.1111/j.2041-210X.2009.00001.x
 
-```{r vif, echo = FALSE}
+```{r vif}
 car::vif(m_1)
 car::vif(m_2)
 ```
@@ -295,6 +295,7 @@ summary(m_2)
 ```{r predicted_values, fig.height = 6}
 dotwhisker::dwplot(
   list(m_1, m_2),
+  ci = 0.95,
   show_intercept = FALSE,
   vline = geom_vline(xintercept = 0, colour = "grey60", linetype = 2)) +
   xlim(-0.3, 0.35) +
