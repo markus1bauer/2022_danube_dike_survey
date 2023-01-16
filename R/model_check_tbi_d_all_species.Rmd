@@ -202,10 +202,10 @@ sites <- sites %>%
 Only here you have to modify the script to compare other models
 
 ```{r load-models, collapse = TRUE}
-load(file = here("outputs", "models", "model_tbi_d_all_1.Rdata"))
-load(file = here("outputs", "models", "model_tbi_d_all_2.Rdata"))
-m_1 <- m1
-m_2 <- m2
+load(file = here("outputs", "models", "model_tbi_d_all_3.Rdata"))
+load(file = here("outputs", "models", "model_tbi_d_all_5.Rdata"))
+m_1 <- m3
+m_2 <- m5
 ```
 
 ```{r formulas, collapse = TRUE}
