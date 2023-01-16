@@ -31,7 +31,7 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
     * Metadata script for creating EML file
     * Folder for calculating habitat types (ESY)
     
-4. __Markdown__: the folder `markdown` contains model checks
+4. __Markdown__: the folder `markdown` contains model checks to scroll through
 
 ***
 
