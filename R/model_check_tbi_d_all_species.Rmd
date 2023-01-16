@@ -82,7 +82,7 @@ sites <- read_csv(here("data", "processed", "data_processed_sites_temporal.csv")
     (comparison == "1718" | comparison == "1819" | comparison == "1921") &
       pool == "all" & presabu == "presence") %>%
   mutate(
-    y = c - b,
+    y = d,
     comparison = factor(comparison)
     ) %>%
   mutate(
@@ -186,7 +186,7 @@ Exclude r > 0.7
 Dormann et al. 2013 Ecography
 https://doi.org/10.1111/j.1600-0587.2012.07348.x
 
-```{r collinearity, warning = FALSE}
+```{r collinearity, warning = FALSE, message = FALSE}
 sites %>%
   select(where(is.numeric), -b, -c, -d, -y, -ends_with("scaled")) %>%
   GGally::ggpairs(
@@ -252,6 +252,7 @@ plotResiduals(simulation_output_2$scaledResiduals, sites$biotope_distance_scaled
 ### Check collinearity part 2 (Step 5)
 
 Remove VIF > 3 or > 10 --> location_construction_year removed
+
 Zuur et al. 2010 Methods Ecol Evol
 https://doi.org/10.1111/j.2041-210X.2009.00001.x
 
@@ -276,9 +277,7 @@ Burnahm & Anderson 2002 p. 66
 ISBN: 978-0-387-95364-9
 
 ```{r aicc, collapse = TRUE}
-m_1_aicc <- update(m_1, REML = FALSE)
-m_2_aicc <- update(m_2, REML = FALSE)
-MuMIn::AICc(m_1_aicc, m_2_aicc) %>%
+MuMIn::AICc(m_1, m_2) %>%
   arrange(AICc)
 ```
 
