@@ -15,6 +15,7 @@
 library(here)
 library(tidyverse)
 library(ggbeeswarm)
+library(patchwork)
 library(blme)
 library(DHARMa)
 library(emmeans)
@@ -63,46 +64,53 @@ sites <- read_csv(here("data", "processed", "data_processed_sites_temporal.csv")
 ## 1 Data exploration #########################################################
 
 
-### a Graphs ------------------------------------------------------------------
+### a Means and deviation -----------------------------------------------------
 
 mean(sites$y)
 median(sites$y)
 sd(sites$y)
 Rmisc::CI(sites$y, ci = .95)
 quantile(sites$y, probs = c(0.05, 0.95), na.rm = TRUE)
-ggplot(sites, aes(x = comparison, y = y)) +
+
+
+### b Graphs ------------------------------------------------------------------
+
+plot1 <- ggplot(sites, aes(x = comparison, y = y)) +
   geom_quasirandom(color = "grey") + geom_boxplot(fill = "transparent") +
   labs(title = "Comparison of consecutive surveys")
-ggplot(sites, aes(x = exposition, y = y)) +
+plot2 <- ggplot(sites, aes(x = exposition, y = y)) +
   geom_quasirandom(color = "grey") + geom_boxplot(fill = "transparent") +
   labs(title = "Exposition of dike slopes")
-ggplot(sites, aes(x = orientation, y = y)) +
+plot3 <- ggplot(sites, aes(x = orientation, y = y)) +
   geom_quasirandom(color = "grey") + geom_boxplot(fill = "transparent") +
   labs(title = "Orientation of dike slopes")
-ggplot(sites, aes(x = river_km, y = (y))) +
+plot4 <- ggplot(sites, aes(x = river_km, y = (y))) +
   geom_point() +  geom_smooth(method = "lm") +
   labs(title = "Position along the river")
-ggplot(sites, aes(x = location_construction_year, y = y)) +
+(plot1 + plot2) / (plot3 + plot4)
+plot1 <- ggplot(sites, aes(x = location_construction_year, y = y)) +
   geom_quasirandom(color = "grey") + geom_boxplot(fill = "transparent") +
   labs(title = "Location and construction year of the dike")
-ggplot(sites, aes(x = (river_distance), y = (y))) +
+plot2 <- ggplot(sites, aes(x = (river_distance), y = (y))) +
   geom_point() + geom_smooth(method = "lm") +
   labs(title = "Distance to river course")
-ggplot(sites, aes(x = (biotope_distance), y = (y))) +
+plot3 <- ggplot(sites, aes(x = (biotope_distance), y = (y))) +
   geom_point() + geom_smooth(method = "lm") +
   labs(title = "Distance to closest grassland biotope")
-ggplot(sites, aes(x = (biotope_area), y = (y))) +
+plot4 <- ggplot(sites, aes(x = (biotope_area), y = (y))) +
   geom_point() + geom_smooth(method = "lm") +
   labs(title = "Amount of grassland biotopes with 500 m radius")
-ggplot(sites, aes(x = pc1_soil, y = (y))) +
+(plot1 + plot2) / (plot3 + plot4)
+plot1 <- ggplot(sites, aes(x = pc1_soil, y = (y))) +
   geom_point() + geom_smooth(method = "lm") +
   labs(title = "PC1 (soil)")
-ggplot(sites, aes(x = (pc2_soil), y = y)) +
+plot2 <- ggplot(sites, aes(x = (pc2_soil), y = y)) +
   geom_point() + geom_smooth(method = "lm") +
   labs(title = "PC2 (soil)")
-ggplot(sites, aes(x = (pc3_soil), y = y)) +
+plot3 <- ggplot(sites, aes(x = (pc3_soil), y = y)) +
   geom_point() + geom_smooth(method = "lm") +
   labs(title = "PC3 (soil)")
+(plot1 + plot2) / (plot3)
 ggplot(sites, aes(x = comparison, y = y)) +
   geom_quasirandom(color = "grey") + geom_boxplot(fill = "transparent") +
   facet_grid(~exposition) +
@@ -121,11 +129,10 @@ ggplot(sites, aes(x = (pc2_soil), y = y, color = exposition)) +
   labs(title = "PC2 x Exposition")
 
 
-### b Outliers, zero-inflation, transformations? ------------------------------
+### c Outliers, zero-inflation, transformations? ------------------------------
 
 sites %>%
   count(location_construction_year)
-boxplot(sites$y)
 ggplot(sites, aes(x = exposition, y = y)) +
   geom_quasirandom()
 ggplot(sites, aes(x = y)) +
@@ -136,14 +143,14 @@ ggplot(sites, aes(x = log(y))) +
   geom_density()
 
 
-### c Check collinearity ------------------------------------------------------
+### d Check collinearity ------------------------------------------------------
 
 sites %>%
   select(where(is.numeric), -b, -c, -d, -y, -ends_with("scaled")) %>%
   GGally::ggpairs(
-    lower = list(continuous = "smooth_loess"),
-    axisLabels = "internal"
-    )
+    lower = list(continuous = "smooth_loess")
+    ) +
+  theme(strip.text = element_text(size = 7))
 sites <- sites %>%
   select(-biotope_area)
 #--> exclude r > 0.7
