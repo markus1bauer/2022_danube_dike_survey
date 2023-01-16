@@ -110,37 +110,39 @@ plot2 <- ggplot(sites, aes(x = (pc2_soil), y = y)) +
 plot3 <- ggplot(sites, aes(x = (pc3_soil), y = y)) +
   geom_point() + geom_smooth(method = "lm") +
   labs(title = "PC3 (soil)")
-(plot1 + plot2) / (plot3)
-ggplot(sites, aes(x = comparison, y = y)) +
+plot4 <- ggplot(sites, aes(x = comparison, y = y)) +
   geom_quasirandom(color = "grey") + geom_boxplot(fill = "transparent") +
   facet_grid(~exposition) +
   labs(title = "Exposion x Comparison of consecutive surveys")
-ggplot(sites, aes(x = pc1_soil, y = y, color = comparison)) +
+(plot1 + plot2) / (plot3 + plot4)
+plot1 <- ggplot(sites, aes(x = pc1_soil, y = y, color = comparison)) +
   geom_point() + geom_smooth(method = "lm") +
   labs(title = "PC1 x Comparison of consecutive surveys")
-ggplot(sites, aes(x = pc2_soil, y = y, color = comparison)) +
+plot2 <- ggplot(sites, aes(x = pc2_soil, y = y, color = comparison)) +
   geom_point() + geom_smooth(method = "lm") +
   labs(title = "PC2 x Comparison of consecutive surveys")
-ggplot(sites, aes(x = pc1_soil, y = y, color = exposition)) +
+plot3 <- ggplot(sites, aes(x = pc1_soil, y = y, color = exposition)) +
   geom_point() + geom_smooth(method = "lm") +
   labs(title = "PC1 x Exposition")
-ggplot(sites, aes(x = (pc2_soil), y = y, color = exposition)) +
+plot4 <- ggplot(sites, aes(x = (pc2_soil), y = y, color = exposition)) +
   geom_point() + geom_smooth(method = "lm") +
   labs(title = "PC2 x Exposition")
+(plot1 + plot2) / (plot3 + plot4)
 
 
 ### c Outliers, zero-inflation, transformations? ------------------------------
 
 sites %>%
   count(location_construction_year)
-ggplot(sites, aes(x = exposition, y = y)) +
+plot1 <- ggplot(sites, aes(x = exposition, y = y)) +
   geom_quasirandom()
-ggplot(sites, aes(x = y)) +
+plot2 <- ggplot(sites, aes(x = y)) +
   geom_histogram(binwidth = 0.03)
-ggplot(sites, aes(x = y)) +
+plot3 <- ggplot(sites, aes(x = y)) +
   geom_density()
-ggplot(sites, aes(x = log(y))) +
+plot4 <- ggplot(sites, aes(x = log(y))) +
   geom_density()
+(plot1 + plot2) / (plot3 + plot4)
 
 
 ### d Check collinearity ------------------------------------------------------
