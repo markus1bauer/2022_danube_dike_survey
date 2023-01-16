@@ -198,6 +198,7 @@ m2 <- blmer(
   cov.prior = wishart,
   data = sites
 )
+simulateResiduals(m2, plot = TRUE)
 m3 <- blmer(
   y ~ comparison + exposition * pc1_soil + pc2_soil + pc3_soil +
     orientation + river_distance_scaled + river_km_scaled +
@@ -208,7 +209,6 @@ m3 <- blmer(
   cov.prior = wishart,
   data = sites
 )
-simulateResiduals(m2, plot = TRUE)
 simulateResiduals(m3, plot = TRUE)
 m4 <- blmer(
   y ~ comparison * pc1_soil + exposition + pc2_soil + pc3_soil +
