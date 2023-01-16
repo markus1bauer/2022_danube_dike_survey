@@ -236,5 +236,5 @@ simulateResiduals(m5, plot = TRUE)
 
 ### c Save ---------------------------------------------------------------------
 
-save(m1, file = here("outputs", "models", "model_tbi_bc_target_1.Rdata"))
-save(m2, file = here("outputs", "models", "model_tbi_bc_target_2.Rdata"))
+save(m1, file = here("outputs", "models", "model_tbi_bc_specialist_1.Rdata"))
+save(m2, file = here("outputs", "models", "model_tbi_bc_specialist_2.Rdata"))
