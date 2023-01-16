@@ -45,9 +45,12 @@ sites <- read_csv("data_processed_sites_temporal.csv",
     y = c - b,
     comparison = factor(comparison)
     ) %>%
-  mutate(across(
-    c("river_km", "river_distance", "biotope_distance", "biotope_area"), scale
-    ))
+  mutate(
+    river_km_scaled = scale(river_km),
+    river_distance_scaled = scale(river_distance),
+    biotope_distance_scaled = scale(biotope_distance),
+    biotope_area_scaled = scale(biotope_area)
+    )
 
 
 
@@ -97,6 +100,9 @@ ggplot(sites, aes(x = pc1_soil, y = (y))) +
 ggplot(sites, aes(x = (pc2_soil), y = y)) +
   geom_point() + geom_smooth(method = "lm") +
   labs(title = "PC2 (soil)")
+ggplot(sites, aes(x = (pc3_soil), y = y)) +
+  geom_point() + geom_smooth(method = "lm") +
+  labs(title = "PC3 (soil)")
 ggplot(sites, aes(x = comparison, y = y)) +
   geom_quasirandom(color = "grey") + geom_boxplot(fill = "transparent") +
   facet_grid(~exposition) +
@@ -119,7 +125,7 @@ ggplot(sites, aes(x = (pc2_soil), y = y, color = exposition)) +
 
 sites %>%
   count(location_construction_year)
-boxplot(sites$n)
+boxplot(sites$y)
 ggplot(sites, aes(x = exposition, y = y)) +
   geom_quasirandom()
 ggplot(sites, aes(x = y)) +
@@ -132,13 +138,14 @@ ggplot(sites, aes(x = log(y))) +
 
 ### c Check collinearity ------------------------------------------------------
 
-data_collinearity <- sites %>%
-  select(where(is.numeric), -b, -c, -d, -y) %>%
+sites %>%
+  select(where(is.numeric), -b, -c, -d, -y, -ends_with("scaled")) %>%
   GGally::ggpairs(
-    data_collinearity,
     lower = list(continuous = "smooth_loess"),
     axisLabels = "internal"
     )
+sites <- sites %>%
+  select(-biotope_area)
 #--> exclude r > 0.7
 # Dormann et al. 2013 Ecography
 # https://doi.org/10.1111/j.1600-0587.2012.07348.x
@@ -148,9 +155,8 @@ data_collinearity <- sites %>%
 ## 2 Model building ###########################################################
 
 
-### a models ------------------------------------------------------------------
+### a Random structure ---------------------------------------------------------
 
-### * Random structure ####
 m1a <- blmer(y ~ 1 + (1 | location_construction_year),
              data = sites, REML = TRUE)
 m1b <- blmer(y ~ 1 + (1 | location_construction_year / plot),
@@ -159,10 +165,13 @@ m1c <- blmer(y ~ 1 + (1 | plot), data = sites, REML = TRUE)
 MuMIn::AICc(m1a, m1b, m1c) %>%
   arrange(AICc)
 
-### * Fixed effects ####
+
+### b Fixed effects ------------------------------------------------------------
+
 m1 <- blmer(
   y ~ (comparison + exposition + pc1_soil)^2 + pc2_soil + pc3_soil +
-    orientation + river_distance + location_construction_year +
+    orientation + river_distance_scaled + river_km_scaled +
+    biotope_distance_scaled +
     (1 | plot),
   REML = FALSE,
   control = lmerControl(optimizer = "Nelder_Mead"),
@@ -171,8 +180,19 @@ m1 <- blmer(
   )
 simulateResiduals(m1, plot = TRUE)
 m2 <- blmer(
+  y ~ comparison * exposition + pc1_soil + pc2_soil + pc3_soil +
+    orientation + river_distance_scaled + river_km_scaled +
+    biotope_distance_scaled +
+    (1 | plot),
+  REML = FALSE,
+  control = lmerControl(optimizer = "Nelder_Mead"),
+  cov.prior = wishart,
+  data = sites
+)
+m3 <- blmer(
   y ~ comparison + exposition * pc1_soil + pc2_soil + pc3_soil +
-    orientation + river_distance + location_construction_year +
+    orientation + river_distance_scaled + river_km_scaled +
+    biotope_distance_scaled +
     (1 | plot),
   REML = FALSE,
   control = lmerControl(optimizer = "Nelder_Mead"),
@@ -180,19 +200,11 @@ m2 <- blmer(
   data = sites
 )
 simulateResiduals(m2, plot = TRUE)
-m3 <- blmer(
-  y ~ comparison * exposition + pc1_soil + pc2_soil + pc3_soil +
-    orientation + river_distance + location_construction_year +
-    (1 | plot),
-  REML = FALSE,
-  control = lmerControl(optimizer = "Nelder_Mead"),
-  cov.prior = wishart,
-  data = sites
-)
 simulateResiduals(m3, plot = TRUE)
 m4 <- blmer(
   y ~ comparison * pc1_soil + exposition + pc2_soil + pc3_soil +
-    orientation + river_distance + location_construction_year +
+    orientation + river_distance_scaled + river_km_scaled +
+    biotope_distance_scaled +
     (1 | plot),
   REML = FALSE,
   control = lmerControl(optimizer = "Nelder_Mead"),
@@ -202,7 +214,8 @@ m4 <- blmer(
 simulateResiduals(m4, plot = TRUE)
 m5 <- blmer(
   y ~ comparison + exposition + pc1_soil + pc2_soil + pc3_soil +
-    orientation + river_distance + location_construction_year +
+    orientation + river_distance_scaled + river_km_scaled +
+    biotope_distance_scaled +
     (1 | plot),
   REML = FALSE,
   control = lmerControl(optimizer = "Nelder_Mead"),
@@ -210,3 +223,9 @@ m5 <- blmer(
   data = sites
 )
 simulateResiduals(m5, plot = TRUE)
+
+
+### c Save ---------------------------------------------------------------------
+
+save(m1, file = here("outputs", "models", "model_tbi_bc_all_1.Rdata"))
+save(m2, file = here("outputs", "models", "model_tbi_bc_all_2.Rdata"))
