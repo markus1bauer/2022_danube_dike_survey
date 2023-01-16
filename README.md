@@ -12,7 +12,7 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
 
 ## Content of the repository
 
-1. __Data__: the folder `data` contains  
+1. The folder `data` contains  
     * `Raw` and `processed` data of the sites variables (.csv) 
     * `Raw` and `processed` data of the species' abundances (.csv) 
     * `Raw` and `processed` data of the species' traits (.csv)
@@ -20,22 +20,24 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
     * Raw and processed `spatial` data (.shp)
     * `photos` of the plots (.jpg)
     
-2. __Outputs__: the folder `outputs` contains  
+2. The folder `outputs` contains  
     * The `figures` generated (.tiff)
     * The `tables` generated (.png)
     * The `statistics` tables from the principal component analyses (.csv)
     
-3. __R__: the folder `R` contains  
+3. The folder `R` contains  
     * Scripts to calculate all models (.R)
     * Scripts to generate all figures and tables (.R)
     * Metadata script for creating EML file
     * Folder for calculating habitat types (ESY)
+    
+4. The folder `markdown` contains model checks to scroll through
 
 ***
 
 __Package versioning__
 
-The used versions of R and the packages are saved in `2022_danube_dike_survey/renv.lock`.
+The used versions of R and the packages are saved in `2023_danube_dike_survey/renv.lock`.
 
 You can restore this state by executing `renv::restore()` in the console.
 
