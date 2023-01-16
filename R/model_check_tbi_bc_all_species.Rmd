@@ -199,13 +199,8 @@ m_2 <- m2
 ### Model specifications
 
 ```{r formulas, collapse = TRUE}
-m_1$formula
-m_2$formula
-```
-
-```{r families, collapse = TRUE}
-m_1$family
-m_2$family
+m_1@call
+m_2@call
 ```
 
 ## Model check
