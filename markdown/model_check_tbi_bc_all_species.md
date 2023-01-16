@@ -392,7 +392,8 @@ plotResiduals(simulation_output_2$scaledResiduals, sites$biotope_distance_scaled
 
 ### Check collinearity part 2 (Step 5)
 
-Remove VIF \> 3 or \> 10 Zuur et al. 2010 Methods Ecol Evol
+Remove VIF \> 3 or \> 10 –\> location_construction_year removed Zuur et
+al. 2010 Methods Ecol Evol
 <https://doi.org/10.1111/j.2041-210X.2009.00001.x>
 
 ``` r
