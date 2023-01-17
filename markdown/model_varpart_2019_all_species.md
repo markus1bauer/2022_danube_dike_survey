@@ -86,6 +86,7 @@ sites <- read_csv(here("data", "processed", "data_processed_sites_spatial.csv"),
     botanist, location_construction_year, construction_year,
     exposition, orientation, pc1_soil, pc2_soil, pc3_soil,
     location_abb, river_km, river_distance, biotope_distance, biotope_area,
+    mem1_2019,
     survey_year, plot_age, pc1_construction_year, pc2_construction_year,
     pc3_construction_year,
     accumulated_cover
@@ -95,7 +96,8 @@ sites <- read_csv(here("data", "processed", "data_processed_sites_spatial.csv"),
     exposition_numeric = as.double(exposition),
     orientation_numeric = as.double(orientation),
     location_abb_numeric = as.double(location_abb),
-    botanist_numeric = as.double(as_factor(botanist))
+    botanist_numeric = as.double(as_factor(botanist)),
+    biotope_area = if_else(is.na(biotope_area), 0, biotope_area)
   )
 
 species <- read_csv(here("data", "processed", "data_processed_species.csv"),
@@ -129,14 +131,15 @@ Exclude r \> 0.7 <br> Dormann et al. 2013 Ecography [DOI:
 sites %>%
   select(
     where(is.numeric), -ends_with("numeric"),
-    -accumulated_cover, -construction_year, -survey_year, -longitude, -latitude
+    -accumulated_cover, -construction_year, -survey_year,
     ) %>%
   GGally::ggpairs(lower = list(continuous = "smooth_loess"))
 ```
 
 ![](model_varpart_2019_all_species_files/figure-gfm/collinearity-1.png)<!-- -->
 
-→ Remove biotope_area and pc3_construction_year
+→ Remove longitude, latitude, biotope_area, mem1_2019,
+pc3_construction_year
 
 ``` r
 sites_soil <- sites %>%
@@ -231,7 +234,7 @@ sel <- forward.sel(
     ## Testing variable 1
     ## Testing variable 2
     ## Testing variable 3
-    ## Procedure stopped (alpha criteria): pvalue for variable 3 is 0.055900 (> 0.050000)
+    ## Procedure stopped (alpha criteria): pvalue for variable 3 is 0.056500 (> 0.050000)
 
 ``` r
 sel$p_adj <- p.adjust(sel$pvalue, method = "holm", n = ncol(sites_soil))
@@ -239,11 +242,11 @@ sel # https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 ```
 
     ##            variables order         R2      R2Cum   AdjR2Cum        F pvalue
-    ## 1 exposition_numeric     4 0.06507081 0.06507081 0.04109827 2.714389 0.0068
-    ## 2           pc3_soil     3 0.04940805 0.11447886 0.06787249 2.120227 0.0234
+    ## 1 exposition_numeric     4 0.06507081 0.06507081 0.04109827 2.714389 0.0078
+    ## 2           pc3_soil     3 0.04940805 0.11447886 0.06787249 2.120227 0.0228
     ##    p_adj
-    ## 1 0.0340
-    ## 2 0.0936
+    ## 1 0.0390
+    ## 2 0.0912
 
 ``` r
 sites_soil_selected <- sites %>%
@@ -287,7 +290,7 @@ sel <- forward.sel(
 
     ## Testing variable 1
     ## Testing variable 2
-    ## Procedure stopped (alpha criteria): pvalue for variable 2 is 0.400200 (> 0.050000)
+    ## Procedure stopped (alpha criteria): pvalue for variable 2 is 0.402200 (> 0.050000)
 
 ``` r
 sel$p_adj <- p.adjust(sel$pvalue, method = "holm", n = ncol(sites_history))
@@ -295,9 +298,9 @@ sel # https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 ```
 
     ##               variables order         R2      R2Cum   AdjR2Cum        F pvalue
-    ## 1 pc1_construction_year     2 0.05528254 0.05528254 0.03105902 2.282184 0.0196
-    ##    p_adj
-    ## 1 0.0588
+    ## 1 pc1_construction_year     2 0.05528254 0.05528254 0.03105902 2.282184  0.018
+    ##   p_adj
+    ## 1 0.054
 
 ``` r
 sites_history_selected <- sites %>%
@@ -338,7 +341,7 @@ anova(m1_substitution, permutations = how(nperm = 9999))
     ## 
     ## Model: dbrda(formula = beta_substitution ~ exposition + pc3_soil + Condition(pc1_construction_year), data = sites)
     ##          Df SumOfSqs      F Pr(>F)  
-    ## Model     2   0.6008 2.0632  0.012 *
+    ## Model     2   0.6008 2.0632 0.0108 *
     ## Residual 37   5.3871                
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -371,7 +374,7 @@ anova(m1_substitution, permutations = how(nperm = 9999))
     ## 
     ## Model: dbrda(formula = beta_substitution ~ pc1_construction_year + Condition(pc3_soil + orientation + exposition + pc1_soil + location_abb), data = sites)
     ##          Df SumOfSqs     F Pr(>F)  
-    ## Model     1  0.22109 1.936 0.0509 .
+    ## Model     1  0.22109 1.936 0.0558 .
     ## Residual 27  3.08326               
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -403,7 +406,7 @@ anova(m1_substitution, permutations = how(nperm = 9999))
     ## 
     ## Model: dbrda(formula = beta_substitution ~ exposition + Condition(pc3_soil + pc1_construction_year), data = sites)
     ##          Df SumOfSqs      F Pr(>F)   
-    ## Model     1   0.4299 2.9526 0.0037 **
+    ## Model     1   0.4299 2.9526 0.0034 **
     ## Residual 37   5.3871                 
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -435,7 +438,7 @@ anova(m1_substitution, permutations = how(nperm = 9999))
     ## 
     ## Model: dbrda(formula = beta_substitution ~ pc3_soil + Condition(exposition + pc1_construction_year), data = sites)
     ##          Df SumOfSqs      F Pr(>F)
-    ## Model     1   0.1838 1.2624 0.2757
+    ## Model     1   0.1838 1.2624 0.2796
     ## Residual 37   5.3871
 
 ``` r
@@ -468,7 +471,7 @@ anova(m1, permutations = how(nperm = 999))
     ## 
     ## Model: dbrda(formula = beta_subsets ~ pc1_soil + pc2_soil + pc3_soil + exposition + orientation + location_abb + river_km + river_distance + biotope_distance + plot_age + pc1_construction_year + pc2_construction_year, data = sites)
     ##          Df SumOfSqs      F Pr(>F)
-    ## Model    19  0.15731 1.4134  0.287
+    ## Model    19  0.15731 1.4134  0.331
     ## Residual 21  0.12302
 
 ``` r

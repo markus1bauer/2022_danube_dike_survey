@@ -1,5 +1,5 @@
 ---
-title: "Analysis of Bauer et al. (unpublished) Beta diversity on dike grasslands: <br> Spatial variation 2018"
+title: "Analysis of Bauer et al. (unpublished) Beta diversity on dike grasslands: <br> Spatial variation 2021"
 author: "<b>Markus Bauer</b> <br>"
 date: "<b>`r format(Sys.time(), '%Y-%m-%d')`</b>"
 output:
@@ -71,13 +71,13 @@ sites <- read_csv(here("data", "processed", "data_processed_sites_spatial.csv"),
       orientation = "f",
       location_construction_year = "f"
     )) %>%
-  filter(survey_year == 2018) %>%
+  filter(survey_year == 2021) %>%
   select(
     id, plot, block, longitude, latitude,
     botanist, location_construction_year, construction_year,
     exposition, orientation, pc1_soil, pc2_soil, pc3_soil,
     location_abb, river_km, river_distance, biotope_distance, biotope_area,
-    mem2_2018,
+    mem1_2021, mem2_2021,
     survey_year, plot_age, pc1_construction_year, pc2_construction_year,
     pc3_construction_year,
     accumulated_cover
@@ -128,13 +128,13 @@ sites %>%
   GGally::ggpairs(lower = list(continuous = "smooth_loess"))
 ```
 
-&rarr; Remove biotope_area and pc3_construction_year
+&rarr; Remove latitude, longitude, biotope_area, mem1_2021, pc3_construction_year
 
 ```{r data_selection}
 sites_soil <- sites %>%
   select(pc1_soil, pc2_soil, pc3_soil, exposition_numeric, orientation_numeric)
 sites_space <- sites %>%
-  select(location_abb_numeric, river_distance, river_km, biotope_distance, mem2_2018)
+  select(location_abb_numeric, river_distance, river_km, biotope_distance, mem2_2021)
 sites_history <- sites %>%
   select(plot_age, pc1_construction_year, pc2_construction_year)
 ```
@@ -169,7 +169,7 @@ beta_substitution_detrended <- resid(lm(beta_substitution ~ longitude + latitude
 m1 <- dbrda(
   beta_substitution ~
     pc1_soil + pc2_soil + pc3_soil + exposition + orientation +
-    location_abb + river_km + river_distance + biotope_distance + mem2_2018 +
+    location_abb + river_km + river_distance + biotope_distance + mem2_2021 +
     plot_age + pc1_construction_year + pc2_construction_year,
   data = sites
   )
@@ -194,7 +194,7 @@ sel <- forward.sel(
 sel$p_adj <- p.adjust(sel$pvalue, method = "holm", n = ncol(sites_soil))
 sel # https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 sites_soil_selected <- sites %>%
-  select(pc3_soil)
+  select(pc1_soil, exposition_numeric, pc3_soil)
 ```
 
 ### Forward selection: Space
@@ -202,7 +202,7 @@ sites_soil_selected <- sites %>%
 ```{r fs_space}
 m1 <- dbrda(
   beta_substitution ~ location_abb + river_km + river_distance +
-    biotope_distance + mem2_2018,
+    biotope_distance + mem2_2021,
   data = sites
   )
 r2adj <- RsquareAdj(m1)$adj.r.squared
@@ -215,7 +215,7 @@ sel <- forward.sel(
 sel$p_adj <- p.adjust(sel$pvalue, method = "holm", n = ncol(sites_space))
 sel # https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 sites_space_selected <- sites %>%
-  select(biotope_distance)
+  select(river_distance, biotope_distance)
 ```
 
 ### Forward selection: History
@@ -267,24 +267,84 @@ dev.off()
 
 ### Partial db-RDA
 
-#### Soil = pc3_soil
+#### Soil
 
-```{r partial_soil_pc3-soil}
+```{r partial_soil}
 m1_substitution <- dbrda(
-  beta_substitution ~ pc3_soil +
-    Condition(biotope_distance),
+  beta_substitution ~ pc1_soil + exposition + pc3_soil +
+    Condition(river_distance + biotope_distance),
+data = sites
+)
+anova(m1_substitution, permutations = how(nperm = 9999))
+RsquareAdj(m1_substitution)
+```
+
+#### Space
+
+```{r partial_space}
+m1_substitution <- dbrda(
+  beta_substitution ~ river_distance + biotope_distance +
+    Condition(pc1_soil + exposition + pc3_soil),
   data = sites
   )
 anova(m1_substitution, permutations = how(nperm = 9999))
 RsquareAdj(m1_substitution)
 ```
 
-#### Space = biotope_distance
+#### PC1_soil
 
-```{r partial_space_biotope_distance}
+```{r partial_pc1-soil}
+m1_substitution <- dbrda(
+  beta_substitution ~ pc1_soil +
+  Condition(exposition + pc3_soil + river_distance + biotope_distance),
+  data = sites
+  )
+anova(m1_substitution, permutations = how(nperm = 9999))
+RsquareAdj(m1_substitution)
+```
+
+#### Exposition
+
+```{r partial_exposition}
+m1_substitution <- dbrda(
+  beta_substitution ~ exposition +
+  Condition(pc1_soil + pc3_soil + river_distance + biotope_distance),
+  data = sites
+  )
+anova(m1_substitution, permutations = how(nperm = 9999))
+RsquareAdj(m1_substitution)
+```
+
+#### PC3_soil
+
+```{r partial_pc3-soil}
+m1_substitution <- dbrda(
+  beta_substitution ~ pc3_soil +
+  Condition(pc1_soil + exposition + river_distance + biotope_distance),
+  data = sites
+  )
+anova(m1_substitution, permutations = how(nperm = 9999))
+RsquareAdj(m1_substitution)
+```
+
+#### Distance to river
+
+```{r partial_river-distance}
+m1_substitution <- dbrda(
+  beta_substitution ~ river_distance +
+  Condition(pc1_soil + exposition + pc3_soil + biotope_distance),
+  data = sites
+  )
+anova(m1_substitution, permutations = how(nperm = 9999))
+RsquareAdj(m1_substitution)
+```
+
+#### Distance to closest biotope
+
+```{r partial_biotope-distance}
 m1_substitution <- dbrda(
   beta_substitution ~ biotope_distance +
-  Condition(pc3_soil),
+  Condition(pc1_soil + exposition + pc3_soil + river_distance),
   data = sites
   )
 anova(m1_substitution, permutations = how(nperm = 9999))
@@ -298,7 +358,7 @@ RsquareAdj(m1_substitution)
 ```{r nestedness_full_model}
 m1 <- dbrda(
   beta_subsets ~ pc1_soil + pc2_soil + pc3_soil + exposition + orientation +
-  location_abb + river_km + river_distance + biotope_distance + mem2_2018 +
+  location_abb + river_km + river_distance + biotope_distance + mem2_2021 +
   plot_age + pc1_construction_year + pc2_construction_year,
   data = sites
   )

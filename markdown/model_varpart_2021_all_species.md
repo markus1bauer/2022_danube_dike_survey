@@ -1,5 +1,5 @@
 Analysis of Bauer et al. (unpublished) Beta diversity on dike
-grasslands: <br> Spatial variation 2018
+grasslands: <br> Spatial variation 2021
 ================
 <b>Markus Bauer</b> <br>
 <b>2023-01-17</b>
@@ -80,13 +80,13 @@ sites <- read_csv(here("data", "processed", "data_processed_sites_spatial.csv"),
       orientation = "f",
       location_construction_year = "f"
     )) %>%
-  filter(survey_year == 2018) %>%
+  filter(survey_year == 2021) %>%
   select(
     id, plot, block, longitude, latitude,
     botanist, location_construction_year, construction_year,
     exposition, orientation, pc1_soil, pc2_soil, pc3_soil,
     location_abb, river_km, river_distance, biotope_distance, biotope_area,
-    mem2_2018,
+    mem1_2021, mem2_2021,
     survey_year, plot_age, pc1_construction_year, pc2_construction_year,
     pc3_construction_year,
     accumulated_cover
@@ -136,15 +136,16 @@ sites %>%
   GGally::ggpairs(lower = list(continuous = "smooth_loess"))
 ```
 
-![](model_varpart_2018_all_species_files/figure-gfm/collinearity-1.png)<!-- -->
+![](model_varpart_2021_all_species_files/figure-gfm/collinearity-1.png)<!-- -->
 
-→ Remove biotope_area and pc3_construction_year
+→ Remove latitude, longitude, biotope_area, mem1_2021,
+pc3_construction_year
 
 ``` r
 sites_soil <- sites %>%
   select(pc1_soil, pc2_soil, pc3_soil, exposition_numeric, orientation_numeric)
 sites_space <- sites %>%
-  select(location_abb_numeric, river_distance, river_km, biotope_distance, mem2_2018)
+  select(location_abb_numeric, river_distance, river_km, biotope_distance, mem2_2021)
 sites_history <- sites %>%
   select(plot_age, pc1_construction_year, pc2_construction_year)
 ```
@@ -163,7 +164,7 @@ beta$part
 ```
 
     ##      BDtotal         Repl          Nes Repl/BDtotal  Nes/BDtotal 
-    ##   0.33197170   0.28146527   0.05050643   0.84785923   0.15214077
+    ##   0.34203727   0.29205484   0.04998243   0.85386846   0.14613154
 
 ``` r
 beta_total <- beta$D %>% # = Soerensen dissimilarity
@@ -190,7 +191,7 @@ river_km
 m1 <- dbrda(
   beta_substitution ~
     pc1_soil + pc2_soil + pc3_soil + exposition + orientation +
-    location_abb + river_km + river_distance + biotope_distance + mem2_2018 +
+    location_abb + river_km + river_distance + biotope_distance + mem2_2021 +
     plot_age + pc1_construction_year + pc2_construction_year,
   data = sites
   )
@@ -201,10 +202,10 @@ anova(m1, permutations = how(nperm = 9999))
     ## Permutation: free
     ## Number of permutations: 9999
     ## 
-    ## Model: dbrda(formula = beta_substitution ~ pc1_soil + pc2_soil + pc3_soil + exposition + orientation + location_abb + river_km + river_distance + biotope_distance + mem2_2018 + plot_age + pc1_construction_year + pc2_construction_year, data = sites)
+    ## Model: dbrda(formula = beta_substitution ~ pc1_soil + pc2_soil + pc3_soil + exposition + orientation + location_abb + river_km + river_distance + biotope_distance + mem2_2021 + plot_age + pc1_construction_year + pc2_construction_year, data = sites)
     ##          Df SumOfSqs      F Pr(>F)    
-    ## Model    20   4.6720 2.2097  1e-04 ***
-    ## Residual 20   2.1143                  
+    ## Model    20   5.2980 2.6447  1e-04 ***
+    ## Residual 20   2.0032                  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -212,7 +213,7 @@ anova(m1, permutations = how(nperm = 9999))
 (r2adj <- RsquareAdj(m1)$adj.r.squared)
 ```
 
-    ## [1] 0.3768835
+    ## [1] 0.4512594
 
 ### Forward selection: Soil
 
@@ -232,19 +233,27 @@ sel <- forward.sel(
 
     ## Testing variable 1
     ## Testing variable 2
-    ## Procedure stopped (alpha criteria): pvalue for variable 2 is 0.091400 (> 0.050000)
+    ## Testing variable 3
+    ## Testing variable 4
+    ## Procedure stopped (adjR2thresh criteria) adjR2cum = 0.169255 with 4 variables (> 0.157952)
 
 ``` r
 sel$p_adj <- p.adjust(sel$pvalue, method = "holm", n = ncol(sites_soil))
 sel # https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 ```
 
-    ##   variables order         R2      R2Cum   AdjR2Cum        F pvalue p_adj
-    ## 1  pc3_soil     3 0.05554481 0.05554481 0.03132801 2.293648  0.016  0.08
+    ##            variables order         R2      R2Cum   AdjR2Cum        F pvalue
+    ## 1 exposition_numeric     4 0.07614705 0.07614705 0.05245851 3.214510 0.0058
+    ## 2           pc1_soil     1 0.07827414 0.15442119 0.10991704 3.517611 0.0030
+    ## 3           pc3_soil     3 0.05447642 0.20889761 0.14475418 2.547872 0.0094
+    ##    p_adj
+    ## 1 0.0232
+    ## 2 0.0150
+    ## 3 0.0282
 
 ``` r
 sites_soil_selected <- sites %>%
-  select(pc3_soil)
+  select(pc1_soil, exposition_numeric, pc3_soil)
 ```
 
 ### Forward selection: Space
@@ -252,7 +261,7 @@ sites_soil_selected <- sites %>%
 ``` r
 m1 <- dbrda(
   beta_substitution ~ location_abb + river_km + river_distance +
-    biotope_distance + mem2_2018,
+    biotope_distance + mem2_2021,
   data = sites
   )
 r2adj <- RsquareAdj(m1)$adj.r.squared
@@ -266,7 +275,8 @@ sel <- forward.sel(
 
     ## Testing variable 1
     ## Testing variable 2
-    ## Procedure stopped (alpha criteria): pvalue for variable 2 is 0.077800 (> 0.050000)
+    ## Testing variable 3
+    ## Procedure stopped (alpha criteria): pvalue for variable 3 is 0.130300 (> 0.050000)
 
 ``` r
 sel$p_adj <- p.adjust(sel$pvalue, method = "holm", n = ncol(sites_space))
@@ -274,13 +284,15 @@ sel # https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 ```
 
     ##          variables order         R2      R2Cum   AdjR2Cum        F pvalue
-    ## 1 biotope_distance     4 0.05471746 0.05471746 0.03047945 2.257506 0.0185
+    ## 1 biotope_distance     4 0.05949809 0.05949809 0.03538265 2.467220 0.0186
+    ## 2   river_distance     2 0.06066989 0.12016798 0.07386103 2.620336 0.0153
     ##    p_adj
-    ## 1 0.0925
+    ## 1 0.0765
+    ## 2 0.0765
 
 ``` r
 sites_space_selected <- sites %>%
-  select(biotope_distance)
+  select(river_distance, biotope_distance)
 ```
 
 ### Forward selection: History
@@ -314,16 +326,142 @@ plot(
   )
 ```
 
-![](model_varpart_2018_all_species_files/figure-gfm/varpart-1.png)<!-- -->
+![](model_varpart_2021_all_species_files/figure-gfm/varpart-1.png)<!-- -->
 
 ### Partial db-RDA
 
-#### Soil = pc3_soil
+#### Soil
+
+``` r
+m1_substitution <- dbrda(
+  beta_substitution ~ pc1_soil + exposition + pc3_soil +
+    Condition(river_distance + biotope_distance),
+data = sites
+)
+anova(m1_substitution, permutations = how(nperm = 9999))
+```
+
+    ## Permutation test for dbrda under reduced model
+    ## Permutation: free
+    ## Number of permutations: 9999
+    ## 
+    ## Model: dbrda(formula = beta_substitution ~ pc1_soil + exposition + pc3_soil + Condition(river_distance + biotope_distance), data = sites)
+    ##          Df SumOfSqs      F Pr(>F)    
+    ## Model     3   1.1762 2.7084  2e-04 ***
+    ## Residual 35   5.0665                  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+RsquareAdj(m1_substitution)
+```
+
+    ## $r.squared
+    ## [1] 0.1610963
+    ## 
+    ## $adj.r.squared
+    ## [1] 0.1069646
+
+#### Space
+
+``` r
+m1_substitution <- dbrda(
+  beta_substitution ~ river_distance + biotope_distance +
+    Condition(pc1_soil + exposition + pc3_soil),
+  data = sites
+  )
+anova(m1_substitution, permutations = how(nperm = 9999))
+```
+
+    ## Permutation test for dbrda under reduced model
+    ## Permutation: free
+    ## Number of permutations: 9999
+    ## 
+    ## Model: dbrda(formula = beta_substitution ~ river_distance + biotope_distance + Condition(pc1_soil + exposition + pc3_soil), data = sites)
+    ##          Df SumOfSqs      F Pr(>F)    
+    ## Model     2   0.9905 3.4211  1e-04 ***
+    ## Residual 35   5.0665                  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+RsquareAdj(m1_substitution)
+```
+
+    ## $r.squared
+    ## [1] 0.1356587
+    ## 
+    ## $adj.r.squared
+    ## [1] 0.1037897
+
+#### PC1_soil
+
+``` r
+m1_substitution <- dbrda(
+  beta_substitution ~ pc1_soil +
+  Condition(exposition + pc3_soil + river_distance + biotope_distance),
+  data = sites
+  )
+anova(m1_substitution, permutations = how(nperm = 9999))
+```
+
+    ## Permutation test for dbrda under reduced model
+    ## Permutation: free
+    ## Number of permutations: 9999
+    ## 
+    ## Model: dbrda(formula = beta_substitution ~ pc1_soil + Condition(exposition + pc3_soil + river_distance + biotope_distance), data = sites)
+    ##          Df SumOfSqs      F Pr(>F)
+    ## Model     1   0.2470 1.7066 0.1125
+    ## Residual 35   5.0665
+
+``` r
+RsquareAdj(m1_substitution)
+```
+
+    ## $r.squared
+    ## [1] 0.03383549
+    ## 
+    ## $adj.r.squared
+    ## [1] 0.01556541
+
+#### Exposition
+
+``` r
+m1_substitution <- dbrda(
+  beta_substitution ~ exposition +
+  Condition(pc1_soil + pc3_soil + river_distance + biotope_distance),
+  data = sites
+  )
+anova(m1_substitution, permutations = how(nperm = 9999))
+```
+
+    ## Permutation test for dbrda under reduced model
+    ## Permutation: free
+    ## Number of permutations: 9999
+    ## 
+    ## Model: dbrda(formula = beta_substitution ~ exposition + Condition(pc1_soil + pc3_soil + river_distance + biotope_distance), data = sites)
+    ##          Df SumOfSqs    F Pr(>F)    
+    ## Model     1   0.7600 5.25  1e-04 ***
+    ## Residual 35   5.0665                
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+RsquareAdj(m1_substitution)
+```
+
+    ## $r.squared
+    ## [1] 0.1040901
+    ## 
+    ## $adj.r.squared
+    ## [1] 0.09362607
+
+#### PC3_soil
 
 ``` r
 m1_substitution <- dbrda(
   beta_substitution ~ pc3_soil +
-    Condition(biotope_distance),
+  Condition(pc1_soil + exposition + river_distance + biotope_distance),
   data = sites
   )
 anova(m1_substitution, permutations = how(nperm = 9999))
@@ -333,27 +471,61 @@ anova(m1_substitution, permutations = how(nperm = 9999))
     ## Permutation: free
     ## Number of permutations: 9999
     ## 
-    ## Model: dbrda(formula = beta_substitution ~ pc3_soil + Condition(biotope_distance), data = sites)
-    ##          Df SumOfSqs      F Pr(>F)
-    ## Model     1   0.2419 1.4631 0.1722
-    ## Residual 38   6.2840
+    ## Model: dbrda(formula = beta_substitution ~ pc3_soil + Condition(pc1_soil + exposition + river_distance + biotope_distance), data = sites)
+    ##          Df SumOfSqs      F Pr(>F)  
+    ## Model     1   0.3247 2.2428 0.0287 *
+    ## Residual 35   5.0665                
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
 RsquareAdj(m1_substitution)
 ```
 
     ## $r.squared
-    ## [1] 0.0356522
+    ## [1] 0.04446699
     ## 
     ## $adj.r.squared
-    ## [1] 0.01157353
+    ## [1] 0.02737818
 
-#### Space = biotope_distance
+#### Distance to river
+
+``` r
+m1_substitution <- dbrda(
+  beta_substitution ~ river_distance +
+  Condition(pc1_soil + exposition + pc3_soil + biotope_distance),
+  data = sites
+  )
+anova(m1_substitution, permutations = how(nperm = 9999))
+```
+
+    ## Permutation test for dbrda under reduced model
+    ## Permutation: free
+    ## Number of permutations: 9999
+    ## 
+    ## Model: dbrda(formula = beta_substitution ~ river_distance + Condition(pc1_soil + exposition + pc3_soil + biotope_distance), data = sites)
+    ##          Df SumOfSqs      F Pr(>F)    
+    ## Model     1   0.5208 3.5976  2e-04 ***
+    ## Residual 35   5.0665                  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+RsquareAdj(m1_substitution)
+```
+
+    ## $r.squared
+    ## [1] 0.07132755
+    ## 
+    ## $adj.r.squared
+    ## [1] 0.05722324
+
+#### Distance to closest biotope
 
 ``` r
 m1_substitution <- dbrda(
   beta_substitution ~ biotope_distance +
-  Condition(pc3_soil),
+  Condition(pc1_soil + exposition + pc3_soil + river_distance),
   data = sites
   )
 anova(m1_substitution, permutations = how(nperm = 9999))
@@ -363,20 +535,22 @@ anova(m1_substitution, permutations = how(nperm = 9999))
     ## Permutation: free
     ## Number of permutations: 9999
     ## 
-    ## Model: dbrda(formula = beta_substitution ~ biotope_distance + Condition(pc3_soil), data = sites)
-    ##          Df SumOfSqs      F Pr(>F)
-    ## Model     1   0.2187 1.3226 0.2511
-    ## Residual 38   6.2840
+    ## Model: dbrda(formula = beta_substitution ~ biotope_distance + Condition(pc1_soil + exposition + pc3_soil + river_distance), data = sites)
+    ##          Df SumOfSqs      F Pr(>F)    
+    ## Model     1   0.4613 3.1866  8e-04 ***
+    ## Residual 35   5.0665                  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
 RsquareAdj(m1_substitution)
 ```
 
     ## $r.squared
-    ## [1] 0.03223015
+    ## [1] 0.06318005
     ## 
     ## $adj.r.squared
-    ## [1] 0.008063732
+    ## [1] 0.04817047
 
 ## db-RDA: Nestedness component
 
@@ -385,7 +559,7 @@ RsquareAdj(m1_substitution)
 ``` r
 m1 <- dbrda(
   beta_subsets ~ pc1_soil + pc2_soil + pc3_soil + exposition + orientation +
-  location_abb + river_km + river_distance + biotope_distance + mem2_2018 +
+  location_abb + river_km + river_distance + biotope_distance + mem2_2021 +
   plot_age + pc1_construction_year + pc2_construction_year,
   data = sites
   )
@@ -396,16 +570,16 @@ anova(m1, permutations = how(nperm = 999))
     ## Permutation: free
     ## Number of permutations: 999
     ## 
-    ## Model: dbrda(formula = beta_subsets ~ pc1_soil + pc2_soil + pc3_soil + exposition + orientation + location_abb + river_km + river_distance + biotope_distance + mem2_2018 + plot_age + pc1_construction_year + pc2_construction_year, data = sites)
+    ## Model: dbrda(formula = beta_subsets ~ pc1_soil + pc2_soil + pc3_soil + exposition + orientation + location_abb + river_km + river_distance + biotope_distance + mem2_2021 + plot_age + pc1_construction_year + pc2_construction_year, data = sites)
     ##          Df SumOfSqs      F Pr(>F)
-    ## Model    20  0.18048 0.5487  0.738
-    ## Residual 20  0.32891
+    ## Model    20  0.12281 0.5293  0.861
+    ## Residual 20  0.23202
 
 ``` r
 (r2adj <- RsquareAdj(m1)$adj.r.squared)
 ```
 
-    ## [1] -0.2913784
+    ## [1] -0.3077811
 
 ### Forward selection
 
