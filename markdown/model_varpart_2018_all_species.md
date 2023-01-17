@@ -26,9 +26,7 @@ grasslands: <br> Spatial variation 2018
       id="toc-forward-selection-history">Forward selection: History</a>
     - <a href="#variation-partitioning"
       id="toc-variation-partitioning">Variation partitioning</a>
-    - <a href="#partial-db-rda-single-variables"
-      id="toc-partial-db-rda-single-variables">Partial db-RDA: single
-      variables</a>
+    - <a href="#partial-db-rda" id="toc-partial-db-rda">Partial db-RDA</a>
   - <a href="#db-rda-nestedness-component"
     id="toc-db-rda-nestedness-component">db-RDA: Nestedness component</a>
     - <a href="#full-model-1" id="toc-full-model-1">Full model</a>
@@ -232,15 +230,15 @@ sel <- forward.sel(
 
     ## Testing variable 1
     ## Testing variable 2
-    ## Procedure stopped (alpha criteria): pvalue for variable 2 is 0.096100 (> 0.050000)
+    ## Procedure stopped (alpha criteria): pvalue for variable 2 is 0.093400 (> 0.050000)
 
 ``` r
 sel$p_adj <- p.adjust(sel$pvalue, method = "holm", n = ncol(sites_soil))
 sel # https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 ```
 
-    ##   variables order         R2      R2Cum   AdjR2Cum        F pvalue  p_adj
-    ## 1  pc3_soil     3 0.05554481 0.05554481 0.03132801 2.293648 0.0179 0.0895
+    ##   variables order         R2      R2Cum   AdjR2Cum        F pvalue p_adj
+    ## 1  pc3_soil     3 0.05554481 0.05554481 0.03132801 2.293648 0.0154 0.077
 
 ``` r
 sites_soil_selected <- sites %>%
@@ -266,15 +264,17 @@ sel <- forward.sel(
 
     ## Testing variable 1
     ## Testing variable 2
-    ## Procedure stopped (alpha criteria): pvalue for variable 2 is 0.170500 (> 0.050000)
+    ## Procedure stopped (alpha criteria): pvalue for variable 2 is 0.170300 (> 0.050000)
 
 ``` r
 sel$p_adj <- p.adjust(sel$pvalue, method = "holm", n = ncol(sites_space))
 sel # https://www.davidzeleny.net/anadat-r/doku.php/en:forward_sel_examples
 ```
 
-    ##          variables order         R2      R2Cum   AdjR2Cum        F pvalue p_adj
-    ## 1 biotope_distance     4 0.05471746 0.05471746 0.03047945 2.257506  0.018 0.072
+    ##          variables order         R2      R2Cum   AdjR2Cum        F pvalue
+    ## 1 biotope_distance     4 0.05471746 0.05471746 0.03047945 2.257506 0.0192
+    ##    p_adj
+    ## 1 0.0768
 
 ``` r
 sites_space_selected <- sites %>%
@@ -314,7 +314,7 @@ plot(
 
 ![](model_varpart_2018_all_species_files/figure-gfm/varpart-1.png)<!-- -->
 
-### Partial db-RDA: single variables
+### Partial db-RDA
 
 #### Soil = pc3_soil
 
@@ -333,7 +333,7 @@ anova(m1_substitution, permutations = how(nperm = 9999))
     ## 
     ## Model: dbrda(formula = beta_substitution ~ pc3_soil + Condition(biotope_distance), data = sites)
     ##          Df SumOfSqs      F Pr(>F)
-    ## Model     1   0.2419 1.4631 0.1761
+    ## Model     1   0.2419 1.4631 0.1747
     ## Residual 38   6.2840
 
 ``` r
@@ -363,7 +363,7 @@ anova(m1_substitution, permutations = how(nperm = 9999))
     ## 
     ## Model: dbrda(formula = beta_substitution ~ biotope_distance + Condition(pc3_soil), data = sites)
     ##          Df SumOfSqs      F Pr(>F)
-    ## Model     1   0.2187 1.3226 0.2524
+    ## Model     1   0.2187 1.3226 0.2474
     ## Residual 38   6.2840
 
 ``` r
@@ -396,7 +396,7 @@ anova(m1, permutations = how(nperm = 999))
     ## 
     ## Model: dbrda(formula = beta_subsets ~ pc1_soil + pc2_soil + pc3_soil + exposition + orientation + location_abb + river_km + river_distance + biotope_distance + plot_age + pc1_construction_year + pc2_construction_year, data = sites)
     ##          Df SumOfSqs      F Pr(>F)
-    ## Model    19  0.19532 0.6874  0.653
+    ## Model    19  0.19532 0.6874  0.655
     ## Residual 21  0.31407
 
 ``` r
