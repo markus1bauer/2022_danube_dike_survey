@@ -95,7 +95,7 @@ sites <- read_csv(here("data", "processed", "data_processed_sites_temporal.csv")
 
 # Statistics
 
-## Data exploration (Step 2, 6, 7)
+## Data exploration
 
 ### Means and deviations
 
@@ -106,7 +106,7 @@ sd(sites$y)
 quantile(sites$y, probs = c(0.05, 0.95), na.rm = TRUE)
 ```
 
-### Graphs of raw data
+### Graphs of raw data (Step 2, 6, 7)
 
 ```{r data-exploration, echo = FALSE, warning = FALSE, message = FALSE}
 plot1 <- ggplot(sites, aes(x = comparison, y = y)) +
@@ -202,8 +202,8 @@ sites <- sites %>%
 Only here you have to modify the script to compare other models
 
 ```{r load-models, collapse = TRUE}
-load(file = here("outputs", "models", "model_tbi_bc_target_1.Rdata"))
-load(file = here("outputs", "models", "model_tbi_bc_target_2.Rdata"))
+load(file = here("outputs", "models", "model_tbi_bc_specialist_1.Rdata"))
+load(file = here("outputs", "models", "model_tbi_bc_specialist_2.Rdata"))
 m_1 <- m1
 m_2 <- m2
 ```
@@ -222,7 +222,7 @@ simulation_output_1 <- simulateResiduals(m_1, plot = TRUE)
 simulation_output_2 <- simulateResiduals(m_2, plot = TRUE)
 ```
 
-```{r dharma_single, collapse = TRUE, fig.height = 3.5, fig.width = 5}
+```{r dharma_single, collapse = TRUE, fig.height = 3, fig.width = 4.5}
 plotResiduals(simulation_output_1$scaledResiduals, sites$plot)
 plotResiduals(simulation_output_2$scaledResiduals, sites$plot)
 plotResiduals(simulation_output_1$scaledResiduals, sites$location)

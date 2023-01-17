@@ -3,16 +3,17 @@ grasslands: <br> Temporal beta-diversity index (TBI). Gains vs. Losses
 with target species
 ================
 <b>Markus Bauer</b> <br>
-<b>2023-01-16</b>
+<b>2023-01-17</b>
 
 - <a href="#preparation" id="toc-preparation">Preparation</a>
 - <a href="#statistics" id="toc-statistics">Statistics</a>
-  - <a href="#data-exploration-step-2-6-7"
-    id="toc-data-exploration-step-2-6-7">Data exploration (Step 2, 6, 7)</a>
+  - <a href="#data-exploration" id="toc-data-exploration">Data
+    exploration</a>
     - <a href="#means-and-deviations" id="toc-means-and-deviations">Means and
       deviations</a>
-    - <a href="#graphs-of-raw-data" id="toc-graphs-of-raw-data">Graphs of raw
-      data</a>
+    - <a href="#graphs-of-raw-data-step-2-6-7"
+      id="toc-graphs-of-raw-data-step-2-6-7">Graphs of raw data (Step 2, 6,
+      7)</a>
     - <a href="#outliers-zero-inflation-transformations-step-1-3-4"
       id="toc-outliers-zero-inflation-transformations-step-1-3-4">Outliers,
       zero-inflation, transformations? (Step 1, 3, 4)</a>
@@ -105,7 +106,7 @@ sites <- read_csv(here("data", "processed", "data_processed_sites_temporal.csv")
 
 # Statistics
 
-## Data exploration (Step 2, 6, 7)
+## Data exploration
 
 ### Means and deviations
 
@@ -135,30 +136,9 @@ quantile(sites$y, probs = c(0.05, 0.95), na.rm = TRUE)
     ##       5%      95% 
     ## -0.30635  0.19818
 
-### Graphs of raw data
+### Graphs of raw data (Step 2, 6, 7)
 
-    ## `geom_smooth()` using formula = 'y ~ x'
-
-![](model_check_tbi_bc_target_species_files/figure-gfm/data-exploration-1.png)<!-- -->
-
-    ## `geom_smooth()` using formula = 'y ~ x'
-    ## `geom_smooth()` using formula = 'y ~ x'
-    ## `geom_smooth()` using formula = 'y ~ x'
-
-![](model_check_tbi_bc_target_species_files/figure-gfm/data-exploration-2.png)<!-- -->
-
-    ## `geom_smooth()` using formula = 'y ~ x'
-    ## `geom_smooth()` using formula = 'y ~ x'
-    ## `geom_smooth()` using formula = 'y ~ x'
-
-![](model_check_tbi_bc_target_species_files/figure-gfm/data-exploration-3.png)<!-- -->
-
-    ## `geom_smooth()` using formula = 'y ~ x'
-    ## `geom_smooth()` using formula = 'y ~ x'
-    ## `geom_smooth()` using formula = 'y ~ x'
-    ## `geom_smooth()` using formula = 'y ~ x'
-
-![](model_check_tbi_bc_target_species_files/figure-gfm/data-exploration-4.png)<!-- -->
+![](model_check_tbi_bc_target_species_files/figure-gfm/data-exploration-1.png)<!-- -->![](model_check_tbi_bc_target_species_files/figure-gfm/data-exploration-2.png)<!-- -->![](model_check_tbi_bc_target_species_files/figure-gfm/data-exploration-3.png)<!-- -->![](model_check_tbi_bc_target_species_files/figure-gfm/data-exploration-4.png)<!-- -->
 
 ### Outliers, zero-inflation, transformations? (Step 1, 3, 4)
 
@@ -182,8 +162,8 @@ quantile(sites$y, probs = c(0.05, 0.95), na.rm = TRUE)
 
 ### Check collinearity part 1 (Step 5)
 
-Exclude r \> 0.7 Dormann et al. 2013 Ecography
-<https://doi.org/10.1111/j.1600-0587.2012.07348.x>
+Exclude r \> 0.7 <br> Dormann et al. 2013 Ecography [DOI:
+10.1111/j.1600-0587.2012.07348.x](https://doi.org/10.1111/j.1600-0587.2012.07348.x)
 
 ``` r
 sites %>%
@@ -193,10 +173,6 @@ sites %>%
     ) +
   theme(strip.text = element_text(size = 7))
 ```
-
-    ## Registered S3 method overwritten by 'GGally':
-    ##   method from   
-    ##   +.gg   ggplot2
 
 ![](model_check_tbi_bc_target_species_files/figure-gfm/collinearity-1.png)<!-- -->
 
@@ -210,8 +186,8 @@ sites <- sites %>%
 Only here you have to modify the script to compare other models
 
 ``` r
-load(file = here("outputs", "models", "model_tbi_bc_target_1.Rdata"))
-load(file = here("outputs", "models", "model_tbi_bc_target_2.Rdata"))
+load(file = here("outputs", "models", "model_tbi_bc_specialist_1.Rdata"))
+load(file = here("outputs", "models", "model_tbi_bc_specialist_2.Rdata"))
 m_1 <- m1
 m_2 <- m2
 ```
@@ -392,9 +368,9 @@ plotResiduals(simulation_output_2$scaledResiduals, sites$biotope_distance_scaled
 
 ### Check collinearity part 2 (Step 5)
 
-Remove VIF \> 3 or \> 10 –\> location_construction_year removed Zuur et
-al. 2010 Methods Ecol Evol
-<https://doi.org/10.1111/j.2041-210X.2009.00001.x>
+Remove VIF \> 3 or \> 10 –\> location_construction_year removed <br>
+Zuur et al. 2010 Methods Ecol Evol [DOI:
+10.1111/j.2041-210X.2009.00001.x](https://doi.org/10.1111/j.2041-210X.2009.00001.x)
 
 ``` r
 car::vif(m_1)
@@ -446,8 +422,8 @@ MuMIn::r.squaredGLMM(m_2)
 
 ### AICc
 
-Use AICc and not AIC since ratio n/K \< 40 Burnahm & Anderson 2002 p. 66
-ISBN: 978-0-387-95364-9
+Use AICc and not AIC since ratio n/K \< 40 <br> Burnahm & Anderson 2002
+p. 66 ISBN: 978-0-387-95364-9
 
 ``` r
 m_1_aicc <- update(m_1, REML = FALSE)
@@ -575,9 +551,6 @@ necessary.
 ``` r
 plot(emm, comparison = TRUE)
 ```
-
-    ## I bet you wanted to call this with just object[[1]] - use '[[]]' or which' if I'm wrong.
-    ## See '? emm_list' for more information
 
 ![](model_check_tbi_bc_target_species_files/figure-gfm/effect-sizes-1.png)<!-- -->
 
