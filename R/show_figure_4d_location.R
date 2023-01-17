@@ -67,20 +67,12 @@ sites <- read_csv("data_processed_sites_temporal.csv",
     location_construction_year = fct_reorder(
       location_construction_year, construction_year
     ),
-    across(c("river_km", "river_distance"), scale)
+    x = location_construction_year,
+    river_km_scaled = scale(river_km),
+    river_distance_scaled = scale(river_distance),
+    biotope_distance_scaled = scale(biotope_distance),
+    biotope_area_scaled = scale(biotope_area)
   )
-
-### * Model ####
-m3 <- blmer(
-  y ~ comparison * exposition + pc1_soil + pc2_soil + pc3_soil +
-    orientation + river_distance + location_construction_year +
-    (1 | plot),
-  REML = TRUE,
-  control = lmerControl(optimizer = "Nelder_Mead"),
-  cov.prior = wishart,
-  data = sites
-)
-
 
 
 
@@ -90,34 +82,20 @@ m3 <- blmer(
 
 
 
-data_model <- ggeffect(m3, type = "emm", c("location_construction_year"),
-                       back.transform = TRUE)
-
-
-data <- sites %>%
-  rename(predicted = y, x = location_construction_year)
-
-
 (graph_d <- ggplot() +
-  geom_quasirandom(
-    data = data,
-    aes(x = x, y = predicted),
-    dodge.width = .6, size = 1, shape = 16, color = "grey70"
-  ) +
-  geom_errorbar(
-    data = data_model,
-    aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high),
-    width = 0.0, size = 0.4
-  ) +
-  geom_point(
-    data = data_model,
-    aes(x = x, y = predicted),
-    size = 2,
-    shape = 1
-  ) +
   geom_hline(
     yintercept = 0, linetype = 2,  color = "grey70"
     ) +
+  geom_quasirandom(
+    data = sites,
+    aes(x = x, y = y),
+    dodge.width = .6, size = 1, shape = 16, color = "grey70"
+  ) +
+  geom_boxplot(
+    data = sites,
+    aes(x = x, y = y),
+    fill = "transparent"
+  ) +
   scale_y_continuous(limits = c(-.6, .5), breaks = seq(-1, 400, .1)) +
   labs(x = "", y = expression(Gains ~ - ~ Losses ~ "[" * TBI[sor] * "]")) +
   theme_mb())

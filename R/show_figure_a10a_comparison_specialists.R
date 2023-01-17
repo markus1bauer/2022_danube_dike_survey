@@ -55,23 +55,22 @@ sites <- read_csv("data_processed_sites_temporal.csv",
   filter(
     (comparison == "1718" | comparison == "1819" | comparison == "1921") &
       pool == "target" & presabu == "presence") %>%
-  mutate(y = d,
-         comparison = factor(comparison),
-         location_construction_year = fct_relevel(
-           location_construction_year, "HOF-2012", after = Inf
-         ),
-         across(c("river_km", "river_distance"), scale))
+  mutate(
+    y = d,
+    comparison = factor(comparison),
+    location_construction_year = fct_relevel(
+      location_construction_year, "HOF-2012", after = Inf
+    ),
+    river_km_scaled = scale(river_km),
+    river_distance_scaled = scale(river_distance),
+    biotope_distance_scaled = scale(biotope_distance),
+    biotope_area_scaled = scale(biotope_area)
+  )
 
 ### * Model ####
-m5 <- blmer(
-  log(y) ~ comparison + exposition + pc1_soil + pc2_soil + pc3_soil +
-    orientation + river_distance + location_construction_year +
-    (1 | plot),
-  REML = FALSE,
-  control = lmerControl(optimizer = "Nelder_Mead"),
-  cov.prior = wishart,
-  data = sites
-)
+load(file = here("outputs", "models", "model_tbi_d_specialist_5.Rdata"))
+m <- m5
+m@call
 
 
 

@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
 # Plot Fig A9 ####
 # Markus Bauer
-# 2022-09-05
+# 2023-01-17
 
 
 
@@ -55,14 +55,20 @@ sites <- read_csv("data_processed_sites_temporal.csv",
   filter(
     (comparison == "1718" | comparison == "1719" | comparison == "1721") &
       pool == "all" & presabu == "presence") %>%
-  mutate(y = d,
-         comparison = factor(comparison),
-         across(where(is.numeric) & !y, scale))
+  mutate(
+    y = d,
+    comparison = factor(comparison),
+    river_km_scaled = scale(river_km),
+    river_distance_scaled = scale(river_distance),
+    biotope_distance_scaled = scale(biotope_distance),
+    biotope_area_scaled = scale(biotope_area)
+    )
 
 ### Model ###
 m <- blmer(
   log(y) ~ comparison + exposition + pc1_soil + pc2_soil + pc3_soil +
-    orientation + river_distance + location_construction_year +
+    orientation + river_distance_scaled + biotope_distance_scaled +
+    river_km_scaled +
     (1 | plot),
   REML = FALSE,
   control = lmerControl(optimizer = "Nelder_Mead"),

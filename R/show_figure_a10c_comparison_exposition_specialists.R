@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
 # Plot Fig A10C ####
 # Markus Bauer
-# 2022-09-08
+# 2023-01-17
 
 
 
@@ -65,19 +65,16 @@ sites <- read_csv("data_processed_sites_temporal.csv",
     location_construction_year = fct_relevel(
       location_construction_year, "HOF-2012", after = Inf
     ),
-    across(c("river_km", "river_distance"), scale)
+    river_km_scaled = scale(river_km),
+    river_distance_scaled = scale(river_distance),
+    biotope_distance_scaled = scale(biotope_distance),
+    biotope_area_scaled = scale(biotope_area)
   )
 
 ### * Model ####
-m3 <- blmer(
-  y ~ comparison * exposition + pc1_soil + pc2_soil + pc3_soil +
-    orientation + river_distance + location_construction_year +
-    (1 | plot),
-  REML = TRUE,
-  control = lmerControl(optimizer = "Nelder_Mead"),
-  cov.prior = wishart,
-  data = sites
-)
+load(file = here("outputs", "models", "model_tbi_bc_specialist_2.Rdata"))
+m <- m2
+m@call
 
 
 
@@ -87,7 +84,7 @@ m3 <- blmer(
 
 
 
-data_model <- ggeffect(m3, type = "emm", c("comparison", "exposition"),
+data_model <- ggeffect(m, type = "emm", c("comparison", "exposition"),
                        back.transform = TRUE) %>%
   mutate(
     cross = if_else(x %in% c("1718", "1921") & group == "north",

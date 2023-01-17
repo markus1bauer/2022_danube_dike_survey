@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
 # Plot Fig A8B ####
 # Markus Bauer
-# 2022-09-05
+# 2023-01-17
 
 
 
@@ -59,20 +59,19 @@ sites <- read_csv("data_processed_sites_temporal.csv",
   filter(
     (comparison == "1718" | comparison == "1819" | comparison == "1921") &
       pool == "all" & presabu == "presence") %>%
-  mutate(y = c - b,
-         comparison = factor(comparison)) %>%
-  mutate(across(c("river_km", "river_distance"), scale))
+  mutate(
+    y = c - b,
+    comparison = factor(comparison),
+    river_km_scaled = scale(river_km),
+    river_distance_scaled = scale(river_distance),
+    biotope_distance_scaled = scale(biotope_distance),
+    biotope_area_scaled = scale(biotope_area)
+    )
 
 ### * Model ####
-m3 <- blmer(
-  y ~ comparison * exposition + pc1_soil + pc2_soil + pc3_soil +
-    orientation + river_distance + location_construction_year +
-    (1 | plot),
-  REML = FALSE,
-  control = lmerControl(optimizer = "Nelder_Mead"),
-  cov.prior = wishart,
-  data = sites
-)
+load(file = here("outputs", "models", "model_tbi_bc_all_2.Rdata"))
+m <- m2
+m@call
 
 
 
@@ -82,7 +81,7 @@ m3 <- blmer(
 
 
 
-(graph_b <- m3 %>%
+(graph_b <- m %>%
   broom.mixed::tidy(conf.int = TRUE, conf.level = .95) %>%
   filter(
     !str_detect(term, "location*") &
@@ -92,17 +91,10 @@ m3 <- blmer(
   ) %>%
   mutate(
     term = fct_relevel(term, c(
-      "pc3_soil", "pc2_soil", "pc1_soil",
-      "river_distance", "orientationwater", "expositionnorth"
-    )),
-    term = fct_recode(term,
-      "South | North exposition" = "expositionnorth",
-      "Land | Water side" = "orientationwater",
-      "Distance to river" = "river_distance",
-      "PC1 (soil)" = "pc1_soil",
-      "PC2 (soil)" = "pc2_soil",
-      "PC3 (soil)" = "pc3_soil"
-    )
+      "river_km_scaled", "pc3_soil", "pc2_soil", "pc1_soil",
+      "river_distance_scaled", "biotope_distance_scaled",
+      "orientationwater", "expositionnorth"
+    ))
   ) %>%
   ggplot(aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high)) +
   geom_vline(xintercept = 0, linetype = 2, color = "black") +
@@ -110,7 +102,10 @@ m3 <- blmer(
   geom_linerange() +
   labs(x = expression(Estimate ~ "[" * italic("C")[sor] -
                         italic("B")[sor] * "]")) +
-  theme_mb())
+  theme_mb() +
+   theme(axis.line.y = element_blank(),
+         axis.text.y = element_blank(),
+         axis.ticks.y = element_blank()))
 
 ### Save ###
 ggsave(here("outputs", "figures", "figure_a8b_800dpi_8x8cm.tiff"),

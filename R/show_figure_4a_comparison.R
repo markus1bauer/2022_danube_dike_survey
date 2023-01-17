@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
 # Plot Fig 4A ####
 # Markus Bauer
-# 2022-09-05
+# 2023-01-17
 
 
 
@@ -55,24 +55,22 @@ sites <- read_csv("data_processed_sites_temporal.csv",
   filter(
     (comparison == "1718" | comparison == "1819" | comparison == "1921") &
       pool == "all" & presabu == "presence") %>%
-  mutate(y = d,
-         comparison = factor(comparison),
-         location_construction_year = fct_relevel(
-           location_construction_year, "HOF-2012", after = Inf
-         ),
-         across(c("river_km", "river_distance"), scale))
+  mutate(
+    y = d,
+    comparison = factor(comparison),
+    location_construction_year = fct_relevel(
+      location_construction_year, "HOF-2012", after = Inf
+    ),
+    river_km_scaled = scale(river_km),
+    river_distance_scaled = scale(river_distance),
+    biotope_distance_scaled = scale(biotope_distance),
+    biotope_area_scaled = scale(biotope_area)
+    )
 
 ### * Model ####
-m5 <- blmer(
-  log(y) ~ comparison + exposition + pc1_soil + pc2_soil + pc3_soil +
-    orientation + river_distance + location_construction_year +
-    (1 | plot),
-  REML = FALSE,
-  control = lmerControl(optimizer = "Nelder_Mead"),
-  cov.prior = wishart,
-  data = sites
-)
-
+load(file = here("outputs", "models", "model_tbi_d_all_5.Rdata"))
+m <- m5
+m@call
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -81,7 +79,7 @@ m5 <- blmer(
 
 
 
-data_model <- ggeffect(m5, type = "emm", c("comparison"),
+data_model <- ggeffect(m, type = "emm", c("comparison"),
                        back.transform = TRUE) %>%
   mutate(
     predicted = exp(predicted),
@@ -119,7 +117,7 @@ data <- sites %>%
   geom_errorbar(
     data = data_model,
     aes(x, predicted, ymin = conf.low, ymax = conf.high),
-    width = 0.0, size = 0.4
+    width = 0.0, linewidth = 0.4
   ) +
   geom_point(
     data = data_model,

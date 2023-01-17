@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
 # Plot Fig A8A ####
 # Markus Bauer
-# 2022-09-05
+# 2023-01-17
 
 
 
@@ -57,21 +57,19 @@ sites <- read_csv("data_processed_sites_temporal.csv",
   filter(
     (comparison == "1718" | comparison == "1819" | comparison == "1921") &
       pool == "all" & presabu == "presence") %>%
-  mutate(y = d,
-         comparison = factor(comparison)) %>%
-  mutate(across(c("river_km", "river_distance"), scale))
+  mutate(
+    y = d,
+    comparison = factor(comparison),
+    river_km_scaled = scale(river_km),
+    river_distance_scaled = scale(river_distance),
+    biotope_distance_scaled = scale(biotope_distance),
+    biotope_area_scaled = scale(biotope_area)
+    )
 
 ### * Model ####
-m5 <- blmer(
-  log(y) ~ comparison + exposition + pc1_soil + pc2_soil + pc3_soil +
-    orientation +
-    river_distance + location_construction_year +
-    (1 | plot),
-  REML = TRUE,
-  control = lmerControl(optimizer = "Nelder_Mead"),
-  cov.prior = wishart,
-  data = sites
-)
+load(file = here("outputs", "models", "model_tbi_d_all_5.Rdata"))
+m <- m5
+m@call
 
 
 
@@ -81,7 +79,7 @@ m5 <- blmer(
 
 
 
-(graph_a <- m5 %>%
+(graph_a <- m %>%
   broom.mixed::tidy(conf.int = TRUE, conf.level = .95) %>%
   filter(
     !str_detect(term, "location*") &
@@ -90,19 +88,22 @@ m5 <- blmer(
       !str_detect(term, "(Intercept)")
   ) %>%
   mutate(
-    cross = if_else(term %in% c("orientationwater", "pc3_soil"),
+    cross = if_else(term %in% c("orientationwater", "river_distance_scaled"),
                     "filled", "open"),
     term = fct_relevel(term, c(
-      "pc3_soil", "pc2_soil", "pc1_soil",
-      "river_distance", "orientationwater", "expositionnorth"
+      "river_km_scaled", "pc3_soil", "pc2_soil", "pc1_soil",
+      "river_distance_scaled", "biotope_distance_scaled",
+      "orientationwater", "expositionnorth"
     )),
     term = fct_recode(term,
       "South | North exposition" = "expositionnorth",
       "Land | Water orientation" = "orientationwater",
-      "Distance to river" = "river_distance",
+      "Distance to closest biotope" = "biotope_distance_scaled",
+      "Distance to river" = "river_distance_scaled",
       "PC1 (soil)" = "pc1_soil",
       "PC2 (soil)" = "pc2_soil",
-      "PC3 (soil)" = "pc3_soil"
+      "PC3 (soil)" = "pc3_soil",
+      "River km" = "river_km_scaled"
     )
   ) %>%
   ggplot(aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high)) +
