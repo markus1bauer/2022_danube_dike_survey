@@ -4,7 +4,7 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
 
 ***
 
-**Journal**: [XXX](https://www.???.??)
+**Journal**: [EcoEvoRxiv](https://ecoevorxiv.org/)
 
 [![DOI:10.XXX](http://img.shields.io/badge/DOI-10.XXX-informational.svg)](https://doi.org/10.XXX)
 
@@ -22,13 +22,14 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
     
 2. The folder `outputs` contains  
     * The `figures` generated (.tiff)
-    * The `tables` generated (.png)
     * The `statistics` tables from the principal component analyses (.csv)
+    * The `tables` generated (.png)
+    * The `models` calculated (.Rdata)
     
 3. The folder `R` contains  
     * Scripts to calculate all models (.R)
     * Scripts to generate all figures and tables (.R)
-    * Metadata script for creating EML file
+    * Metadata script for creating EML file (.R)
     * Folder for calculating habitat types (ESY)
     
 4. The folder `markdown` contains model checks to scroll through
@@ -57,10 +58,10 @@ When using the __data available__ in this repository, please cite the original p
 
 __Publication__
 
-> Bauer M, Huber J, & Kollmann J (Under review) Beta diversity of restored dike grasslands is strongly influenced by uncontrolled spatio-temporal variability.
+> Bauer M, Huber J, & Kollmann J (2023) Beta diversity of restored dike grasslands is strongly influenced by uncontrolled spatio-temporal variability. &ndash; *EcoEvoRxiv*.
 
 __Dataset__
 
-> Bauer M, Huber J & Kollmann J (2022) Data and code for Bauer et al. (submitted): Restored dike grasslands (v1.0.2) [Data set]. – *Zenodo*. https://doi.org/10.5281/zenodo.6334100
+> Bauer M, Huber J & Kollmann J (2022) Data and code for Bauer et al. (submitted): Restored dike grasslands (v1.0.2) [Data set]. &ndash; *Zenodo*. [DOI: 10.5281/zenodo.633410](https://doi.org/10.5281/zenodo.633410)
 
 Contact markus1.bauer@tum.de for any further information.  
