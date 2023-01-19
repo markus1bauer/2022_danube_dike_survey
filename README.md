@@ -1,15 +1,16 @@
-# Data and code for "Beta diversity of restored river dike grasslands is strongly influenced by uncontrolled spatio-temporal variability"
+# Data and code for Bauer et al. (2023) EcoEvoRxiv
 
 _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height = "16"></a>, Jakob Huber, and Johannes Kollmann <a href="https://orcid.org/0000-0002-4990-3636"><img src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height = "16"></a>_  
 
-***
+Data and code for:
 
-**Journal**: [EcoEvoRxiv](https://ecoevorxiv.org/)
+Bauer M, Huber J, & Kollmann J (2023) __Beta diversity of restored dike grasslands is strongly influenced by uncontrolled spatio-temporal variability.__ &ndash; _EcoEvoRxiv_.
 
 [![DOI:10.XXX](http://img.shields.io/badge/DOI-10.XXX-informational.svg)](https://doi.org/10.XXX)
 
 **Study region**: [River Danube around Deggendorf](https://www.openstreetmap.org/#map=11/48.8127/12.9790)
-
+<br>
+<br>
 ## Content of the repository
 
 1. The folder `data` contains  
@@ -34,16 +35,13 @@ _Markus Bauer <a href="https://orcid.org/0000-0001-5372-4174"><img src="https://
     
 4. The folder `markdown` contains model checks to scroll through
 
-***
-
-__Package versioning__
+#### Package versioning
 
 The used versions of R and the packages are saved in `2023_danube_dike_survey/renv.lock`.
 
 You can restore this state by executing `renv::restore()` in the console.
 
-    
-***
+## Citation
 
 [![CC BY 4.0][cc-by-shield]][cc-by]
 
