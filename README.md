@@ -62,6 +62,6 @@ __Publication__
 
 __Dataset__
 
-> Bauer M, Huber J & Kollmann J (2022) Data and code for Bauer et al. (submitted): Restored dike grasslands (v1.0.2) [Data set]. &ndash; *Zenodo*. [DOI: 10.5281/zenodo.633410](https://doi.org/10.5281/zenodo.633410)
+> Bauer M, Huber J & Kollmann J (2023) Data and code for Bauer et al. (EcoEvoRxiv): Restored dike grasslands [Data set]. &ndash; *Zenodo*. [DOI: 10.5281/zenodo.6107806](https://doi.org/10.5281/zenodo.6107806)
 
 Contact markus1.bauer@tum.de for any further information.  
