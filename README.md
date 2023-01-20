@@ -6,7 +6,7 @@ Data and code for:
 
 Bauer M, Huber J, & Kollmann J (2023) __Beta diversity of restored dike grasslands is strongly influenced by uncontrolled spatio-temporal variability.__ &ndash; _EcoEvoRxiv_.
 
-[![DOI:10.XXX](http://img.shields.io/badge/DOI-10.XXX-informational.svg)](https://doi.org/10.XXX)
+[![DOI:10.32942/X2959J](http://img.shields.io/badge/DOI-10.XXX-informational.svg)](https://doi.org/10.32942/X2959J)
 
 **Study region**: [River Danube around Deggendorf](https://www.openstreetmap.org/#map=11/48.8127/12.9790)
 <br>
@@ -56,7 +56,7 @@ When using the __data available__ in this repository, please cite the original p
 
 __Publication__
 
-> Bauer M, Huber J, & Kollmann J (2023) Beta diversity of restored dike grasslands is strongly influenced by uncontrolled spatio-temporal variability. &ndash; *EcoEvoRxiv*.
+> Bauer M, Huber J, & Kollmann J (2023) Beta diversity of restored dike grasslands is strongly influenced by uncontrolled spatio-temporal variability. &ndash; *EcoEvoRxiv*. [DOI: 10.32942/X2959J](https://doi.org/10.32942/X2959J)
 
 __Dataset__
 
