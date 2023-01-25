@@ -1,5 +1,5 @@
 ---
-title: "Analysis of Bauer et al. (unpublished) Beta diversity on dike grasslands: <br> Temporal beta-diversity index (TBI) with all species"
+title: "Analysis of Bauer et al. (2023) Beta diversity on dike grasslands: <br> Temporal beta-diversity index (TBI) with all species"
 author: "<b>Markus Bauer</b> <br>"
 date: "<b>`r format(Sys.time(), '%Y-%m-%d')`</b>"
 output:
