@@ -126,8 +126,10 @@ data <- sites %>%
   ) +
   scale_y_continuous(limits = c(0, .83), breaks = seq(-100, 400, .1)) +
   scale_shape_manual(values = c("circle", "circle open")) +
-  labs(x = "", y = expression(Temporal ~ "beta" ~ diversity ~ "[" *
-                                italic("D")[sor] * "]")) +
+  labs(x = "",
+       y = expression(
+         Temporal ~ "beta" ~ diversity ~ "[" * italic("D")[sor] * "]")
+       ) +
   theme_mb())
 
 ### Save ###
