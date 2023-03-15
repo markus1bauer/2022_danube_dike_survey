@@ -47,23 +47,24 @@ vegan_cov_ellipse <- function(cov, center = c(0, 0), scale = 1, npoints = 100) {
 
 #### * Load data sites ####
 
-sites_dikes <- read_csv("data_processed_sites_spatial.csv",
-                        col_names = TRUE, na = c("na", "NA", ""), col_types =
-                          cols(
-                            .default = "?",
-                            id = "f"
-                          )) %>%
+sites_dikes <- read_csv(
+  "data_processed_sites_spatial.csv",
+  col_names = TRUE,
+  na = c("na", "NA", ""),
+  col_types = cols(.default = "?", id = "f")
+  ) %>%
   select(id, survey_year, orientation, exposition, esy,
          species_richness, eveness, shannon,
          ellenberg_richness, ellenberg_cover_ratio,
          accumulated_cover, graminoid_cover_ratio, ruderal_cover) %>%
   mutate(survey_year_factor = as_factor(survey_year))
 
-sites_splot <- read_csv("data_processed_sites_splot.csv", col_names = TRUE,
-                        na = c("na", "NA", ""), col_types =
-                          cols(
-                            .default = "?"
-                          ))
+sites_splot <- read_csv(
+  "data_processed_sites_splot.csv",
+  col_names = TRUE,
+  na = c("na", "NA", ""),
+  col_types = cols(.default = "?")
+  )
 
 sites <- sites_dikes %>%
   bind_rows(sites_splot) %>%
@@ -88,19 +89,20 @@ sites <- sites_dikes %>%
 
 #### * Load data species ####
 
-species_dikes <- read_csv("data_processed_species.csv", col_names = TRUE,
-                          na = c("na", "NA", ""), col_types =
-                            cols(
-                              .default = "d",
-                              name = "f"
-                            )) %>%
+species_dikes <- read_csv(
+  "data_processed_species.csv",
+  col_names = TRUE,
+  na = c("na", "NA", ""),
+  col_types = cols(.default = "d", name = "f")
+  ) %>%
   select(name, all_of(sites_dikes$id))
 
-species_splot <- read_csv("data_processed_species_splot.csv", col_names = TRUE,
-                          na = c("na", "NA", ""), col_types =
-                            cols(
-                              .default = "?"
-                            ))
+species_splot <- read_csv(
+  "data_processed_species_splot.csv",
+  col_names = TRUE,
+  na = c("na", "NA", ""),
+  col_types = cols(.default = "?")
+  )
 
 species <- species_dikes %>%
   full_join(species_splot, by = "name") %>%
