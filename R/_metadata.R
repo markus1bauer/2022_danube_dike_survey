@@ -77,7 +77,7 @@ creator <- eml$creator(
 associated_party <- list(
   eml$associatedParty(
     individualName = eml$individualName(
-      givenName = "Jakob",
+      givenName = "Jakob K.",
       surName = "Huber"
       ),
     positionName = "Researcher",
@@ -94,8 +94,7 @@ associated_party <- list(
     address = address,
     electronicMailAddress = "johannes.kollmann@tum.de",
     phone = "0049-8161-714144",
-    id = "https://orcid.org/0000-0002-4990-3636",
-    onlineUrl = "https://www3.ls.tum.de/roek/mitarbeiter-in/prof-dr-johannes-kollmann/"
+    id = "https://orcid.org/0000-0002-4990-3636"
   )
 )
 
@@ -104,7 +103,8 @@ contact <-
     individualName = creator$individualName,
     electronicMailAddress = creator$electronicMailAddress,
     address = address,
-    organizationName = "Technical University of Munich"
+    organizationName = "Technical University of Munich",
+    onlineUrl = "https://www3.ls.tum.de/roek/mitarbeiter-in/prof-dr-johannes-kollmann/"
   )
 
 
@@ -150,9 +150,18 @@ keyword_set <- list(
   list(
     keywordThesaurus = "LTER controlled vocabulary",
     keyword = list(
+      "grasslands",
+      "meadows",
+      "monitoring",
+      "permanent plots",
+      "plant communities",
+      "restoration",
       "rivers",
-      "vegetation dynamics",
-      "restoration"
+      "soil samples",
+      "spatial properties",
+      "species composition",
+      "temporal properties",
+      "vegetation dynamics"
     )
   ),
   list(
@@ -173,7 +182,8 @@ short_name <- "Survey of old danube dikes"
 
 language <- "English"
 
-reference_publication <- "Bauer et al. (under review)"
+reference_publication <- "Bauer et al. (2023) EcoEvoRxiv DOI XXX"
+
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -181,16 +191,17 @@ reference_publication <- "Bauer et al. (under review)"
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+
 dataset <- list(
   title = title,
   shortName = short_name,
-  pub_date = pub_date,
+  pubDate = pub_date,
   creator = creator,
   associated_party = associated_party,
-  intellectual_rights = intellectual_rights,
+  intellectualRights = intellectual_rights,
   alternateIdentifier = alternate_identifier,
   abstract = abstract,
-  keyword_set = keyword_set,
+  keywordSet = keyword_set,
   coverage = coverage,
   referencePublication = reference_publication,
   language = language,
