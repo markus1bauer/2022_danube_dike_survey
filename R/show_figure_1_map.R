@@ -27,17 +27,18 @@ setwd(here("data", "processed", "spatial"))
 
 ### Load data ###
 germany <- st_read("germany_epsg4326.shp")
-danube <- st_read(here("data", "raw", "spatial",
-                       "danube_isar_digitized_epsg4326.shp"))
+danube <- st_read(
+  here("data", "raw", "spatial", "danube_isar_digitized_epsg4326.shp")
+  )
 danube$river[2] <- "Isar"
-filter <- read_csv(here("data", "processed",
-                        "data_processed_sites_spatial.csv"),
+filter <- read_csv(
+  here("data", "processed", "data_processed_sites_spatial.csv"),
   col_names = TRUE, na = c("na", "NA"), col_types =
     cols(
       .default = "?"
     )
 ) %>%
-  filter(surveyYear == 2017)
+  filter(survey_year == 2017)
 sites <- st_read("sites_epsg4326.shp") %>%
   semi_join(filter, by = "plot") %>%
   mutate(plot = factor(plot))
@@ -52,8 +53,8 @@ locations <- read_csv("locations.csv",
     cols(
       locationYear = "f"
     )
-) %>%
-  semi_join(filter, by = "locationYear")
+) #%>%
+  semi_join(filter, by = "location_construction_year")
 load("background_toner.rda")
 load("background_terrain.rda")
 load("background_google.rda")
@@ -160,7 +161,7 @@ ggsave("figure_1_map_ggmap_300dpi_17x11cm.tiff",
 set.seed(2)
 (graph_sites <- ggplot() +
   # geom_sf(data = ffh_area, fill = "grey50", color = "grey50") +
-  geom_sf(data = dikes, colour = "grey60") +
+  geom_sf(data = dikes, colour = "grey60", linetype = "dotted") +
   geom_sf(data = danube, colour = "black", size = 1) +
   geom_label_repel(
     data = locations, aes(
