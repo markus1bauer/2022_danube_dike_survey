@@ -51,9 +51,9 @@ dikes <- st_read("dikes_epsg4326.shp")
 locations <- read_csv("locations.csv",
   col_names = TRUE, col_types =
     cols(
-      locationYear = "f"
+      location_construction_year = "f"
     )
-) #%>%
+) %>%
   semi_join(filter, by = "location_construction_year")
 load("background_toner.rda")
 load("background_terrain.rda")
@@ -95,7 +95,7 @@ theme_mb <- function() {
   geom_text_repel(
     data = locations,
     aes(
-      label = constructionYear,
+      label = construction_year,
       x = longitude_center,
       y = latitude_center
     ),
@@ -165,7 +165,7 @@ set.seed(2)
   geom_sf(data = danube, colour = "black", size = 1) +
   geom_label_repel(
     data = locations, aes(
-      label = locationYear,
+      label = location_construction_year,
       x = longitude_center,
       y = latitude_center
     ),
