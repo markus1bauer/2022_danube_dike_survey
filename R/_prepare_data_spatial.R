@@ -52,7 +52,7 @@ sites <- read_csv(here("data", "raw", "data_raw_sites.csv"),
       location_abb,
       levels = unique(location_abb[order(construction_year)])
       ),
-    location_year = str_c(location_abb, construction_year, sep = "-")
+    location_construction_year = str_c(location_abb, construction_year, sep = "-")
   ) %>%
   st_as_sf(coords = c("longitude", "latitude"), crs = 31468) %>%
   st_transform(4326)
@@ -183,7 +183,7 @@ danube_isar <- st_read(here("data", "raw", "spatial",
 ### a Calculate center of locations -------------------------------------------
 
 locations <- sites_with_spatial_data %>%
-  group_by(location_year) %>%
+  group_by(location_construction_year) %>%
   summarise(
     across(c(longitude, latitude, construction_year), ~ mean(.x, na.rm = TRUE))
     ) %>%
@@ -191,7 +191,7 @@ locations <- sites_with_spatial_data %>%
 sites_with_spatial_data <- left_join(
   sites_with_spatial_data,
   locations %>% select(-construction_year),
-  by = "location_year"
+  by = "location_construction_year"
 )
 
 

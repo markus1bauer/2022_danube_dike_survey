@@ -1,4 +1,4 @@
-location_year,longitude_center,latitude_center,construction_year
+location_construction_year,longitude_center,latitude_center,construction_year
 DEG-2007,12.931233886153311,48.836946787148406,2007
 FIS-2016,12.950872323526493,48.80337026698668,2016
 HER-2016,12.709148683789348,48.88884682062423,2016
