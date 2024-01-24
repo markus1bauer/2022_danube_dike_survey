@@ -161,7 +161,7 @@ ggsave("figure_1_map_ggmap_300dpi_17x11cm.tiff",
 set.seed(2)
 (graph_sites <- ggplot() +
   # geom_sf(data = ffh_area, fill = "grey50", color = "grey50") +
-  geom_sf(data = dikes, colour = "grey60", linetype = "dotted") +
+  geom_sf(data = dikes, colour = "grey60", linetype = "dashed") +
   geom_sf(data = danube, colour = "black", size = 1) +
   geom_label_repel(
     data = locations, aes(
@@ -247,7 +247,8 @@ tmap_save(tmap,
     width = unit(3, "cm"),
     height = unit(4, "cm")
   ),
-  filename = paste0(here("outputs", "figures"), "/",
-                    "figure_1_map_tmap_300dpi_8x11cm.tiff"),
+  filename = paste0(
+    here("outputs", "figures"), "/", "figure_1_map_tmap_300dpi_8x11cm.tiff"
+    ),
   dpi = 300
 )
