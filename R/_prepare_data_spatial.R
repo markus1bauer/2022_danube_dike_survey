@@ -184,8 +184,9 @@ danube_isar <- st_read(here("data", "raw", "spatial",
 
 locations <- sites_with_spatial_data %>%
   group_by(location_year) %>%
-  summarise(across(c(longitude, latitude, construction_year),
-                   mean, na.rm = TRUE)) %>%
+  summarise(
+    across(c(longitude, latitude, construction_year), ~ mean(.x, na.rm = TRUE))
+    ) %>%
   rename(longitude_center = longitude, latitude_center = latitude)
 sites_with_spatial_data <- left_join(
   sites_with_spatial_data,
