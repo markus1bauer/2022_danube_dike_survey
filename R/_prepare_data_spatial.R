@@ -1,7 +1,7 @@
 # Beta diversity on dike grasslands
 # Prepare spatial data ####
 # Markus Bauer
-# 2023-01-13
+# 2024-02-07
 
 
 
@@ -13,8 +13,8 @@
 
 ### Packages ###
 library(here)
-library(tidyverse)
 library(sf)
+library(tidyverse)
 library(ggmap)
 library(mapview)
 library(mapedit)
@@ -72,29 +72,36 @@ rm(coord)
 ## 2 Transform shp files ######################################################
 
 
-setwd(here("data", "raw", "spatial"))
-
-dikes <- st_read("dikes_epsg31468.shp") %>%
+dikes <- st_read(here("data", "raw", "spatial", "dikes_epsg31468.shp")) %>%
   st_transform(crs = 4326) %>%
   st_crop(ymin = 48.65, ymax = 48.95, xmin = 12.55, xmax = 13.15)
 
 bbox <- st_convex_hull(st_union(dikes))
 
-grazing <- st_read("grazing_epsg31468.shp") %>%
+rivers <- st_read(here("data", "raw", "spatial", "rivers_epsg25832.shp")) %>%
+  st_transform(crs = 4326) %>%
+  st_intersection(bbox) %>%
+  filter(GEWKZ_S == "1" | GEWKZ_S == "2" | GEWKZ_S == "3" | GEWKZ_S == "4")
+
+grazing <- st_read(here("data", "raw", "spatial", "grazing_epsg31468.shp")) %>%
   st_transform(crs = 4326) %>%
   st_intersection(bbox)
 
-conservation_area <- st_read("conservation_area_epsg31468.shp") %>%
+conservation_area <- st_read(
+  here("data", "raw", "spatial", "conservation_area_epsg31468.shp")
+  ) %>%
   st_transform(crs = 4326)  %>%
   st_make_valid() %>%
   st_intersection(bbox)
 
-ffh_area <- st_read("ffh_epsg31468.shp") %>%
+ffh_area <- st_read(here("data", "raw", "spatial", "ffh_epsg31468.shp")) %>%
   st_transform(crs = 4326)  %>%
   st_make_valid() %>%
   st_intersection(bbox)
 
-biotope_mapping <- st_read("bio_fbk_epsg25832_shp.shp") %>%
+biotope_mapping <- st_read(
+  here("data", "raw", "spatial", "bio_fbk_epsg25832_shp.shp")
+  ) %>%
   st_transform(crs = 4326)  %>%
   st_intersection(bbox)
 
@@ -171,8 +178,9 @@ ggmap(background_terrain)
 # plot(st_geometry(danube_isar))
 # rm(data)
 ### Here the digitized file ###
-danube_isar <- st_read(here("data", "raw", "spatial",
-                            "danube_isar_digitized_epsg4326.shp"))
+danube_isar <- st_read(
+  here("data", "raw", "spatial", "danube_isar_digitized_epsg4326.shp")
+  )
 
 
 
@@ -278,12 +286,12 @@ sites_with_spatial_data <- sites_with_spatial_data %>%
 dist_sf <- st_as_sf(distance, coords = c("lon", "lat")) %>%
   st_set_crs(value = 4326)
 ggplot() +
-  geom_sf(data = danube_isar, fill = "grey50", color = "grey50") +
+  geom_sf(data = danube_isar, fill = "grey50", color = "grey50")
   geom_sf(data = buffered_plots, fill = "transparent") +
   geom_sf(data = sites, size = 0.01) +
   geom_sf(data = dist_sf, colour = "grey60")
 
-
+  
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # C Save #######################################################################
@@ -344,6 +352,11 @@ st_write(
 ### River layer (was only once digitized) ###
 #st_write(danube_isar, layer = "danube_isar_digitized_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE, dsn = here("data", "processed", "spatial"))
 
+st_write(
+  obj = rivers,
+  layer = "rivers_epsg4326.shp", driver = "ESRI Shapefile",
+  delete_layer = FALSE, dsn = here("data", "processed", "spatial")
+)
 ### Save data frames ###
 write_csv(
   sites_with_spatial_data,
