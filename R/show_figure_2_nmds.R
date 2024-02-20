@@ -48,7 +48,7 @@ vegan_cov_ellipse <- function(cov, center = c(0, 0), scale = 1, npoints = 100) {
 #### * Load data sites ####
 
 sites_dikes <- read_csv(
-  "data_processed_sites_spatial.csv",
+  here("data", "processed", "data_processed_sites_spatial.csv"),
   col_names = TRUE,
   na = c("na", "NA", ""),
   col_types = cols(.default = "?", id = "f")
@@ -60,7 +60,7 @@ sites_dikes <- read_csv(
   mutate(survey_year_factor = as_factor(survey_year))
 
 sites_splot <- read_csv(
-  "data_processed_sites_splot.csv",
+  here("data", "processed", "data_processed_sites_splot.csv"),
   col_names = TRUE,
   na = c("na", "NA", ""),
   col_types = cols(.default = "?")
@@ -87,45 +87,45 @@ sites <- sites_dikes %>%
   ) %>%
   select(-givd_id, -longitude, -latitude)
 
-#### * Load data species ####
-
-species_dikes <- read_csv(
-  "data_processed_species.csv",
-  col_names = TRUE,
-  na = c("na", "NA", ""),
-  col_types = cols(.default = "d", name = "f")
-  ) %>%
-  select(name, all_of(sites_dikes$id))
-
-species_splot <- read_csv(
-  "data_processed_species_splot.csv",
-  col_names = TRUE,
-  na = c("na", "NA", ""),
-  col_types = cols(.default = "?")
-  )
-
-species <- species_dikes %>%
-  full_join(species_splot, by = "name") %>%
-  mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
-  pivot_longer(cols = -name, names_to = "id", values_to = "value") %>%
-  pivot_wider(names_from = "name", values_from = "value") %>%
-  arrange(id) %>%
-  semi_join(sites, by = "id") %>%
-  column_to_rownames("id")
+# #### * Load data species ####
+# 
+# species_dikes <- read_csv(
+#   "data_processed_species.csv",
+#   col_names = TRUE,
+#   na = c("na", "NA", ""),
+#   col_types = cols(.default = "d", name = "f")
+#   ) %>%
+#   select(name, all_of(sites_dikes$id))
+# 
+# species_splot <- read_csv(
+#   "data_processed_species_splot.csv",
+#   col_names = TRUE,
+#   na = c("na", "NA", ""),
+#   col_types = cols(.default = "?")
+#   )
+# 
+# species <- species_dikes %>%
+#   full_join(species_splot, by = "name") %>%
+#   mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
+#   pivot_longer(cols = -name, names_to = "id", values_to = "value") %>%
+#   pivot_wider(names_from = "name", values_from = "value") %>%
+#   arrange(id) %>%
+#   semi_join(sites, by = "id") %>%
+#   column_to_rownames("id")
 
 rm(list = setdiff(ls(), c("sites", "species", "theme_mb", "vegan_cov_ellipse")))
 
 #### * Choosen model ####
 
-set.seed(10)
-(ordi <- metaMDS(species, binary = TRUE,
-                 try = 99, previous.best = TRUE, na.rm = TRUE))
+base::load(here("outputs", "models", "model_nmds.Rdata"))
 
-(data_envfit <- envfit(ordi ~ graminoid_cover_ratio + ruderal_cover +
-                         ellenberg_richness,
-                      data = sites,
-                      perm = 999,
-                      na.rm = TRUE))
+data_envfit <- envfit(
+  ordi ~ graminoid_cover_ratio + ruderal_cover + ellenberg_richness,
+  data = sites,
+  perm = 999,
+  na.rm = TRUE
+)
+data_envfit
 
 
 
@@ -196,7 +196,7 @@ for (group in levels(data_nmds$group_type)) {
    geom_path(
      aes(x = NMDS1, y = NMDS2, linetype = group_type, color = group_type),
      data = data_ellipses %>% filter(group_type != "no"),
-     size = 1,
+     linewidth = 1,
      show.legend = FALSE
    ) +
    ggrepel::geom_label_repel(
@@ -291,5 +291,7 @@ for (group in levels(data_nmds$group_type)) {
 
 
 ### Save ###
-ggsave(here("outputs", "figures", "figure_2_800dpi_16.5x11cm.tiff"),
-       dpi = 800, width = 16.5, height = 11, units = "cm")
+ggsave(
+  here("outputs", "figures", "figure_2_800dpi_16.5x11cm.tiff"),
+  dpi = 800, width = 16.5, height = 11, units = "cm"
+)

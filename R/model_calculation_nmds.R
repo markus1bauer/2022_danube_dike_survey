@@ -1,5 +1,6 @@
 # Beta diversity on dike grasslands
 # Non-metric multidimensional scaling (NMDS) ordination ####
+
 # Markus Bauer
 # 2022-09-13
 
@@ -18,8 +19,6 @@ library(vegan)
 
 ### Start ###
 rm(list = ls())
-setwd(here("data", "processed"))
-
 
 ### Functions ###
 theme_mb <- function() {
@@ -41,23 +40,31 @@ theme_mb <- function() {
 
 #### * Load data sites ####
 
-sites_dikes <- read_csv("data_processed_sites_spatial.csv",
-                        col_names = TRUE, na = c("na", "NA", ""), col_types =
-                          cols(
-                            .default = "?",
-                            id = "f"
-                          )) %>%
-  select(id, survey_year, orientation, exposition, esy,
-         location_construction_year,
-         species_richness, eveness, shannon,
-         ellenberg_richness, ellenberg_cover_ratio,
-         accumulated_cover, graminoid_cover_ratio, ruderal_cover)
+sites_dikes <- read_csv(
+  here("data", "processed", "data_processed_sites_spatial.csv"),
+  col_names = TRUE, na = c("na", "NA", ""),
+  col_types =
+    cols(
+      .default = "?",
+      id = "f"
+    )
+) %>%
+  select(
+    id, survey_year, orientation, exposition, esy,
+    location_construction_year,
+    species_richness, eveness, shannon,
+    ellenberg_richness, ellenberg_cover_ratio,
+    accumulated_cover, graminoid_cover_ratio, ruderal_cover
+  )
 
-sites_splot <- read_csv("data_processed_sites_splot.csv", col_names = TRUE,
-                        na = c("na", "NA", ""), col_types =
-                          cols(
-                            .default = "?"
-                          ))
+sites_splot <- read_csv(
+  here("data", "processed", "data_processed_sites_splot.csv"),
+  col_names = TRUE, na = c("na", "NA", ""),
+  col_types =
+    cols(
+      .default = "?"
+    )
+)
 
 sites <- sites_dikes %>%
   bind_rows(sites_splot) %>%
@@ -82,18 +89,24 @@ sites <- sites_dikes %>%
 
 #### * Load data species ####
 
-species_dikes <- read_csv("data_processed_species.csv", col_names = TRUE,
-                          na = c("na", "NA", ""), col_types =
-                            cols(
-                              .default = "d",
-                              name = "f"
-                            ))
+species_dikes <- read_csv(
+  here("data", "processed", "data_processed_species.csv"),
+  col_names = TRUE, na = c("na", "NA", ""),
+  col_types =
+    cols(
+      .default = "d",
+      name = "f"
+    )
+)
 
-species_splot <- read_csv("data_processed_species_splot.csv", col_names = TRUE,
-                          na = c("na", "NA", ""), col_types =
-                            cols(
-                              .default = "?"
-                            ))
+species_splot <- read_csv(
+  here("data", "processed", "data_processed_species_splot.csv"),
+  col_names = TRUE, na = c("na", "NA", ""),
+  col_types =
+    cols(
+      .default = "?"
+    )
+)
 
 species <- species_dikes %>%
   full_join(species_splot, by = "name") %>%
@@ -114,33 +127,19 @@ rm(list = setdiff(ls(), c("sites", "species")))
 
 
 
-### 1 Overview ################################################################
-
-
-sites %>%
-  mutate(esy = replace_na(esy, "no class")) %>%
-  filter(!str_detect(esy, "ref")) %>%
-  count(esy, survey_year) %>%
-  pivot_wider(names_from = "survey_year", values_from = "n") %>%
-  write_csv(here("outputs", "statistics",
-                 "vegetation_classification.csv"))
-
-sites %>%
-  mutate(esy = replace_na(esy, "no class")) %>%
-  filter(!str_detect(esy, "ref")) %>%
-  count(esy, location_construction_year) %>%
-  pivot_wider(names_from = "location_construction_year", values_from = "n")
-
-
-
-### 2 NMDS ####################################################################
+### 1 NMDS ####################################################################
 
 
 ### Calculate ###
-table(sites$esy)
-set.seed(1)
-(ordi <- metaMDS(species, dist = "bray", binary = TRUE,
-                 try = 99, previous.best = TRUE, na.rm = TRUE))
+# set.seed(10)
+# ordi <- metaMDS(
+#   species, dist = "bray", binary = TRUE,
+#   try = 99, previous.best = TRUE, na.rm = TRUE
+#   )
+# save(ordi, file = here("outputs", "models", "model_nmds.Rdata"))
+base::load(here("outputs", "models", "model_nmds.Rdata"))
+ordi
+
 ### Stress ###
 stressplot(ordi)
 goodness_of_fit <- goodness(ordi)
@@ -149,7 +148,7 @@ points(ordi, display = "sites", cex = goodness_of_fit * 300)
 
 
 
-### 3 Environmental factors ###################################################
+### 2 Environmental factors ###################################################
 
 
 #### a Vectors ----------------------------------------------------------------
