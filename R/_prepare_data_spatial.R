@@ -1,5 +1,6 @@
 # Beta diversity on dike grasslands
 # Prepare spatial data ####
+
 # Markus Bauer
 # 2024-02-07
 
@@ -78,6 +79,10 @@ dikes <- st_read(here("data", "raw", "spatial", "dikes_epsg31468.shp")) %>%
 
 bbox <- st_convex_hull(st_union(dikes))
 
+### Data of rivers between Straubing and Vilshofen
+### Data source: Bavarian State Office for the Environment
+### German name: Bayerisches Landesamt für Umwelt (LfU)
+### www.lfu.bayern.de
 rivers <- st_read(here("data", "raw", "spatial", "rivers_epsg25832.shp")) %>%
   st_transform(crs = 4326) %>%
   st_intersection(bbox) %>%
@@ -298,7 +303,10 @@ ggplot() +
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-### Save shp files ###
+  
+## 1 Save shp files ############################################################
+
+  
 save(
   background_google,
   file = paste0(here("data", "processed", "spatial"),
@@ -351,13 +359,17 @@ st_write(
   )
 ### River layer (was only once digitized) ###
 #st_write(danube_isar, layer = "danube_isar_digitized_epsg4326.shp", driver = "ESRI Shapefile", delete_layer = TRUE, dsn = here("data", "processed", "spatial"))
-
 st_write(
   obj = rivers,
   layer = "rivers_epsg4326.shp", driver = "ESRI Shapefile",
   delete_layer = FALSE, dsn = here("data", "processed", "spatial")
 )
-### Save data frames ###
+
+
+
+## 2 Save data frames #########################################################
+
+
 write_csv(
   sites_with_spatial_data,
   file = here("data", "processed", "spatial", "sites_with_spatial_data.csv")
@@ -367,7 +379,11 @@ write_csv(
   file = here("data", "processed", "spatial", "locations.csv")
   )
 
-### Save gpx file ###
+
+
+## 3 Save gpx file #############################################################
+
+
 sites_with_spatial_data %>%
   select(id, longitude, latitude) %>%
   mutate(id = as.character(id)) %>%
