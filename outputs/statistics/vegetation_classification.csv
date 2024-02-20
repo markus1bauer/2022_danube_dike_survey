@@ -1,6 +1,10 @@
-esy,2017,2018,2019,2021
-no class,1,2,NA,NA
-R,19,17,21,20
-R1A,2,3,4,6
-R22,19,17,14,9
-V38,NA,2,2,6
+esy,exposition,2017,2018,2019,2021
+R,north,10,11,11,11
+R,south,9,6,10,9
+R1A,south,2,3,3,5
+R1A,north,NA,NA,1,1
+R22,north,9,8,7,6
+R22,south,10,9,7,3
+V38,south,NA,2,2,5
+V38,north,NA,NA,NA,1
+no class,south,1,2,NA,NA
