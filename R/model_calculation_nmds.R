@@ -117,7 +117,7 @@ species <- species_dikes %>%
   semi_join(sites, by = "id") %>%
   column_to_rownames("id")
 
-rm(list = setdiff(ls(), c("sites", "species")))
+rm(list = setdiff(ls(), c("sites", "species", "theme_mb")))
 
 
 
@@ -164,8 +164,7 @@ points(ordi, display = "sites", cex = goodness_of_fit * 300)
 plot(ordi, type = "n")
 plot(ef_vector1, add = TRUE, p. = .99)
 (ef_vector2 <- envfit(
-  ordi ~ ellenberg_richness + ellenberg_cover_ratio +
-    graminoid_cover_ratio + ruderal_cover,
+  ordi ~ ellenberg_richness + graminoid_cover_ratio + ruderal_cover,
   data = sites,
   permu = 999,
   na.rm = TRUE
@@ -188,3 +187,15 @@ plot(ordi, type = "n")
 ordiellipse(ordi, sites$esy, kind = "sd", draw = "lines", label = TRUE)
 plot(ordi, type = "n")
 ordiellipse(ordi, sites$reference, kind = "sd", draw = "lines", label = TRUE)
+
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# C Save ######################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+save(
+  ef_vector2, file = here("outputs", "models", "model_nmds_envfit_vector.Rdata")
+  )
