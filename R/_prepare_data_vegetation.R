@@ -1545,10 +1545,12 @@ data <- anti_join(species_splot, traits, by = "name") %>%
     select(name) %>%
     print(n = 50)
 
-rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
-                          "species_dikes", "species_splot",
-                          "traits", "pca_soil", "pca_construction_year",
-                          "pca_survey_year")))
+rm(list = setdiff(ls(), c(
+  "sites_dikes", "sites_splot",
+  "species_dikes", "species_splot",
+  "traits", "pca_soil", "pca_construction_year",
+  "pca_survey_year"
+)))
 
 
 
