@@ -1,4 +1,4 @@
-b# Beta diversity on dike grasslands
+# Beta diversity on dike grasslands
 # Plot Fig. 2 ####
 # Markus Bauer
 # 2022-09-12
@@ -76,8 +76,8 @@ sites <- sites_dikes %>%
       )
     ),
     esy = if_else(
-      esy == "E22", "R22-ref", if_else(
-        esy == "E12a", "R1A-ref", if_else(
+      esy == "E22", "R22-reference", if_else(
+        esy == "E12a", "R1A-reference", if_else(
           esy == "?", "no", if_else(
             esy == "R21", "R", esy
           )
@@ -87,7 +87,7 @@ sites <- sites_dikes %>%
   ) %>%
   select(-givd_id, -longitude, -latitude)
 
-# #### * Load data species ####
+#### * Load data species ####
 # 
 # species_dikes <- read_csv(
 #   "data_processed_species.csv",
@@ -118,14 +118,10 @@ rm(list = setdiff(ls(), c("sites", "species", "theme_mb", "vegan_cov_ellipse")))
 #### * Choosen model ####
 
 base::load(here("outputs", "models", "model_nmds.Rdata"))
+ordi
 
-data_envfit <- envfit(
-  ordi ~ graminoid_cover_ratio + ruderal_cover + ellenberg_richness,
-  data = sites,
-  perm = 999,
-  na.rm = TRUE
-)
-data_envfit
+base::load(here("outputs", "models", "model_nmds_envfit_vector.Rdata"))
+data_envfit <- ef_vector2
 
 
 
@@ -135,7 +131,7 @@ data_envfit
 
 
 
-### * Preparation ####
+#### * Preparation ####
 
 data_envfit <- data_envfit %>%
   scores(display = "vectors") %>%
@@ -154,10 +150,12 @@ data_envfit <- data_envfit %>%
 ellipses <- tibble()
 
 data_nmds <-  sites %>%
-  select(id, esy) %>% # modify group
-  mutate(group_type = as_factor(esy), # modify group
-         NMDS1 = ordi$points[, 1],
-         NMDS2 = ordi$points[, 2]) %>%
+  select(id, esy, exposition) %>% # modify group
+  mutate(
+    group_type = as_factor(esy), # modify group
+    NMDS1 = ordi$points[, 1],
+    NMDS2 = ordi$points[, 2]
+  ) %>%
   group_by(group_type) %>%
   mutate(mean1 = mean(NMDS1),
          mean2 = mean(NMDS2))
@@ -220,7 +218,7 @@ for (group in levels(data_nmds$group_type)) {
      aes(x = 0, xend = NMDS1, y = 0, yend = NMDS2),
      arrow = arrow(length = unit(0.25, "cm")),
      color = "black",
-     size = 1
+     linewidth = 1
    ) +
    geom_label(
      aes(x = mean1, y = mean2, label = group_type, fill = group_type),
@@ -232,11 +230,12 @@ for (group in levels(data_nmds$group_type)) {
      size = 3,
      show.legend = FALSE
    ) +
+   #facet_grid(~ exposition) +
    coord_fixed() +
    scale_color_manual(
      labels = c(
-       "R22-ref" = "R22-ref:\nHay meadow reference",
-       "R1A-ref" = "R1A-ref:\nDry grassland reference",
+       "R22-reference" = "R22-ref:\nHay meadow reference",
+       "R1A-reference" = "R1A-ref:\nDry grassland reference",
        "R22" = "R22: Hay meadow",
        "R1A" = "R1A: Dry grassland",
        "R" = "R: General grassland",
@@ -244,8 +243,8 @@ for (group in levels(data_nmds$group_type)) {
        "no" = "no classification"
      ),
      values = c(
-       "R22-ref" = "#00BFC4",
-       "R1A-ref" = "#F8766D",
+       "R22-reference" = "#00BFC4",
+       "R1A-reference" = "#F8766D",
        "R22" = "#00BFC4",
        "R1A" = "#F8766D",
        "R" = "grey30",
@@ -255,8 +254,8 @@ for (group in levels(data_nmds$group_type)) {
      ) +
    scale_fill_manual(
      values = alpha(c(
-       "R22-ref" = "#00BFC4",
-       "R1A-ref" = "#F8766D",
+       #"R22-reference" = "#00BFC4",
+       #"R1A-reference" = "#F8766D",
        "R22" = "#00BFC4",
        "R1A" = "#F8766D",
        "R" = "grey30",
@@ -266,8 +265,8 @@ for (group in levels(data_nmds$group_type)) {
    ) +
    scale_shape_manual(
      labels = c(
-       "R22-ref" = "R22-ref:\nHay meadow reference",
-       "R1A-ref" = "R1A-ref:\nDry grassland reference",
+       #"R22-reference" = "R22-ref:\nHay meadow reference",
+       #"R1A-reference" = "R1A-ref:\nDry grassland reference",
        "R22" = "R22: Hay meadow",
        "R1A" = "R1A: Dry grassland",
        "R" = "R: General grassland",
@@ -275,8 +274,8 @@ for (group in levels(data_nmds$group_type)) {
        "no" = "no classification"
      ),
      values = c(
-       "R22-ref" = 1,
-       "R1A-ref" = 1,
+       #"R22-reference" = 1,
+       #"R1A-reference" = 1,
        "R22" = 16,
        "R1A" = 16,
        "R" = 3,
