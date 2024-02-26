@@ -143,7 +143,7 @@ table(header$Coast_EEA)
 
 ## Add Ecoregion
 # Download shape file from https://storage.googleapis.com/teow2016/Ecoregions2017.zip
-require(rgdal)
+#require(rgdal)
 library(rgeos)
 library(sp)
 ecoreg <- readOGR(dsn = "~/Projekte/GIS/Shapes Global/Ecoregions2017", layer = "Ecoregions2017")
