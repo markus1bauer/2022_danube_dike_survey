@@ -1,7 +1,8 @@
 # Beta diversity on dike grasslands
 # Prepare species, sites, and traits data ####
+
 # Markus Bauer
-# 2023-01-13
+# 2024-02-26
 
 
 
@@ -43,13 +44,10 @@ suppressPackageStartupMessages(library(adespatial))
 library(remotes)
 #remotes::install_github(file.path("larsito", "tempo"))
 library(tempo)
-library(checklist)
+
 
 ### Start ###
 rm(list = ls())
-setwd(here())
-#checklist::check_lintr()
-setwd(here("data", "raw"))
 #installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
 #renv::status()
 
@@ -65,7 +63,8 @@ setwd(here("data", "raw"))
 ## 1 Sites of dikes and sPlotOpen #############################################
 
 
-sites_dikes <- read_csv("data_raw_sites.csv",
+sites_dikes <- read_csv(
+  here("data", "raw", "data_raw_sites.csv"),
   col_names = TRUE,
   na = c("", "NA", "na"), col_types =
     cols(
@@ -127,14 +126,22 @@ sites_dikes <- read_csv("data_raw_sites.csv",
     -position, -starts_with("survey_date_"), -starts_with("topsoil_depth_"),
     -cn_level, -ends_with("_class")
   ) %>%
-  relocate(plot,
-           .after = id) %>%
-  relocate(c("location_abb", "location_construction_year"),
-           .after = location) %>%
-  relocate(c("survey_year", "survey_year_factor", "survey_year_factor_minus"),
-           .after = river_km) %>%
-  relocate(c("construction_year_factor", "construction_year_factor_plus"),
-           .after = construction_year)
+  relocate(
+    plot,
+    .after = id
+  ) %>%
+  relocate(
+    c("location_abb", "location_construction_year"),
+    .after = location
+  ) %>%
+  relocate(
+    c("survey_year", "survey_year_factor", "survey_year_factor_minus"),
+    .after = river_km
+  ) %>%
+  relocate(
+    c("construction_year_factor", "construction_year_factor_plus"),
+    .after = construction_year
+  )
 
 ### Sites with spatial calculations ###
 sites_with_spatial_data <- read_csv(
@@ -149,12 +156,14 @@ sites_dikes <- sites_dikes %>%
 
 ### Sabatini et al. (2021) Global Ecol Biogeogr:
 ### https://doi.org/10.1111/geb.13346
-sites_splot <- read_delim(here("data", "raw", "splot", "sPlotOpen_header.txt"),
-                         col_names = TRUE, na = c("", "NA", "na"),
-                         col_types = cols(
-                           .default = "?",
-                           Cover_algae_layer = "d"
-                           ))
+sites_splot <- read_delim(
+  here("data", "raw", "splot", "sPlotOpen_header.txt"),
+  col_names = TRUE, na = c("", "NA", "na"),
+  col_types = cols(
+    .default = "?",
+    Cover_algae_layer = "d"
+  )
+)
 
 
 
@@ -162,7 +171,7 @@ sites_splot <- read_delim(here("data", "raw", "splot", "sPlotOpen_header.txt"),
 ## 2 Species and sPlotOpen ####################################################
 
 
-species_dikes <- data.table::fread("data_raw_species.csv",
+species_dikes <- data.table::fread(here("data", "raw", "data_raw_species.csv"),
   sep = ",",
   dec = ".",
   skip = 0,
@@ -188,12 +197,13 @@ species_dikes <- data.table::fread("data_raw_species.csv",
 
 ### Sabatini et al. (2021) Global Ecol Biogeogr:
 ### https://doi.org/10.1111/geb.13346
-species_splot <- read_delim(here("data", "raw", "splot",
-                        "sPlotOpen_DT.txt"),
-                   col_names = TRUE, na = c("", "NA", "na"), col_types =
-                     cols(
-                       .default = "?"
-                     )) %>%
+species_splot <- read_delim(
+  here("data", "raw", "splot", "sPlotOpen_DT.txt"),
+  col_names = TRUE, na = c("", "NA", "na"), col_types =
+    cols(
+      .default = "?"
+    )
+) %>%
   filter(Abundance_scale == "CoverPerc")
 
 
@@ -214,7 +224,8 @@ specieslist <- species_dikes %>%
 ## 3 Traits ###################################################################
 
 
-traits <- read_csv("data_raw_traits.csv",
+traits <- read_csv(
+  here("data", "raw", "data_raw_traits.csv"),
   col_names = TRUE, na = c("", "NA", "na"),
   col_types =
     cols(
@@ -228,7 +239,8 @@ traits <- read_csv("data_raw_traits.csv",
       r = "d",
       n = "d"
     )) %>%
-  separate(name, c("genus", "species", "ssp", "subspecies"), "_",
+  separate(
+    name, c("genus", "species", "ssp", "subspecies"), "_",
     remove = FALSE, extra = "drop", fill = "right"
   ) %>%
   mutate(
@@ -257,9 +269,11 @@ TNRS::TNRS(
     classification = "wfo",
     mode = "resolve"
     ) %>%
-  select(ID, Name_submitted, Overall_score, Source, Accepted_name,
-         Accepted_name_rank, Accepted_name_author, Accepted_family,
-         Accepted_name_url, Taxonomic_status) %>%
+  dplyr::select(
+    ID, Name_submitted, Overall_score, Source, Accepted_name,
+    Accepted_name_rank, Accepted_name_author, Accepted_family,
+    Accepted_name_url, Taxonomic_status
+  ) %>%
   filter(
     Overall_score < 1 | Source != "wfo" | Taxonomic_status != "Accepted"
     ) %>%
@@ -276,22 +290,23 @@ traits <- traits %>%
 ## 4 Temperature and precipitation  ###########################################
 
 
-sites_temperature <- read_csv(here("data", "raw", "temperature", "data",
-                             "data_OBS_DEU_P1M_T2M.csv"),
-                 col_names = TRUE, na = c("", "NA", "na"), col_types =
-                   cols(
-                     .default = "?"
-                   )) %>%
+sites_temperature <- read_csv(
+  here("data", "raw", "temperature", "data", "data_OBS_DEU_P1M_T2M.csv"),
+  col_names = TRUE, na = c("", "NA", "na"), col_types =
+    cols(
+      .default = "?"
+    )
+) %>%
   rename(date = Zeitstempel, value = Wert, site = SDO_ID) %>%
   select(site, date, value)
 
-sites_precipitation <-  read_csv(here("data", "raw", "precipitation", "data",
-                                "data_OBS_DEU_P1M_RR.csv"),
-           col_names = TRUE, na = c("", "NA", "na"), col_types =
-             cols(
-               .default = "?"
-             )
-  ) %>%
+sites_precipitation <-  read_csv(
+  here("data", "raw", "precipitation", "data", "data_OBS_DEU_P1M_RR.csv"),
+  col_names = TRUE, na = c("", "NA", "na"), col_types =
+    cols(
+      .default = "?"
+      )
+) %>%
   rename(date = Zeitstempel, value = Wert, site = SDO_ID) %>%
   select(site, date, value)
 
@@ -338,10 +353,12 @@ vis_miss(sites_dikes, cluster = FALSE, sort_miss = TRUE)
 vis_miss(traits, cluster = FALSE, sort_miss = TRUE)
 
 
-rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
-                          "sites_precipitation", "sites_temperature",
-                          "species_dikes", "species_splot",
-                          "traits")))
+rm(list = setdiff(ls(), c(
+  "sites_dikes", "sites_splot",
+  "sites_precipitation", "sites_temperature",
+  "species_dikes", "species_splot",
+  "traits"
+)))
 
 
 
@@ -494,10 +511,12 @@ sites_dikes <- sites_dikes %>%
     graminoid_cover_ratio = graminoid_cover / accumulated_cover
   )
 
-rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
-                          "sites_precipitation", "sites_temperature",
-                          "species_dikes", "species_splot",
-                          "traits")))
+rm(list = setdiff(ls(), c(
+  "sites_dikes", "sites_splot",
+  "sites_precipitation", "sites_temperature",
+  "species_dikes", "species_splot",
+  "traits"
+)))
 
 
 
@@ -854,10 +873,12 @@ data <- sites_dikes %>%
 #sites_dikes <- left_join(sites_dikes, data, by = "plot")
 # Data not used
 
-rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
-                          "sites_precipitation", "sites_temperature",
-                          "species_dikes", "species_splot",
-                          "traits")))
+rm(list = setdiff(ls(), c(
+  "sites_dikes", "sites_splot",
+  "sites_precipitation", "sites_temperature",
+  "species_dikes", "species_splot",
+  "traits"
+)))
 
 
 
@@ -920,10 +941,12 @@ data <- data_sites %>%
 #sites_dikes <- left_join(sites_dikes, data, by = "id")
 # Data not used
 
-rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
-                          "sites_precipitation", "sites_temperature",
-                          "species_dikes", "species_splot",
-                          "traits")))
+rm(list = setdiff(ls(), c(
+  "sites_dikes", "sites_splot",
+  "sites_precipitation", "sites_temperature",
+  "species_dikes", "species_splot",
+  "traits"
+)))
 
 
 
@@ -971,10 +994,12 @@ data <- do.call("rbind", sync_indices) %>%
 #sites_dikes <- left_join(sites_dikes, data, by = "plot")
 # Data not used
 
-rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
-                          "sites_precipitation", "sites_temperature",
-                          "species_dikes", "species_splot",
-                          "traits")))
+rm(list = setdiff(ls(), c(
+  "sites_dikes", "sites_splot",
+  "sites_precipitation", "sites_temperature",
+  "species_dikes", "species_splot",
+  "traits"
+)))
 
 
 
@@ -1037,16 +1062,20 @@ data <- pca %>%
     pc4_soil = PC4
   )
 sites_dikes <- left_join(sites_dikes, data, by = "plot") %>%
-  select(-c550, -calciumcarbonat, -c_organic, -humus, -humus_level,
-         -n_total_ratio, -cn_ratio, -ph, -sand, -silt, -clay, -phosphorus,
-         -potassium, -magnesium, -topsoil_depth, -finematerial_depth,
-         -finematerial_density, -sceleton_ratio_volume, -sceleton_ratio_mass,
-         -sceleton_level, -ufc_percent, -ufc_mm, -n_total_concentration)
+  select(
+    -c550, -calciumcarbonat, -c_organic, -humus, -humus_level,
+    -n_total_ratio, -cn_ratio, -ph, -sand, -silt, -clay, -phosphorus,
+    -potassium, -magnesium, -topsoil_depth, -finematerial_depth,
+    -finematerial_density, -sceleton_ratio_volume, -sceleton_ratio_mass,
+    -sceleton_level, -ufc_percent, -ufc_mm, -n_total_concentration
+  )
 
-rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
-                          "sites_precipitation", "sites_temperature",
-                          "species_dikes", "species_splot",
-                          "traits", "pca_soil")))
+rm(list = setdiff(ls(), c(
+  "sites_dikes", "sites_splot",
+  "sites_precipitation", "sites_temperature",
+  "species_dikes", "species_splot",
+  "traits", "pca_soil"
+)))
 
 
 ### b Climate PCA - Preparation  ----------------------------------------------
@@ -1345,10 +1374,12 @@ data <- pca %>%
 sites_dikes <- left_join(sites_dikes, data, by = "plot") %>%
   select(-starts_with("temp"), -starts_with("prec"))
 
-rm(list = setdiff(ls(), c("sites_dikes", "sites_splot", "species_dikes",
-                          "species_splot", "traits",
-                          "pca_soil", "pca_construction_year",
-                          "pca_survey_year")))
+rm(list = setdiff(ls(), c(
+  "sites_dikes", "sites_splot", "species_dikes",
+  "species_splot", "traits",
+  "pca_soil", "pca_construction_year",
+  "pca_survey_year"
+)))
 
 
 
@@ -1458,12 +1489,13 @@ data_sites <- sites_splot %>%
     (ESY == "E22" |
        #Dry grassland: EUNIS2007 code E1.2a Chytry et al. 2020 Appl Veg Sci
        ESY == "E12a") &
+      Country == "Germany" &
       Releve_area >= 10 &
       Releve_area <= 40 &
-      Longitude > 10.89845 & # West: Augsburg
+      Longitude > 9.99053 & # West: Ulm
       Longitude < 13.46434 & # East: Passau
       Latitude > 	47.85298 & # South: Rosenheim
-      Latitude < 49.45095 & # North: Nuernberg
+      Latitude < 50.27008 & # North: Coburg
       Elevation < 700
   ) %>%
   rename_with(tolower) %>%
@@ -1524,7 +1556,8 @@ rm(list = setdiff(ls(), c("sites_dikes", "sites_splot",
 ## 9 dbMEM: Distance-based Moran's eigenvector maps (41 plots) ################
 
 
-# function 'quickMEM' from Numerical Ecology book:
+# Borcard et al. (2018) Numerical Ecology https://doi.org/10.1007/978-1-4419-7976-6
+# function 'quickMEM' from Numerical Ecology textbook:
 source("https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/quickMEM.R")
 data_sites <- sites_dikes %>%
   filter(accumulated_cover > 0) %>%
