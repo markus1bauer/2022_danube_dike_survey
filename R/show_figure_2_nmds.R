@@ -1,7 +1,8 @@
 # Beta diversity on dike grasslands
 # Plot Fig. 2 ####
+
 # Markus Bauer
-# 2022-09-12
+# 2024-02-26
 
 
 
@@ -18,7 +19,6 @@ library(vegan)
 
 ### Start ###
 rm(list = ls())
-setwd(here("data", "processed"))
 
 ### Functions ###
 theme_mb <- function() {
@@ -47,73 +47,22 @@ vegan_cov_ellipse <- function(cov, center = c(0, 0), scale = 1, npoints = 100) {
 
 #### * Load data sites ####
 
-sites_dikes <- read_csv(
+sites <- read_csv(
   here("data", "processed", "data_processed_sites_spatial.csv"),
   col_names = TRUE,
   na = c("na", "NA", ""),
   col_types = cols(.default = "?", id = "f")
   ) %>%
-  select(id, survey_year, orientation, exposition, esy,
-         species_richness, eveness, shannon,
-         ellenberg_richness, ellenberg_cover_ratio,
-         accumulated_cover, graminoid_cover_ratio, ruderal_cover) %>%
-  mutate(survey_year_factor = as_factor(survey_year))
-
-sites_splot <- read_csv(
-  here("data", "processed", "data_processed_sites_splot.csv"),
-  col_names = TRUE,
-  na = c("na", "NA", ""),
-  col_types = cols(.default = "?")
-  )
-
-sites <- sites_dikes %>%
-  bind_rows(sites_splot) %>%
-  mutate(
-    reference = as.character(survey_year),
-    reference = if_else(
-      esy == "E12a", "Dry grassland", if_else(
-        esy == "E22", "Hay meadow", reference
-      )
-    ),
-    esy = if_else(
-      esy == "E22", "R22-reference", if_else(
-        esy == "E12a", "R1A-reference", if_else(
-          esy == "?", "no", if_else(
-            esy == "R21", "R", esy
-          )
-        )
-      )
-    )
+  select(
+    id, survey_year, exposition, esy,
+    species_richness, eveness, shannon,
+    ellenberg_richness, ellenberg_cover_ratio,
+    accumulated_cover, graminoid_cover_ratio, ruderal_cover
   ) %>%
-  select(-givd_id, -longitude, -latitude)
-
-#### * Load data species ####
-# 
-# species_dikes <- read_csv(
-#   "data_processed_species.csv",
-#   col_names = TRUE,
-#   na = c("na", "NA", ""),
-#   col_types = cols(.default = "d", name = "f")
-#   ) %>%
-#   select(name, all_of(sites_dikes$id))
-# 
-# species_splot <- read_csv(
-#   "data_processed_species_splot.csv",
-#   col_names = TRUE,
-#   na = c("na", "NA", ""),
-#   col_types = cols(.default = "?")
-#   )
-# 
-# species <- species_dikes %>%
-#   full_join(species_splot, by = "name") %>%
-#   mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) %>%
-#   pivot_longer(cols = -name, names_to = "id", values_to = "value") %>%
-#   pivot_wider(names_from = "name", values_from = "value") %>%
-#   arrange(id) %>%
-#   semi_join(sites, by = "id") %>%
-#   column_to_rownames("id")
-
-rm(list = setdiff(ls(), c("sites", "species", "theme_mb", "vegan_cov_ellipse")))
+  filter(
+    esy == "R1A" | esy == "R22" | esy == "R" | esy == "V38" | esy == "?"
+  ) %>%
+  mutate(esy = fct_relevel(esy, c("R", "R22", "R1A", "V38", "?")))
 
 #### * Choosen model ####
 
@@ -122,6 +71,12 @@ ordi
 
 base::load(here("outputs", "models", "model_nmds_envfit_vector.Rdata"))
 data_envfit <- ef_vector2
+
+rm(
+  list = setdiff(
+    ls(), c("sites", "data_envfit", "ordi", "theme_mb", "vegan_cov_ellipse")
+  )
+)
 
 
 
@@ -143,7 +98,8 @@ data_envfit <- data_envfit %>%
       variable,
       "Graminoid cover" = "graminoid_cover_ratio",
       "Ruderal cover" = "ruderal_cover",
-      "Specialist richness" = "ellenberg_richness"
+      "Specialist richness" = "ellenberg_richness",
+      "Survey year" = "survey_year"
       )
     )
 
@@ -157,8 +113,7 @@ data_nmds <-  sites %>%
     NMDS2 = ordi$points[, 2]
   ) %>%
   group_by(group_type) %>%
-  mutate(mean1 = mean(NMDS1),
-         mean2 = mean(NMDS2))
+  mutate(mean1 = mean(NMDS1), mean2 = mean(NMDS2))
 
 for (group in levels(data_nmds$group_type)) {
 
@@ -193,16 +148,17 @@ for (group in levels(data_nmds$group_type)) {
    ) +
    geom_path(
      aes(x = NMDS1, y = NMDS2, linetype = group_type, color = group_type),
-     data = data_ellipses %>% filter(group_type != "no"),
+     data = data_ellipses %>% filter(group_type != "?"),
      linewidth = 1,
      show.legend = FALSE
    ) +
    ggrepel::geom_label_repel(
      aes(x = NMDS1, y = NMDS2, label = variable),
-     data = data_envfit %>% filter(NMDS2 < 0),
+     data = data_envfit %>% filter(NMDS2 < 0 & NMDS1 < 0),
      fill = alpha("white", .7),
      size = 3,
      nudge_y = -.1,
+     nudge_x = -.1,
      min.segment.length = Inf
    ) +
    ggrepel::geom_label_repel(
@@ -213,74 +169,81 @@ for (group in levels(data_nmds$group_type)) {
      nudge_y = .1,
      min.segment.length = Inf
    ) +
+   ggrepel::geom_label_repel(
+     aes(x = NMDS1, y = NMDS2, label = variable),
+     data = data_envfit %>% filter(NMDS2 < 0 & NMDS1 > 0 & NMDS2 > -.2),
+     fill = alpha("white", .7),
+     size = 3,
+     nudge_y = -.02,
+     nudge_x = .17,
+     min.segment.length = Inf
+   ) +
+   ggrepel::geom_label_repel(
+     aes(x = NMDS1, y = NMDS2, label = variable),
+     data = data_envfit %>% filter(NMDS2 < -.2 & NMDS1 > 0),
+     fill = alpha("white", .7),
+     size = 3,
+     nudge_y = -.17,
+     nudge_x = .1,
+     min.segment.length = Inf
+   ) +
    geom_segment(
      data = data_envfit,
      aes(x = 0, xend = NMDS1, y = 0, yend = NMDS2),
-     arrow = arrow(length = unit(0.25, "cm")),
+     arrow = arrow(length = unit(0.25, "cm"), type = "closed"),
      color = "black",
      linewidth = 1
    ) +
    geom_label(
      aes(x = mean1, y = mean2, label = group_type, fill = group_type),
      data = data_nmds %>%
-       filter(group_type != "no") %>%
+       filter(group_type != "?") %>%
        group_by(group_type) %>%
        slice(1),
      color = "white",
      size = 3,
      show.legend = FALSE
    ) +
-   #facet_grid(~ exposition) +
    coord_fixed() +
    scale_color_manual(
      labels = c(
-       "R22-reference" = "R22-ref:\nHay meadow reference",
-       "R1A-reference" = "R1A-ref:\nDry grassland reference",
-       "R22" = "R22: Hay meadow",
-       "R1A" = "R1A: Dry grassland",
-       "R" = "R: General grassland",
+       "R22" = "R22:\nHay meadow",
+       "R1A" = "R1A:\nSemi-dry grassland",
+       "R" = "R:\nGeneral grassland",
        "V38" = "V38:\nDry anthropogenic\nvegetation",
-       "no" = "no classification"
+       "?" = "No classification"
      ),
      values = c(
-       "R22-reference" = "#00BFC4",
-       "R1A-reference" = "#F8766D",
        "R22" = "#00BFC4",
        "R1A" = "#F8766D",
        "R" = "grey30",
        "V38" = "#C77CFF",
-       "no" = "grey90"
+       "?" = "grey90"
        )
      ) +
    scale_fill_manual(
      values = alpha(c(
-       #"R22-reference" = "#00BFC4",
-       #"R1A-reference" = "#F8766D",
        "R22" = "#00BFC4",
        "R1A" = "#F8766D",
        "R" = "grey30",
        "V38" = "#C77CFF",
-       "no" = "grey30"
+       "?" = "grey30"
      ), alpha = 0.6)
    ) +
    scale_shape_manual(
      labels = c(
-       #"R22-reference" = "R22-ref:\nHay meadow reference",
-       #"R1A-reference" = "R1A-ref:\nDry grassland reference",
-       "R22" = "R22: Hay meadow",
-       "R1A" = "R1A: Dry grassland",
-       "R" = "R: General grassland",
+       "R22" = "R22:\nHay meadow",
+       "R1A" = "R1A:\nSemi-dry grassland",
+       "R" = "R:\nGeneral grassland",
        "V38" = "V38:\nDry anthropogenic\nvegetation",
-       "no" = "no classification"
+       "?" = "No classification"
      ),
      values = c(
-       #"R22-reference" = 1,
-       #"R1A-reference" = 1,
        "R22" = 16,
        "R1A" = 16,
        "R" = 3,
        "V38" = 15,
-       "no" = 4
+       "?" = 4
      )
    ) +
    scale_linetype_manual(values = c(1, 1, 1, 1, 1, 1, 1)) +
