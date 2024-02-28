@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<eml:eml xmlns:eml="https://eml.ecoinformatics.org/eml-2.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.2" packageId="d5c44bad-f364-4483-b208-ff61063336f6" system="uuid" xsi:schemaLocation="https://eml.ecoinformatics.org/eml-2.2.0 https://eml.ecoinformatics.org/eml-2.2.0/eml.xsd">
+<eml:eml xmlns:eml="https://eml.ecoinformatics.org/eml-2.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.2" packageId="b1587064-18f1-49ab-947e-a74ef8f1d5f7" system="uuid" xsi:schemaLocation="https://eml.ecoinformatics.org/eml-2.2.0 https://eml.ecoinformatics.org/eml-2.2.0/eml.xsd">
   <dataset>
+    <abstract>The data contains vegetation surveys on dike grasslands 4–19 years\n
+after restoration at River Danube in SE Germany over five years\n
+(2017–2021, 41 plots in 12 sites, 25 qm per plot).\n
+The data includes also landscape factors and local soil characteristics and\n
+histoical factors.\n
+We calculated beta-diversity indices to describe spatial variation and\n
+temporal turnover, including their additive components ‘replacement’\n
+and ‘nestedness’, or ‘gains’ and ‘losses’.</abstract>
     <additonalMetadata>
       <metadata>
         <unit_list>
@@ -17,11 +25,11 @@
     <associated_party>
       <electronicMailAddress>jakob.huber@posteo.de</electronicMailAddress>
       <individualName>
-        <givenName>Jakob</givenName>
+        <givenName>Jakob K.</givenName>
         <surName>Huber</surName>
       </individualName>
       <organizationName>Technical University of Munich</organizationName>
-      <role>Researcher</role>
+      <positionName>Researcher</positionName>
     </associated_party>
     <associated_party>
       <address>
@@ -38,7 +46,7 @@
       </individualName>
       <organizationName>Technical University of Munich</organizationName>
       <phone>0049-8161-714144</phone>
-      <role>Professor</role>
+      <positionName>Professor</positionName>
     </associated_party>
     <contact>
       <individualName>
@@ -54,6 +62,7 @@
         <country>Germany</country>
       </address>
       <electronicMailAddress>markusbauer@mailbox.org</electronicMailAddress>
+      <onlineUrl>https://www3.ls.tum.de/roek/mitarbeiter-in/prof-dr-johannes-kollmann/</onlineUrl>
     </contact>
     <coverage>
       <geographicCoverage>
@@ -104,23 +113,32 @@
       <phone>0049-152-56391781</phone>
       <electronicMailAddress>markusbauer@mailbox.org</electronicMailAddress>
     </creator>
-    <intellectual_rights>CC-BY-4.0: https://creativecommons.org/licenses/by/4.0/deed.en</intellectual_rights>
-    <keyword_set>
-      <keyword>rivers</keyword>
-      <keyword>vegetation dynamics</keyword>
+    <intellectualRights>CC-BY-4.0: https://creativecommons.org/licenses/by/4.0/deed.en</intellectualRights>
+    <keywordSet>
+      <keyword>grasslands</keyword>
+      <keyword>meadows</keyword>
+      <keyword>monitoring</keyword>
+      <keyword>permanent plots</keyword>
+      <keyword>plant communities</keyword>
       <keyword>restoration</keyword>
+      <keyword>rivers</keyword>
+      <keyword>soil samples</keyword>
+      <keyword>spatial properties</keyword>
+      <keyword>species composition</keyword>
+      <keyword>temporal properties</keyword>
+      <keyword>vegetation dynamics</keyword>
       <keywordThesaurus>LTER controlled vocabulary</keywordThesaurus>
-    </keyword_set>
-    <keyword_set>
+    </keywordSet>
+    <keywordSet>
       <keyword>beta diversity</keyword>
       <keyword>temperate grassland</keyword>
       <keyword>dike</keyword>
       <keywordThesaurus>own vocabulary</keywordThesaurus>
-    </keyword_set>
+    </keywordSet>
     <language>English</language>
-    <pub_date>2022</pub_date>
-    <referencePublication>Bauer et al. (under review)</referencePublication>
-    <shortName>Survey of old danube dikes</shortName>
+    <pubDate>2022</pubDate>
+    <referencePublication>Bauer et al. (2024) Submitted</referencePublication>
+    <shortName>Monitoring of old danube dikes</shortName>
     <title>Beta diversity of restored river dike grasslands is strongly influenced by uncontrolled  spatio-temporal variability</title>
   </dataset>
 </eml:eml>
