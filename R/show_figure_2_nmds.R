@@ -18,7 +18,7 @@ library(tidyverse)
 library(vegan)
 
 ### Start ###
-rm(list = ls())
+rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
 
 ### Functions ###
 theme_mb <- function() {
@@ -138,7 +138,7 @@ for (group in levels(data_nmds$group_type)) {
 
 }
 
-#### * Plot ####
+#### * Site scores ####
 
 (graph_a <- ggplot() +
    geom_point(
@@ -146,6 +146,9 @@ for (group in levels(data_nmds$group_type)) {
      data = data_nmds,
      cex = 2
    ) +
+   
+   #### * Ellipses ####
+   
    geom_path(
      aes(x = NMDS1, y = NMDS2, linetype = group_type, color = group_type),
      data = data_ellipses %>% filter(group_type != "?"),
@@ -187,12 +190,23 @@ for (group in levels(data_nmds$group_type)) {
      nudge_x = .1,
      min.segment.length = Inf
    ) +
+   
+   #### * Envfit variables ####
+   
    geom_segment(
-     data = data_envfit,
+     data = data_envfit %>% filter(variable != "Survey year"),
      aes(x = 0, xend = NMDS1, y = 0, yend = NMDS2),
      arrow = arrow(length = unit(0.25, "cm"), type = "closed"),
      color = "black",
      linewidth = 1
+   ) +
+   geom_segment(
+     data = data_envfit %>% filter(variable == "Survey year"),
+     aes(x = 0, xend = NMDS1, y = 0, yend = NMDS2),
+     arrow = arrow(length = unit(0.25, "cm"), type = "closed"),
+     color = "black",
+     linewidth = .8,
+     linetype = "dotted"
    ) +
    geom_label(
      aes(x = mean1, y = mean2, label = group_type, fill = group_type),
@@ -205,6 +219,9 @@ for (group in levels(data_nmds$group_type)) {
      show.legend = FALSE
    ) +
    coord_fixed() +
+   
+   #### * Design ####
+ 
    scale_color_manual(
      labels = c(
        "R22" = "R22:\nHay meadow",
@@ -252,7 +269,13 @@ for (group in levels(data_nmds$group_type)) {
    theme(legend.key.height = unit(.9, "cm")))
 
 
-### Save ###
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# C Save ######################################################################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
 ggsave(
   here("outputs", "figures", "figure_2_800dpi_16.5x11cm.tiff"),
   dpi = 800, width = 16.5, height = 11, units = "cm"
