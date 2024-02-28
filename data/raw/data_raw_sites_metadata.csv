@@ -7,7 +7,7 @@ longitude,Coordinates X / Rechtswert (EPSG: 31468 / GK4),NA,NA,meter,integer,num
 river_km,Ifficial km of river Danube taken from the BayernAtlas.de,NA,NA,kilometer,integer,numeric,NA,NA
 river_distance,Orthogonal distance to center of the river bed of River Danube,NA,NA,meter,real,numeric,NA,NA
 orientation,Is the plot on the slope oriented to the water or to the land?,NA,NA,NA,NA,factor,water / land,NA
-exposition,Exposition of the plots,NA,NA,NA,NA,factor,north / south / east / west,NA
+exposition,Slope aspect of the plots,NA,NA,NA,NA,factor,north / south / east / west,NA
 construction_year,Year in which the dike was constructed and seeded,YYYY,NA,NA,NA,Date,NA,NA
 survey_date.2017,Date of the first vegetation survey 2017,YYYY-mm-dd,NA,NA,NA,Date,NA,NA
 survey_date.2018,Date of the second vegetation survey 2018,YYYY-mm-dd,NA,NA,NA,Date,NA,NA

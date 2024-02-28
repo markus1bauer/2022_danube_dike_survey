@@ -4,7 +4,7 @@ block,Serial numer of a pair of plots (water and landside),NA,serial numer of a 
 comparison,Which years are compared with each other for calculating the temporal beta-diversity index (TBI)?,NA,NA,NA,NA,factor,1718 / 1819 / 1921 / 1719 / 1721,NA
 pool,All species used or only the subset of Ellenberg target species,NA,NA,NA,NA,factor,all / target,NA
 presabu,Presence-absensce or abundance data,NA,NA,NA,NA,factor,presence / abundance,NA
-exposition,Exposition of the plots,NA,NA,NA,NA,factor,north / south,NA
+exposition,Slope aspect of the plots,NA,NA,NA,NA,factor,north / south,NA
 orientation,Is the plot on the slope oriented to the water or to the land?,NA,NA,NA,NA,factor,water / land,NA
 pc1_soil,Principal component 1 of 13 soil parameter see outputs/statistics/pca_soil.csv,NA,NA,dimensionless,real,numeric,NA,NA
 pc2_soil,Principal component 2 of 13 soil parameter see outputs/statistics/pca_soil.csv,NA,NA,dimensionless,real,numeric,NA,NA
