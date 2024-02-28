@@ -19,7 +19,6 @@ library(ggbeeswarm)
 
 ### Start ###
 rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
-setwd(here("data", "processed"))
 
 ### Functions ###
 theme_mb <- function() {
@@ -40,18 +39,18 @@ theme_mb <- function() {
 }
 
 ### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv",
-                  col_names = TRUE,
-                  na = c("", "na", "NA"), col_types =
-                    cols(
-                      .default = "?",
-                      plot = "f",
-                      block = "f",
-                      comparison = "f",
-                      exposition = "f",
-                      orientation = "f",
-                      location_construction_year = "f"
-                    )) %>%
+sites <- read_csv(
+  here("data", "processed", "data_processed_sites_temporal.csv"),
+  col_names = TRUE, na = c("", "na", "NA"), col_types = cols(
+    .default = "?",
+    plot = "f",
+    block = "f",
+    comparison = "f",
+    exposition = "f",
+    orientation = "f",
+    location_construction_year = "f"
+  )
+) %>%
   filter(
     (comparison == "1718" | comparison == "1819" | comparison == "1921") &
       pool == "target" & presabu == "presence") %>%
@@ -80,25 +79,32 @@ m@call
 
 
 
-data_model <- ggeffect(m5, type = "emm", c("comparison"),
-                       back.transform = TRUE) %>%
+data_model <- ggeffect(
+  m5, type = "emm", c("comparison"), back.transform = TRUE
+) %>%
   mutate(
     predicted = exp(predicted),
     conf.low = exp(conf.low),
     conf.high = exp(conf.high),
     cross = if_else(x %in% c("1819"), "filled", "open"),
-    x = fct_recode(x,
-                   "2017 vs 2018" = "1718",
-                   "2018 vs 2019" = "1819",
-                   "2019 vs 2021" = "1921")
+    x = fct_recode(
+      x,
+      "2017 vs 2018" = "1718",
+      "2018 vs 2019" = "1819",
+      "2019 vs 2021" = "1921"
+    )
   )
 
 data <- sites %>%
   rename(predicted = y, x = comparison) %>%
-  mutate(x = fct_recode(x,
-                        "2017 vs 2018" = "1718",
-                        "2018 vs 2019" = "1819",
-                        "2019 vs 2021" = "1921"))
+  mutate(
+    x = fct_recode(
+      x,
+      "2017 vs 2018" = "1718",
+      "2018 vs 2019" = "1819",
+      "2019 vs 2021" = "1921"
+    )
+  )
 
 (graph_a <- ggplot() +
     geom_quasirandom(
@@ -127,10 +133,15 @@ data <- sites %>%
     ) +
     scale_y_continuous(limits = c(0, .83), breaks = seq(-100, 400, .1)) +
     scale_shape_manual(values = c("circle", "circle open")) +
-    labs(x = "", y = expression(Temporal ~ "beta" ~ diversity ~ "[" *
-                                  italic("D")[sor] * "]")) +
+    labs(
+      x = "", y = expression(
+        Temporal ~ "beta" ~ diversity ~ "[" * italic("D")[sor] * "]"
+        )
+      ) +
     theme_mb())
 
 ### Save ###
-ggsave(here("outputs", "figures", "figure_a10a_800dpi_8x8cm.tiff"),
-       dpi = 800, width = 8, height = 8, units = "cm")
+# ggsave(
+#   here("outputs", "figures", "figure_a10a_800dpi_8x8cm.tiff"),
+#   dpi = 800, width = 8, height = 8, units = "cm"
+# )

@@ -1,5 +1,6 @@
 # Beta diversity on dike grasslands
 # Plot Fig A9 ####
+
 # Markus Bauer
 # 2023-01-17
 
@@ -20,7 +21,6 @@ library(ggbeeswarm)
 
 ### Start ###
 rm(list = ls())
-setwd(here("data", "processed"))
 
 ### Functions ###
 theme_mb <- function() {
@@ -40,10 +40,9 @@ theme_mb <- function() {
 }
 
 ### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv",
-  col_names = TRUE,
-  na = c("", "na", "NA"), col_types =
-    cols(
+sites <- read_csv(
+  here("data", "processed", "data_processed_sites_temporal.csv"),
+  col_names = TRUE, na = c("", "na", "NA"), col_types = cols(
       .default = "?",
       plot = "f",
       block = "f",
@@ -92,18 +91,24 @@ data_model <- ggeffect(m, type = "emm", c("comparison"),
     predicted = exp(predicted),
     conf.low = exp(conf.low),
     conf.high = exp(conf.high),
-    x = fct_recode(x,
-                   "2017 vs 2018" = "1718",
-                   "2017 vs 2019" = "1719",
-                   "2017 vs 2021" = "1721")
+    x = fct_recode(
+      x,
+      "2017 vs 2018" = "1718",
+      "2017 vs 2019" = "1719",
+      "2017 vs 2021" = "1721"
+    )
   )
 
 data <- sites %>%
   rename(predicted = y, x = comparison) %>%
-  mutate(x = fct_recode(x,
-                        "2017 vs 2018" = "1718",
-                        "2017 vs 2019" = "1719",
-                        "2017 vs 2021" = "1721"))
+  mutate(
+    x = fct_recode(
+      x,
+      "2017 vs 2018" = "1718",
+      "2017 vs 2019" = "1719",
+      "2017 vs 2021" = "1721"
+    )
+  )
 
 (graph_a <- ggplot(
   data = data,
@@ -139,5 +144,7 @@ data <- sites %>%
     theme_mb())
 
 ### Save ###
-ggsave(here("outputs", "figures", "figure_a9_800dpi_8x8cm.tiff"),
-  dpi = 800, width = 8, height = 8, units = "cm")
+# ggsave(
+#   here("outputs", "figures", "figure_a9_800dpi_8x8cm.tiff"),
+#   dpi = 800, width = 8, height = 8, units = "cm"
+#   )

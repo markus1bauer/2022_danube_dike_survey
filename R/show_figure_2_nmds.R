@@ -276,7 +276,7 @@ for (group in levels(data_nmds$group_type)) {
 
 
 
-ggsave(
-  here("outputs", "figures", "figure_2_800dpi_16.5x11cm.tiff"),
-  dpi = 800, width = 16.5, height = 11, units = "cm"
-)
+# ggsave(
+#   here("outputs", "figures", "figure_2_800dpi_16.5x11cm.tiff"),
+#   dpi = 800, width = 16.5, height = 11, units = "cm"
+# )

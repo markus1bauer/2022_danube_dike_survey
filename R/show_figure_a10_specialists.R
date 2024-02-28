@@ -1,5 +1,6 @@
 # Beta diversity on dike grasslands
 # Plot Fig A10 complete ####
+
 # Markus Bauer
 # 2023-01-17
 
@@ -36,7 +37,7 @@ rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
   theme(plot.tag = element_text(size = 10, face = "bold"))
 
 ### Save ###
-ggsave(
-  here("outputs", "figures", "figure_a10_800dpi_17x17cm.tiff"),
-  dpi = 800, width = 17, height = 17, units = "cm"
-)
+# ggsave(
+#   here("outputs", "figures", "figure_a10_800dpi_17x17cm.tiff"),
+#   dpi = 800, width = 17, height = 17, units = "cm"
+# )

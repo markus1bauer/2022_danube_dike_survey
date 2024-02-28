@@ -78,9 +78,7 @@ layer_rivers <- st_read(
 
 ### c Load background ----------------------------------------------------------
 
-load(here("data", "processed", "spatial", "background_toner.rda"))
 load(here("data", "processed", "spatial", "background_terrain.rda"))
-load(here("data", "processed", "spatial", "background_google.rda"))
 
 
 
@@ -124,17 +122,12 @@ theme_mb <- function() {
   geom_point(size = 2, color = "black", pch = 15) +
   geom_text_repel(
     data = locations,
-    aes(
-      label = construction_year,
-      x = longitude_center,
-      y = latitude_center
-    ),
+    aes(label = construction_year, x = longitude_center, y = latitude_center),
     min.segment.length = 0
   ) +
   scale_x_continuous(breaks = seq(10, 15, 0.1)) +
   scale_y_continuous(breaks = seq(48, 50, 0.1)) +
   coord_sf(crs = st_crs(4326)) +
-  # scale_fill_brewer(palette = "Greens", type = "seq", direction = 1, na.value = "grey", name = "Class of P") +
   ggspatial::annotation_scale(
     width_hint = 0.4,
     height = unit(0.2, "cm"),
@@ -245,11 +238,11 @@ graph_sites + inset_element(graph_germany,
 
 ### c Save --------------------------------------------------------------
 
-ggsave(
-  "figure_1_map_ggplot_300dpi_17x11cm.tiff",
-  dpi = 300, width = 17, height = 11, units = "cm",
-  path = here("outputs", "figures")
-)
+# ggsave(
+#   "figure_1_map_ggplot_300dpi_17x11cm.tiff",
+#   dpi = 300, width = 17, height = 11, units = "cm",
+#   path = here("outputs", "figures")
+# )
 
 
 
@@ -263,17 +256,17 @@ tmap_mode("plot")
 # tm_fill(col = "grey40") +
 # tm_shape(conservation_area) +
 # tm_fill(col = "grey60") +
-tmap <- tm_shape(danube) +
+tmap <- tm_shape(layer_danube) +
   tm_lines(col = "grey40") +
   tm_text("river", ymod = 1.2) +
-  tm_shape(dikes) +
+  tm_shape(layer_dikes) +
   tm_lines() +
-  tm_shape(sites) +
+  tm_shape(layer_sites) +
   tm_dots(col = "red", size = .2, shape = 16) +
   tm_compass(position = c("left", "bottom"), size = 2) +
   tm_scale_bar(position = c("left", "bottom", with = 0.4)) +
   tm_layout(frame = FALSE)
-tmap_ger <- tm_shape(germany) +
+tmap_ger <- tm_shape(layer_germany) +
   tm_borders(col = "black") +
   tm_layout(frame = FALSE)
 

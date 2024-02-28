@@ -20,7 +20,6 @@ library(ggbeeswarm)
 
 ### Start ###
 rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
-setwd(here("data", "processed"))
 
 ### Functions ###
 theme_mb <- function() {
@@ -43,19 +42,19 @@ theme_mb <- function() {
 }
 
 ### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv",
-                  col_names = TRUE, na = c("", "na", "NA"),
-                  col_types =
-                    cols(
-                      .default = "?",
-                      plot = "f",
-                      block = "f",
-                      comparison = "f",
-                      location = "f",
-                      location_construction_year = "f",
-                      exposition = col_factor(levels = c("south", "north")),
-                      orientation = col_factor(levels = c("land", "water"))
-                    )) %>%
+sites <- read_csv(
+  here("data", "processed", "data_processed_sites_temporal.csv"),
+  col_names = TRUE, na = c("", "na", "NA"), col_types = cols(
+      .default = "?",
+      plot = "f",
+      block = "f",
+      comparison = "f",
+      location = "f",
+      location_construction_year = "f",
+      exposition = col_factor(levels = c("south", "north")),
+      orientation = col_factor(levels = c("land", "water"))
+    )
+) %>%
   filter(
     (comparison == "1718" | comparison == "1819" | comparison == "1921") &
       pool == "all" & presabu == "presence") %>%
@@ -84,15 +83,19 @@ m@call
 
 
 
-data_model <- ggeffect(m, type = "emm", c("comparison", "exposition"),
-                       back.transform = TRUE) %>%
+data_model <- ggeffect(
+  m, type = "emm", c("comparison", "exposition"), back.transform = TRUE
+) %>%
   mutate(
-    cross = if_else(x %in% c("1718", "1921") & group == "north",
-                    "open", "filled"),
-    x = fct_recode(x,
-                   "2017 vs 2018" = "1718",
-                   "2018 vs 2019" = "1819",
-                   "2019 vs 2021" = "1921"),
+    cross = if_else(
+      x %in% c("1718", "1921") & group == "north", "open", "filled"
+    ),
+    x = fct_recode(
+      x,
+      "2017 vs 2018" = "1718",
+      "2018 vs 2019" = "1819",
+      "2019 vs 2021" = "1921"
+    ),
     group = fct_recode(group, "North" = "north", "South" = "south")
   )
 
@@ -100,43 +103,46 @@ data_model <- ggeffect(m, type = "emm", c("comparison", "exposition"),
 data <- sites %>%
   rename(predicted = y, x = comparison, group = exposition) %>%
   mutate(
-    x = fct_recode(x,
-                   "2017 vs 2018" = "1718",
-                   "2018 vs 2019" = "1819",
-                   "2019 vs 2021" = "1921"),
+    x = fct_recode(
+      x,
+      "2017 vs 2018" = "1718",
+      "2018 vs 2019" = "1819",
+      "2019 vs 2021" = "1921"
+    ),
     group = fct_recode(group, "North" = "north", "South" = "south")
   )
 
 
 (graph_c <- ggplot() +
-    geom_hline(
-      yintercept = 0, linetype = 2,  color = "grey70"
-      ) +
+    geom_hline(yintercept = 0, linetype = 2,  color = "grey70") +
     geom_quasirandom(
-      data = data,
       aes(x = x, y = predicted),
-      dodge.width = .6, size = 1, shape = 16, color = "grey70"
+      data = data, dodge.width = .6, size = 1, shape = 16, color = "grey70"
     ) +
     geom_errorbar(
-      data = data_model,
       aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high),
-      width = 0.0, size = 0.4
+      data = data_model, width = 0.0, size = 0.4
     ) +
     geom_point(
-      data = data_model,
       aes(x = x, y = predicted, shape = cross),
-      size = 2
+      data = data_model, size = 2
     ) +
     facet_wrap(~group) +
     scale_y_continuous(limits = c(-.6, .5), breaks = seq(-1, 400, .2)) +
     scale_shape_manual(values = c("circle", "circle open")) +
     guides(shape = "none") +
-    labs(x = "", shape = "", color = "", group = "",
-         y = expression(Gains ~ -~Losses ~
-                          "[" * italic("C")[sor] - italic("B")[sor] * "]")) +
+    labs(
+      x = "", shape = "", color = "", group = "",
+      y = expression(
+        Gains ~ -~Losses ~ "[" * italic("C")[sor] - italic("B")[sor] * "]"
+        )
+    ) +
     theme_mb())
 
 ### Save ###
-ggsave(here("outputs", "figures",
-            "figure_4c_comparison_exposition_800dpi_8x8cm.tiff"),
-  dpi = 800, width = 8, height = 8, units = "cm")
+# ggsave(
+#   here(
+#     "outputs", "figures", "figure_4c_comparison_exposition_800dpi_8x8cm.tiff"
+#     ),
+#   dpi = 800, width = 8, height = 8, units = "cm"
+#   )

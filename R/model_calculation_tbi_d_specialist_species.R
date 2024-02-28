@@ -1,5 +1,6 @@
 # Beta diversity on dike grasslands
 # Temporal beta-diversity index (TBI) - Specialist species ####
+
 # Markus Bauer
 # 2023-01-16
 
@@ -25,19 +26,20 @@ rm(list = ls())
 setwd(here("data", "processed"))
 
 ### Load data ###
-sites <- read_csv(here("data", "processed", "data_processed_sites_temporal.csv"),
-                  col_names = TRUE, na = c("", "na", "NA"),
-                  col_types =
-                    cols(
-                      .default = "?",
-                      plot = "f",
-                      block = "f",
-                      comparison = "f",
-                      location = "f",
-                      location_construction_year = "f",
-                      exposition = col_factor(levels = c("south", "north")),
-                      orientation = col_factor(levels = c("land", "water"))
-                    )) %>%
+sites <- read_csv(
+  here("data", "processed", "data_processed_sites_temporal.csv"),
+  col_names = TRUE, na = c("", "na", "NA"), col_types =
+    cols(
+      .default = "?",
+      plot = "f",
+      block = "f",
+      comparison = "f",
+      location = "f",
+      location_construction_year = "f",
+      exposition = col_factor(levels = c("south", "north")),
+      orientation = col_factor(levels = c("land", "water"))
+    )
+) %>%
   filter(
     (comparison == "1718" | comparison == "1819" | comparison == "1921") &
       pool == "target" & presabu == "presence"
@@ -149,9 +151,7 @@ plot4 <- ggplot(sites, aes(x = log(y))) +
 
 sites %>%
   select(where(is.numeric), -b, -c, -d, -y, -ends_with("scaled")) %>%
-  GGally::ggpairs(
-    lower = list(continuous = "smooth_loess")
-  ) +
+  GGally::ggpairs(lower = list(continuous = "smooth_loess")) +
   theme(strip.text = element_text(size = 7))
 sites <- sites %>%
   select(-biotope_area)
@@ -166,10 +166,12 @@ sites <- sites %>%
 
 ### a Random structure ---------------------------------------------------------
 
-m1a <- blmer(y ~ 1 + (1 | location_construction_year),
-             data = sites, REML = TRUE)
-m1b <- blmer(y ~ 1 + (1 | location_construction_year / plot),
-             data = sites, REML = TRUE)
+m1a <- blmer(
+  y ~ 1 + (1 | location_construction_year), data = sites, REML = TRUE
+)
+m1b <- blmer(
+  y ~ 1 + (1 | location_construction_year / plot), data = sites, REML = TRUE
+)
 m1c <- blmer(y ~ 1 + (1 | plot), data = sites, REML = TRUE)
 MuMIn::AICc(m1a, m1b, m1c) %>%
   arrange(AICc)
@@ -236,6 +238,6 @@ simulateResiduals(m5, plot = TRUE)
 
 ### c Save ---------------------------------------------------------------------
 
-save(m1, file = here("outputs", "models", "model_tbi_d_specialist_1.Rdata"))
-save(m3, file = here("outputs", "models", "model_tbi_d_specialist_3.Rdata"))
-save(m5, file = here("outputs", "models", "model_tbi_d_specialist_5.Rdata"))
+# save(m1, file = here("outputs", "models", "model_tbi_d_specialist_1.Rdata"))
+# save(m3, file = here("outputs", "models", "model_tbi_d_specialist_3.Rdata"))
+# save(m5, file = here("outputs", "models", "model_tbi_d_specialist_5.Rdata"))

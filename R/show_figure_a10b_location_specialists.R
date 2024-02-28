@@ -1,5 +1,6 @@
 # Beta diversity on dike grasslands
 # Plot Fig A10B ####
+
 # Markus Bauer
 # 2023-01-17
 
@@ -20,7 +21,6 @@ library(ggbeeswarm)
 
 ### Start ###
 rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
-setwd(here("data", "processed"))
 
 ###  Functions ###
 theme_mb <- function() {
@@ -43,18 +43,18 @@ theme_mb <- function() {
 }
 
 ### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv",
-                  col_names = TRUE,
-                  na = c("", "na", "NA"), col_types =
-                    cols(
-                      .default = "?",
-                      plot = "f",
-                      block = "f",
-                      comparison = "f",
-                      exposition = "f",
-                      orientation = "f",
-                      location_construction_year = "f"
-                    )) %>%
+sites <- read_csv(
+  here("data", "processed", "data_processed_sites_temporal.csv"),
+  col_names = TRUE, na = c("", "na", "NA"), col_types = cols(
+    .default = "?",
+    plot = "f",
+    block = "f",
+    comparison = "f",
+    exposition = "f",
+    orientation = "f",
+    location_construction_year = "f"
+  )
+) %>%
   filter(
     (comparison == "1718" | comparison == "1819" | comparison == "1921") &
       pool == "target" & presabu == "presence") %>%
@@ -81,9 +81,11 @@ sites <- read_csv("data_processed_sites_temporal.csv",
 
 (graph_b <- ggplot() +
    geom_hline(
-     yintercept = c(mean(sites$y),
-                    mean(sites$y) + 0.5 * sd(sites$y),
-                    mean(sites$y) - 0.5 * sd(sites$y)),
+     yintercept = c(
+       mean(sites$y),
+       mean(sites$y) + 0.5 * sd(sites$y),
+       mean(sites$y) - 0.5 * sd(sites$y)
+     ),
      linetype = c(1, 2, 2),
      color = "grey70"
    ) +
@@ -100,13 +102,20 @@ sites <- read_csv("data_processed_sites_temporal.csv",
    ) +
    scale_y_continuous(limits = c(0, .83), breaks = seq(0, 400, .1)) +
    scale_shape_manual(values = c("circle", "circle open")) +
-   labs(x = "", y = expression(Temporal ~ "beta" ~ diversity ~
-                                 "[" * italic("D")[sor] * "]")) +
+   labs(
+     x = "", y = expression(
+       Temporal ~ "beta" ~ diversity ~ "[" * italic("D")[sor] * "]"
+     )
+   ) +
    theme_mb() +
-   theme(axis.text.x = element_blank(),
-         axis.ticks.x = element_blank(),
-         axis.line.x = element_blank()))
+   theme(
+     axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+     axis.line.x = element_blank()
+     )
+   )
 
 ### Save ###
-ggsave(here("outputs", "figures", "figure_a10b_800dpi_8x8cm.tiff"),
-       dpi = 800, width = 8, height = 8, units = "cm")
+# ggsave(
+#   here("outputs", "figures", "figure_a10b_800dpi_8x8cm.tiff"),
+#   dpi = 800, width = 8, height = 8, units = "cm"
+#   )

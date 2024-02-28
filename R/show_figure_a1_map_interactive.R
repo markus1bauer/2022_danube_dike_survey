@@ -1,5 +1,6 @@
 # Beta diversity on dike grasslands
 # Figure A1 ####
+
 # Markus Bauer
 # 2022-01-11
 
@@ -24,13 +25,14 @@ library(mapview)
 
 ### Start ###
 rm(list = ls())
-setwd(here("data", "processed", "spatial"))
 
 ### Load data ###
 wms_flood <- "https://www.lfu.bayern.de/gdi/wms/wasser/ueberschwemmungsgebiete?"
-sites <- st_read("sites_epsg4326.shp")
-ffh_area <- st_read("ffh_area_epsg4326.shp")
-dikes <- st_read("dikes_epsg4326.shp")
+sites <- st_read(here("data", "processed", "spatial", "sites_epsg4326.shp"))
+ffh_area <- st_read(
+  here("data", "processed", "spatial", "ffh_area_epsg4326.shp")
+  )
+dikes <- st_read(here("data", "processed", "spatial", "dikes_epsg4326.shp"))
 
 ### Map ###
 (map <- sites %>%

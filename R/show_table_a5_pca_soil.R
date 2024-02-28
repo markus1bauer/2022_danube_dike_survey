@@ -1,5 +1,6 @@
 # Beta diversity on dike grasslands
 # Table A5 ####
+
 # Markus Bauer
 # 2022-09-08
 
@@ -18,66 +19,68 @@ library(gt)
 
 ### Start ###
 rm(list = ls())
-setwd(here("outputs", "statistics"))
 
 ### Load data ###
-data <- read_csv("pca_soil.csv",
-                 col_names = TRUE,
-                 na = c("na", "NA", " "), col_types =
-                   cols(
-                     .default = "?"
-                   )) %>%
+data <- read_csv(
+  here("outputs", "statistics", "pca_soil.csv"),
+  col_names = TRUE, na = c("na", "NA", " "), col_types = cols(.default = "?")
+) %>%
   select(-PC4) %>%
-  mutate(across(where(is.numeric), ~ round(., digits = 2)),
-         variables = fct_relevel(
-           variables, c(
-           "ph",
-           "topsoil_depth",
-           "clay",
-           "silt",
-           "sand",
-           "calciumcarbonat",
-           "humus",
-           "cn_ratio",
-           "n_total_ratio",
-           "n_total_concentration",
-           "phosphorus",
-           "potassium",
-           "magnesium"
-         )),
-         variables = fct_recode(
-           variables,
-           "pH" = "ph",
-           "Topsoil depth" = "topsoil_depth",
-           "Clay" = "clay",
-           "Silt" = "silt",
-           "Sand" = "sand",
-           "Humus" = "humus",
-           "CaCO3" = "calciumcarbonat",
-           "C:N ratio" = "cn_ratio",
-           "N" = "n_total_ratio",
-           "N concentration" = "n_total_concentration",
-           "P" = "phosphorus",
-           "K" = "potassium",
-           "Mg2+" = "magnesium"
-         )) %>%
+  mutate(
+    across(where(is.numeric), ~ round(., digits = 2)),
+    variables = fct_relevel(
+      variables, c(
+        "ph",
+        "topsoil_depth",
+        "clay",
+        "silt",
+        "sand",
+        "calciumcarbonat",
+        "humus",
+        "cn_ratio",
+        "n_total_ratio",
+        "n_total_concentration",
+        "phosphorus",
+        "potassium",
+        "magnesium"
+      )
+  ),
+  variables = fct_recode(
+    variables,
+    "pH" = "ph",
+    "Topsoil depth" = "topsoil_depth",
+    "Clay" = "clay",
+    "Silt" = "silt",
+    "Sand" = "sand",
+    "Humus" = "humus",
+    "CaCO3" = "calciumcarbonat",
+    "C:N ratio" = "cn_ratio",
+    "N" = "n_total_ratio",
+    "N concentration" = "n_total_concentration",
+    "P" = "phosphorus",
+    "K" = "potassium",
+    "Mg2+" = "magnesium"
+  )
+  ) %>%
   arrange(variables) %>%
-  mutate(unit = c(
-    "",
-    "cm",
-    "wt%",
-    "wt%",
-    "wt%",
-    "wt%",
-    "wt%",
-    "",
-    "wt%",
-    "kg/m²",
-    "mg/100g",
-    "mg/100g",
-    "mg/100g",
-    "", "", ""
-  )) %>%
+  mutate(
+    unit = c(
+      "",
+      "cm",
+      "wt%",
+      "wt%",
+      "wt%",
+      "wt%",
+      "wt%",
+      "",
+      "wt%",
+      "kg/m²",
+      "mg/100g",
+      "mg/100g",
+      "mg/100g",
+      "", "", ""
+    )
+  ) %>%
   relocate(variables, unit)
 
 
@@ -193,4 +196,4 @@ data <- read_csv("pca_soil.csv",
 
 
 ### Save ###
-gtsave(table, here("outputs", "tables", "table_a5_pca_soil.png"))
+# gtsave(table, here("outputs", "tables", "table_a5_pca_soil.png"))

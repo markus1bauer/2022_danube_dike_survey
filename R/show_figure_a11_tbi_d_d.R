@@ -1,5 +1,6 @@
 # Beta diversity on dike grasslands
 # Figure A11 ####
+
 # Markus Bauer
 # 2022-01-11
 
@@ -16,7 +17,6 @@ library(tidyverse)
 
 ### Start ###
 rm(list = ls())
-setwd(here("data", "processed"))
 
 ### Functions ###
 theme_mb <- function() {
@@ -36,18 +36,18 @@ theme_mb <- function() {
 }
 
 ### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv",
-  col_names = TRUE,
-  na = c("na", "NA"), col_types =
-    cols(
-      .default = "?",
-      block = "f",
-      plot = "f",
-      location_construction_year = "f",
-      exposition = "f",
-      orientation = "f",
-      comparison = "f"
-    )) %>%
+sites <- read_csv(
+  here("data", "processed", "data_processed_sites_temporal.csv"),
+  col_names = TRUE, na = c("na", "NA"), col_types = cols(
+    .default = "?",
+    block = "f",
+    plot = "f",
+    location_construction_year = "f",
+    exposition = "f",
+    orientation = "f",
+    comparison = "f"
+  )
+) %>%
   select(plot, d, comparison, presabu, pool) %>%
   filter(
     (comparison == "1718" | comparison == "1819" | comparison == "1921") &
@@ -84,5 +84,7 @@ ggplot(
   theme_mb()
 
 ### Save ###
-ggsave(here("outputs", "figures", "figure_a11_800dpi_8x8cm.tiff"),
-  dpi = 800, width = 8, height = 8, units = "cm")
+# ggsave(
+#   here("outputs", "figures", "figure_a11_800dpi_8x8cm.tiff"),
+#   dpi = 800, width = 8, height = 8, units = "cm"
+#   )

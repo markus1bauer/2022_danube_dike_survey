@@ -1,5 +1,6 @@
 # Beta diversity on dike grasslands
 # Plot Fig A10C ####
+
 # Markus Bauer
 # 2023-01-17
 
@@ -20,7 +21,6 @@ library(ggbeeswarm)
 
 ### Start ###
 rm(list = setdiff(ls(), c("graph_a", "graph_b", "graph_c", "graph_d")))
-setwd(here("data", "processed"))
 
 ### Functions ###
 theme_mb <- function() {
@@ -43,19 +43,21 @@ theme_mb <- function() {
 }
 
 ### Load data ###
-sites <- read_csv("data_processed_sites_temporal.csv",
-                  col_names = TRUE, na = c("", "na", "NA"),
-                  col_types =
-                    cols(
-                      .default = "?",
-                      plot = "f",
-                      block = "f",
-                      comparison = "f",
-                      location = "f",
-                      location_construction_year = "f",
-                      exposition = col_factor(levels = c("south", "north")),
-                      orientation = col_factor(levels = c("land", "water"))
-                    )) %>%
+sites <- read_csv(
+  here("data", "processed", "data_processed_sites_temporal.csv"),
+  col_names = TRUE, na = c("", "na", "NA"),
+  col_types =
+    cols(
+      .default = "?",
+      plot = "f",
+      block = "f",
+      comparison = "f",
+      location = "f",
+      location_construction_year = "f",
+      exposition = col_factor(levels = c("south", "north")),
+      orientation = col_factor(levels = c("land", "water"))
+    )
+) %>%
   filter(
     (comparison == "1718" | comparison == "1819" | comparison == "1921") &
       pool == "target" & presabu == "presence") %>%
@@ -84,15 +86,20 @@ m@call
 
 
 
-data_model <- ggeffect(m, type = "emm", c("comparison", "exposition"),
-                       back.transform = TRUE) %>%
+data_model <- ggeffects::ggeffect(
+  m, type = "emm", c("comparison", "exposition"), back.transform = TRUE
+) %>%
   mutate(
-    cross = if_else(x %in% c("1718", "1921") & group == "north",
-                    "open", "filled"),
-    x = fct_recode(x,
-                   "2017 vs 2018" = "1718",
-                   "2018 vs 2019" = "1819",
-                   "2019 vs 2021" = "1921"),
+    cross = if_else(
+      x %in% c("1718", "1921") & group == "north",
+      "open", "filled"
+    ),
+    x = fct_recode(
+      x,
+      "2017 vs 2018" = "1718",
+      "2018 vs 2019" = "1819",
+      "2019 vs 2021" = "1921"
+    ),
     group = fct_recode(group, "North" = "north", "South" = "south")
   )
 
@@ -100,10 +107,12 @@ data_model <- ggeffect(m, type = "emm", c("comparison", "exposition"),
 data <- sites %>%
   rename(predicted = y, x = comparison, group = exposition) %>%
   mutate(
-    x = fct_recode(x,
-                   "2017 vs 2018" = "1718",
-                   "2018 vs 2019" = "1819",
-                   "2019 vs 2021" = "1921"),
+    x = fct_recode(
+      x,
+      "2017 vs 2018" = "1718",
+      "2018 vs 2019" = "1819",
+      "2019 vs 2021" = "1921"
+    ),
     group = fct_recode(group, "North" = "north", "South" = "south")
   )
 
@@ -137,8 +146,8 @@ data <- sites %>%
     theme_mb())
 
 ### Save ###
-ggsave(
-  here("outputs", "figures",
-       "figure_a10c_comparison_exposition_800dpi_8x8cm.tiff"),
-       dpi = 800, width = 8, height = 8, units = "cm"
-  )
+# ggsave(
+#   here("outputs", "figures",
+#        "figure_a10c_comparison_exposition_800dpi_8x8cm.tiff"),
+#        dpi = 800, width = 8, height = 8, units = "cm"
+#   )

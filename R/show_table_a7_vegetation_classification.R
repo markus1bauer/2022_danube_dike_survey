@@ -1,5 +1,6 @@
 # Beta diversity on dike grasslands
 # Table A7 ####
+
 # Markus Bauer
 # 2022-09-13
 
@@ -18,23 +19,24 @@ library(gt)
 
 ### Start ###
 rm(list = ls())
-setwd(here("outputs", "statistics"))
 
 ### Load data ###
-data <- read_csv("vegetation_classification.csv",
-                 col_names = TRUE,
-                 na = c("na", "NA", " "), col_types =
-                   cols(.default = "?")) %>%
-  mutate(esy = as_factor(esy),
-         esy = fct_relevel(esy, "no class", after = 4),
-         esy = fct_relevel(esy, "R1A", after = 2),
-         across(where(is.numeric), ~ replace(., is.na(.), 0))) %>%
+data <- read_csv(
+  here("outputs", "statistics", "vegetation_classification.csv"),
+  col_names = TRUE, na = c("na", "NA", " "), col_types = cols(.default = "?")
+) %>%
+  mutate(
+    esy = as_factor(esy),
+    esy = fct_relevel(esy, "no class", after = 4),
+    esy = fct_relevel(esy, "R1A", after = 2),
+    across(where(is.numeric), ~ replace(., is.na(.), 0))
+  ) %>%
   arrange(esy)
 
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# B Plot with gt ##############################################################
+# B Plot ######################################################################
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -79,6 +81,6 @@ data <- read_csv("vegetation_classification.csv",
      ))
 
 ### Save ###
-gtsave(table, here(
-  "outputs", "tables", "table_a7_vegetation_classification.png")
-  )
+# gtsave(
+#   table, here("outputs", "tables", "table_a7_vegetation_classification.png")
+#   )
