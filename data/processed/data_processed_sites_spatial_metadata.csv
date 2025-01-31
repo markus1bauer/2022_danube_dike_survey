@@ -2,8 +2,8 @@ attributeName,attributeDefinition,formatString,definition,unit,numberType,type,f
 id,Serial number and position on the dike per year,NA,serial number and position on the dike per year,NA,NA,character,NA,NA
 plot,Serial number of the plot,NA,serial number of the plot,NA,NA,character,NA,NA
 block,Serial numer of a pair of plots (water and landside),NA,serial numer of a pair of plots (water and landside),NA,NA,character,NA,NA
-latitude,Coordinates Y / Hochwert (EPSG: 4326 / WGS84),NA,NA,meter,real,numeric,NA,NA
-longitude,Coordinates X / Rechtswert (EPSG: 4326 / WGS84),NA,NA,meter,real,numeric,NA,NA
+latitude,Coordinates Y / Hochwert (EPSG: 31468 / GK4),NA,NA,meter,real,numeric,NA,NA
+longitude,Coordinates X / Rechtswert (EPSG: 31468 / GK4),NA,NA,meter,real,numeric,NA,NA
 survey_year,Year of the vegetation survey,YYYY,NA,NA,date,numeric,NA,NA
 botanist,Person who surveyed the vegetation,NA,person who surveyed the vegetation,NA,NA,character,NA,NA
 esy,EUNIS-Esy: Expert system for automatic classification of European vegetation plots to EUNIS habitats,NA,NA,NA,NA,factor,R1A / R22 / V38 / ? / R ,"Chytrý et al. (2020) EUNIS Habitat Classification: Expert system, characteristic species combinations and distribution maps of European habitats. - Applied Vegetation Science 23, 648-675. https://doi.org/10.1111/avsc.12519"

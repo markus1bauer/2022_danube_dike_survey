@@ -36,7 +36,8 @@ register_google(key = "AIzaSyB5nQU_dgB_kPsQkk-_cq7pA0g1-2qka4E")
 ## 1 Sites ####################################################################
 
 
-sites <- read_csv(here("data", "raw", "data_raw_sites.csv"),
+sites <- read_csv(
+  here("data", "raw", "data_raw_sites.csv"),
   col_names = TRUE,
   na = "na", col_types =
     cols(
